@@ -14,6 +14,9 @@ namespace internal {
     struct _character : Parent {
         using Parent::Parent;
 
+        _character(const Parent& parent):Parent(parent){};
+        _character(Parent&& parent):Parent(std::move(parent)){};
+
         _character<Parent, typename Codecvt::intern_type> convert()
         requires (not std::is_same_v<Codecvt, void>)
         {
@@ -49,6 +52,8 @@ struct character : internal::_character<std::basic_string<CharT>, CharT, Codecvt
 template<class Codecvt>
 struct string_iterator {
     using char_type = typename Codecvt::extern_type;
+    using value_type = character_view<char_type, Codecvt>;
+
     const char_type* begin;
     const char_type* end;
 
@@ -61,11 +66,9 @@ struct string_iterator {
     string_iterator(string_iterator&&)=default;
     string_iterator(const string_iterator&)=default;
 
-    using value_type = character_view<char_type, Codecvt>;
-
     value_type operator * () {
         auto temp = begin;
-        return next_mbc<Codecvt>(temp, end);
+        return {next_mbc<Codecvt>(temp, end)};
     }
 
     auto& operator ++ () {
@@ -83,12 +86,13 @@ namespace internal {
     template<class Parent, class Codecvt>
     struct _string : protected Parent {
         using char_type = typename Codecvt::extern_type;
-        using value_type = character<char_type, Codecvt>;
+        using value_type = character_view<char_type, Codecvt>;
         using size_type = unsigned;
-
-        //Field m_str;
         using Parent::Parent;
+
         _string(const Parent& other):Parent(other) {}
+
+        _string(string_iterator<Codecvt> b, string_iterator<Codecvt> e):Parent(b.begin, e.end) {}
 
         string_iterator<Codecvt> begin() {
             return {&*(Parent::begin()), &*(Parent::end())};
@@ -108,6 +112,14 @@ namespace internal {
             size_type s = 0;
             for(auto b = begin(); b != end(); ++b, s++);
             return s;
+        }
+
+        std::basic_string_view<char_type> to_string_view() {
+            return {Parent::begin(), Parent::end()};
+        }
+
+        std::basic_string<char_type> to_string() {
+            return {Parent::begin(), Parent::end()};
         }
 
     };
