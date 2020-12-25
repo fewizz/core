@@ -62,7 +62,7 @@ template<class Codecvt, class It>
 std::basic_string_view<ext_t<Codecvt>> next_mbc(It& begin, It end) {
     int l = first_mbc_length<Codecvt>(&*begin, &*end);
     begin += l;
-    return {begin - l, end};
+    return {begin - l, begin};
 }
 
 template<class Codecvt, class It>
@@ -70,7 +70,7 @@ std::basic_string_view<ext_t<Codecvt>> next_converted_mbc(It& begin, It end) {
     int l = first_converted_length<Codecvt>(&*begin, &*end);
     begin += l;
     
-    return {begin - l, end};
+    return {begin - l, begin};
 }
 
 template<class Codecvt>
