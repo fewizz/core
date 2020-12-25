@@ -1,45 +1,67 @@
 #pragma once
 
-#include "mbc.hpp"
-#include <codecvt>
+#include "codecvt.hpp"
 #include <cwchar>
 
 namespace util {
 
-template<class CharT, class Codecvt>
-struct codecvt_encoding {
-    using char_type = CharT;
+namespace enc {
 
-    static int first_char_length(auto begin, auto end) {
-        return first_mbc_length<Codecvt>(begin, end);
-    }
-};
+namespace internal {
 
-using utf8_encoding = codecvt_encoding<char, std::codecvt_utf8<char16_t>>;
-using utf16_encoding = codecvt_encoding<char16_t, std::codecvt_utf16<char16_t>>;
+    template<class CharT, class Codecvt>
+    struct codecvt {
+        using char_type = CharT;
 
-struct ascii_encoding {
+        static int first_char_length(const char_type* begin, const char_type* end) {
+            return util::codecvt<Codecvt>::first_char_length(begin, end);
+        }
+    };
+}
+
+using utf8 = internal::codecvt<char, std::codecvt_utf8<char16_t>>;
+using utf16 = internal::codecvt<char16_t, std::codecvt_utf16<char16_t>>;
+
+struct ascii {
     using char_type = char;
 
-    static int first_char_length(auto begin, auto end) { return 1; }
+    static int first_char_length(const char_type* begin, const char_type* end) { return 1; }
 };
 
-struct usc2_encoding {
+struct usc2 {
     using char_type = char16_t;
 
-    static int first_char_length(auto begin, auto end) { return 2; }
+    static int first_char_length(const char_type* begin, const char_type* end) { return 2; }
 };
 
 template<class Internal, class External>
 struct codec;
 
-template<> struct codec<utf16_encoding, utf8_encoding>
+template<> struct codec<utf16, utf8>
 { using type = std::codecvt_utf8_utf16<char16_t>; };
-template<> struct codec<usc2_encoding, utf8_encoding>
+template<> struct codec<usc2, utf8>
 { using type = std::codecvt_utf8<char16_t>; };
-template<> struct codec<utf8_encoding, ascii_encoding>
-{ using type = std::codecvt<char, char, std::mbstate_t>; };
-template<> struct codec<ascii_encoding, ascii_encoding>
+template<> struct codec<utf8, utf8>
 { using type = util::deletable_facet<std::codecvt<char, char, std::mbstate_t>>; };
+template<> struct codec<utf8, ascii>
+{ using type = util::deletable_facet<std::codecvt<char, char, std::mbstate_t>>; };
+template<> struct codec<ascii, ascii>
+{ using type = util::deletable_facet<std::codecvt<char, char, std::mbstate_t>>; };
+
+}
+
+template<class T>
+concept encoding = requires() {
+    {T::first_char_length(nullptr, nullptr)} -> std::integral;
+};
+
+template<class T>
+struct is_encoding : std::false_type {}; 
+
+template<encoding T>
+struct is_encoding<T> : std::true_type {};
+
+template<class T>
+static constexpr bool is_encoding_v = is_encoding<T>::value;
 
 }

@@ -4,7 +4,7 @@
 #include <stdexcept>
 #include <string_view>
 #include <type_traits>
-#include "mbc.hpp"
+#include "codecvt.hpp"
 #include "encoding.hpp"
 
 namespace util {
@@ -39,23 +39,32 @@ namespace internal {
             return Parent::size();
         }
 
-        bool operator != (std::integral auto ch) {
+        bool operator != (std::integral auto ch) const {
             return this->size() != 1 || Parent::front() != ch;
         }
 
         template<class T>
-        bool operator == (const T& other) {
+        bool operator == (const T& other) const {
             return Parent::operator == (other);
         }
 
         template<class Encoding0>
-        character<Encoding0> convert() {
+        character<Encoding0> convert() const {
             return {
-                convert_mbc<typename util::codec<Encoding0, Encoding>::type>(
+                util::codecvt<typename util::enc::codec<Encoding0, Encoding>::type>::convert_in(
                     Parent::data(),
                     Parent::data() + Parent::size()
                 )
             };
+        }
+
+        std::basic_string<char_type> to_string() const {
+            return { Parent::begin(), Parent::end() };
+        }
+
+        template<class Encoding0>
+        auto to_string() const {
+            return convert <Encoding0>().to_string();
         }
     };
 }
@@ -92,11 +101,13 @@ struct string_iterator {
     begin{begin}, end{end} {}
 
     value_type operator * () const {
+        if(begin >= end) throw std::out_of_range{"passed end"};
         auto next_len = Encoding::first_char_length(begin, end);
         return {begin, begin + next_len};
     }
 
     auto& operator ++ () {
+        if(begin >= end) throw std::out_of_range{"passed end"};
         begin += Encoding::first_char_length(begin, end);
         return *this;
     }
@@ -122,12 +133,16 @@ namespace internal {
 }
 
 template<class Encoding>
-struct string;
+struct basic_string;
+
+template<class Encoding>
+struct basic_string_view;
 
 namespace internal {
     template<class Parent, class Encoding>
     struct _string : protected Parent {
         using char_type = typename Encoding::char_type;
+        using encoding_type = Encoding;
 
         using value_type = character_view<Encoding>;
         using reference = value_type&;
@@ -140,7 +155,7 @@ namespace internal {
         using Parent::Parent;
 
         _string(const auto& other) : Parent(other) {}
-        _string(auto&& other) : Parent(std::move(other)) {}
+        _string(const basic_string<Encoding>& other) : Parent(other.to_string_view()) {}
 
         _string& operator = (const auto& other) {
             Parent::operator = (other);
@@ -152,63 +167,60 @@ namespace internal {
             return *this;
         }
 
-        _string(iterator b, iterator e):Parent(b.begin, e.end) {}
+        _string(iterator b, iterator e) : Parent(b.begin, e.end) {}
 
-        iterator begin() {
+        iterator begin() const {
             return {&*(Parent::begin()), &*(Parent::end())};
         }
 
-        const_iterator cbegin() {
+        const_iterator cbegin() const {
             return begin();
         }
 
-        iterator end() {
+        iterator end() const {
             return {&*(Parent::end()), &*(Parent::end())};
         }
 
-        const_iterator cend() {
+        const_iterator cend() const {
             return end();
         }
 
-        bool operator == (const auto& other) {
+        bool operator == (const auto& other) const {
             return Parent::operator == (other);
         }
 
-        bool operator != (const auto& other) {
+        bool operator != (const auto& other) const {
             return Parent::operator != (other);
         }
 
         void swap(_string& other) {
             Parent::swap(other);
         }
-
-        /*iterator operator + (int offset) {
-            iterator b = *this;
-            for(; offset > 0; ++b, offset--);
-            return b;
-        }*/
-
         
-        value_type operator [] (unsigned offset) {
+        value_type operator [] (unsigned index) const {
             auto it = begin();
-            while(offset > 0) {
-                if(it == end()) throw std::runtime_error{"out of bounds"};
-                ++it;
-                if(it == end()) throw std::runtime_error{"out of bounds"};
-                --offset;
+            if(it != end()) {
+                while(index-- > 0) {
+                    ++it;
+                    if(it == end()) break;
+                }
+                return *it;
             }
-            return *it;
+            throw std::out_of_range{
+                "size: " + std::to_string(size()) +
+                ", requested index: " + std::to_string(index)
+            };
         }
 
-        size_type size() {
+        size_type size() const {
             size_type s = 0;
             for(auto b = begin(); b != end(); ++b, s++);
             return s;
         }
 
-        auto length() { return size(); }
+        auto length() const { return size(); }
         
-        bool empty() {
+        bool empty() const {
             return Parent::empty();
         }
 
@@ -222,38 +234,61 @@ namespace internal {
         }
 
         template<class Encoding0>
-        string<Encoding0> convert() {
+        basic_string<Encoding0> convert() const {
             return {
-                convert_mbc<typename util::codec<Encoding0, Encoding>::type>(
+                codecvt<typename util::enc::codec<Encoding0, Encoding>::type>::convert_in(
                     Parent::data(),
                     Parent::data() + Parent::size()
                 )
             };
         }
 
-        //operator std::
+        operator basic_string_view<Encoding> () requires(std::is_same_v<Parent, std::basic_string<char_type>>) {
+            return { Parent::operator std::basic_string_view<char_type>() };
+        }
 
         std::basic_string_view<char_type> to_string_view() const {
-            return {Parent::begin(), Parent::end()};
+            return { Parent::begin(), Parent::end() };
         }
 
         std::basic_string<char_type> to_string() const {
-            return {Parent::begin(), Parent::end()};
+            return { Parent::begin(), Parent::end() };
+        }
+
+        template<class Encoding0>
+        auto to_string() const {
+            return convert <Encoding0>().to_string();
         }
 
     };
 }
 
 template<class Encoding>
-struct string : internal::_string<std::basic_string<typename Encoding::char_type>, Encoding> {
+struct basic_string : internal::_string<std::basic_string<typename Encoding::char_type>, Encoding> {
     using internal::template _string<std::basic_string<typename Encoding::char_type>, Encoding>::_string;
 };
 
 template<class Encoding>
-struct string_view : internal::_string<std::basic_string_view<typename Encoding::char_type>, Encoding> {
+struct basic_string_view : internal::_string<std::basic_string_view<typename Encoding::char_type>, Encoding> {
     using internal::template _string<std::basic_string_view<typename Encoding::char_type>, Encoding>::_string;
 };
 
-}
+using utf8_string = basic_string<util::enc::utf8>;
+using utf16_string = basic_string<util::enc::utf16>;
+using ascii_string = basic_string<util::enc::ascii>;
 
+using utf8_string_view = basic_string_view<util::enc::utf8>;
+using ascii_string_view = basic_string_view<util::enc::ascii>;
+
+template<class T>
+concept string = requires {
+    typename T::encoding_type;
+} && std::is_same_v<T, util::mb::basic_string<typename T::encoding_type>>;
+
+template<class T>
+struct is_string : std::false_type {};
+template<string T>
+struct is_string<T> : std::true_type {};
+
+}
 }
