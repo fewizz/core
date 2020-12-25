@@ -3,6 +3,7 @@
 #include <codecvt>
 #include <locale>
 #include <stdexcept>
+#include <string>
 #include <string_view>
 #include <utility>
 
@@ -31,31 +32,59 @@ unsigned first_mbc_length(
 }
 
 template<class Codecvt>
-unsigned first_converted_mbc_length(
-    const ext_t<Codecvt>* from,
+unsigned converted_mbc_length(
+    const ext_t<Codecvt>* begin,
     const ext_t<Codecvt>* end
 ) {
-    int l = first_mbc_length<Codecvt>(from, end);
-
     Codecvt codec{};
     state_t<Codecvt> state{};
 
     int_t<Codecvt> temp;
     int_t<Codecvt>* temp_ptr;
 
-    const ext_t<Codecvt>* from_next;
+    unsigned result = 0;
 
-    int length = 0;
     while(true) {
-        auto result = codec.in(state, from, end, from_next, &temp, (&temp) + 1, temp_ptr);
-        length++;
+        const ext_t<Codecvt>* begin_next;
+        begin += codec.length(state, begin, end, 1);
+        result++;
 
-        int remain = end - from_next;
-
-        if(remain > 0 || result == std::codecvt_base::partial) continue;
-        if(result == std::codecvt_base::ok) return length;
-        else throw std::runtime_error{"codecvt.in"};
+        if(begin >= end) return result;
     }
+}
+
+template<class Codecvt>
+std::basic_string<int_t<Codecvt>> convert_mbc(
+    const ext_t<Codecvt>* begin,
+    const ext_t<Codecvt>* end
+) {
+    Codecvt codec{};
+
+    if(codec.always_noconv()) return {begin, end};
+
+    std::basic_string<int_t<Codecvt>> result(
+        converted_mbc_length<Codecvt>(begin, end),
+        0
+    );
+
+    state_t<Codecvt> state{};
+
+    const ext_t<Codecvt>* temp_ext;
+    int_t<Codecvt>* temp_int;
+
+    auto res = codec.in(state, begin, end, temp_ext, result.data(), result.data() + result.size(), temp_int);
+
+    if(res == std::codecvt_base::noconv) {
+        return {begin, end};
+    }
+    if(res != std::codecvt_base::ok)
+        throw std::runtime_error{
+            "convert_mbc: codec.in. result: " + std::to_string(res) +
+            ", size: "+ std::to_string(end - begin) +
+            ", result size: " + std::to_string(result.size())
+        };
+
+    return result;
 }
 
 template<class Codecvt, class It>
@@ -73,7 +102,7 @@ std::basic_string_view<ext_t<Codecvt>> next_converted_mbc(It& begin, It end) {
     return {begin - l, begin};
 }
 
-template<class Codecvt>
+/*template<class Codecvt>
 bool mbc_equals(
     const int_t<Codecvt>* in_from,
     const int_t<Codecvt>* in_end,
@@ -125,7 +154,7 @@ bool mbc_equals(
     const std::basic_string<ext_t<Codecvt>> ex
 ) {
     return mbc_equals(in.begin(), in.end(), ex.begin(), ex.end());
-}
+}*/
 
 /*template<class Codecvt>
 bool mbc_equals(
