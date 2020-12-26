@@ -14,6 +14,7 @@ int main() {
     static_assert(util::is_encoding_v<util::enc::utf8>, "not encoding");
     static_assert(util::is_input_iterator_v<util::mb::string_iterator<encoding>>, "not input iterator");
     static_assert(util::is_forward_iterator_v<util::mb::string_iterator<encoding>>, "not forward iterator");
+    static_assert(std::is_same_v<util::mb::ascii_string::char_type, char>, "");
 
     std::string str = "Привет";
 

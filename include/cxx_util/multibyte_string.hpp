@@ -32,7 +32,6 @@ namespace internal {
 
         _character(const Parent& parent) : Parent(parent){};
         _character(Parent&& parent) : Parent(std::move(parent)){};
-
         _character(char_type ch) : Parent(1, ch) {};
 
         auto data() const { return Parent::data();  }
@@ -57,11 +56,6 @@ namespace internal {
             };
         }
 
-        operator character_view<Encoding> ()
-        const requires(std::is_same_v<Parent, std::basic_string<char_type>>) {
-            return { Parent::operator std::template basic_string_view<char_type>() };
-        }
-
         std::basic_string<char_type> to_string() const {
             return { Parent::begin(), Parent::end() };
         }
@@ -80,7 +74,15 @@ struct character_view : internal::_character<std::basic_string_view<typename Enc
 
 template<class Encoding>
 struct character : internal::_character<std::basic_string<typename Encoding::char_type>, Encoding> {
-    using internal::_character<std::basic_string<typename Encoding::char_type>, Encoding>::_character;
+    using char_type = typename Encoding::char_type;
+    using string_type = std::basic_string<char_type>;
+    using base_type = internal::_character<string_type, Encoding>;
+
+    using base_type::base_type;
+
+    operator character_view<Encoding> () const {
+        return { string_type::operator std::template basic_string_view<char_type>() };
+    }
 };
 
 template<class Encoding>
@@ -124,7 +126,7 @@ struct string_iterator {
         return prev;
     }
 
-    auto operator + (std::integral auto offset) {
+    auto operator + (std::integral auto offset) const {
         auto offset0 = offset;
         auto it = begin;
 
@@ -154,7 +156,11 @@ namespace internal {
     struct _string;
 }
 
-template<class Encoding>
+template<
+    class Encoding,
+    class Traits = std::char_traits<typename Encoding::char_type>,
+    class Allocator = std::allocator<typename Encoding::char_type>
+>
 struct basic_string;
 
 template<class Encoding>
@@ -163,18 +169,20 @@ struct basic_string_view;
 namespace internal {
     template<class Parent, class Encoding>
     struct _string : protected Parent {
-        using char_type = typename Encoding::char_type;
-        using encoding_type = Encoding;
+        using traits_type      = typename Parent::traits_type;
+        using value_type       = character_view<Encoding>;
+        using size_type        = typename Parent::size_type;
+        using difference_type  = typename Parent::difference_type;
+        using pointer          = typename Parent::pointer;
+        using const_pointer    = typename Parent::const_pointer;
+        using reference        = value_type&;
+        using const_reference  = const value_type&;
+        using iterator         = string_iterator<Encoding>;
+        using const_iterator   = const string_iterator<Encoding>;
+        static const size_type npos = Parent::npos;
 
-        using value_type = character_view<Encoding>;
-        using reference = value_type&;
-        using const_reference = const value_type&;
-        using iterator = string_iterator<Encoding>;
-        using const_iterator = const string_iterator<Encoding>;
-        using difference_type = typename Parent::difference_type;
-        using size_type = typename Parent::size_type;
-
-        static constexpr size_type npos = Parent::npos;
+        using char_type        = typename Encoding::char_type;
+        using encoding_type    = Encoding;
 
         using Parent::Parent;
 
@@ -194,17 +202,23 @@ namespace internal {
 
         _string(iterator b, iterator e) : Parent(b.begin, e.begin) {}
 
-        iterator begin() const {
-            return {&*(Parent::begin()), &*(Parent::end())};
+        iterator begin() {
+            return {Parent::data(), Parent::data()+Parent::size()};
+        }
+        const_iterator begin() const {
+            return {Parent::data(), Parent::data()+Parent::size()};
+        }
+        const_iterator cbegin() const { return begin(); }
+
+        iterator end() {
+            return {Parent::data()+Parent::size(), Parent::data()+Parent::size()};
         }
 
-        const_iterator cbegin() const { return cbegin(); }
-
-        iterator end() const {
-            return {&*(Parent::end()), &*(Parent::end())};
+        const_iterator end() const {
+            return {Parent::data()+Parent::size(), Parent::data()+Parent::size()};
         }
 
-        const_iterator cend() const { return cend(); }
+        const_iterator cend() const { return end(); }
 
         int operator <=> (const auto& other) const {
             return Parent::compare(other);
@@ -252,10 +266,6 @@ namespace internal {
                     Parent::data() + Parent::size()
                 )
             };
-        }
-
-        operator basic_string_view<Encoding> () const requires(std::is_same_v<Parent, std::basic_string<char_type>>) {
-            return { Parent::operator std::basic_string_view<char_type>() };
         }
 
         std::basic_string_view<char_type> to_string_view() const {
@@ -311,9 +321,33 @@ namespace internal {
     };
 }
 
-template<class Encoding>
+template<
+    class Encoding,
+    class Traits,
+    class Allocator
+>
 struct basic_string : internal::_string<std::basic_string<typename Encoding::char_type>, Encoding> {
-    using internal::template _string<std::basic_string<typename Encoding::char_type>, Encoding>::_string;
+    using string_type = std::basic_string<typename Encoding::char_type, Traits, Allocator>;
+
+    using base_type = internal::_string<string_type, Encoding>;
+        
+    using allocator_type = typename string_type::allocator_type;
+
+    using base_type::base_type;
+
+    operator basic_string_view<Encoding> () const {
+        return {
+            string_type::operator std::basic_string_view<typename base_type::char_type>()
+        };
+    }
+};
+
+template<class Encoding>
+struct basic_string_view : internal::_string<std::basic_string_view<typename Encoding::char_type>, Encoding> {
+    using base_type = internal::_string<std::basic_string_view<typename Encoding::char_type>, Encoding>;
+    using string_view_type = std::basic_string<typename Encoding::char_type>;
+
+    using base_type::base_type;
 };
 
 template<class Encoding>
@@ -326,16 +360,12 @@ bool operator < (const basic_string_view<Encoding>& l, const auto& r) {
     return l.operator < (r);
 }
 
-template<class Encoding>
-struct basic_string_view : internal::_string<std::basic_string_view<typename Encoding::char_type>, Encoding> {
-    using internal::template _string<std::basic_string_view<typename Encoding::char_type>, Encoding>::_string;
-};
-
 using utf8_string = basic_string<util::enc::utf8>;
 using utf16_string = basic_string<util::enc::utf16>;
 using ascii_string = basic_string<util::enc::ascii>;
 
 using utf8_string_view = basic_string_view<util::enc::utf8>;
+using utf16_string_view = basic_string_view<util::enc::utf16>;
 using ascii_string_view = basic_string_view<util::enc::ascii>;
 
 template<class T>
