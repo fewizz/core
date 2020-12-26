@@ -19,8 +19,8 @@ namespace internal {
     };
 }
 
-using utf8 = internal::codecvt<char, std::codecvt_utf8<char16_t>>;
-using utf16 = internal::codecvt<char16_t, std::codecvt_utf16<char16_t>>;
+struct utf8 : internal::codecvt<char, std::codecvt_utf8<char16_t>> {};
+struct utf16 : internal::codecvt<char16_t, std::codecvt_utf16<char16_t>> {};
 
 struct ascii {
     using char_type = char;

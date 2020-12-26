@@ -1,5 +1,6 @@
 #pragma once
 
+#include <compare>
 #include <cstddef>
 #include <stdexcept>
 #include <string_view>
@@ -19,6 +20,9 @@ namespace internal {
 template<class Encoding>
 struct character;
 
+template<class Encoding>
+struct character_view;
+
 namespace internal {
 
     template<class Parent, class Encoding>
@@ -26,26 +30,21 @@ namespace internal {
         using Parent::Parent;
         using char_type = typename Encoding::char_type;
 
-        _character(const Parent& parent):Parent(parent){};
-        _character(Parent&& parent):Parent(std::move(parent)){};
+        _character(const Parent& parent) : Parent(parent){};
+        _character(Parent&& parent) : Parent(std::move(parent)){};
 
-        _character(char_type ch):Parent(1, ch) {};
+        _character(char_type ch) : Parent(1, ch) {};
 
-        auto data() const {
-            return Parent::data();
-        }
+        auto data() const { return Parent::data();  }
 
-        auto size() const {
-            return Parent::size();
+        auto size() const { return Parent::size(); }
+
+        bool operator == (std::integral auto ch) const {
+            return this->size() == 1 && Parent::front() == ch;
         }
 
         bool operator != (std::integral auto ch) const {
-            return this->size() != 1 || Parent::front() != ch;
-        }
-
-        template<class T>
-        bool operator == (const T& other) const {
-            return Parent::operator == (other);
+            return !(*this == ch);
         }
 
         template<class Encoding0>
@@ -56,6 +55,11 @@ namespace internal {
                     Parent::data() + Parent::size()
                 )
             };
+        }
+
+        operator character_view<Encoding> ()
+        const requires(std::is_same_v<Parent, std::basic_string<char_type>>) {
+            return { Parent::operator std::template basic_string_view<char_type>() };
         }
 
         std::basic_string<char_type> to_string() const {
@@ -90,15 +94,17 @@ struct string_iterator {
 
     string_iterator() {}
     string_iterator(string_iterator&& other) = default;
-    string_iterator& operator=(string_iterator&& other) = default;
+    string_iterator& operator = (string_iterator&& other) = default;
     string_iterator(const string_iterator& other) = default;
-    string_iterator& operator=(const string_iterator& other) = default;
+    string_iterator& operator = (const string_iterator& other) = default;
 
     string_iterator(
         const char_type* begin,
         const char_type* end
     ) :
-    begin{begin}, end{end} {}
+    begin{begin}, end{end} {
+        if(begin > end) throw std::out_of_range{"passed end"};
+    }
 
     value_type operator * () const {
         if(begin >= end) throw std::out_of_range{"passed end"};
@@ -118,13 +124,29 @@ struct string_iterator {
         return prev;
     }
 
-    bool operator != (const string_iterator& other) const {
-        return begin != other.begin;
+    auto operator + (std::integral auto offset) {
+        auto offset0 = offset;
+        auto it = begin;
+
+        if(it < end) {
+            while(offset-- > 0) {
+                ++it;
+                if(it == end) break;
+            }
+            return string_iterator<Encoding>{it, end};
+        }
+
+        throw std::out_of_range{
+            "requested index: " + std::to_string(offset0)
+        };
     }
 
-    bool operator == (const string_iterator& other) const {
-        return begin == other.begin;
+    auto operator <=> (const string_iterator& other) const {
+        return begin <=> other.begin;
     }
+
+    bool operator == (const string_iterator& other) const = default;
+    bool operator != (const string_iterator& other) const = default;
 };
 
 namespace internal {
@@ -152,10 +174,13 @@ namespace internal {
         using difference_type = typename Parent::difference_type;
         using size_type = typename Parent::size_type;
 
+        static constexpr size_type npos = Parent::npos;
+
         using Parent::Parent;
 
         _string(const auto& other) : Parent(other) {}
         _string(const basic_string<Encoding>& other) : Parent(other.to_string_view()) {}
+        _string(const basic_string_view<Encoding>& other) : Parent(other.to_string_view()) {}
 
         _string& operator = (const auto& other) {
             Parent::operator = (other);
@@ -167,35 +192,25 @@ namespace internal {
             return *this;
         }
 
-        _string(iterator b, iterator e) : Parent(b.begin, e.end) {}
+        _string(iterator b, iterator e) : Parent(b.begin, e.begin) {}
 
         iterator begin() const {
             return {&*(Parent::begin()), &*(Parent::end())};
         }
 
-        const_iterator cbegin() const {
-            return begin();
-        }
+        const_iterator cbegin() const { return cbegin(); }
 
         iterator end() const {
             return {&*(Parent::end()), &*(Parent::end())};
         }
 
-        const_iterator cend() const {
-            return end();
+        const_iterator cend() const { return cend(); }
+
+        int operator <=> (const auto& other) const {
+            return Parent::compare(other);
         }
 
-        bool operator == (const auto& other) const {
-            return Parent::operator == (other);
-        }
-
-        bool operator != (const auto& other) const {
-            return Parent::operator != (other);
-        }
-
-        void swap(_string& other) {
-            Parent::swap(other);
-        }
+        void swap(_string& other) { Parent::swap(other); }
         
         value_type operator [] (unsigned index) const {
             auto it = begin();
@@ -220,13 +235,9 @@ namespace internal {
 
         auto length() const { return size(); }
         
-        bool empty() const {
-            return Parent::empty();
-        }
+        bool empty() const { return Parent::empty(); }
 
-        auto data() const {
-            return Parent::data();
-        }
+        auto data() const { return Parent::data(); }
 
         auto& append(auto ch) {
             Parent::append(ch);
@@ -243,7 +254,7 @@ namespace internal {
             };
         }
 
-        operator basic_string_view<Encoding> () requires(std::is_same_v<Parent, std::basic_string<char_type>>) {
+        operator basic_string_view<Encoding> () const requires(std::is_same_v<Parent, std::basic_string<char_type>>) {
             return { Parent::operator std::basic_string_view<char_type>() };
         }
 
@@ -260,6 +271,43 @@ namespace internal {
             return convert <Encoding0>().to_string();
         }
 
+        size_type find_first_of(std::integral auto ch, size_type pos = 0) const {
+            for(auto ch0 : basic_string_view<Encoding>{begin() + pos, end()}) {
+                if(ch0 == ch) return pos;
+                pos++;
+            }
+            return npos;
+        }
+
+        size_type find(std::integral auto ch, size_type pos = 0) const {
+            return find_first_of(ch, pos);
+        }
+
+        std::strong_ordering operator <=> (const auto& other) const {
+            return operator <=> (((Parent&) *this), other);
+        }
+
+        bool operator < (const auto& other) const {
+            return to_string_view() < other;
+        }
+
+        bool operator < (const basic_string_view<Encoding>& other) const {
+            return to_string_view() < other.to_string_view();
+        }
+
+        bool operator < (const basic_string<Encoding>& other) const {
+            return to_string_view() < other.to_string_view();
+        }
+
+        basic_string_view<Encoding> substr(size_type pos = 0, size_type count = npos) const {
+            auto b = begin() + pos;
+            auto e = count == npos ? end() : b + count;
+            return {b, e};
+        }
+
+        value_type front() const {
+            return *begin();
+        }
     };
 }
 
@@ -267,6 +315,16 @@ template<class Encoding>
 struct basic_string : internal::_string<std::basic_string<typename Encoding::char_type>, Encoding> {
     using internal::template _string<std::basic_string<typename Encoding::char_type>, Encoding>::_string;
 };
+
+template<class Encoding>
+bool operator < (const basic_string<Encoding>& l, const auto& r) {
+    return l.operator < (r);
+}
+
+template<class Encoding>
+bool operator < (const basic_string_view<Encoding>& l, const auto& r) {
+    return l.operator < (r);
+}
 
 template<class Encoding>
 struct basic_string_view : internal::_string<std::basic_string_view<typename Encoding::char_type>, Encoding> {

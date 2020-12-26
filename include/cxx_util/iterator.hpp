@@ -13,10 +13,10 @@ template<class It>
 static constexpr bool is_input_iterator_v = is_input_iterator<It>::value;
 
 template<class It>
-struct is_forward_iterator : std::integral_constant<bool, false>  {};
+struct is_forward_iterator : std::false_type  {};
 
 template<std::forward_iterator It>
-struct is_forward_iterator<It> : std::integral_constant<bool, true> {};
+struct is_forward_iterator<It> : std::true_type {};
 
 template<class It>
 static constexpr bool is_forward_iterator_v = is_forward_iterator<It>::value;

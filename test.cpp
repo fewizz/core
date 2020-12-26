@@ -7,13 +7,10 @@
 #include "include/cxx_util/iterator.hpp"
 #include "include/cxx_util/encoding.hpp"
 
-using codec = std::codecvt_utf8_utf16<wchar_t>;
 using encoding = util::enc::utf8;
 
 int main() {
-    static_assert(
-        util::mb::is_string<util::mb::utf8_string>::value, "not string"
-    );
+    static_assert(util::mb::is_string<util::mb::utf8_string>::value, "not string");
     static_assert(util::is_encoding_v<util::enc::utf8>, "not encoding");
     static_assert(util::is_input_iterator_v<util::mb::string_iterator<encoding>>, "not input iterator");
     static_assert(util::is_forward_iterator_v<util::mb::string_iterator<encoding>>, "not forward iterator");
