@@ -1,13 +1,20 @@
 #pragma once
 
+#include <bits/c++config.h>
 #include <codecvt>
+#include <cwchar>
 #include <locale>
 #include <stdexcept>
 #include <string>
 #include <string_view>
 #include <utility>
-
+#include <wchar.h>
 #include "facet.hpp"
+#include <iostream>
+#include <bit>
+
+#include "utf8.hpp"
+#include "utf16.hpp"
 
 namespace util {
 
@@ -18,75 +25,56 @@ using extern_type = typename Codecvt::extern_type;
 using intern_type = typename Codecvt::intern_type;
 using state_type = typename Codecvt::state_type;
 
-static inline unsigned first_char_length(
+static inline unsigned from_external_to_internal_length(
     const extern_type* begin,
     const extern_type* end
 ) {
     Codecvt codec{};
     state_type state{};
 
-    return codec.length(state, begin, end, 1);
-}
-
-static inline unsigned converted_length(
-    const extern_type* begin,
-    const extern_type* end
-) {
-    Codecvt codec{};
-    state_type state{};
-
-    intern_type temp;
-    intern_type* temp_ptr;
+    intern_type to[0x100];
+    intern_type* to_next;
 
     unsigned result = 0;
 
     while(true) {
-        const extern_type* begin_next;
-        begin += codec.length(state, begin, end, 1);
-        result++;
+        auto res = codec.in(state, begin, end, begin, to, to + 0x100, to_next);
 
-        if(begin >= end) return result;
+        if(res == std::codecvt_base::ok)
+            result += to_next - to;
+        else if(res == std::codecvt_base::partial)
+            throw std::runtime_error{"local buffer is too small"};
+
+        if(begin == end) return result;
     }
 }
 
-static inline std::basic_string<intern_type> convert_in(
-    const extern_type* begin,
-    const extern_type* end
+static inline unsigned from_internal_to_external_length(
+    const intern_type* begin,
+    const intern_type* end
 ) {
     Codecvt codec{};
-
-    if(codec.always_noconv()) return {begin, end};
-
-    std::basic_string<intern_type> result(
-        converted_length(begin, end),
-        0
-    );
-
     state_type state{};
 
-    const extern_type* temp_ext;
-    intern_type* temp_int;
+    extern_type to[0x100];
+    extern_type* to_next;
 
-    auto res = codec.in(state, begin, end, temp_ext, result.data(), result.data() + result.size(), temp_int);
+    unsigned result = 0;
 
-    if(res == std::codecvt_base::noconv) {
-        return {begin, end};
+    while(true) {
+        //auto prev_begin = begin;
+
+        auto res = codec.out(state, begin, end, begin, to, to + 0x100, to_next);
+
+        //std::cout << "result: " << res << ", converted: " << begin - prev_begin << std::endl;
+
+        if(res == std::codecvt_base::ok)
+            result += to_next - to;
+        else if(res == std::codecvt_base::partial)
+            throw std::runtime_error{"local buffer is too small"};
+
+        if(begin == end) return result;
     }
-    if(res != std::codecvt_base::ok)
-        throw std::runtime_error{
-            "convert_mbc: codec.in. result: " + std::to_string(res) +
-            ", size: "+ std::to_string(end - begin) +
-            ", result size: " + std::to_string(result.size())
-        };
-
-    return result;
-}
-
-template<class It>
-static std::basic_string_view<extern_type> next_mbc(It& begin, It end) {
-    int l = first_char_length(&*begin, &*end);
-    begin += l;
-    return {begin - l, begin};
 }
 
 };

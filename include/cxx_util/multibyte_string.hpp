@@ -7,8 +7,7 @@
 #include <type_traits>
 #include "codecvt.hpp"
 #include "encoding.hpp"
-
-namespace util {
+#include "converter.hpp"
 
 namespace mb {
 
@@ -48,12 +47,22 @@ namespace internal {
 
         template<class Encoding0>
         character<Encoding0> convert() const {
-            return {
-                util::codecvt<typename util::enc::codec<Encoding0, Encoding>::type>::convert_in(
-                    Parent::data(),
-                    Parent::data() + Parent::size()
-                )
-            };
+            auto from = util::template from<Encoding>(data(), data() + size());
+
+            if(from.template to_always_noconv<Encoding0>()) {
+                return {data(), data() + size()};
+            }
+
+            std::basic_string<typename Encoding0::char_type> str;
+            str.resize(
+                from.template to_length<Encoding0>()
+            );
+
+            from.template to<Encoding0>(
+                str.data(), str.data() + str.size()
+            );
+
+            return {std::move(str)};
         }
 
         std::basic_string<char_type> to_string() const {
@@ -116,7 +125,8 @@ struct string_iterator {
 
     auto& operator ++ () {
         if(begin >= end) throw std::out_of_range{"passed end"};
-        begin += Encoding::first_char_length(begin, end);
+        auto inc = Encoding::first_char_length(begin, end);
+        begin += inc;
         return *this;
     }
 
@@ -132,7 +142,7 @@ struct string_iterator {
 
         if(it < end) {
             while(offset-- > 0) {
-                ++it;
+                it += Encoding::first_char_length(it, end);;
                 if(it == end) break;
             }
             return string_iterator<Encoding>{it, end};
@@ -243,15 +253,22 @@ namespace internal {
 
         size_type size() const {
             size_type s = 0;
-            for(auto b = begin(); b != end(); ++b, s++);
+            auto b = begin();
+            while(true) {
+            //for(auto b = begin(); b != end(); ++b, s++) {
+                if(b != end()) {
+                    ++b;
+                    ++s;
+                } else break;
+
+            }
             return s;
         }
 
         auto length() const { return size(); }
         
-        bool empty() const { return Parent::empty(); }
-
-        auto data() const { return Parent::data(); }
+        using Parent::empty;
+        using Parent::data;
 
         auto& append(auto ch) {
             Parent::append(ch);
@@ -260,12 +277,22 @@ namespace internal {
 
         template<class Encoding0>
         basic_string<Encoding0> convert() const {
-            return {
-                codecvt<typename util::enc::codec<Encoding0, Encoding>::type>::convert_in(
-                    Parent::data(),
-                    Parent::data() + Parent::size()
-                )
-            };
+            auto from = util::template from<Encoding>(data(), data() + Parent::size());
+
+            if(from.template to_always_noconv<Encoding0>()) {
+                return {data(), data() + Parent::size()};
+            }
+
+            std::basic_string<typename Encoding0::char_type> str;
+            str.resize(
+                from.template to_length<Encoding0>()
+            );
+
+            from.template to<Encoding0>(
+                str.data(), str.data() + str.size()
+            );
+
+            return {std::move(str)};
         }
 
         std::basic_string_view<char_type> to_string_view() const {
@@ -360,23 +387,24 @@ bool operator < (const basic_string_view<Encoding>& l, const auto& r) {
     return l.operator < (r);
 }
 
-using utf8_string = basic_string<util::enc::utf8>;
-using utf16_string = basic_string<util::enc::utf16>;
-using ascii_string = basic_string<util::enc::ascii>;
+using utf8_string = basic_string<enc::utf8>;
+using utf16be_string = basic_string<enc::utf16be>;
+using utf16_string = utf16be_string;
+using ascii_string = basic_string<enc::ascii>;
 
-using utf8_string_view = basic_string_view<util::enc::utf8>;
-using utf16_string_view = basic_string_view<util::enc::utf16>;
-using ascii_string_view = basic_string_view<util::enc::ascii>;
+using utf8_string_view = basic_string_view<enc::utf8>;
+using utf16be_string_view = basic_string_view<enc::utf16be>;
+using utf16_string_view = utf16be_string_view;
+using ascii_string_view = basic_string_view<enc::ascii>;
 
 template<class T>
 concept string = requires {
     typename T::encoding_type;
-} && std::is_same_v<T, util::mb::basic_string<typename T::encoding_type>>;
+} && std::is_same_v<T, mb::basic_string<typename T::encoding_type>>;
 
 template<class T>
 struct is_string : std::false_type {};
 template<string T>
 struct is_string<T> : std::true_type {};
 
-}
 }

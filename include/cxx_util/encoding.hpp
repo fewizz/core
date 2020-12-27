@@ -1,26 +1,42 @@
 #pragma once
 
 #include "codecvt.hpp"
+#include <corecrt.h>
 #include <cwchar>
-
-namespace util {
+#include <locale>
+#include <stdexcept>
+#include <bit>
+#include <cstring>
+#include <stdint.h>
+#include "utf8.hpp"
+#include "utf16.hpp"
 
 namespace enc {
 
+struct utf8 {
+    using char_type = char8_t;
+
+    static unsigned first_char_length(const char_type* begin, const char_type* end) {
+        return util::utf8::first_char_length(begin, end);
+    }
+};
+
 namespace internal {
 
-    template<class CharT, class Codecvt>
-    struct codecvt {
-        using char_type = CharT;
+template<std::endian Endian = std::endian::big>
+struct _utf16 {
+    using char_type = char16_t;
 
-        static int first_char_length(const char_type* begin, const char_type* end) {
-            return util::codecvt<Codecvt>::first_char_length(begin, end);
-        }
-    };
+    static int first_char_length(const char_type* begin, const char_type* end) {
+        return util::utf16::first_char_length(Endian, begin, end);
+    }
+};
+
 }
 
-struct utf8 : internal::codecvt<char, std::codecvt_utf8<char16_t>> {};
-struct utf16 : internal::codecvt<char16_t, std::codecvt_utf16<char16_t>> {};
+using utf16be = internal::_utf16<std::endian::big>;
+using utf16le = internal::_utf16<std::endian::little>;
+using utf16 = utf16be;
 
 struct ascii {
     using char_type = char;
@@ -33,22 +49,6 @@ struct usc2 {
 
     static int first_char_length(const char_type* begin, const char_type* end) { return 2; }
 };
-
-template<class Internal, class External>
-struct codec;
-
-template<> struct codec<utf16, utf8>
-{ using type = std::codecvt_utf8_utf16<char16_t>; };
-template<> struct codec<usc2, utf8>
-{ using type = std::codecvt_utf8<char16_t>; };
-template<> struct codec<utf8, utf8>
-{ using type = util::deletable_facet<std::codecvt<char, char, std::mbstate_t>>; };
-template<> struct codec<utf8, ascii>
-{ using type = util::deletable_facet<std::codecvt<char, char, std::mbstate_t>>; };
-template<> struct codec<ascii, ascii>
-{ using type = util::deletable_facet<std::codecvt<char, char, std::mbstate_t>>; };
-
-}
 
 template<class T>
 concept encoding = requires() {
