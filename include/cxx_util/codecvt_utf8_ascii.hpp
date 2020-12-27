@@ -1,17 +1,20 @@
 #pragma once
 
 #include <codecvt>
+#include <locale>
+#include <stdexcept>
 #include "utf8.hpp"
 
 namespace util {
 
 template<bool Loosing>
-struct codecvt_utf8_ascii {
+class codecvt_utf8_ascii {
     using base_type = std::codecvt<
         char8_t,
         char,
         mbstate_t
     >;
+public:
 
     using state_type = mbstate_t;
     using intern_type = char8_t;
@@ -26,24 +29,39 @@ struct codecvt_utf8_ascii {
         extern_type* to_end,
         extern_type*& to_next
     ) const {
+        if(from > from_end || to > to_end) throw std::runtime_error{"preconditions"};
+
+        auto result = std::codecvt_base::ok;
+
         while(from < from_end) {
+            if(to >= to_end) {
+                result = std::codecvt_base::partial;
+                break;
+            }
+
             if constexpr(Loosing) {
-                auto [code, size] = util::utf8::first_code_point(from, from_end);
+                auto [result0, code, size] = util::utf8::first_code_point(from, from_end);
+                if(result0 != std::codecvt_base::ok) {
+                    result = result0;
+                    break;
+                }
+
                 to[0] = code & 0b01111111;
                 from += size;
-                ++to;
+
             }
             else {
                 to[0] = from[0];
                 ++from;
-                ++to;
             }
+
+            ++to;
         }
 
         from_next = from;
         to_next = to;
 
-        return std::codecvt_base::ok;
+        return result;
     }
 
     std::codecvt_base::result in(
@@ -55,7 +73,15 @@ struct codecvt_utf8_ascii {
         intern_type* to_end,
         intern_type*& to_next
     ) const {
+        if(from > from_end || to > to_end) throw std::runtime_error{"preconditions"};
+
+        auto result = std::codecvt_base::ok;
+
         while(from < from_end) {
+            if(to >= to_end) {
+                result = std::codecvt_base::partial;
+                break;
+            }
             to[0] = from[0];
             ++to;
             ++from;
@@ -64,7 +90,7 @@ struct codecvt_utf8_ascii {
         from_next = from;
         to_next = to;
 
-        return std::codecvt_base::ok;
+        return result;
     }
 
     std::codecvt_base::result unshift(

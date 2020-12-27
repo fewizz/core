@@ -7,6 +7,7 @@
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <type_traits>
 #include <utility>
 #include <wchar.h>
 #include "facet.hpp"
@@ -38,7 +39,7 @@ static inline unsigned from_external_to_internal_length(
     unsigned result = 0;
 
     while(true) {
-        auto res = codec.in(state, begin, end, begin, to, to + 0x100, to_next);
+        auto res = codec.in(state, begin, end, begin, to, to + std::extent_v<decltype(to)>, to_next);
 
         if(res == std::codecvt_base::ok)
             result += to_next - to;
@@ -62,11 +63,7 @@ static inline unsigned from_internal_to_external_length(
     unsigned result = 0;
 
     while(true) {
-        //auto prev_begin = begin;
-
-        auto res = codec.out(state, begin, end, begin, to, to + 0x100, to_next);
-
-        //std::cout << "result: " << res << ", converted: " << begin - prev_begin << std::endl;
+        auto res = codec.out(state, begin, end, begin, to, to + std::extent_v<decltype(to)>, to_next);
 
         if(res == std::codecvt_base::ok)
             result += to_next - to;

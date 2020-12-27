@@ -7,7 +7,7 @@
 
 #include <assert.h>
 
-#include "include/cxx_util/multibyte_string.hpp"
+#include "include/cxx_util/mb/string.hpp"
 #include "include/cxx_util/iterator.hpp"
 #include "include/cxx_util/encoding.hpp"
 
@@ -17,15 +17,22 @@
 void utf8_util() {
     char8_t buf[]{ 0xF0, 0x9F, 0x8C, 0x8A, 'a', 'b', 'c' };
 
-    assert(4 == util::utf8::first_char_length(buf, buf + std::extent_v<decltype(buf)>));
-    assert(0x1F30A == util::utf8::first_code_point(buf, buf + 4).first);
+    assert(4 == util::utf8::first_char_length(buf, buf + std::extent_v<decltype(buf)>).size);
+
+    assert(0x1F30A == util::utf8::first_code_point(buf).codepoint);
+
+    for(int i = 0; i < 4; i++)
+        assert(std::codecvt_base::partial == util::utf8::first_code_point(buf, buf + i).result);
+
+    char8_t invalid[]{ 0b10000000 };
+    assert(std::codecvt_base::error == util::utf8::first_code_point(invalid).result);
 }
 
 void utf16_util() {
     char16_t buf[]{ 0xD83D, 0xDE02, 'a', 'b', 'c' };
 
-    assert(2 == util::utf16::first_char_length(std::endian::big, buf, buf + std::extent_v<decltype(buf)>));
-    assert(0x1F602 == util::utf16::first_code_point(std::endian::big, buf, buf + 2).first);
+    assert(2 == util::utf16::first_char_length(buf, buf + std::extent_v<decltype(buf)>).size);
+    assert(0x1F602 == util::utf16::first_code_point(buf, buf + 2).codepoint);
 }
 
 int main() {

@@ -2,164 +2,14 @@
 
 #include <compare>
 #include <cstddef>
+#include <locale>
 #include <stdexcept>
 #include <string_view>
 #include <type_traits>
-#include "codecvt.hpp"
-#include "encoding.hpp"
-#include "converter.hpp"
+#include "../codecvt.hpp"
+#include "character_iterator.hpp"
 
 namespace mb {
-
-namespace internal {
-    template<class Parent, class Encoding>
-    struct _character;
-}
-
-template<class Encoding>
-struct character;
-
-template<class Encoding>
-struct character_view;
-
-namespace internal {
-
-    template<class Parent, class Encoding>
-    struct _character : Parent {
-        using Parent::Parent;
-        using char_type = typename Encoding::char_type;
-
-        _character(const Parent& parent) : Parent(parent){};
-        _character(Parent&& parent) : Parent(std::move(parent)){};
-        _character(char_type ch) : Parent(1, ch) {};
-
-        auto data() const { return Parent::data();  }
-
-        auto size() const { return Parent::size(); }
-
-        bool operator == (std::integral auto ch) const {
-            return this->size() == 1 && Parent::front() == ch;
-        }
-
-        bool operator != (std::integral auto ch) const {
-            return !(*this == ch);
-        }
-
-        template<class Encoding0>
-        character<Encoding0> convert() const {
-            auto from = util::template from<Encoding>(data(), data() + size());
-
-            if(from.template to_always_noconv<Encoding0>()) {
-                return {data(), data() + size()};
-            }
-
-            std::basic_string<typename Encoding0::char_type> str;
-            str.resize(
-                from.template to_length<Encoding0>()
-            );
-
-            from.template to<Encoding0>(
-                str.data(), str.data() + str.size()
-            );
-
-            return {std::move(str)};
-        }
-
-        std::basic_string<char_type> to_string() const {
-            return { Parent::begin(), Parent::end() };
-        }
-
-        template<class Encoding0>
-        auto to_string() const {
-            return convert <Encoding0>().to_string();
-        }
-    };
-}
-
-template<class Encoding>
-struct character_view : internal::_character<std::basic_string_view<typename Encoding::char_type>, Encoding> {
-    using internal::_character<std::basic_string_view<typename Encoding::char_type>, Encoding>::_character;
-};
-
-template<class Encoding>
-struct character : internal::_character<std::basic_string<typename Encoding::char_type>, Encoding> {
-    using char_type = typename Encoding::char_type;
-    using string_type = std::basic_string<char_type>;
-    using base_type = internal::_character<string_type, Encoding>;
-
-    using base_type::base_type;
-
-    operator character_view<Encoding> () const {
-        return { string_type::operator std::template basic_string_view<char_type>() };
-    }
-};
-
-template<class Encoding>
-struct string_iterator {
-    using char_type = typename Encoding::char_type;
-    using value_type = character_view<Encoding>;
-    using difference_type = std::ptrdiff_t;
-
-    const char_type* begin;
-    const char_type* end;
-
-    string_iterator() {}
-    string_iterator(string_iterator&& other) = default;
-    string_iterator& operator = (string_iterator&& other) = default;
-    string_iterator(const string_iterator& other) = default;
-    string_iterator& operator = (const string_iterator& other) = default;
-
-    string_iterator(
-        const char_type* begin,
-        const char_type* end
-    ) :
-    begin{begin}, end{end} {
-        if(begin > end) throw std::out_of_range{"passed end"};
-    }
-
-    value_type operator * () const {
-        if(begin >= end) throw std::out_of_range{"passed end"};
-        auto next_len = Encoding::first_char_length(begin, end);
-        return {begin, begin + next_len};
-    }
-
-    auto& operator ++ () {
-        if(begin >= end) throw std::out_of_range{"passed end"};
-        auto inc = Encoding::first_char_length(begin, end);
-        begin += inc;
-        return *this;
-    }
-
-    auto operator ++ (int) {
-        auto prev = *this;
-        ++(*this);
-        return prev;
-    }
-
-    auto operator + (std::integral auto offset) const {
-        auto offset0 = offset;
-        auto it = begin;
-
-        if(it < end) {
-            while(offset-- > 0) {
-                it += Encoding::first_char_length(it, end);;
-                if(it == end) break;
-            }
-            return string_iterator<Encoding>{it, end};
-        }
-
-        throw std::out_of_range{
-            "requested index: " + std::to_string(offset0)
-        };
-    }
-
-    auto operator <=> (const string_iterator& other) const {
-        return begin <=> other.begin;
-    }
-
-    bool operator == (const string_iterator& other) const = default;
-    bool operator != (const string_iterator& other) const = default;
-};
 
 namespace internal {
     template<class Parent, class Encoding>
@@ -187,8 +37,8 @@ namespace internal {
         using const_pointer    = typename Parent::const_pointer;
         using reference        = value_type&;
         using const_reference  = const value_type&;
-        using iterator         = string_iterator<Encoding>;
-        using const_iterator   = const string_iterator<Encoding>;
+        using iterator         = character_iterator<Encoding>;
+        using const_iterator   = const character_iterator<Encoding>;
         static const size_type npos = Parent::npos;
 
         using char_type        = typename Encoding::char_type;
@@ -215,9 +65,11 @@ namespace internal {
         iterator begin() {
             return {Parent::data(), Parent::data()+Parent::size()};
         }
+
         const_iterator begin() const {
             return {Parent::data(), Parent::data()+Parent::size()};
         }
+
         const_iterator cbegin() const { return begin(); }
 
         iterator end() {
@@ -237,31 +89,22 @@ namespace internal {
         void swap(_string& other) { Parent::swap(other); }
         
         value_type operator [] (unsigned index) const {
-            auto it = begin();
-            if(it != end()) {
-                while(index-- > 0) {
-                    ++it;
-                    if(it == end()) break;
-                }
-                return *it;
-            }
+            auto prev_index = index;
+            for(auto ch : *this)
+                if(index-- == 0) return ch;
+
             throw std::out_of_range{
                 "size: " + std::to_string(size()) +
-                ", requested index: " + std::to_string(index)
+                ", requested index: " + std::to_string(prev_index)
             };
         }
 
         size_type size() const {
             size_type s = 0;
-            auto b = begin();
-            while(true) {
-            //for(auto b = begin(); b != end(); ++b, s++) {
-                if(b != end()) {
-                    ++b;
-                    ++s;
-                } else break;
 
-            }
+            for(auto ch : *this)
+                s++;
+            
             return s;
         }
 
@@ -309,7 +152,7 @@ namespace internal {
         }
 
         size_type find_first_of(std::integral auto ch, size_type pos = 0) const {
-            for(auto ch0 : basic_string_view<Encoding>{begin() + pos, end()}) {
+            for(auto ch0 : substr(pos)) {
                 if(ch0 == ch) return pos;
                 pos++;
             }
@@ -388,13 +231,11 @@ bool operator < (const basic_string_view<Encoding>& l, const auto& r) {
 }
 
 using utf8_string = basic_string<enc::utf8>;
-using utf16be_string = basic_string<enc::utf16be>;
-using utf16_string = utf16be_string;
+using utf16_string = basic_string<enc::utf16>;
 using ascii_string = basic_string<enc::ascii>;
 
 using utf8_string_view = basic_string_view<enc::utf8>;
-using utf16be_string_view = basic_string_view<enc::utf16be>;
-using utf16_string_view = utf16be_string_view;
+using utf16_string_view = basic_string_view<enc::utf16>;
 using ascii_string_view = basic_string_view<enc::ascii>;
 
 template<class T>

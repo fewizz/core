@@ -10,44 +10,42 @@
 #include <stdint.h>
 #include "utf8.hpp"
 #include "utf16.hpp"
+#include "size_retrieve_result.hpp"
 
 namespace enc {
 
 struct utf8 {
     using char_type = char8_t;
 
-    static unsigned first_char_length(const char_type* begin, const char_type* end) {
+    static size_retrieve_result first_char_length(const char_type* begin, const char_type* end) {
         return util::utf8::first_char_length(begin, end);
     }
 };
 
-namespace internal {
-
-template<std::endian Endian = std::endian::big>
-struct _utf16 {
+struct utf16 {
     using char_type = char16_t;
 
-    static int first_char_length(const char_type* begin, const char_type* end) {
-        return util::utf16::first_char_length(Endian, begin, end);
+    static size_retrieve_result first_char_length(const char_type* begin, const char_type* end) {
+        return util::utf16::first_char_length(begin, end);
     }
 };
-
-}
-
-using utf16be = internal::_utf16<std::endian::big>;
-using utf16le = internal::_utf16<std::endian::little>;
-using utf16 = utf16be;
 
 struct ascii {
     using char_type = char;
 
-    static int first_char_length(const char_type* begin, const char_type* end) { return 1; }
+    static size_retrieve_result first_char_length(const char_type* begin, const char_type* end) {
+        if(begin >= end) throw std::runtime_error{"precondition"};
+        return { std::codecvt_base::ok, 1 };
+    }
 };
 
 struct usc2 {
     using char_type = char16_t;
 
-    static int first_char_length(const char_type* begin, const char_type* end) { return 2; }
+    static size_retrieve_result first_char_length(const char_type* begin, const char_type* end) {
+        if(begin >= end) throw std::runtime_error{"precondition"};
+        return { std::codecvt_base::ok, 2 };
+    }
 };
 
 template<class T>

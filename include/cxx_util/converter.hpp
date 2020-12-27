@@ -15,7 +15,7 @@ template<> struct codec<enc::utf8, enc::utf8> {
 };
 
 // utf16
-template<> struct codec<enc::utf16be, enc::utf16be> {
+template<> struct codec<enc::utf16, enc::utf16> {
     constexpr static bool nonconv = true;
 };
 
@@ -25,7 +25,7 @@ template<> struct codec<enc::ascii, enc::ascii> {
 };
 
 // utf8 <-> utf16
-template<> struct codec<enc::utf16be, enc::utf8> {
+template<> struct codec<enc::utf16, enc::utf8> {
     using type = util::deletable_facet<std::codecvt<char16_t, char8_t, std::mbstate_t>>;
     constexpr static bool reverted = false;
     constexpr static bool nonconv = false;
@@ -51,14 +51,14 @@ template<> struct codec<enc::ascii, enc::utf8> {
 };
 
 // utf16 <-> ascii
-template<> struct codec<enc::utf16be, enc::ascii> {
-    using type = codecvt_utf16_ascii<std::endian::big, false>;
+template<> struct codec<enc::utf16, enc::ascii> {
+    using type = codecvt_utf16_ascii<false>;
     constexpr static bool reverted = false;
     constexpr static bool nonconv = false;
 };
 
-template<> struct codec<enc::ascii, enc::utf16be> {
-    using type = codecvt_utf16_ascii<std::endian::big, false>;
+template<> struct codec<enc::ascii, enc::utf16> {
+    using type = codecvt_utf16_ascii<false>;
     constexpr static bool reverted = true;
     constexpr static bool nonconv = false;
 };
