@@ -4,7 +4,7 @@
 
 namespace mb {
 
-template<class Encoding>
+template<enc::encoding Encoding>
 struct character_iterator {
     using char_type = typename Encoding::char_type;
     using value_type = character_view<Encoding>;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "codecvt.hpp"
+#include "../locale/codecvt.hpp"
 #include <corecrt.h>
 #include <cwchar>
 #include <locale>
@@ -50,7 +50,7 @@ struct usc2 {
 
 template<class T>
 concept encoding = requires() {
-    {T::first_char_length(nullptr, nullptr)} -> std::integral;
+    {T::first_char_length(nullptr, nullptr)} -> std::same_as<size_retrieve_result>;
 };
 
 template<class T>

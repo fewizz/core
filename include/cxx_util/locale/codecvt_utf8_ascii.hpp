@@ -1,22 +1,23 @@
 #pragma once
 
 #include <codecvt>
-#include <bit>
 #include <locale>
-#include "utf16.hpp"
+#include <stdexcept>
+#include "../encoding/utf8.hpp"
 
 namespace util {
 
-template<bool Loose>
-struct codecvt_utf16_ascii {
+template<bool Loosing>
+class codecvt_utf8_ascii {
     using base_type = std::codecvt<
-        char16_t,
+        char8_t,
         char,
         mbstate_t
     >;
+public:
 
     using state_type = mbstate_t;
-    using intern_type = char16_t;
+    using intern_type = char8_t;
     using extern_type = char;
 
     std::codecvt_base::result out(
@@ -29,6 +30,7 @@ struct codecvt_utf16_ascii {
         extern_type*& to_next
     ) const {
         if(from > from_end || to > to_end) throw std::runtime_error{"preconditions"};
+
         auto result = std::codecvt_base::ok;
 
         while(from < from_end) {
@@ -37,22 +39,23 @@ struct codecvt_utf16_ascii {
                 break;
             }
 
-            if constexpr (Loose) {
-                auto [result0, code, size] = util::utf16::first_code_point(from, from_end);
+            if constexpr(Loosing) {
+                auto [result0, code, size] = util::utf8::first_code_point(from, from_end);
                 if(result0 != std::codecvt_base::ok) {
                     result = result0;
                     break;
                 }
 
-                to[0] = code & 0X7F;
+                to[0] = code & 0b01111111;
                 from += size;
-                to++;
+
             }
             else {
-                to[0] = (char) (from[0] >> 8) & 0xFF;
-                to[1] = (char) from[0] & 0xFF;
-                to += 2;
+                to[0] = from[0];
+                ++from;
             }
+
+            ++to;
         }
 
         from_next = from;
@@ -71,6 +74,7 @@ struct codecvt_utf16_ascii {
         intern_type*& to_next
     ) const {
         if(from > from_end || to > to_end) throw std::runtime_error{"preconditions"};
+
         auto result = std::codecvt_base::ok;
 
         while(from < from_end) {
@@ -78,7 +82,6 @@ struct codecvt_utf16_ascii {
                 result = std::codecvt_base::partial;
                 break;
             }
-
             to[0] = from[0];
             ++to;
             ++from;
@@ -117,7 +120,7 @@ struct codecvt_utf16_ascii {
     }
 
     int max_length() const noexcept {
-        return 2;
+        return 4;
     }
 };
 

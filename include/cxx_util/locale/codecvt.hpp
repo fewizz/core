@@ -14,8 +14,8 @@
 #include <iostream>
 #include <bit>
 
-#include "utf8.hpp"
-#include "utf16.hpp"
+#include "../encoding/utf8.hpp"
+#include "../encoding/utf16.hpp"
 
 namespace util {
 

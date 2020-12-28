@@ -1,32 +1,32 @@
 #pragma once
 
 #include <utility>
-#include "../encoding.hpp"
-#include "../converter.hpp"
+#include "../encoding/encoding.hpp"
+#include "../encoding/converter.hpp"
 
 namespace mb {
 
 namespace internal {
-    template<class Parent, class Encoding>
+    template<class Parent, enc::encoding Encoding>
     struct _character;
 }
 
-template<class Encoding>
+template<enc::encoding Encoding>
 struct character;
 
-template<class Encoding>
+template<enc::encoding Encoding>
 struct character_view;
 
 namespace internal {
 
-    template<class Parent, class Encoding>
-    struct _character : Parent {
+    template<class Parent, enc::encoding Encoding>
+    struct character : Parent {
         using Parent::Parent;
         using char_type = typename Encoding::char_type;
 
-        _character(const Parent& parent) : Parent(parent){};
-        _character(Parent&& parent) : Parent(std::move(parent)){};
-        _character(char_type ch) : Parent(1, ch) {};
+        character(const Parent& parent) : Parent(parent){};
+        character(Parent&& parent) : Parent(std::move(parent)){};
+        character(char_type ch) : Parent(1, ch) {};
 
         auto data() const { return Parent::data();  }
 
@@ -40,8 +40,8 @@ namespace internal {
             return !(*this == ch);
         }
 
-        template<class Encoding0>
-        character<Encoding0> convert() const {
+        template<enc::encoding Encoding0>
+        mb::character<Encoding0> convert() const {
             auto from = util::template from<Encoding>(data(), data() + size());
 
             if(from.template to_always_noconv<Encoding0>()) {
@@ -71,16 +71,16 @@ namespace internal {
     };
 }
 
-template<class Encoding>
-struct character_view : internal::_character<std::basic_string_view<typename Encoding::char_type>, Encoding> {
-    using internal::_character<std::basic_string_view<typename Encoding::char_type>, Encoding>::_character;
+template<enc::encoding Encoding>
+struct character_view : internal::character<std::basic_string_view<typename Encoding::char_type>, Encoding> {
+    using internal::character<std::basic_string_view<typename Encoding::char_type>, Encoding>::character;
 };
 
-template<class Encoding>
-struct character : internal::_character<std::basic_string<typename Encoding::char_type>, Encoding> {
+template<enc::encoding Encoding>
+struct character : internal::character<std::basic_string<typename Encoding::char_type>, Encoding> {
     using char_type = typename Encoding::char_type;
     using string_type = std::basic_string<char_type>;
-    using base_type = internal::_character<string_type, Encoding>;
+    using base_type = internal::character<string_type, Encoding>;
 
     using base_type::base_type;
 

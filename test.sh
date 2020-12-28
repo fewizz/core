@@ -1,3 +1,8 @@
-clang++ -g -std=c++20 -o t test.cpp
-./t
-rm t
+clang++ -g -std=c++20 -o test test.cpp
+if [[ $1 == "gdb" ]]; then
+    gdb test
+else
+    ./test
+fi
+
+rm test

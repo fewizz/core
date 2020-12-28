@@ -1,12 +1,12 @@
 #pragma once
 
 #include "encoding.hpp"
-#include "codecvt_utf8_ascii.hpp"
-#include "codecvt_utf16_ascii.hpp"
+#include "../locale/codecvt_utf8_ascii.hpp"
+#include "../locale/codecvt_utf16_ascii.hpp"
 
 namespace util {
 
-template<class Internal, class External>
+template<enc::encoding Internal, enc::encoding External>
 struct codec;
 
 // utf8
@@ -65,14 +65,14 @@ template<> struct codec<enc::ascii, enc::utf16> {
 
 //
 
-template <class Encoding>
+template <enc::encoding Encoding>
 struct _to {
     using from_type = typename Encoding::char_type;
 
     const from_type* from_begin;
     const from_type* from_end;
 
-    template<class Encoding0>
+    template<enc::encoding Encoding0>
     bool to_always_noconv() {
         using codec_t = codec<Encoding, Encoding0>;
 
@@ -84,7 +84,7 @@ struct _to {
         }
     }
 
-    template<class Encoding0>
+    template<enc::encoding Encoding0>
     std::codecvt_base::result to(
         typename Encoding0::char_type* begin,
         typename Encoding0::char_type* end,
@@ -107,7 +107,7 @@ struct _to {
         }
     }
 
-    template<class Encoding0>
+    template<enc::encoding Encoding0>
     void to(
         typename Encoding0::char_type* begin,
         typename Encoding0::char_type* end
@@ -136,7 +136,7 @@ struct _to {
         }
     }
 
-    template<class Encoding0>
+    template<enc::encoding Encoding0>
     int to_length() {
         using codec_t = codec<Encoding, Encoding0>;
 
@@ -156,7 +156,7 @@ struct _to {
     }
 };
 
-template<class Encoding>
+template<enc::encoding Encoding>
 auto from(
     const typename Encoding::char_type* begin,
     const typename Encoding::char_type* end
@@ -164,7 +164,7 @@ auto from(
     return _to<Encoding>{begin, end};
 }
 
-template<class Encoding, unsigned N>
+template<enc::encoding Encoding, unsigned N>
 auto from(const typename Encoding::char_type (& arr)[N]) {
     return _to<Encoding>{arr, arr + N};
 }

@@ -1,23 +1,22 @@
 #pragma once
 
 #include <codecvt>
+#include <bit>
 #include <locale>
-#include <stdexcept>
-#include "utf8.hpp"
+#include "../encoding/utf16.hpp"
 
 namespace util {
 
-template<bool Loosing>
-class codecvt_utf8_ascii {
+template<bool Loose>
+struct codecvt_utf16_ascii {
     using base_type = std::codecvt<
-        char8_t,
+        char16_t,
         char,
         mbstate_t
     >;
-public:
 
     using state_type = mbstate_t;
-    using intern_type = char8_t;
+    using intern_type = char16_t;
     using extern_type = char;
 
     std::codecvt_base::result out(
@@ -30,7 +29,6 @@ public:
         extern_type*& to_next
     ) const {
         if(from > from_end || to > to_end) throw std::runtime_error{"preconditions"};
-
         auto result = std::codecvt_base::ok;
 
         while(from < from_end) {
@@ -39,23 +37,23 @@ public:
                 break;
             }
 
-            if constexpr(Loosing) {
-                auto [result0, code, size] = util::utf8::first_code_point(from, from_end);
+            if constexpr (Loose) {
+                auto [result0, code, size] = util::utf16::first_code_point(from, from_end);
                 if(result0 != std::codecvt_base::ok) {
                     result = result0;
                     break;
                 }
 
-                to[0] = code & 0b01111111;
+                to[0] = code & 0X7F;
                 from += size;
-
+                to++;
             }
             else {
-                to[0] = from[0];
-                ++from;
+                to[0] = (char) (from[0] >> 8) & 0xFF;
+                to[1] = (char) from[0] & 0xFF;
+                to += 2;
+                from++;
             }
-
-            ++to;
         }
 
         from_next = from;
@@ -74,7 +72,6 @@ public:
         intern_type*& to_next
     ) const {
         if(from > from_end || to > to_end) throw std::runtime_error{"preconditions"};
-
         auto result = std::codecvt_base::ok;
 
         while(from < from_end) {
@@ -82,6 +79,7 @@ public:
                 result = std::codecvt_base::partial;
                 break;
             }
+
             to[0] = from[0];
             ++to;
             ++from;
@@ -120,7 +118,7 @@ public:
     }
 
     int max_length() const noexcept {
-        return 4;
+        return 2;
     }
 };
 
