@@ -7,6 +7,7 @@
 #include <utility>
 #include <codecvt>
 #include "size_retrieve_result.hpp"
+#include "codepoint_retrieve_result.hpp"
 
 namespace util {
 
@@ -35,13 +36,7 @@ inline enc::size_retrieve_result first_char_length(const char16_t* begin, const 
     return { std::codecvt_base::error };
 }
 
-struct codepoint_read_result {
-    std::codecvt_base::result result;
-    uint64_t codepoint;
-    unsigned size;
-};
-
-inline codepoint_read_result first_code_point(const char16_t* begin, const char16_t* end) {
+inline enc::codepoint_retrieve_result first_code_point(const char16_t* begin, const char16_t* end) noexcept {
     auto size = end - begin;
 
     if(size < 0) return { std::codecvt_base::error };

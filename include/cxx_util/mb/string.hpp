@@ -141,15 +141,6 @@ namespace internal {
             return { Parent::begin(), Parent::end() };
         }
 
-        std::basic_string<char_type> to_string() const {
-            return { Parent::begin(), Parent::end() };
-        }
-
-        template<enc::encoding Encoding0>
-        auto to_string() const {
-            return convert <Encoding0>().to_string();
-        }
-
         size_type find_first_of(std::integral auto ch, size_type pos = 0) const {
             for(auto ch0 : substr(pos)) {
                 if(ch0 == ch) return pos;
@@ -166,16 +157,16 @@ namespace internal {
             return operator <=> (((Parent&) *this), other);
         }
 
-        bool operator < (const auto& other) const {
-            return to_string_view() < other;
+        auto operator <=> (const auto& other) const {
+            return to_string_view() <=> other;
         }
 
-        bool operator < (const mb::basic_string_view<Encoding>& other) const {
-            return to_string_view() < other.to_string_view();
+        auto operator <=> (const mb::basic_string_view<Encoding>& other) const {
+            return to_string_view() <=> other.to_string_view();
         }
 
-        bool operator < (const mb::basic_string<Encoding>& other) const {
-            return to_string_view() < other.to_string_view();
+        bool operator <=> (const mb::basic_string<Encoding>& other) const {
+            return to_string_view() <=> other.to_string_view();
         }
 
         bool operator == (const auto& other) const {
@@ -221,6 +212,21 @@ struct basic_string : internal::string<std::basic_string<typename Encoding::char
             string_type::operator std::basic_string_view<typename base_type::char_type>()
         };
     }
+
+    template<std::integral CharT = typename base_type::char_type>
+    std::basic_string<CharT> to_string() const &
+    requires( sizeof(CharT) == sizeof(typename base_type::char_type) ) {
+        return { (CharT*) base_type::data(), (CharT*) base_type::data() + string_type::size() };
+    }
+
+    string_type to_string() const && {
+        return std::move(*this);
+    }
+
+    template<enc::encoding Encoding0>
+    auto to_string() const {
+        return base_type::template convert <Encoding0>().to_string();
+    }
 };
 
 template<enc::encoding Encoding>
@@ -233,13 +239,13 @@ struct basic_string_view : mb::internal::string<std::basic_string_view<typename 
 };
 
 template<enc::encoding Encoding>
-bool operator < (const mb::basic_string<Encoding>& l, const auto& r) {
-    return l.operator < (r);
+auto operator <=> (const mb::basic_string<Encoding>& l, const auto& r) {
+    return l.operator <=> (r);
 }
 
 template<enc::encoding Encoding>
-bool operator < (const mb::basic_string_view<Encoding>& l, const auto& r) {
-    return l.operator < (r);
+auto operator <=> (const mb::basic_string_view<Encoding>& l, const auto& r) {
+    return l.operator <=> (r);
 }
 
 template<enc::encoding Encoding>
@@ -257,7 +263,15 @@ using utf16_string = mb::basic_string<enc::utf16>;
 using ascii_string = mb::basic_string<enc::ascii>;
 
 using utf8_string_view = mb::basic_string_view<enc::utf8>;
-using utf16_string_view = mb::basic_string_view<enc::utf16>;
+class utf16_string_view : mb::basic_string_view<enc::utf16> {
+    using base = mb::basic_string_view<enc::utf16>;
+public:
+    using base::base;
+
+    operator std::wstring_view() const {
+        return {(wchar_t*)data(), (wchar_t*)data() + base_type::size()};
+    }
+};
 using ascii_string_view = mb::basic_string_view<enc::ascii>;
 
 template<class T>

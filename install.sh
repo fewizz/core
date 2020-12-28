@@ -7,7 +7,7 @@ fi
 ( \
     echo "uninstall" \
     && \
-    rm -rv $1/include/cxx_util \
+    rm -rfv $1/include/cxx_util \
     && \
     echo "install" \
     && \

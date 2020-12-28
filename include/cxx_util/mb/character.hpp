@@ -1,15 +1,11 @@
 #pragma once
 
+#include <type_traits>
 #include <utility>
 #include "../encoding/encoding.hpp"
 #include "../encoding/converter.hpp"
 
 namespace mb {
-
-namespace internal {
-    template<class Parent, enc::encoding Encoding>
-    struct _character;
-}
 
 template<enc::encoding Encoding>
 struct character;
@@ -64,9 +60,14 @@ namespace internal {
             return { Parent::begin(), Parent::end() };
         }
 
-        template<class Encoding0>
+        template<enc::encoding Encoding0>
         auto to_string() const {
             return convert <Encoding0>().to_string();
+        }
+
+        template<enc::encoding E = Encoding>
+        operator std::enable_if_t<E::characters != enc::variable_length, char_type> () const {
+            return Parent::front();
         }
     };
 }

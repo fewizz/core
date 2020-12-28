@@ -1,8 +1,11 @@
 #pragma once
 
 #include "encoding.hpp"
+#include "../locale/facet.hpp"
+#include "../locale/codecvt.hpp"
 #include "../locale/codecvt_utf8_ascii.hpp"
 #include "../locale/codecvt_utf16_ascii.hpp"
+#include <cstring>
 
 namespace util {
 
@@ -65,8 +68,10 @@ template<> struct codec<enc::ascii, enc::utf16> {
 
 //
 
+namespace internal {
+
 template <enc::encoding Encoding>
-struct _to {
+struct to_chain {
     using from_type = typename Encoding::char_type;
 
     const from_type* from_begin;
@@ -156,17 +161,19 @@ struct _to {
     }
 };
 
+}
+
 template<enc::encoding Encoding>
 auto from(
     const typename Encoding::char_type* begin,
     const typename Encoding::char_type* end
 ) {
-    return _to<Encoding>{begin, end};
+    return util::internal::to_chain<Encoding>{begin, end};
 }
 
 template<enc::encoding Encoding, unsigned N>
 auto from(const typename Encoding::char_type (& arr)[N]) {
-    return _to<Encoding>{arr, arr + N};
+    return util::internal::to_chain<Encoding>{arr, arr + N};
 }
 
 }

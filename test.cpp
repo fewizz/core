@@ -2,6 +2,7 @@
 #include <string>
 #include <iostream>
 #include <iterator>
+#include <string_view>
 #include <type_traits>
 #include "include/cxx_util/mb/string.hpp"
 #include "include/cxx_util/iterator.hpp"
@@ -10,6 +11,14 @@
 static_assert(enc::is_encoding_v<enc::utf8>, "");
 static_assert(enc::is_encoding_v<enc::utf16>, "");
 static_assert(enc::is_encoding_v<enc::ascii>, "");
+
+void ascii_util() {
+    mb::ascii_string str = "Hello world!";
+
+    char first = str[0];
+    assert(first == 'H');
+    assert(str.size() == std::strlen("Hello world!"));
+}
 
 void utf8_util() {
     char8_t buf[]{ 0xF0, 0x9F, 0x8C, 0x8A, 'a', 'b', 'c' };
@@ -42,6 +51,9 @@ void mb_string() {
     assert(empty_ascii_str.size() == 0);
 
     mb::utf16_string u16_hello_world = u"Hello world!";
+    std::wstring_view converted_strv = mb::utf16_string_view{u16_hello_world};
+
+    assert(converted_strv.size() == u16_hello_world.size());
 
     assert(
         (u16_hello_world.template to_string<enc::ascii>()).size()
@@ -56,6 +68,9 @@ void mb_string() {
         ==
         "Hello world!"
     );
+
+    std::u8string str_from_rvalue_u8 = mb::utf8_string{u8"Hello?"}.to_string();
+    assert(str_from_rvalue_u8.size() == 6);
 }
 
 int main() {
