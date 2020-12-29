@@ -1,6 +1,7 @@
 #pragma once
 
 #include <codecvt>
+#include <iterator>
 #include <locale>
 #include <stdexcept>
 #include "../encoding/utf8.hpp"
@@ -41,8 +42,14 @@ public:
 
             if constexpr(Loosing) {
                 auto [result0, code, size] = util::utf8::first_code_point(from, from_end);
-                if(result0 != std::codecvt_base::ok) {
-                    result = result0;
+                if(result0 != enc::request_result::ok) {
+                    switch(result0) {
+                        case enc::request_result::unexpected_src_end :
+                            result = std::codecvt_base::partial;
+                        default :
+                            result = std::codecvt_base::error;
+                    }
+                    
                     break;
                 }
 

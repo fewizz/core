@@ -39,8 +39,13 @@ struct codecvt_utf16_ascii {
 
             if constexpr (Loose) {
                 auto [result0, code, size] = util::utf16::first_code_point(from, from_end);
-                if(result0 != std::codecvt_base::ok) {
-                    result = result0;
+                if(result0 != enc::request_result::ok) {
+                    switch(result0) {
+                        case enc::request_result::unexpected_src_end :
+                            result = std::codecvt_base::partial;
+                        default :
+                            result = std::codecvt_base::error;
+                    }
                     break;
                 }
 

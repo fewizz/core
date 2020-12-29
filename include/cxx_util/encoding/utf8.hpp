@@ -7,19 +7,18 @@
 #include <cinttypes>
 #include <stdexcept>
 #include <codecvt>
-#include "size_retrieve_result.hpp"
-#include "codepoint_retrieve_result.hpp"
+#include "codepoint_request_result.hpp"
 
 namespace util {
 
 namespace utf8 {
 
-inline enc::size_retrieve_result first_char_length(const char8_t* begin, const char8_t* end) noexcept {
+inline enc::size_request_info first_char_width(const char8_t* begin, const char8_t* end) noexcept {
     auto ptr_diff = end - begin;
-    if(ptr_diff < 0) return { std::codecvt_base::error };
+    if(ptr_diff < 0) return { enc::request_result::preconditions };
 
     unsigned size = ptr_diff;
-    if(size == 0) return { std::codecvt_base::partial };
+    if(size == 0) return { enc::request_result::unexpected_src_end };
 
     uint8_t first = begin[0];
 
@@ -38,29 +37,29 @@ inline enc::size_retrieve_result first_char_length(const char8_t* begin, const c
     if(starts_with(0b11110, 5, first))
         potential_size = 4;
     
-    if(potential_size == -1) return { std::codecvt_base::error };
+    if(potential_size == -1) return { enc::request_result::invalid_input };
 
     for(int i = 1; i < std::min(potential_size, size); i++) {
-        if(not starts_with(0b10, 2, begin[i])) return { std::codecvt_base::error };
+        if(not starts_with(0b10, 2, begin[i])) return { enc::request_result::invalid_input };
     }
 
-    if(potential_size > size) return { std::codecvt_base::partial };
+    if(potential_size > size) return { enc::request_result::unexpected_src_end };
 
-    return { std::codecvt_base::ok, potential_size };
+    return { enc::request_result::ok, potential_size };
 }
 
-inline enc::codepoint_retrieve_result first_code_point(const char8_t* begin, const char8_t* end) noexcept {
+inline enc::codepoint_request_info first_code_point(const char8_t* begin, const char8_t* end) noexcept {
     auto size = end - begin;
 
-    if(size < 0) return { std::codecvt_base::error };
-    if(size == 0) return { std::codecvt_base::partial };
+    if(size < 0) return { enc::request_result::preconditions };
+    if(size == 0) return { enc::request_result::unexpected_src_end };
 
-    auto size_read = first_char_length(begin, end);
-    if(size_read.result != std::codecvt_base::ok) return { size_read.result };
+    auto size_read = first_char_width(begin, end);
+    if(size_read.result != enc::request_result::ok) return { size_read.result };
 
     uint64_t first = begin[0];
 
-    if(size_read.size == 1) return { std::codecvt_base::ok, first, 1 };
+    if(size_read.size == 1) return { enc::request_result::ok, first, 1 };
 
     unsigned left_mask_size = size_read.size + 1;
     first &= (0xFF >> left_mask_size);
@@ -73,11 +72,11 @@ inline enc::codepoint_retrieve_result first_code_point(const char8_t* begin, con
         result |= (nth & 0b00111111) << offset;
     }
 
-    return { std::codecvt_base::ok, result, 4 };
+    return { enc::request_result::ok, result, 4 };
 }
 
 template<unsigned N>
-enc::codepoint_retrieve_result first_code_point(const char8_t (& begin)[N]) noexcept{
+enc::codepoint_request_info first_code_point(const char8_t (& begin)[N]) noexcept{
     return first_code_point(begin, begin + N);
 }
 

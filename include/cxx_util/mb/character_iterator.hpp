@@ -29,20 +29,20 @@ struct character_iterator {
 
     value_type operator * () const {
         if(begin >= end) throw std::out_of_range{"passed end"};
-        auto res = Encoding::first_char_length(begin, end);
-        if(res.result != std::codecvt_base::ok) {
+        auto info = Encoding::first_char_width(begin, end);
+        if(info.result != enc::request_result::ok) {
             throw std::runtime_error{"getting mbc length"};
         }
-        return {begin, begin + res.size};
+        return {begin, begin + info.size};
     }
 
     auto& operator ++ () {
         if(begin >= end) throw std::out_of_range{"passed end"};
-        auto res = Encoding::first_char_length(begin, end);
-        if(res.result != std::codecvt_base::ok) {
+        auto info = Encoding::first_char_width(begin, end);
+        if(info.result != enc::request_result::ok) {
             throw std::runtime_error{"getting mbc length"};
         }
-        begin += res.size;
+        begin += info.size;
         return *this;
     }
 
@@ -58,9 +58,9 @@ struct character_iterator {
 
         if(it < end) {
             while(offset-- > 0) {
-                enc::size_retrieve_result res = Encoding::first_char_length(it, end);
-                if(res.result != std::codecvt_base::ok) throw std::runtime_error{"getting mbc length"};
-                it += res.size;
+                auto info = Encoding::first_char_width(it, end);
+                if(info.result != std::codecvt_base::ok) throw std::runtime_error{"getting mbc length"};
+                it += info.size;
 
                 if(it == end) break;
             }

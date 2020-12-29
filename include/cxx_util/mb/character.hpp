@@ -66,7 +66,7 @@ namespace internal {
         }
 
         template<enc::encoding E = Encoding>
-        operator std::enable_if_t<E::characters != enc::variable_length, char_type> () const {
+        operator std::enable_if_t<E::characters != enc::variable_width, char_type> () const {
             return Parent::front();
         }
     };
