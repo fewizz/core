@@ -149,9 +149,6 @@ struct to_chain {
             return from_end - from_begin;
         }
         else {
-            typename codec_t::type c{};
-            typename codec_t::type::state_type st{};
-
             if constexpr(codec_t::reverted)
                 return util::codecvt<typename codec_t::type>::from_external_to_internal_length(from_begin, from_end); 
             else

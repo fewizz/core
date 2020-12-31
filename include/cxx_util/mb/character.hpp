@@ -1,9 +1,10 @@
 #pragma once
 
+#include <compare>
 #include <type_traits>
 #include <utility>
 #include "../encoding/encoding.hpp"
-#include "../encoding/converter.hpp"
+#include "../encoding/convert.hpp"
 
 namespace mb {
 
@@ -15,25 +16,32 @@ struct character_view;
 
 namespace internal {
 
-    template<class Parent, enc::encoding Encoding>
-    struct character : Parent {
-        using Parent::Parent;
+    template<class Base, enc::encoding Encoding>
+    struct character : Base {
+        using Base::Base;
         using char_type = typename Encoding::char_type;
 
-        character(const Parent& parent) : Parent(parent){};
-        character(Parent&& parent) : Parent(std::move(parent)){};
-        character(char_type ch) : Parent(1, ch) {};
+        character(const Base& parent) : Base(parent){};
+        character(Base&& parent) : Base(std::move(parent)){};
+        character(char_type ch) : Base(1, ch) {};
 
-        auto data() const { return Parent::data();  }
-
-        auto size() const { return Parent::size(); }
-
-        bool operator == (std::integral auto ch) const {
-            return this->size() == 1 && Parent::front() == ch;
+        using Base::data;
+        using Base::size;
+        
+        auto operator <=> (const character& other) const {
+            return
+                Encoding::first_codepoint(data(), data() + size()).codepoint
+                <=>
+                Encoding::first_codepoint(other.data(), other.data() + other.size()).codepoint
+            ;
         }
 
-        bool operator != (std::integral auto ch) const {
-            return !(*this == ch);
+        bool operator == (std::integral auto ch) const {
+            return
+                this->size() == 1
+                &&
+                Encoding::first_codepoint(data(), data() + size()).codepoint == ch
+            ;
         }
 
         template<enc::encoding Encoding0>
@@ -56,18 +64,24 @@ namespace internal {
             return {std::move(str)};
         }
 
-        std::basic_string<char_type> to_string() const {
-            return { Parent::begin(), Parent::end() };
+        template<enc::encoding Encoding0 = Encoding>
+        mb::character<Encoding0> to_string() const {
+            return convert<Encoding0>();
         }
 
-        template<enc::encoding Encoding0>
-        auto to_string() const {
-            return convert <Encoding0>().to_string();
+        template<std::integral CharT = char_type>
+        std::basic_string<CharT> to_string() const {
+            return { (CharT*)Base::data(), (CharT*)Base::data() + Base::size() };
+        }
+
+        //template<std::>
+        auto to_string_view() const {
+            return to_string_view<char_type>();
         }
 
         template<enc::encoding E = Encoding>
         operator std::enable_if_t<E::characters != enc::variable_width, char_type> () const {
-            return Parent::front();
+            return Base::front();
         }
     };
 }

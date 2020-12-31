@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <compare>
 #include <cstddef>
 #include <cstring>
@@ -10,11 +11,6 @@
 #include "character_iterator.hpp"
 
 namespace mb {
-
-namespace internal {
-    template<class Parent, enc::encoding Encoding>
-    struct _string;
-}
 
 template<
     enc::encoding Encoding,
@@ -27,8 +23,9 @@ template<enc::encoding Encoding, class Traits = std::char_traits<typename Encodi
 struct basic_string_view;
 
 namespace internal {
+    
     template<class Base, enc::encoding Encoding>
-    struct base : protected Base {
+    struct common : protected Base {
         using traits_type      = typename Base::traits_type;
         using value_type       = character_view<Encoding>;
         using size_type        = typename Base::size_type;
@@ -47,87 +44,83 @@ namespace internal {
 
         using Base::Base;
         
-        base(const Base& str) : Base(str) {}
-        base(Base&& str) : Base(std::move(str)) {}
+        common(const Base& str) : Base( str ) {}
+        common(Base&& str) : Base( std::move(str) ) {}
+        common(iterator b, iterator e) : Base( b.begin, e.begin ) {}
 
-        base& operator = (const auto& other) {
-            Base::operator = (other);
-            return *this;
-        }
-
-        base& operator = (auto&& other) {
-            Base::operator = (std::move(other));
-            return *this;
-        }
-
-        base(iterator b, iterator e) : Base(b.begin, e.begin) {}
+        using Base::operator = ;
 
         iterator begin() {
-            return {Base::data(), Base::data()+Base::size()};
+            return { data(), data() + raw_size() };
         }
 
         const_iterator begin() const {
-            return {data(), data()+Base::size()};
+            return { data(), data() + raw_size() };
         }
 
         const_iterator cbegin() const { return begin(); }
 
         iterator end() {
-            return {data()+Base::size(), data()+Base::size()};
+            return { data() + raw_size() };
         }
 
         const_iterator end() const {
-            return {data()+Base::size(), data()+Base::size()};
+            return { data() + raw_size() };
         }
 
         const_iterator cend() const { return end(); }
 
-        int operator <=> (const auto& other) const {
-            return Base::compare(other);
-        }
-
-        void swap(base& other) { Base::swap(other); }
+        using Base::swap;
         
         value_type operator [] (unsigned index) const {
             auto prev_index = index;
             for(auto ch : *this)
                 if(index-- == 0) return ch;
 
-            throw std::out_of_range{
+            throw std::out_of_range {
                 "size: " + std::to_string(size()) +
                 ", requested index: " + std::to_string(prev_index)
             };
         }
 
-        size_type size() const {
-            size_type s = 0;
-
-            for(auto ch : *this)
-                s++;
-            
-            return s;
-        }
+        size_type size() const { return std::distance(begin(), end()); }
 
         auto length() const { return size(); }
         
         using Base::empty;
         using Base::data;
 
-        size_type raw_size() const {
-            return Base::size();
+        size_type raw_size() const { return Base::size(); }
+        auto raw_begin() const { return Base::begin(); }
+        auto raw_end() const { return Base::end(); }
+
+        size_type find_first_of(std::integral auto ch, size_type pos = 0) const {
+            auto sv = to_string_view();
+            for(auto ch0 : sv.substr(pos)) {
+                if(ch0 == ch) return pos;
+                pos++;
+            }
+            return npos;
         }
 
-        auto& append(auto ch) {
-            Base::append(ch);
-            return *this;
+        size_type find(std::integral auto ch, size_type pos = 0) const {
+            return find_first_of(ch, pos);
         }
+
+        using Base::compare;
+
+        value_type front() const {
+            return *begin();
+        }
+
+        friend std::strong_ordering operator <=> (const common& a, const common& b) = default;
 
         template<enc::encoding Encoding0>
         mb::basic_string<Encoding0> convert() const {
             auto from = util::template from<Encoding>(data(), data() + Base::size());
 
             if(from.template to_always_noconv<Encoding0>()) {
-                return {data(), data() + Base::size()};
+                return { raw_begin(), raw_end() };
             }
 
             std::basic_string<typename Encoding0::char_type> str;
@@ -139,59 +132,36 @@ namespace internal {
                 str.data(), str.data() + str.size()
             );
 
-            return {std::move(str)};
+            return { std::move(str) };
         }
 
-        size_type find_first_of(std::integral auto ch, size_type pos = 0) const {
-            for(auto ch0 : substr(pos)) {
-                if(ch0 == ch) return pos;
-                pos++;
-            }
-            return npos;
+        template<enc::encoding Encoding0>
+        mb::basic_string<Encoding0> to_string() const {
+            return convert<Encoding0>();
         }
 
-        size_type find(std::integral auto ch, size_type pos = 0) const {
-            return find_first_of(ch, pos);
+        template<std::integral CharT = char_type>
+        requires( sizeof(CharT) == sizeof(char_type) )
+        std::basic_string_view<CharT> to_string_view() const {
+            return {
+                (CharT*) data(), (CharT*) data() + raw_size()
+            };
         }
 
-        std::strong_ordering operator <=> (const auto& other) const {
-            return operator <=> (((Base&) *this), other);
+        template<std::integral CharT = char_type>
+        auto to_string() const {
+            return std::basic_string<CharT> { to_string_view<CharT>() };
         }
 
-    protected:
-        int sized_compare(size_type size, const char_type* str) const noexcept {
-            auto this_size = raw_size();
-            int result = traits_type::compare(data(), str, std::min(this_size, size));
-            if (result != 0)
-                return result;
-            if (this_size < size)
-                return -1;
-            if (this_size > size)
-                return 1;
-            return 0;
+        operator std::basic_string_view<char_type> () const {
+            return to_string_view<>();
         }
-    public:
-
-        int compare(const base& s) const noexcept { return sized_compare(s.raw_size(), s.data()); }
-        int compare(const Base& s) const noexcept { return sized_compare(s.size(), s.data()); }
-        int compare(const char_type* s) const noexcept { return sized_compare(traits_type::length(s), s); }
-
-        mb::basic_string_view<Encoding, traits_type> substr(size_type pos = 0, size_type count = npos) const {
-            auto b = begin() + pos;
-            auto e = count == npos ? end() : b + count;
-            return {b, e};
-        }
-
-        value_type front() const {
-            return *begin();
-        }
-
-        operator mb::basic_string_view<Encoding> () const noexcept {
-        return {
-            Base::operator std::basic_string_view<char_type>()
-        };
-    }
     };
+
+    template<class Base, class Encoding>
+    bool operator == (const common<Base, Encoding>& a, const typename Encoding::char_type* b) {
+        return ((Base&)a).compare(b) == 0;
+    }
 }
 
 template<
@@ -199,44 +169,86 @@ template<
     class Traits,
     class Allocator
 >
-struct basic_string : internal::base<std::basic_string<typename Encoding::char_type>, Encoding> {
-    using char_type = typename Encoding::char_type;
-    using string_type = std::basic_string<char_type, Traits, Allocator>;
-
-    using base_type = internal::base<string_type, Encoding>;
-        
-    using allocator_type = typename string_type::allocator_type;
+struct basic_string : internal::common<std::basic_string<typename Encoding::char_type>, Encoding> {
+    using char_type       = typename Encoding::char_type;
+    using string_type     = std::basic_string<char_type, Traits, Allocator>;
+    using base_type       = internal::common<string_type, Encoding>;
+    using allocator_type  = typename string_type::allocator_type;
 
     using base_type::base_type;
 
-    template<std::integral CharT = char_type>
-    std::basic_string<CharT> to_string() const &
-    requires( sizeof(CharT) == sizeof(typename base_type::char_type) )
-    {
-        return { (CharT*) base_type::data(), (CharT*) base_type::data() + string_type::size() };
+    using string_type::append;
+
+    basic_string(const mb::basic_string_view<Encoding> str) :
+        base_type(str.data(), str.data() + str.raw_size()) {}
+
+    basic_string& operator = (const mb::basic_string_view<Encoding> str) {
+        (base_type&)*this = str.template to_string_view();
+        return *this;
     }
 
-    using string_type::operator std::basic_string_view<char_type>;
+    int compare(mb::basic_string_view<Encoding> str) {
+        return string_type::compare(0, string_type::size(), str.data(), str.raw_size());
+    }
+
+    template<std::integral CharT = char_type>
+    mb::basic_string<Encoding> operator + (const basic_string& str) const {
+        basic_string result;
+        result.reserve(str.raw_size() + this->raw_size());
+
+        result.append(*this);
+        result.append(str);
+
+        return std::move(result);
+    }
+
+    template<std::integral CharT = char_type>
+    mb::basic_string<Encoding> operator + (const char_type* str) const {
+        basic_string result;
+        result.reserve(Traits::length(str) + this->raw_size());
+
+        result.append(*this);
+        result.append(str);
+
+        return result;
+    }
+
+    /*template<std::integral CharT = char_type>
+    requires( sizeof(CharT) == sizeof(char_type) )
+    operator std::basic_string_view<CharT> () {
+        return {
+            (CharT*) base_type::data(), (CharT*) base_type::data() + string_type::size()
+        };
+    }*/
+
+    mb::basic_string_view<Encoding> to_string_view() const {
+        return {
+            string_type::operator std::basic_string_view<char_type>()
+        };
+    }
+
+    operator mb::basic_string_view<Encoding> () const {
+        return to_string_view();
+    }
+    
 };
 
 template<enc::encoding Encoding, class Traits>
-struct basic_string_view : mb::internal::base<std::basic_string_view<typename Encoding::char_type, Traits>, Encoding> {
-    using string_view_type = std::basic_string_view<typename Encoding::char_type, Traits>;
-
-    using base_type = mb::internal::base<string_view_type, Encoding>;
+struct basic_string_view :
+internal::common<std::basic_string_view<typename Encoding::char_type, Traits>, Encoding> {
+    using char_type = typename Encoding::char_type;
+    using string_view_type = std::basic_string_view<char_type, Traits>;
+    using base_type = mb::internal::common<string_view_type, Encoding>;
+    using size_type = typename base_type::size_type;
 
     using base_type::base_type;
+
+    basic_string_view substr(size_type pos = 0, size_type count = base_type::npos) const {
+        auto b = base_type::begin() + pos;
+        auto e = count == base_type::npos ? base_type::end() : b + count;
+        return { b, e };
+    }
 };
-
-template<enc::encoding Encoding>
-bool operator == (const mb::basic_string<Encoding>& l, const auto& r) {
-    return l.compare(r) == 0;
-}
-
-template<enc::encoding Encoding>
-auto operator <=> (const mb::basic_string<Encoding>& l, const auto& r) {
-    return l.compare(r);
-}
 
 using utf8_string = mb::basic_string<enc::utf8>;
 class utf16_string : public mb::basic_string<enc::utf16> {
@@ -244,7 +256,7 @@ class utf16_string : public mb::basic_string<enc::utf16> {
 public:
     using base::base;
 
-    operator std::wstring_view() const noexcept {
+    operator std::wstring_view() const {
         return {(wchar_t*)data(), (wchar_t*)data() + base_type::size()};
     }
 };

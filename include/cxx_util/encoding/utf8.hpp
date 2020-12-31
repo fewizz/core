@@ -26,7 +26,7 @@ inline enc::size_request_info first_char_width(const char8_t* begin, const char8
         return (val >> (8 - bits)) == mask;
     };
 
-    unsigned potential_size = -1;
+    unsigned potential_size = 0;
 
     if(starts_with(0b0, 1, first))
         potential_size = 1;
@@ -37,9 +37,9 @@ inline enc::size_request_info first_char_width(const char8_t* begin, const char8
     if(starts_with(0b11110, 5, first))
         potential_size = 4;
     
-    if(potential_size == -1) return { enc::request_result::invalid_input };
+    if(potential_size == 0) return { enc::request_result::invalid_input };
 
-    for(int i = 1; i < std::min(potential_size, size); i++) {
+    for(unsigned i = 1; i < std::min(potential_size, size); i++) {
         if(not starts_with(0b10, 2, begin[i])) return { enc::request_result::invalid_input };
     }
 
@@ -66,7 +66,7 @@ inline enc::codepoint_request_info first_code_point(const char8_t* begin, const 
     unsigned first_offset = (6 * (size_read.size - 1));
     uint64_t result = first << first_offset;
 
-    for(int i = 1; i < size_read.size; i++) {
+    for(unsigned i = 1; i < (unsigned)size_read.size; i++) {
         unsigned offset = 6 * ((size_read.size - 1) - i);
         uint64_t nth = begin[i];
         result |= (nth & 0b00111111) << offset;

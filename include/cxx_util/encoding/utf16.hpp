@@ -20,7 +20,7 @@ inline enc::size_request_info first_char_width(const char16_t* begin, const char
 
     uint16_t first = begin[0];
 
-    if(first >= 0x0 && first <= 0xD800 || first >= 0xE000 && first <= 0xFFFF)
+    if(((first >= 0x0) && (first <= 0xD800)) || ((first >= 0xE000) && (first <= 0xFFFF)))
         return { enc::request_result::ok, 1 };
     
     if(size == 1) { return { enc::request_result::unexpected_src_end }; }

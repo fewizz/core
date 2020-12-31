@@ -1,3 +1,4 @@
+#include <bits/c++config.h>
 #include <cstring>
 #include <string>
 #include <iostream>
@@ -42,7 +43,37 @@ void utf16_util() {
 }
 
 void mb_string() {
+    {
+        mb::utf8_string s0 = u8"abcd";
+        mb::utf8_string s1 = u8"bcd";
+
+        static_assert(std::is_same_v<bool, decltype(s0 == s1)>, "");
+        static_assert(std::is_same_v<bool, decltype(s0 != s1)>, "");
+        static_assert(std::is_same_v<bool, decltype(s0 >  s1)>, "");
+        static_assert(std::is_same_v<bool, decltype(s0 <  s1)>, "");
+        static_assert(std::is_same_v<bool, decltype(s0 >= s1)>, "");
+        static_assert(std::is_same_v<bool, decltype(s0 <= s1)>, "");
+
+        mb::utf8_string_view s1sv = s1.to_string_view();
+        s0 = s1sv;
+
+        assert(s0.size() == s1.size());
+        assert(s0 == s1);
+    }
+
     mb::utf8_string u8str = u8"Привет Hello 😇!";
+    mb::utf8_string_view u8str_v = u8str;
+
+    assert(u8str.compare(u8str_v) == 0);
+
+    auto ch0 = u8str[0];
+    auto ch1 = u8str[1];
+
+    assert(ch0 != ch1);
+    assert(ch0 < ch1);
+    assert(u8str[9] == u8str[10]);
+
+    assert((u8str + u8" Исэнмэ!").size() == u8str.size() + 8);
 
     assert(u8str.size() == 6 + 1 + 5 + 1 + 1 + 1);
     assert(u8str.operator std::basic_string_view<char8_t>().size() == 6*2 + 1 + 5 + 1 + 4 + 1);
@@ -56,7 +87,7 @@ void mb_string() {
     assert(converted_strv.size() == u16_hello_world.size());
 
     assert(
-        (u16_hello_world.template convert<enc::ascii>()).size()
+        (u16_hello_world.template to_string<enc::ascii>()).size()
         ==
         std::strlen("Hello world!")*2
     );
@@ -64,12 +95,12 @@ void mb_string() {
     mb::utf8_string u8_hello_world = u8"Hello world!";
 
     assert(
-        u8_hello_world.template convert<enc::ascii>()
+        (u8_hello_world.template to_string<enc::ascii>())
         ==
         "Hello world!"
     );
 
-    std::u8string str_from_rvalue_u8 = mb::utf8_string{u8"Hello?"}.to_string();
+    std::u8string str_from_rvalue_u8 = mb::utf8_string{u8"Hello?"}.to_string<char8_t>();
     assert(str_from_rvalue_u8.size() == 6);
 }
 

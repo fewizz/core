@@ -27,6 +27,11 @@ struct character_iterator {
         if(begin > end) throw std::out_of_range{"passed end"};
     }
 
+    character_iterator(
+        const char_type* end
+    ) :
+    begin{end}, end{end} {}
+
     value_type operator * () const {
         if(begin >= end) throw std::out_of_range{"passed end"};
         auto info = Encoding::first_char_width(begin, end);
@@ -59,7 +64,8 @@ struct character_iterator {
         if(it < end) {
             while(offset-- > 0) {
                 auto info = Encoding::first_char_width(it, end);
-                if(info.result != std::codecvt_base::ok) throw std::runtime_error{"getting mbc length"};
+                if(info.result != enc::request_result::ok)
+                    throw std::runtime_error{"getting mbc length"};
                 it += info.size;
 
                 if(it == end) break;
