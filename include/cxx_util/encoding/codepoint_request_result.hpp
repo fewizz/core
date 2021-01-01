@@ -21,7 +21,8 @@ struct codepoint_request_info {
     request_result result;
     uint64_t codepoint;
     unsigned size;
-    //request_result width_request_result;
+
+    bool operator == (auto) = delete;
 };
 
 }

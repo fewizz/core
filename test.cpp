@@ -1,5 +1,6 @@
 #include <bits/c++config.h>
 #include <cstring>
+#include <initializer_list>
 #include <string>
 #include <iostream>
 #include <iterator>
@@ -8,6 +9,7 @@
 #include "include/cxx_util/mb/string.hpp"
 #include "include/cxx_util/iterator.hpp"
 #include <assert.h>
+#include "include/cxx_util/containers/join.hpp"
 
 static_assert(enc::is_encoding_v<enc::utf8>, "");
 static_assert(enc::is_encoding_v<enc::utf16>, "");
@@ -47,6 +49,17 @@ void mb_string() {
         mb::utf8_string s0 = u8"abcd";
         mb::utf8_string s1 = u8"bcd";
 
+        std::vector utfs{s0, s1};
+
+        assert(
+            util::join<mb::utf8_string>(utfs.begin(), utfs.end(), mb::utf8_string(u8"_"))
+            ==
+            u8"abcd_bcd"
+        );
+
+        s1.insert(s1.begin(), u8"a");
+        assert(s1 == s0);
+
         static_assert(std::is_same_v<bool, decltype(s0 == s1)>, "");
         static_assert(std::is_same_v<bool, decltype(s0 != s1)>, "");
         static_assert(std::is_same_v<bool, decltype(s0 >  s1)>, "");
@@ -61,47 +74,59 @@ void mb_string() {
         assert(s0 == s1);
     }
 
-    mb::utf8_string u8str = u8"Привет Hello 😇!";
-    mb::utf8_string_view u8str_v = u8str;
+    {
+        mb::utf8_string u8str = u8"Привет Hello 😇!";
+        mb::utf8_string_view u8str_v = u8str;
 
-    assert(u8str.compare(u8str_v) == 0);
+        assert(u8str.compare(u8str_v) == 0);
 
-    auto ch0 = u8str[0];
-    auto ch1 = u8str[1];
+        auto ch0 = u8str[0];
+        auto ch1 = u8str[1];
 
-    assert(ch0 != ch1);
-    assert(ch0 < ch1);
-    assert(u8str[9] == u8str[10]);
+        assert(ch0 != ch1);
+        assert(ch0 < ch1);
+        assert(u8str[9] == u8str[10]);
 
-    assert((u8str + u8" Исэнмэ!").size() == u8str.size() + 8);
+        assert(u8str + u8" Исэнмэ!" == u8"Привет Hello 😇! Исэнмэ!");
+        assert(u8" Исэнмэ!" + u8str == u8" Исэнмэ!Привет Hello 😇!");
 
-    assert(u8str.size() == 6 + 1 + 5 + 1 + 1 + 1);
-    assert(u8str.operator std::basic_string_view<char8_t>().size() == 6*2 + 1 + 5 + 1 + 4 + 1);
+        assert(u8str.size() == 6 + 1 + 5 + 1 + 1 + 1);
+        assert(u8str.operator std::basic_string_view<char8_t>().size() == 6*2 + 1 + 5 + 1 + 4 + 1);
 
-    mb::ascii_string empty_ascii_str = "";
-    assert(empty_ascii_str.size() == 0);
+        std::u8string std = u8"std";
+        assert(u8str + std == u8"Привет Hello 😇!std");
+    }
 
-    mb::utf16_string u16_hello_world = u"Hello world!";
-    std::wstring_view converted_strv = u16_hello_world;
+    {
+        mb::ascii_string empty_ascii_str = "";
+        assert(empty_ascii_str.size() == 0);
+    }
 
-    assert(converted_strv.size() == u16_hello_world.size());
+    {
+        mb::utf16_string u16_hello_world = u"Hello world!";
+        std::wstring_view converted_strv = u16_hello_world;
 
-    assert(
-        (u16_hello_world.template to_string<enc::ascii>()).size()
-        ==
-        std::strlen("Hello world!")*2
-    );
+        assert(converted_strv.size() == u16_hello_world.size());
 
-    mb::utf8_string u8_hello_world = u8"Hello world!";
+        assert(
+            (u16_hello_world.template to_string<enc::ascii>()).size()
+            ==
+            std::strlen("Hello world!")*2
+        );
+    }
 
-    assert(
-        (u8_hello_world.template to_string<enc::ascii>())
-        ==
-        "Hello world!"
-    );
+    {
+        mb::utf8_string u8_hello_world = u8"Hello world!";
 
-    std::u8string str_from_rvalue_u8 = mb::utf8_string{u8"Hello?"}.to_string<char8_t>();
-    assert(str_from_rvalue_u8.size() == 6);
+        assert(
+            (u8_hello_world.template to_string<enc::ascii>())
+            ==
+            "Hello world!"
+        );
+
+        std::u8string str_from_rvalue_u8 = mb::utf8_string{u8"Hello?"}.to_string<char8_t>();
+        assert(str_from_rvalue_u8.size() == 6);
+    }
 }
 
 int main() {
