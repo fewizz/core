@@ -5,182 +5,19 @@
 #include <corecrt.h>
 #include <cstddef>
 #include <cstring>
-#include <locale>
 #include <stdexcept>
+#include <string>
 #include <string_view>
 #include <type_traits>
-#include "character_iterator.hpp"
-#include "string_def.hpp"
+#include "common.hpp"
 
 namespace mb {
 
 namespace internal {
-    
-    template<class Base, enc::encoding Encoding>
-    struct common : protected Base {
-        using traits_type      = typename Base::traits_type;
-        using value_type       = character_view<Encoding>;
-        using size_type        = typename Base::size_type;
-        using difference_type  = typename Base::difference_type;
-        using pointer          = typename Base::pointer;
-        using const_pointer    = typename Base::const_pointer;
-        using reference        = value_type&;
-        using const_reference  = const value_type&;
-        using iterator         = character_iterator<Encoding>;
-        using const_iterator   = const character_iterator<Encoding>;
-        static const
-            size_type npos     = Base::npos;
-
-        using char_type        = typename Encoding::char_type;
-        using encoding_type    = Encoding;
-
-        // constructor
-
-        using Base::Base;
-        
-        common(const Base& str) : Base( str ) {}
-        common(Base&& str) : Base( std::move(str) ) {}
-        common(iterator b, iterator e) : Base( b.cur, e.cur ) {}
-        common(const mb::character<Encoding>& ch) : Base( ch.begin(), ch.end() ) {}
-        common(mb::character_view<Encoding> ch) : Base( ch.begin(), ch.end() ) {}
-
-        using Base::operator = ;
-
-        // element access
-        
-        value_type at(size_type index) const {
-            auto prev_index = index;
-            for(auto ch : *this)
-                if(index-- == 0) return ch;
-
-            throw std::out_of_range {
-                "size: " + std::to_string(size()) +
-                ", requested index: " + std::to_string(prev_index)
-            };
-        }
-
-        value_type operator [] (size_type index) const {
-            return at(index);
-        }
-
-        value_type front() const {
-            return *begin();
-        }
-
-        using Base::data;
-
-        operator std::basic_string_view<char_type> () const {
-            return to_string_view<char_type>();
-        }
-        
-        // iterators
-
-        iterator begin() {
-            return { data(), data(), data() + raw_size() };
-        }
-
-        const_iterator begin() const {
-            return { data(), data(), data() + raw_size() };
-        }
-
-        const_iterator cbegin() const { return begin(); }
-
-        iterator end() {
-            return { data(), data() + raw_size() };
-        }
-
-        const_iterator end() const {
-            return { data(), data() + raw_size() };
-        }
-
-        const_iterator cend() const { return end(); }
-
-        auto raw_begin() const { return Base::begin(); }
-        auto raw_end() const { return Base::end(); }
-
-        // capacity
-
-        using Base::empty;
-
-        size_type size() const { return std::distance(begin(), end()); }
-
-        auto length() const { return size(); }
-
-        size_type raw_size() const { return Base::size(); }
-
-        // operations
-        
-        using Base::compare;
-        using Base::swap;
-
-        // search
-        
-        size_type find(std::integral auto ch, size_type pos = 0) const {
-            return find_first_of(ch, pos);
-        }
-
-        size_type find_first_of(std::integral auto ch, size_type pos = 0) const {
-            auto sv = to_string_view();
-            for(auto ch0 : sv.substr(pos)) {
-                if(ch0 == ch) return pos;
-                pos++;
-            }
-            return npos;
-        }
-
-        // other
-
-        friend std::strong_ordering operator <=> (const common& a, const common& b) = default;
-
-        template<enc::encoding Encoding0>
-        mb::basic_string<Encoding0> convert() const {
-            auto from = util::template from<Encoding>(data(), data() + Base::size());
-
-            if(from.template to_always_noconv<Encoding0>()) {
-                return { raw_begin(), raw_end() };
-            }
-
-            std::basic_string<typename Encoding0::char_type> str;
-            str.resize(
-                from.template to_length<Encoding0>()
-            );
-
-            from.template to<Encoding0>(
-                str.data(), str.data() + str.size()
-            );
-
-            return { std::move(str) };
-        }
-
-        template<enc::encoding Encoding0>
-        mb::basic_string<Encoding0> to_string() const {
-            return convert<Encoding0>();
-        }
-
-        template<std::integral CharT = char_type>
-        requires( sizeof(CharT) == sizeof(char_type) )
-        std::basic_string_view<CharT> to_string_view() const {
-            return {
-                (CharT*) data(), (CharT*) data() + raw_size()
-            };
-        }
-
-        template<std::integral CharT = char_type>
-        auto to_string() const {
-            return std::basic_string<CharT> { to_string_view<CharT>() };
-        }
-    };
-
-    template<class Base, class Encoding>
-    inline bool operator == (const common<Base, Encoding>& a, const typename Encoding::char_type* b) {
-        return ((Base&)a).compare(b) == 0;
-    }
-}
-
 template<
     enc::encoding Encoding,
-    class Traits,
-    class Allocator
+    class Traits = std::char_traits<typename Encoding::char_type>,
+    class Allocator = std::allocator<typename Encoding::char_type>
 >
 struct basic_string : internal::common<std::basic_string<typename Encoding::char_type>, Encoding> {
     using char_type       = typename Encoding::char_type;
@@ -202,6 +39,9 @@ struct basic_string : internal::common<std::basic_string<typename Encoding::char
         return *this;
     }
 
+    using string_type::clear;
+    using string_type::max_size;
+
     int compare(mb::basic_string_view<Encoding> str) {
         return string_type::compare(0, string_type::size(), str.data(), str.raw_size());
     }
@@ -217,7 +57,7 @@ struct basic_string : internal::common<std::basic_string<typename Encoding::char
     }
 
     iterator insert(const_iterator pos, const char_type* ch) {
-        typename string_type::size_type offset = pos.cur - string_type::data();
+        typename string_type::size_type offset = current(pos) - string_type::data();
         string_type::insert(offset, ch);
         return {string_type::data(), string_type::data() + offset, string_type::data() + string_type::size()};
     }
@@ -233,6 +73,21 @@ struct basic_string : internal::common<std::basic_string<typename Encoding::char
     void push_back(character_view<Encoding> ch) {
         insert(base_type::end(), ch);
     }
+
+    void push_back(char_type ch) {
+        string_type::push_back(ch);
+    }
+};
+
+}
+
+template<
+    enc::encoding Encoding,
+    class Traits,
+    class Allocator
+>
+struct basic_string : public internal::basic_string<Encoding, Traits, Allocator> {
+    using internal::basic_string<Encoding, Traits, Allocator>::basic_string;
 };
 
 namespace internal {
@@ -288,52 +143,115 @@ mb::basic_string<E, T, A> operator + (
     return internal::sum<E, T, A>(l.data(), l.size(), r.data(), r.raw_size());
 }
 
-template<enc::encoding Encoding, class Traits>
-struct basic_string_view :
-internal::common<std::basic_string_view<typename Encoding::char_type, Traits>, Encoding> {
-    using char_type = typename Encoding::char_type;
-    using string_view_type = std::basic_string_view<char_type, Traits>;
-    using base_type = mb::internal::common<string_view_type, Encoding>;
-    using size_type = typename base_type::size_type;
-
-    using base_type::base_type;
-
-    basic_string_view substr(size_type pos = 0, size_type count = base_type::npos) const {
-        auto b = base_type::begin() + pos;
-        auto e = count == base_type::npos ? base_type::end() : b + count;
-        return { b, e };
-    }
-};
-
-// basic_string
+using ascii_string = mb::basic_string<enc::ascii>;
 using utf8_string = mb::basic_string<enc::utf8>;
 
-class utf16_string : public mb::basic_string<enc::utf16> {
-    using base = mb::basic_string<enc::utf16>;
+template<>
+class basic_string<enc::utf16> : public internal::basic_string<enc::utf16> {
+    using base = mb::internal::basic_string<enc::utf16>;
 public:
     using base::base;
 
     operator std::wstring_view() const {
-        return {(wchar_t*)data(), (wchar_t*)data() + base_type::size()};
+        return {(wchar_t*)data(), raw_size()};
     }
 };
 
-using ascii_string = mb::basic_string<enc::ascii>;
+using utf16_string = basic_string<enc::utf16>;
 
-// basic_string_view
-using utf8_string_view = mb::basic_string_view<enc::utf8>;
+template<class T>
+std::basic_ostream<char, T>&
+    operator << (std::basic_ostream<char, T>& os,
+               const utf8_string& str) {
+    return os << str.template to_string<char>();
+}
 
-class utf16_string_view : mb::basic_string_view<enc::utf16> {
-    using base = mb::basic_string_view<enc::utf16>;
-public:
-    using base::base;
+template<class T>
+std::basic_ostream<char, T>&
+    operator << (std::basic_ostream<char, T>& os,
+               const ascii_string& str) {
+    return os << str.template to_string<char>();
+}
 
-    operator std::wstring_view() const noexcept {
-        return {(wchar_t*)data(), (wchar_t*)data() + base_type::size()};
+template<class T>
+std::basic_ostream<wchar_t, T>&
+    operator << (std::basic_ostream<char, T>& os,
+               const utf16_string& str) {
+    return os << str.template to_string<wchar_t>();
+}
+
+namespace internal {
+
+// from libc++/istream
+template<class CharT, class T = std::char_traits<CharT>, class MBString>
+std::basic_istream<CharT, T>&
+formatted_input (std::basic_istream<CharT, T>& is, MBString& str) {
+    std::ios_base::iostate state = std::ios_base::goodbit;
+    typename std::basic_istream<CharT, T>::sentry sen(is);
+
+    if (sen) {
+        try {
+            str.clear();
+
+            std::streamsize max = is.width();
+            if (max <= 0)
+                max = str.max_size();
+            if (max <= 0)
+                max = std::numeric_limits<std::streamsize>::max();
+            
+            std::streamsize size = 0;
+            const std::ctype<CharT>& ctype = use_facet<std::ctype<CharT> >(is.getloc());
+
+            while (size < max) {
+                typename T::int_type char_code = is.rdbuf()->sgetc();
+                if (T::eq_int_type(char_code, T::eof())) {
+                   state |= std::ios_base::eofbit;
+                   break;
+                }
+                CharT ch = T::to_char_type(char_code);
+
+                if (ctype.is(ctype.space, ch))
+                    break;
+                
+                str.push_back((typename MBString::char_type) ch);
+                ++size;
+                is.rdbuf()->sbumpc();
+            }
+            is.width(0);
+            if (size == 0)
+               state |= std::ios_base::failbit;
+        }
+        catch (...) {
+            state |= std::ios_base::badbit;
+            is.__setstate_nothrow(state);
+            if (is.exceptions() & std::ios_base::badbit)
+                throw;
+        }
+        is.setstate(state);
     }
-};
+    return is;
+}
 
-using ascii_string_view = mb::basic_string_view<enc::ascii>;
+}
+
+template<class T>
+std::basic_istream<char, T>&
+operator >> (std::basic_istream<char, T>& is, utf8_string& str) {
+    return internal::formatted_input<char, T>(is, str);
+}
+
+template<class T>
+std::basic_istream<char, T>&
+operator >> (std::basic_istream<char, T>& is, ascii_string& str) {
+    return internal::formatted_input<char, T>(is, str);
+}
+
+template<class T>
+std::basic_istream<wchar_t, T>&
+operator >> (std::basic_istream<wchar_t, T>& is, utf16_string& str) {
+    return internal::formatted_input<wchar_t, T>(is, str);
+}
+
 //
 
 template<class T>

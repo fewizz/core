@@ -2,9 +2,24 @@
 
 #include "character.hpp"
 #include <compare>
+#include <iterator>
 #include "string_def.hpp"
 
 namespace mb {
+
+template<enc::encoding Encoding>
+class character_iterator;
+
+namespace internal {
+    template<enc::encoding Encoding>
+    auto begin(mb::character_iterator<Encoding> it);
+
+    template<enc::encoding Encoding>
+    auto current(mb::character_iterator<Encoding> it);
+
+    template<enc::encoding Encoding>
+    auto end(mb::character_iterator<Encoding> it);
+}
 
 template<enc::encoding Encoding>
 class character_iterator {
@@ -13,19 +28,21 @@ class character_iterator {
     const char_type* cur;
     const char_type* end;
 
-    template<class Base, enc::encoding Encoding0>
-    friend class mb::internal::common;
+    template<enc::encoding Encoding0>
+    friend auto internal::begin(character_iterator<Encoding0>);
 
-    template<enc::encoding Encoding0, class Traits, class Allocator>
-    friend struct mb::basic_string;
+    template<enc::encoding Encoding0>
+    friend auto internal::current(character_iterator<Encoding0>);
 
-    template<enc::encoding Encoding0, class Traits>
-    friend struct mb::basic_string_view;
+    template<enc::encoding Encoding0>
+    friend auto internal::end(character_iterator<Encoding0>);
 
 public:
-
+    using difference_type = std::size_t;
     using value_type = character_view<Encoding>;
-    using difference_type = std::ptrdiff_t;
+    using pointer = value_type*;
+    using reference = value_type&;
+    using iterator_category = std::input_iterator_tag;
 
     character_iterator() {}
     character_iterator(character_iterator&& other) = default;
@@ -66,7 +83,7 @@ public:
     value_type operator * () const {
         check();
         
-        return { cur, cur + width() };
+        return { cur, width() };
     }
 
     auto& operator ++ () {
@@ -81,7 +98,8 @@ public:
         return prev;
     }
 
-    auto operator + (std::integral auto offset) const {
+    auto operator + (auto offset) const
+    requires(std::is_integral_v<decltype(offset)>) {
         auto offset0 = offset;
         auto it = cur;
 
@@ -107,5 +125,22 @@ public:
     bool operator == (const character_iterator& other) const = default;
     bool operator != (const character_iterator& other) const = default;
 };
+
+namespace internal {
+    template<enc::encoding Encoding>
+    auto begin(mb::character_iterator<Encoding> it) {
+        return it.begin;
+    }
+
+    template<enc::encoding Encoding>
+    auto current(mb::character_iterator<Encoding> it) {
+        return it.cur;
+    }
+
+    template<enc::encoding Encoding>
+    auto end(mb::character_iterator<Encoding> it) {
+        return it.end;
+    }
+}
 
 }

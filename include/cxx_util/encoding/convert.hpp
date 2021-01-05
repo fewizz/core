@@ -5,6 +5,7 @@
 #include "../locale/codecvt.hpp"
 #include "../locale/codecvt_utf8_ascii.hpp"
 #include "../locale/codecvt_utf16_ascii.hpp"
+#include <codecvt>
 #include <cstring>
 
 namespace util {
@@ -29,7 +30,7 @@ template<> struct codec<enc::ascii, enc::ascii> {
 
 // utf8 <-> utf16
 template<> struct codec<enc::utf16, enc::utf8> {
-    using type = util::deletable_facet<std::codecvt<char16_t, char8_t, std::mbstate_t>>;
+    using type = std::codecvt_utf8_utf16<char16_t>;//util::deletable_facet<std::codecvt<char16_t, char8_t, std::mbstate_t>>;
     constexpr static bool reverted = false;
     constexpr static bool nonconv = false;
 };
@@ -131,13 +132,38 @@ struct to_chain {
             typename codec_t::type c{};
             typename codec_t::type::state_type st{};
 
-            const typename Encoding::char_type* from_next;
-            typename Encoding0::char_type* to_next;
+            
+            using in_t = typename codec_t::type::intern_type;
+            using ex_t = typename codec_t::type::extern_type;
 
-            if constexpr(codec_t::reverted)
-                c.in(st, from_begin, from_end, from_next, begin, end, to_next);
-            else
-                c.out(st, from_begin, from_end, from_next, begin, end, to_next);
+            if constexpr(codec_t::reverted) {
+                const ex_t* from_next;
+                in_t* to_next;
+
+                c.in(
+                    st,
+                    (const ex_t*)from_begin,
+                    (const ex_t*)from_end,
+                    from_next,
+                    (in_t*)begin,
+                    (in_t*)end,
+                    to_next
+                );
+            }
+            else {
+                const in_t* from_next;
+                ex_t* to_next;
+
+                c.out(
+                    st,
+                    (const in_t*)from_begin,
+                    (const in_t*)from_end,
+                    from_next,
+                    (ex_t*)begin,
+                    (ex_t*)end,
+                    to_next
+                );
+            }
         }
     }
 

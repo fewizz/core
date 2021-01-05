@@ -1,15 +1,17 @@
-#include <bits/c++config.h>
-#include <cstring>
 #include <initializer_list>
+#include <sstream>
 #include <string>
 #include <iostream>
 #include <iterator>
 #include <string_view>
 #include <type_traits>
 #include "include/cxx_util/mb/string.hpp"
+#include "include/cxx_util/mb/string_view.hpp"
 #include "include/cxx_util/iterator.hpp"
 #include <assert.h>
 #include "include/cxx_util/containers/join.hpp"
+#include <cstring>
+#include <vector>
 
 static_assert(enc::is_encoding_v<enc::utf8>, "");
 static_assert(enc::is_encoding_v<enc::utf16>, "");
@@ -42,6 +44,8 @@ void utf16_util() {
 
     assert(2 == util::utf16::first_char_width(buf, buf + std::extent_v<decltype(buf)>).size);
     assert(0x1F602 == util::utf16::first_code_point(buf, buf + 2).codepoint);
+
+    mb::utf16_string_view str = u"Hello";
 }
 
 void mb_string() {
@@ -49,7 +53,7 @@ void mb_string() {
         mb::utf8_string s0 = u8"abcd";
         mb::utf8_string s1 = u8"bcd";
 
-        std::vector utfs{s0, s1};
+        std::vector<mb::utf8_string> utfs{s0, s1};
 
         assert(
             util::join<mb::utf8_string>(utfs.begin(), utfs.end(), mb::utf8_string(u8"_"))
@@ -126,6 +130,13 @@ void mb_string() {
 
         std::u8string str_from_rvalue_u8 = mb::utf8_string{u8"Hello?"}.to_string<char8_t>();
         assert(str_from_rvalue_u8.size() == 6);
+    }
+
+    {
+        std::istringstream ss{"Hello"};
+        mb::utf8_string str;
+        ss >> str;
+        assert(str == u8"Hello");
     }
 }
 

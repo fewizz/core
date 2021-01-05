@@ -36,7 +36,7 @@ namespace internal {
             ;
         }
 
-        bool operator == (std::integral auto ch) const {
+        bool operator == (auto ch) const requires(std::is_integral_v<decltype(ch)>) {
             return
                 this->size() == 1
                 &&
@@ -69,9 +69,9 @@ namespace internal {
             return convert<Encoding0>();
         }
 
-        template<std::integral CharT = char_type>
-        std::basic_string<CharT> to_string() const {
-            return { (CharT*)Base::data(), (CharT*)Base::data() + Base::size() };
+        template<class CharT = char_type>
+        std::basic_string<CharT> to_string() const requires(std::is_integral_v<CharT>) {
+            return { (CharT*)Base::data(), Base::size() };
         }
 
         //template<std::>

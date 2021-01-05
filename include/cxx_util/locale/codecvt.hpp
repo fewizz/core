@@ -1,6 +1,5 @@
 #pragma once
 
-#include <bits/c++config.h>
 #include <codecvt>
 #include <cwchar>
 #include <locale>
