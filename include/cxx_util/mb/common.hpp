@@ -3,6 +3,7 @@
 #include "string_def.hpp"
 #include "character.hpp"
 #include "character_iterator.hpp"
+#include <type_traits>
 
 namespace mb {
 
@@ -127,7 +128,7 @@ struct common : protected Base {
 
     template<enc::encoding Encoding0>
     mb::basic_string<Encoding0> convert() const {
-        auto from = util::template from<Encoding>(data(), data() + Base::size());
+        auto from = enc::template from<Encoding>(data(), data() + Base::size());
 
         if(from.template to_always_noconv<Encoding0>()) {
             return { raw_begin(), raw_end() };
@@ -170,4 +171,18 @@ inline bool operator == (const common<Base, Encoding>& a, const typename Encodin
     return ((Base&)a).compare(b) == 0;
 }
 }
+
+template<class CharT>
+struct char_or_wchar {
+    using type =
+        std::conditional_t<
+            sizeof(CharT) == sizeof(char),
+            char,
+            std::conditional_t<sizeof(CharT) == sizeof(wchar_t), wchar_t, void>
+        >;
+};
+
+template<class CharT>
+using char_or_wchar_t = typename char_or_wchar<CharT>::type;
+
 }

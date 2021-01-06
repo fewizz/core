@@ -27,6 +27,7 @@ struct basic_string : internal::common<std::basic_string<typename Encoding::char
     using base_type::base_type;
     using typename  base_type::iterator;
     using typename base_type::const_iterator;
+    using typename base_type::size_type;
     using string_type::append;
     using string_type::get_allocator;
 
@@ -76,6 +77,12 @@ struct basic_string : internal::common<std::basic_string<typename Encoding::char
 
     void push_back(char_type ch) {
         string_type::push_back(ch);
+    }
+
+    basic_string substr(size_type pos = 0, size_type count = base_type::npos) const {
+        auto b = base_type::begin() + pos;
+        auto e = count == base_type::npos ? base_type::end() : b + count;
+        return { b, e };
     }
 };
 
@@ -223,7 +230,7 @@ formatted_input (std::basic_istream<CharT, T>& is, MBString& str) {
         }
         catch (...) {
             state |= std::ios_base::badbit;
-            is.__setstate_nothrow(state);
+            is.setstate(state);
             if (is.exceptions() & std::ios_base::badbit)
                 throw;
         }

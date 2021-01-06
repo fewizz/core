@@ -78,6 +78,9 @@ concept encoding = requires() {
     T::characters;
 };
 
+template<class T, class CharT>
+concept encoding_with_size_of = encoding<T> && sizeof(typename T::char_type) == sizeof(CharT);
+
 template<class T>
 struct is_encoding : std::false_type {}; 
 

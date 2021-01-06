@@ -46,7 +46,7 @@ namespace internal {
 
         template<enc::encoding Encoding0>
         mb::character<Encoding0> convert() const {
-            auto from = util::template from<Encoding>(data(), data() + size());
+            auto from = enc::template from<Encoding>(data(), data() + size());
 
             if(from.template to_always_noconv<Encoding0>()) {
                 return {data(), data() + size()};

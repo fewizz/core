@@ -8,7 +8,7 @@
 #include <codecvt>
 #include <cstring>
 
-namespace util {
+namespace enc {
 
 template<enc::encoding Internal, enc::encoding External>
 struct codec;
@@ -43,26 +43,26 @@ template<> struct codec<enc::utf8, enc::utf16> {
 
 // utf8 <-> ascii
 template<> struct codec<enc::utf8, enc::ascii> {
-    using type = codecvt_utf8_ascii<false>;
+    using type = util::codecvt_utf8_ascii<false>;
     constexpr static bool reverted = false;
     constexpr static bool nonconv = false;
 };
 
 template<> struct codec<enc::ascii, enc::utf8> {
-    using type = codecvt_utf8_ascii<false>;
+    using type = util::codecvt_utf8_ascii<false>;
     constexpr static bool reverted = true;
     constexpr static bool nonconv = false;
 };
 
 // utf16 <-> ascii
 template<> struct codec<enc::utf16, enc::ascii> {
-    using type = codecvt_utf16_ascii<false>;
+    using type = util::codecvt_utf16_ascii<false>;
     constexpr static bool reverted = false;
     constexpr static bool nonconv = false;
 };
 
 template<> struct codec<enc::ascii, enc::utf16> {
-    using type = codecvt_utf16_ascii<false>;
+    using type = util::codecvt_utf16_ascii<false>;
     constexpr static bool reverted = true;
     constexpr static bool nonconv = false;
 };
@@ -191,12 +191,12 @@ auto from(
     const typename Encoding::char_type* begin,
     const typename Encoding::char_type* end
 ) {
-    return util::internal::to_chain<Encoding>{begin, end};
+    return enc::internal::to_chain<Encoding>{begin, end};
 }
 
 template<enc::encoding Encoding, unsigned N>
 auto from(const typename Encoding::char_type (& arr)[N]) {
-    return util::internal::to_chain<Encoding>{arr, arr + N};
+    return enc::internal::to_chain<Encoding>{arr, arr + N};
 }
 
 }

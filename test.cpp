@@ -12,6 +12,7 @@
 #include "include/cxx_util/containers/join.hpp"
 #include <cstring>
 #include <vector>
+#include "include/cxx_util/convert.hpp"
 
 static_assert(enc::is_encoding_v<enc::utf8>, "");
 static_assert(enc::is_encoding_v<enc::utf16>, "");
@@ -140,8 +141,21 @@ void mb_string() {
     }
 }
 
+void convert() {
+    /*util::convert::from<std::filesystem::path>("").template to<std::string>();
+    util::convert::from<mb::utf8_string>(u8"").template to<std::string>();
+    util::convert::from<mb::utf16_string>(u"").template to<std::wstring>();
+    util::convert::from<mb::utf8_string_view>(u8"").template to<std::filesystem::path>();
+    util::convert::from<mb::utf8_string_view>(u8"").template to<mb::utf8_string>();*/
+    //bool val = util::convert::convert_to<bool>(mb::utf8_string_view(u8""));
+    static_assert(util::convert::is_convertible_to_v<bool, mb::utf8_string_view>);
+
+    //static_assert(util::convert::is_convertible_to_v<bool, bool>);
+}
+
 int main() {
     utf8_util();
     utf16_util();
     mb_string();
+    convert();
 }
