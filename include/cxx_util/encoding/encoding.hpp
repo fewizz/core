@@ -90,4 +90,15 @@ struct is_encoding<T> : std::true_type {};
 template<class T>
 static constexpr bool is_encoding_v = is_encoding<T>::value;
 
+template<class CharT>
+struct encoding_from_char;
+
+template<> struct encoding_from_char<char> { using type = enc::ascii; };
+template<> struct encoding_from_char<wchar_t> { using type = enc::usc2; };
+template<> struct encoding_from_char<char8_t> { using type = enc::utf8; };
+template<> struct encoding_from_char<char16_t> { using type = enc::utf16; };
+
+template<class CharT>
+using encoding_from_char_t = typename encoding_from_char<CharT>::type;
+
 }

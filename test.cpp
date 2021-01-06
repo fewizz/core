@@ -7,7 +7,7 @@
 #include <type_traits>
 #include "include/cxx_util/mb/string.hpp"
 #include "include/cxx_util/mb/string_view.hpp"
-#include "include/cxx_util/iterator.hpp"
+//#include "include/cxx_util/iterator.hpp"
 #include <assert.h>
 #include "include/cxx_util/containers/join.hpp"
 #include <cstring>
@@ -24,6 +24,10 @@ void ascii_util() {
     char first = str[0];
     assert(first == 'H');
     assert(str.size() == std::strlen("Hello world!"));
+
+    mb::ascii_string str0 = u8"Yeah, we can do that...";
+    str0 += "!";
+    assert(str0 == "Yeah, we can do that...!");
 }
 
 void utf8_util() {
@@ -148,7 +152,7 @@ void convert() {
     util::convert::from<mb::utf8_string_view>(u8"").template to<std::filesystem::path>();
     util::convert::from<mb::utf8_string_view>(u8"").template to<mb::utf8_string>();*/
     //bool val = util::convert::convert_to<bool>(mb::utf8_string_view(u8""));
-    static_assert(util::convert::is_convertible_to_v<bool, mb::utf8_string_view>);
+    static_assert(util::is_convertible_to_v<bool, mb::utf8_string_view>);
 
     //static_assert(util::convert::is_convertible_to_v<bool, bool>);
 }

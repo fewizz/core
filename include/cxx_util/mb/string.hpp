@@ -24,21 +24,40 @@ struct basic_string : internal::common<std::basic_string<typename Encoding::char
     using string_type     = std::basic_string<char_type, Traits, Allocator>;
     using base_type       = internal::common<string_type, Encoding>;
     using allocator_type  = typename string_type::allocator_type;
-    using base_type::base_type;
     using typename  base_type::iterator;
     using typename base_type::const_iterator;
     using typename base_type::size_type;
     using string_type::append;
     using string_type::get_allocator;
 
+    using base_type::base_type;
+    
     // constructor
-    basic_string(const mb::basic_string_view<Encoding> str) :
-        base_type(str.data(), str.data() + str.raw_size()) {}
+    template<enc::encoding E>
+    basic_string(const mb::basic_string<E> str)
+    : base_type( str.template to_string<Encoding, char_type>() ) {}
+    
+    template<enc::encoding E>
+    basic_string(const mb::basic_string_view<E> str)
+    : base_type( str.template to_string<Encoding, char_type>() ) {}
 
-    basic_string& operator = (const mb::basic_string_view<Encoding> str) {
-        (base_type&)*this = str.template to_string_view();
+    template<enc::encoding E>
+    basic_string& operator = (const mb::basic_string_view<E> str) {
+        (base_type&)*this = str.template to_string<Encoding, char_type>();
         return *this;
     }
+
+    template<class CharT>
+    basic_string(const std::basic_string_view<CharT> str)
+    : basic_string( mb::basic_string_view<enc::encoding_from_char_t<CharT>>{ str } ) { }
+
+    template<class CharT>
+    basic_string(const std::basic_string<CharT>& str)
+    : basic_string( mb::basic_string<enc::encoding_from_char_t<CharT>>{ str } ) { }
+
+    template<class CharT>
+    basic_string(const CharT* str)
+    : basic_string( mb::basic_string_view<enc::encoding_from_char_t<CharT>>{ str } ) { }
 
     using string_type::clear;
     using string_type::max_size;
@@ -57,26 +76,42 @@ struct basic_string : internal::common<std::basic_string<typename Encoding::char
         return to_string_view();
     }
 
-    iterator insert(const_iterator pos, const char_type* ch) {
-        typename string_type::size_type offset = current(pos) - string_type::data();
-        string_type::insert(offset, ch);
+    using string_type::operator +=;
+
+    template<class CharT>
+    basic_string& operator += (const CharT* str) {
+        string_type::operator += (basic_string{str}.template to_string<char_type>() );
+    }
+
+    template<class CharT> requires(std::is_integral_v<CharT>)
+    iterator insert(const_iterator pos, const CharT* ch) {
+        auto converted = mb::basic_string_view<enc::encoding_from_char_t<CharT>>{ch}.template to_string<Encoding>();
+
+        size_type offset = current(pos) - string_type::data();
+        string_type::insert(offset, converted.data(), converted.raw_size());
         return {string_type::data(), string_type::data() + offset, string_type::data() + string_type::size()};
     }
 
     iterator insert(const_iterator pos, character_view<Encoding> ch) {
         return insert(pos, ch.template to_string<char_type>().data());
-    } 
+    }
 
-    iterator insert(const_iterator pos, const basic_string& ch) {
-        return insert(pos, ch.data());
+    iterator insert(const_iterator pos, const basic_string& str) {
+        return insert(pos, str.template to_string<Encoding>().data());
+    }
+
+    template<enc::encoding E>
+    iterator insert(const_iterator pos, const basic_string_view<E> str) {
+        return insert(pos, str.template to_string<Encoding>().data());
     }
 
     void push_back(character_view<Encoding> ch) {
         insert(base_type::end(), ch);
     }
 
-    void push_back(char_type ch) {
-        string_type::push_back(ch);
+    template<class CharT> requires(sizeof(CharT) <= sizeof(char_type))
+    void push_back(CharT ch) {
+        string_type::push_back((char_type)ch);
     }
 
     basic_string substr(size_type pos = 0, size_type count = base_type::npos) const {
@@ -121,15 +156,21 @@ mb::basic_string<E, T, A> operator + (const mb::basic_string<E, T, A>& l, const 
 }
 
 // self + char_type*
-template<enc::encoding E, class T, class A>
-mb::basic_string<E, T, A> operator + (const mb::basic_string<E, T, A>& l, const typename E::char_type* r) {
-    return internal::sum<E, T, A>(l.data(), l.raw_size(), r, T::length(r));
+template<enc::encoding E, class T, class A, class CharT>
+mb::basic_string<E, T, A> operator + (const mb::basic_string<E, T, A>& l, const CharT* r) {
+    //return internal::sum<E, T, A>(l.data(), l.raw_size(), r, T::length(r));
+    mb::basic_string<E, T, A> res{l};
+    res.insert(res.end(), r);
+    return res;
 }
 
 // char_type* + self
-template<enc::encoding E, class T, class A>
-mb::basic_string<E, T, A> operator + (const typename E::char_type* l, const mb::basic_string<E, T, A>& r) {
-    return internal::sum<E, T, A>(l, T::length(l), r.data(), r.raw_size());
+template<enc::encoding E, class T, class A, class CharT> 
+mb::basic_string<E, T, A> operator + (const CharT* l, const mb::basic_string<E, T, A>& r) {
+    //return internal::sum<E, T, A>(l, T::length(l), r.data(), r.raw_size());
+    mb::basic_string<E, T, A> res{r};
+    res.insert(res.begin(), l);
+    return res;
 }
 
 // self + std::string

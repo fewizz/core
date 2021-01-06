@@ -114,7 +114,7 @@ struct common : protected Base {
     }
 
     size_type find_first_of(auto ch, size_type pos = 0) const requires(std::is_integral_v<decltype(ch)>){
-        auto sv = to_string_view();
+        auto sv = to_string_view<char_type>();
         for(auto ch0 : sv.substr(pos)) {
             if(ch0 == ch) return pos;
             pos++;
@@ -146,23 +146,26 @@ struct common : protected Base {
         return { std::move(str) };
     }
 
-    template<enc::encoding Encoding0>
-    mb::basic_string<Encoding0> to_string() const {
-        return convert<Encoding0>();
-    }
-
-    template<class CharT = char_type>
-    requires( sizeof(CharT) == sizeof(char_type) && std::is_integral_v<CharT>)
+    template<class CharT> requires(std::is_integral_v<CharT> && sizeof(char_type) == sizeof(CharT))
     std::basic_string_view<CharT> to_string_view() const {
         return {
             (CharT*) data(), raw_size()
         };
     }
 
-    template<class CharT = char_type>
-    requires(std::is_integral_v<CharT>)
+    template<enc::encoding E>
+    mb::basic_string<E> to_string() const {
+        return convert<E>();
+    }
+
+    template<class CharT> requires(std::is_integral_v<CharT> && sizeof(char_type) == sizeof(CharT))
     auto to_string() const {
-        return std::basic_string<CharT> { to_string_view<CharT>() };
+        return std::basic_string<CharT> { (CharT*) data(), raw_size() };
+    }
+
+    template<enc::encoding E, class CharT>
+    auto to_string() const {
+        return to_string<E>().template to_string<CharT>();
     }
 };
 

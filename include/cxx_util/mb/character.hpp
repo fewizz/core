@@ -44,37 +44,42 @@ namespace internal {
             ;
         }
 
-        template<enc::encoding Encoding0>
-        mb::character<Encoding0> convert() const {
+        template<enc::encoding E>
+        mb::character<E> convert() const {
             auto from = enc::template from<Encoding>(data(), data() + size());
 
-            if(from.template to_always_noconv<Encoding0>()) {
+            if(from.template to_always_noconv<E>()) {
                 return {data(), data() + size()};
             }
 
-            std::basic_string<typename Encoding0::char_type> str;
+            std::basic_string<typename E::char_type> str;
             str.resize(
-                from.template to_length<Encoding0>()
+                from.template to_length<E>()
             );
 
-            from.template to<Encoding0>(
+            from.template to<E>(
                 str.data(), str.data() + str.size()
             );
 
             return {std::move(str)};
         }
 
-        template<enc::encoding Encoding0 = Encoding>
-        mb::character<Encoding0> to_string() const {
-            return convert<Encoding0>();
+        template<enc::encoding E>
+        mb::character<E> to_string() const {
+            return convert<E>();
         }
 
-        template<class CharT = char_type>
-        std::basic_string<CharT> to_string() const requires(std::is_integral_v<CharT>) {
+        template<class CharT>
+        requires(sizeof(char_type) == sizeof(CharT) && std::is_integral_v<CharT>)
+        std::basic_string<CharT> to_string() const {
             return { (CharT*)Base::data(), Base::size() };
         }
 
-        //template<std::>
+        template<enc::encoding E, class CharT>
+        std::basic_string<CharT> to_string() const {
+            return to_string<E>().template to_string<CharT>();
+        }
+
         auto to_string_view() const {
             return to_string_view<char_type>();
         }
