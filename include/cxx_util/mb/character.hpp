@@ -6,7 +6,7 @@
 #include "../encoding/encoding.hpp"
 #include "../encoding/convert.hpp"
 
-namespace mb {
+namespace vw {
 
 template<enc::encoding Encoding>
 struct character;

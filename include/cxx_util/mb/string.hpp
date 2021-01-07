@@ -9,30 +9,45 @@
 #include <string>
 #include <string_view>
 #include <type_traits>
-#include "common.hpp"
+#include "../encoding/encoding.hpp"
+#include "character_iterator.hpp"
 
-namespace mb {
+namespace vw {
 
 namespace internal {
 template<
     enc::encoding Encoding,
-    class Traits = std::char_traits<typename Encoding::char_type>,
     class Allocator = std::allocator<typename Encoding::char_type>
 >
-struct basic_string : internal::common<std::basic_string<typename Encoding::char_type>, Encoding> {
-    using char_type       = typename Encoding::char_type;
-    using string_type     = std::basic_string<char_type, Traits, Allocator>;
-    using base_type       = internal::common<string_type, Encoding>;
-    using allocator_type  = typename string_type::allocator_type;
-    using typename  base_type::iterator;
-    using typename base_type::const_iterator;
-    using typename base_type::size_type;
-    using string_type::append;
-    using string_type::get_allocator;
+struct basic_string {
+    using value_type      = vw::character_view<Encoding>;
+    using allocator_type  = Allocator;
+    using size_type       = typename std::allocator_traits<allocator_type>::size_type;
+    using difference_type = typename std::allocator_traits<allocator_type>::difference_type;
+    using reference       = value_type&;
+    using const_reference = const value_type&;
 
-    using base_type::base_type;
+    using iterator        = vw::character_iterator<Encoding>;
+    using const_iterator  = const iterator;
+
+private:
+    Allocator m_allocator;
+public:
     
-    // constructor
+    // construct/copy/destroy
+    basic_string() : basic_string(Allocator()) {}
+
+    explicit basic_string(const Allocator& a) : m_allocator{a} {}
+
+    basic_string(const basic_string&) = default;
+    basic_string(basic_string&&) = default;
+
+    basic_string(const basic_string& that, size_type pos, const Allocator& a = Allocator()) {
+        // TODO
+    }
+
+    // iterators
+
     template<enc::encoding E>
     basic_string(const mb::basic_string<E> str)
     : base_type( str.template to_string<Encoding, char_type>() ) {}

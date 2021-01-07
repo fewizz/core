@@ -2,23 +2,24 @@
 
 #include "character.hpp"
 #include <compare>
+#include <cstddef>
 #include <iterator>
 #include "string_def.hpp"
 
-namespace mb {
+namespace vw {
 
 template<enc::encoding Encoding>
 class character_iterator;
 
 namespace internal {
     template<enc::encoding Encoding>
-    auto begin(mb::character_iterator<Encoding> it);
+    auto begin(vw::character_iterator<Encoding> it);
 
     template<enc::encoding Encoding>
-    auto current(mb::character_iterator<Encoding> it);
+    auto current(vw::character_iterator<Encoding> it);
 
     template<enc::encoding Encoding>
-    auto end(mb::character_iterator<Encoding> it);
+    auto end(vw::character_iterator<Encoding> it);
 }
 
 template<enc::encoding Encoding>
@@ -38,11 +39,11 @@ class character_iterator {
     friend auto internal::end(character_iterator<Encoding0>);
 
 public:
-    using difference_type = std::size_t;
+    using difference_type = std::ptrdiff_t;
     using value_type = character_view<Encoding>;
     using pointer = value_type*;
     using reference = value_type&;
-    using iterator_category = std::input_iterator_tag;
+    using iterator_category = std::forward_iterator_tag;
 
     character_iterator() {}
     character_iterator(character_iterator&& other) = default;
@@ -117,8 +118,8 @@ public:
         };
     }
 
-    std::partial_ordering operator <=> (const character_iterator& other) const {
-        if(begin != other.begin || end != other.end) return std::partial_ordering::unordered;
+    std::strong_ordering operator <=> (const character_iterator& other) const {
+        //if(begin != other.begin || end != other.end) return std::strong_ordering::;
         return cur <=> other.cur;
     }
 

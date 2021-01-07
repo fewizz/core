@@ -13,12 +13,22 @@
 #include <cstring>
 #include <vector>
 #include "include/cxx_util/convert.hpp"
+#include "include/cxx_util/containers/concepts.hpp"
 
 static_assert(enc::is_encoding_v<enc::utf8>, "");
 static_assert(enc::is_encoding_v<enc::utf16>, "");
 static_assert(enc::is_encoding_v<enc::ascii>, "");
 
-void ascii_util() {
+template<util::container C>
+void check_for_container_concept() {
+    C c;
+    C a;
+    assert(c.empty());
+    assert(C().empty());
+    assert(C(a) == a);
+}
+
+/*void ascii_util() {
     mb::ascii_string str = "Hello world!";
 
     char first = str[0];
@@ -146,20 +156,22 @@ void mb_string() {
 }
 
 void convert() {
-    /*util::convert::from<std::filesystem::path>("").template to<std::string>();
+    util::convert::from<std::filesystem::path>("").template to<std::string>();
     util::convert::from<mb::utf8_string>(u8"").template to<std::string>();
     util::convert::from<mb::utf16_string>(u"").template to<std::wstring>();
     util::convert::from<mb::utf8_string_view>(u8"").template to<std::filesystem::path>();
     util::convert::from<mb::utf8_string_view>(u8"").template to<mb::utf8_string>();*/
     //bool val = util::convert::convert_to<bool>(mb::utf8_string_view(u8""));
-    static_assert(util::is_convertible_to_v<bool, mb::utf8_string_view>);
+    //static_assert(util::is_convertible_to_v<bool, mb::utf8_string_view>);
 
     //static_assert(util::convert::is_convertible_to_v<bool, bool>);
-}
+//}
 
 int main() {
-    utf8_util();
-    utf16_util();
-    mb_string();
-    convert();
+    check_for_container_concept<std::string>();
+    check_for_container_concept<mb::utf8_string>();
+    //utf8_util();
+    //utf16_util();
+    //mb_string();
+    //convert();
 }

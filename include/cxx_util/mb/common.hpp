@@ -14,12 +14,12 @@ struct common : protected Base {
     using traits_type      = typename Base::traits_type;
     using value_type       = character_view<Encoding>;
     using size_type        = typename Base::size_type;
-    using difference_type  = typename Base::difference_type;
+    using iterator         = character_iterator<Encoding>;
+    using difference_type  = typename iterator::difference_type;
     using pointer          = typename Base::pointer;
     using const_pointer    = typename Base::const_pointer;
     using reference        = value_type&;
     using const_reference  = const value_type&;
-    using iterator         = character_iterator<Encoding>;
     using const_iterator   = const character_iterator<Encoding>;
     static const
         size_type npos     = Base::npos;
@@ -107,6 +107,10 @@ struct common : protected Base {
     using Base::compare;
     using Base::swap;
 
+    void swap(const common& that) {
+        return ((Base&)*this).swap(that);
+    }
+
     // search
     
     size_type find(auto ch, size_type pos = 0) const requires(std::is_integral_v<decltype(ch)>){
@@ -168,6 +172,11 @@ struct common : protected Base {
         return to_string<E>().template to_string<CharT>();
     }
 };
+
+template<class Base, class Encoding>
+inline void swap(const common<Base, Encoding>& a, const common<Base, Encoding>& b) {
+    a.swap(b);
+}
 
 template<class Base, class Encoding>
 inline bool operator == (const common<Base, Encoding>& a, const typename Encoding::char_type* b) {

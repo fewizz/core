@@ -2,9 +2,11 @@
 
 #include <algorithm>
 #include <iterator>
+#include "concepts.hpp"
+
 namespace util {
 
-template<class Container, class It, class Del>
+template<util::container Container, class It, class Del>
 Container join(It begin, It end, const Del& delimiter) {
     Container result{};
 
