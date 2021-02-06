@@ -73,8 +73,8 @@ struct usc2 {
 
 template<class T>
 concept encoding = requires() {
-    {T::first_char_width(nullptr, nullptr)};
-    {T::first_codepoint(nullptr, nullptr)};
+    { T::first_char_width(nullptr, nullptr) };
+    { T::first_codepoint(nullptr, nullptr) };
     T::characters;
 };
 

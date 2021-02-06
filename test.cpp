@@ -1,4 +1,4 @@
-#include <initializer_list>
+/*#include <initializer_list>
 #include <sstream>
 #include <string>
 #include <iostream>
@@ -13,7 +13,39 @@
 #include <cstring>
 #include <vector>
 #include "include/cxx_util/convert.hpp"
-#include "include/cxx_util/containers/concepts.hpp"
+#include "include/cxx_util/containers/concepts.hpp"*/
+
+#include <iostream>
+#include <assert.h>
+#include <stdint.h>
+#include "include/cxx_util/int.hpp"
+#include "include/cxx_util/bit.hpp"
+#include "include/cxx_util/encoding/utf8.hpp"
+
+void bit() {
+    {
+        constexpr unsigned val = 0xF102F304;
+        static_assert(util::change_endianness(val) == 0x04F302F1, "bit: change_endianness");
+    }
+    {
+        static_assert(util::equals<0,0,1,1>(0b01010011, 0), "bit: equals");
+        static_assert(util::equals<0,1,0,1,0,0>(0b01010011, 2), "bit: equals");
+
+        static_assert(util::equalsl<uint8_t>(0b0101, 4, 0b01010011), "bit: equalsl");
+        static_assert(util::equalsl<0,1,0,1>(uint8_t(0b01010011)), "bit: equalsl");
+
+        static_assert(util::equalsr<uint8_t>(0b0101, 4, 0b00000101), "bit: equalsr");
+        static_assert(util::equalsr<0,1,0,1>(0b00000101), "bit: equalsr");
+    }
+}
+
+void utf8() {
+    static_assert(util::utf8::first_char_width<uint8_t('a')>() == 1, "utf8: first_char_width");
+    // heart
+    static_assert(util::utf8::first_char_width<0xE2, 0x99, 0xA5>() == 3, "utf8: first_char_width");
+}
+
+/*
 
 static_assert(enc::is_encoding_v<enc::utf8>, "");
 static_assert(enc::is_encoding_v<enc::utf16>, "");
@@ -28,7 +60,7 @@ void check_for_container_concept() {
     assert(C(a) == a);
 }
 
-/*void ascii_util() {
+void ascii_util() {
     mb::ascii_string str = "Hello world!";
 
     char first = str[0];
@@ -167,9 +199,17 @@ void convert() {
     //static_assert(util::convert::is_convertible_to_v<bool, bool>);
 //}
 
+//#include "include/cxx_util/concepts.hpp"
+
 int main() {
-    check_for_container_concept<std::string>();
-    check_for_container_concept<mb::utf8_string>();
+    //static_assert(std::is_same_v<int, S<long>::type>);
+
+    //util::common_reference<int&, int&>::type;
+
+    //util::common_reference<int&, int&>::type;
+    bit();
+    //check_for_container_concept<std::string>();
+    //check_for_container_concept<mb::utf8_string>();
     //utf8_util();
     //utf16_util();
     //mb_string();

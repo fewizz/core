@@ -21,8 +21,8 @@ namespace internal {
         using Base::Base;
         using char_type = typename Encoding::char_type;
 
-        character(const Base& parent) : Base(parent){};
-        character(Base&& parent) : Base(std::move(parent)){};
+        character(const Base& base) : Base(base) {};
+        character(Base&& base) : Base(std::move(base)) {};
         character(char_type ch) : Base(1, ch) {};
 
         using Base::data;
@@ -45,7 +45,7 @@ namespace internal {
         }
 
         template<enc::encoding E>
-        mb::character<E> convert() const {
+        vw::character<E> convert() const {
             auto from = enc::template from<Encoding>(data(), data() + size());
 
             if(from.template to_always_noconv<E>()) {
@@ -65,7 +65,7 @@ namespace internal {
         }
 
         template<enc::encoding E>
-        mb::character<E> to_string() const {
+        vw::character<E> to_string() const {
             return convert<E>();
         }
 
