@@ -40,9 +40,9 @@ void bit() {
 }
 
 void utf8() {
-    static_assert(util::utf8::first_char_width<uint8_t('a')>() == 1, "utf8: first_char_width");
+    static_assert(util::utf8::first_char_width<uint8_t('a')>().value() == 1, "utf8: first_char_width");
     // heart
-    static_assert(util::utf8::first_char_width<0xE2, 0x99, 0xA5>() == 3, "utf8: first_char_width");
+    static_assert(util::utf8::first_char_width<0xE2, 0x99, 0xA5>().value() == 3, "utf8: first_char_width");
 }
 
 /*

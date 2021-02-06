@@ -8,35 +8,37 @@
 #include <cinttypes>
 #include <stdexcept>
 #include <codecvt>
-#include "codepoint_request_result.hpp"
+#include "request_error.hpp"
 #include "../int.hpp"
 #include "../bit.hpp"
 #include <array>
+
+#include <tl/expected.hpp>
 
 namespace util {
 
 namespace utf8 {
 
-constexpr enc::width_request_t possible_char_width(uint8_t byte) {
-    if(equalsl<0>(byte)) return { enc::request_status::ok, 1 };
-    if(equalsl<1,1,0>(byte)) return { enc::request_status::ok, 2 };
-    if(equalsl<1,1,1,0>(byte)) return { enc::request_status::ok, 3 };
-    if(equalsl<1,1,1,1,0>(byte)) return { enc::request_status::ok, 4 };
-    return { enc::request_status::invalid_input };
+constexpr tl::expected<uint8_t, enc::request_error> possible_char_width(uint8_t byte) {
+    if(equalsl<0>(byte)) return { 1 };
+    if(equalsl<1,1,0>(byte)) return { 2 };
+    if(equalsl<1,1,1,0>(byte)) return { 3 };
+    if(equalsl<1,1,1,1,0>(byte)) return { 4 };
+    return tl::unexpected{ enc::request_error::invalid_input };
 }
 
 template<uint8_t... Ints>
-constexpr enc::width_request_t first_char_width() {
+constexpr tl::expected<uint8_t, enc::request_error> first_char_width() {
     constexpr std::array arr { Ints... };
-    constexpr enc::width_request_t width_request_result = possible_char_width(arr[0]);
+    constexpr auto width_request_result = possible_char_width(arr[0]);
 
-    if(width_request_result.status != enc::request_status::ok)
-        return { width_request_result };
+    if(!width_request_result)
+        return width_request_result;
 
-    for(unsigned i = 1; i < std::min(width_request_result.width, uint8_t( arr.size()) ); i++)
-        if(not equalsl<1,0>(arr[i])) return { enc::request_status::invalid_input };
+    for(unsigned i = 1; i < std::min(width_request_result.value(), uint8_t( arr.size()) ); i++)
+        if(not equalsl<1,0>(arr[i])) return tl::unexpected{ enc::request_error::invalid_input };
 
-    if(width_request_result.width > arr.size()) return { enc::request_status::unexpected_src_end };
+    if(width_request_result.value() > arr.size()) return tl::unexpected{ enc::request_error::unexpected_src_end };
 
     return width_request_result;
 }
