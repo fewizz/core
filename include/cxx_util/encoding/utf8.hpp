@@ -1,9 +1,12 @@
 #pragma once
 
+#include <bits/c++config.h>
 #include <corecrt.h>
 #include <cstdint>
+#include <iterator>
 #include <locale>
 #include <stdint.h>
+#include <type_traits>
 #include <utility>
 #include <cinttypes>
 #include <stdexcept>
@@ -19,32 +22,66 @@ namespace util {
 
 namespace utf8 {
 
-constexpr tl::expected<uint8_t, enc::request_error> possible_char_width(uint8_t byte) {
+constexpr tl::expected<uint8_t, enc::request_error> possible_char_width(std::byte byte) {
     if(equalsl<0>(byte)) return { 1 };
-    if(equalsl<1,1,0>(byte)) return { 2 };
-    if(equalsl<1,1,1,0>(byte)) return { 3 };
-    if(equalsl<1,1,1,1,0>(byte)) return { 4 };
+    if(equalsl<1, 1, 0>(byte)) return { 2 };
+    if(equalsl<1, 1, 1, 0>(byte)) return { 3 };
+    if(equalsl<1, 1, 1, 1, 0>(byte)) return { 4 };
     return tl::unexpected{ enc::request_error::invalid_input };
 }
 
-template<uint8_t... Ints>
-constexpr tl::expected<uint8_t, enc::request_error> first_char_width() {
-    constexpr std::array arr { Ints... };
-    constexpr auto width_request_result = possible_char_width(arr[0]);
+namespace internal {
 
-    if(!width_request_result)
-        return width_request_result;
+template<class... Ints>
+constexpr tl::expected<uint8_t, enc::request_error>
+first_char_width(Ints... ints/*std::array<uint8_t, N> arr*/) {
+    using Common = std::common_type_t<Ints...>;
+    constexpr uint8_t N = sizeof...(Ints);
+    std::array<Common, sizeof...(Ints)> arr{ ints... };
 
-    for(unsigned i = 1; i < std::min(width_request_result.value(), uint8_t( arr.size()) ); i++)
+    auto possible = possible_char_width(arr[0]);
+
+    if(!possible) return possible;
+
+    for(unsigned i = 1; i < std::min(possible.value(), N); i++)
         if(not equalsl<1,0>(arr[i])) return tl::unexpected{ enc::request_error::invalid_input };
 
-    if(width_request_result.value() > arr.size()) return tl::unexpected{ enc::request_error::unexpected_src_end };
+    if(possible.value() > N) return tl::unexpected{ enc::request_error::unexpected_src_end };
 
-    return width_request_result;
+    return possible;
 }
 
-/*template<uint8_t... Ints>
-constexpr enc::codepoint_request_info first_code_point() {
+}
+
+constexpr tl::expected<uint8_t, enc::request_error> first_char_width(std::byte b0, std::byte b1, std::byte b2, std::byte b3) {
+    return internal::first_char_width(b0, b1, b2, b3);
+}
+
+constexpr tl::expected<uint8_t, enc::request_error> first_char_width(std::byte b0, std::byte b1, std::byte b2) {
+    return internal::first_char_width(b0, b1, b2);
+}
+
+constexpr tl::expected<uint8_t, enc::request_error> first_char_width(std::byte b0, std::byte b1) {
+    return internal::first_char_width(b0, b1);
+}
+
+constexpr tl::expected<uint8_t, enc::request_error> first_char_width(std::byte b0) {
+    return internal::first_char_width(b0);
+}
+
+template<std::ranges::range R>
+constexpr tl::expected<uint8_t, enc::request_error> first_char_width(const R& bytes) {
+    auto size = std::size(bytes);
+    auto it = std::begin(bytes);
+
+    if(size >= 4) return first_char_width(*it, *(it+1), *(it+2), *(it+3));
+    else if(size == 3) return first_char_width(*it, *(it+1), *(it+2));
+    else if(size == 2) return first_char_width(*it, *(it+1));
+    else return first_char_width(*it);
+}
+
+/*template<uint8_t N>
+constexpr tl::expected<class T, class E> first_code_point() {
     constexpr uint8_t size = sizeof...(Ints);
     uint8_t arr[size] { Ints... };
 

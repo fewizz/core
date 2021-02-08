@@ -25,24 +25,28 @@
 void bit() {
     {
         constexpr unsigned val = 0xF102F304;
-        static_assert(util::change_endianness(val) == 0x04F302F1, "bit: change_endianness");
+        static_assert(util::change_endianness(val) == 0x04F302F1);
     }
     {
-        static_assert(util::equals<0,0,1,1>(0b01010011, 0), "bit: equals");
-        static_assert(util::equals<0,1,0,1,0,0>(0b01010011, 2), "bit: equals");
+        static_assert(util::equals<0,0,1,1>(0b01010011, 0));
+        static_assert(util::equals<0,1,0,1,0,0>(0b01010011, 2));
 
-        static_assert(util::equalsl<uint8_t>(0b0101, 4, 0b01010011), "bit: equalsl");
-        static_assert(util::equalsl<0,1,0,1>(uint8_t(0b01010011)), "bit: equalsl");
+        static_assert(util::equalsl<uint8_t>(0b0101, 4, 0b01010011));
+        static_assert(util::equalsl<0,1,0,1>(uint8_t(0b01010011)));
 
-        static_assert(util::equalsr<uint8_t>(0b0101, 4, 0b00000101), "bit: equalsr");
-        static_assert(util::equalsr<0,1,0,1>(0b00000101), "bit: equalsr");
+        static_assert(util::equalsr<uint8_t>(0b0101, 4, 0b00000101));
+        static_assert(util::equalsr<0,1,0,1>(0b00000101));
     }
 }
 
 void utf8() {
-    static_assert(util::utf8::first_char_width<uint8_t('a')>().value() == 1, "utf8: first_char_width");
+    //constexpr std::array<uint8_t, 1> arr{uint8_t('a')};
+    static_assert(util::utf8::first_char_width(std::byte{'a'}).value() == 1);
     // heart
-    static_assert(util::utf8::first_char_width<0xE2, 0x99, 0xA5>().value() == 3, "utf8: first_char_width");
+    static_assert(util::utf8::first_char_width(std::byte{0xE2}, std::byte{0x99}, std::byte{0xA5}).value() == 3);
+
+    constexpr std::byte bytes[] {std::byte{0xE2}, std::byte{0x99}, std::byte{0xA5}};
+    static_assert(util::utf8::first_char_width(bytes).value() == 3);
 }
 
 /*

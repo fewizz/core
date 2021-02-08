@@ -2,8 +2,11 @@
 
 #include <cinttypes>
 #include <concepts>
+#include <iterator>
+#include <ranges>
 #include <cstdint>
 #include <stdint.h>
+#include <cstddef>
 
 namespace util {
 
@@ -13,7 +16,7 @@ constexpr void check_bits() {
     if constexpr(sizeof...(Bits) > 0) check_bits<Bits...>();
 }
 
-template<std::integral Int>
+template<class Int>
 constexpr bool equals(Int mask, uint8_t bits, Int val, uint8_t position) {
     Int mask0 = ~(Int(-1) << bits);
     mask0 <<= position;
@@ -21,38 +24,40 @@ constexpr bool equals(Int mask, uint8_t bits, Int val, uint8_t position) {
 }
 
 template<uint8_t... Bits>
-constexpr bool equals(std::integral auto val, uint8_t position) {
+constexpr bool equals(auto val, uint8_t position) {
     check_bits<Bits...>();
     using Int = decltype(val);
 
-    Int mask = 0;
-    for(uint8_t bit : {Bits...})
-        mask = (mask << 1) | bit;
+    Int mask{ 0 };
+    for(uint8_t bit : { Bits... }) {
+        mask <<= 1;
+        mask |= Int{ bit };
+    }
     
     return equals(mask, sizeof...(Bits), val, position);
 }
 
-template<std::integral Int>
+template<class Int>
 constexpr bool equalsr(Int mask, uint8_t bits, Int val) {
     return equals(mask, bits, val, 0);
 }
 
-template<std::integral Int>
+template<class Int>
 constexpr bool equalsl(Int mask, uint8_t bits, Int val) {
     return equals(mask, bits, val, sizeof(Int)*8 - bits);
 }
 
 template<uint8_t... Bits>
-constexpr bool equalsr(std::integral auto val) {
+constexpr bool equalsr(auto val) {
     return equals<Bits...>(val, 0);
 }
 
 template<uint8_t... Bits>
-constexpr bool equalsl(std::integral auto val) {
+constexpr bool equalsl(auto val) {
     return equals<Bits...>(val, sizeof(decltype(val))*8 - sizeof...(Bits));
 }
 
-template<std::integral Int>
+template<class Int>
 constexpr Int change_endianness(Int val) {
     constexpr unsigned size = sizeof(Int);
 
@@ -73,5 +78,16 @@ constexpr Int change_endianness(Int val) {
 
     return val;
 }
+
+
+
+template<class R>
+concept byte_range =
+    std::ranges::range<R> &&
+    std::is_same_v<std::ranges::range_value_t<R>, std::byte>;
+
+struct reversed_endianness_byte_range {
+
+};
 
 }
