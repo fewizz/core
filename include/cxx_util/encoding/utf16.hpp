@@ -1,58 +1,84 @@
 #pragma once
 
 #include <bit>
+#include <bits/stdint-uintn.h>
+#include <iterator>
 #include <locale>
 #include <stdexcept>
 #include <stdint.h>
+#include <sys/types.h>
 #include <utility>
 #include <codecvt>
-#include "codepoint_request_result.hpp"
+#include "request_error.hpp"
+#include "../byte_iterator.hpp"
+#include <tl/expected.hpp>
 
 namespace util {
 
 namespace utf16 {
 
-inline enc::size_request_info first_char_width(const char16_t* begin, const char16_t* end) {
-    auto size = end - begin;
+template<util::byte_iterator It>
+constexpr tl::expected<uint8_t, enc::request_error>
+first_char_width(It it, It end) {
+	auto size = std::distance(it, end);
 
-    if(size < 0) return { enc::request_result::preconditions };
-    if(size == 0) return { enc::request_result::unexpected_src_end };
+	if(size <= 0) return tl::unexpected{ enc::request_error::preconditions };
 
-    uint16_t first = begin[0];
+	auto first = util::next<uint16_t>(it, end).value();
 
-    if(((first >= 0x0) && (first <= 0xD800)) || ((first >= 0xE000) && (first <= 0xFFFF)))
-        return { enc::request_result::ok, 1 };
-    
-    if(size == 1) { return { enc::request_result::unexpected_src_end }; }
+	if(((first >= 0x0) && (first <= 0xD800)) || ((first >= 0xE000) && (first <= 0xFFFF)))
+		return { 1 };
+	
+	if(size == 1) { return tl::unexpected{ enc::request_error::unexpected_src_end }; }
 
-    uint16_t second = begin[1];
+	auto second = util::next<uint16_t>(it, end).value();
 
-    uint16_t hs = first, ls = second;
+	uint16_t hs = first, ls = second;
 
-    if(hs >= 0xD800 && hs <= 0xDBFF && ls >= 0xDC00 && ls <= 0xDFFF)
-        return { enc::request_result::ok, 2 };
-    
-    return { enc::request_result::invalid_input };
+	if(hs >= 0xD800 && hs <= 0xDBFF && ls >= 0xDC00 && ls <= 0xDFFF)
+		return { 2 };
+	
+	return tl::unexpected{ enc::request_error::invalid_input };
 }
 
-inline enc::codepoint_request_info first_code_point(const char16_t* begin, const char16_t* end) noexcept {
-    auto size = end - begin;
+constexpr tl::expected<uint8_t, enc::request_error>
+first_char_width(const std::ranges::range auto& range) {
+	util::bytes_visitor_iterator begin{ std::begin(range) };
+	util::bytes_visitor_iterator end{ std::end(range) };
 
-    if(size < 0) return { enc::request_result::preconditions };
-    if(size == 0) return { enc::request_result::unexpected_src_end };
+	return first_char_width(begin, end);
+}
 
-    auto size_read = first_char_width(begin, end);
-    if(size_read.result != enc::request_result::ok) return { size_read.result };
+template<util::byte_iterator It>
+constexpr tl::expected<uint64_t, enc::request_error>
+first_codepoint(It it, It end) {
+	auto size = std::distance(it, end);
 
-    if(size_read.size == 1) return { enc::request_result::ok, begin[0], 1 };
+	if(size < 0) return tl::unexpected{ enc::request_error::preconditions };
+	if(size == 0) return tl::unexpected{ enc::request_error::unexpected_src_end };
 
-    uint64_t hs = begin[0], ls = begin[1];
+	auto size_read = first_char_width(it, end);
+	if(!size_read) return size_read;
 
-    return {
-        enc::request_result::ok,
-        (((hs & 0x3FF) << 10) | (ls & 0x3FF)) + 0x10000,
-        2
-    };
+	uint64_t hs = util::next<u_int64_t, 2>(it, end).value();
+
+	if(size_read.value() == 1) return { hs };
+
+	uint64_t ls = util::next<u_int64_t, 2>(it, end).value();
+
+	return {
+		(((hs & 0x3FF) << 10) | (ls & 0x3FF)) + 0x10000
+	};
+}
+
+constexpr tl::expected<uint64_t, enc::request_error>
+first_codepoint(const std::ranges::range auto& range) {
+	using It = decltype(std::begin(range));
+
+	util::bytes_visitor_iterator<It, std::endian::big> begin{ std::begin(range) };
+	util::bytes_visitor_iterator<It, std::endian::big> end{ std::end(range) };
+
+	return first_codepoint(begin, end);
 }
 
 }
