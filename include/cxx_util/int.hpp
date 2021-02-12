@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cinttypes>
+#include <type_traits>
 
 namespace util {
 
@@ -14,5 +15,8 @@ template<> struct int_with_size<8> { using type = int64_t; };
 
 template<unsigned size>
 using int_with_size_t = typename int_with_size<size>::type;
+
+template<unsigned size>
+using uint_with_size_t = std::make_unsigned_t<int_with_size_t<size>>;
 
 }

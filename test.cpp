@@ -27,6 +27,8 @@
 #include "include/cxx_util/encoding/utf8.hpp"
 #include "include/cxx_util/encoding/utf16.hpp"
 #include "include/cxx_util/byte_iterator.hpp"
+#include "include/cxx_util/encoding/encoding.hpp"
+#include "include/cxx_util/containers/concepts.hpp"
 
 template<std::input_iterator It>
 void check_input_iterator() {}
@@ -36,6 +38,15 @@ template<std::random_access_iterator It>
 void check_random_access_iterator() {}
 template<std::contiguous_iterator It>
 void check_contiguous_iterator() {}
+
+template<std::ranges::range It>
+void check_range() {}
+
+template<std::ranges::sized_range It>
+void check_sized_range() {}
+
+template<util::byte_range It>
+void check_byte_range() {}
 
 void byte_iterator() {
 	check_input_iterator< util::bytes_visitor_iterator<int*> >();
@@ -49,8 +60,7 @@ void byte_iterator() {
 	static_assert(decltype(beg)::prev_value_type_size == sizeof(int));
 	static_assert(std::distance(beg, end) == 3*sizeof(int));
 
-	constexpr util::bytes_visitor_iterator bi{ std::begin(arr) };
-	//std::ranges::subrange r{ beg, end };
+	constexpr util::bytes_visitor_iterator bi { std::begin(arr) };
 
 	static_assert(*bi == std::byte{ 0xFF });
 	static_assert(*(bi + 1) == std::byte{ 0x00 });
@@ -78,33 +88,34 @@ void bit() {
 	}
 }
 
-void utf8() {
-	constexpr std::string_view str{"a"};
-	constexpr std::u8string_view smile{u8"😀"}; 
+void _utf8() {
+	using namespace enc;
 
-	static_assert( util::utf8::first_char_width(str).value() == 1 );
-	static_assert( util::utf8::first_char_width(smile).value() == 4 );
+	constexpr std::string_view str { "a" };
+	constexpr std::u8string_view smile { u8"😀" }; 
 
-	static_assert( util::utf8::first_codepoint(str).value() == 'a' );
-	static_assert( util::utf8::first_codepoint(smile).value() == 0x1F600 );
+	static_assert( size<utf8>(str) == 1 );
+	static_assert( size<utf8>(smile) == 4 );
+
+	static_assert( codepoint<utf8>(str) == 'a' );
+	static_assert( codepoint<utf8>(smile) == 0x1F600 );
 }
 
-void utf16() {
-	constexpr std::u16string_view str{u"a"};
-	constexpr std::u16string_view wave{u"🌊"}; 
+void _utf16() {
+	using namespace enc;
+	constexpr std::u16string_view str { u"a" };
+	constexpr std::u16string_view wave { u"🌊" }; 
 
-	static_assert( util::utf16::first_char_width(str).value() == 1 );
-	static_assert( util::utf16::first_char_width(wave).value() == 1 );
+	static_assert( size<utf16>(str) == 1 );
+	static_assert( size<utf16>(wave) == 2 );
 
-	static_assert( util::utf16::first_codepoint(str).value() == 'a' );
-	//static_assert( util::utf16::first_codepoint(smile).value() == 0x1F600 );
+	static_assert( codepoint<utf16>(str) == 'a' );
+	static_assert( codepoint<utf16>(wave) == 0x1F30A );
 }
 
-/*
-
-static_assert(enc::is_encoding_v<enc::utf8>, "");
-static_assert(enc::is_encoding_v<enc::utf16>, "");
-static_assert(enc::is_encoding_v<enc::ascii>, "");
+static_assert(enc::is_encoding_v<enc::utf8>);
+static_assert(enc::is_encoding_v<enc::utf16>);
+static_assert(enc::is_encoding_v<enc::ascii>);
 
 template<util::container C>
 void check_for_container_concept() {
@@ -115,7 +126,17 @@ void check_for_container_concept() {
 	assert(C(a) == a);
 }
 
-void ascii_util() {
+#include "include/cxx_util/vw/string_view.hpp"
+
+void vw_string_view() {
+	constexpr vw::ascii_string_view str_ascii { "Hello" };
+	static_assert(str_ascii.size() == 5);
+
+	constexpr vw::utf8_string_view str_utf8 { u8"Привет" };
+	static_assert(str_utf8.size() == 6);
+}
+
+/*void ascii_util() {
 	mb::ascii_string str = "Hello world!";
 
 	char first = str[0];
@@ -257,12 +278,21 @@ void convert() {
 //#include "include/cxx_util/concepts.hpp"
 
 int main() {
+
+	//check_range<util::bytes_visitor_range<std::vector<int>>>();
+	//check_sized_range<util::bytes_visitor_range<std::vector<int>>>();
+	//check_byte_range<util::bytes_visitor_range<std::string_view>>();
+	//std::span s{ v.begin(), v.end() };
 	//static_assert(std::is_same_v<int, S<long>::type>);
 
 	//util::common_reference<int&, int&>::type;
 
 	//util::common_reference<int&, int&>::type;
+	byte_iterator();
 	bit();
+	//utf8();
+	//utf16();
+	//vw_string_view();
 	//check_for_container_concept<std::string>();
 	//check_for_container_concept<mb::utf8_string>();
 	//utf8_util();

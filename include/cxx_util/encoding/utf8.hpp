@@ -24,56 +24,50 @@ namespace util {
 
 namespace utf8 {
 
-constexpr tl::expected<uint8_t, enc::request_error> possible_char_width(std::byte byte) {
+constexpr std::optional<uint8_t> possible_size(std::byte byte) {
 	if(equalsl<0>(byte)) return { 1 };
 	if(equalsl<1, 1, 0>(byte)) return { 2 };
 	if(equalsl<1, 1, 1, 0>(byte)) return { 3 };
 	if(equalsl<1, 1, 1, 1, 0>(byte)) return { 4 };
-	return tl::unexpected{ enc::request_error::invalid_input };
+	return {};
 }
 
 template<util::byte_iterator It>
 constexpr tl::expected<uint8_t, enc::request_error>
-first_char_width(It it, It end) {
-	auto size = std::distance(it, end);
-	if(size <= 0) return tl::unexpected{ enc::request_error::preconditions };
+size(It it, It end) {
+	auto possible = possible_size(*it);
+	if(!possible) return tl::unexpected{ enc::request_error::invalid_input };
 
-	auto possible = possible_char_width(*it);
+	auto dist = std::distance(it, end);
 
-	if(!possible) return possible;
-
-	if(possible.value() > size)
+	if(possible.value() > dist)
 		return tl::unexpected{ enc::request_error::unexpected_src_end };
 	
-	for(int i = 1; i < std::min(decltype(size)(possible.value()), size); i++) {
+	for(int i = 1; i < std::min(decltype(dist)(possible.value()), dist); i++) {
 		++it;
 
 		if(not equalsl<1,0>(*it))
 			return tl::unexpected{ enc::request_error::invalid_input };
 	}
 
-	return possible;
-}
-
-constexpr tl::expected<uint8_t, enc::request_error>
-first_char_width(const std::ranges::range auto& range) {
-	util::bytes_visitor_iterator begin{ std::begin(range) };
-	util::bytes_visitor_iterator end{ std::end(range) };
-
-	return first_char_width(begin, end);
+	return { possible.value() };
 }
 
 template<util::byte_iterator It>
-constexpr tl::expected<uint64_t, enc::request_error>
-first_codepoint(It it, It end) {
-	auto possible_width = first_char_width(it, end);
-	if(!possible_width) return possible_width;
+constexpr tl::expected<enc::character, enc::request_error>
+character(It it, It end) {
+	auto possible_size = size(it, end);
+	if(!possible_size) return tl::unexpected{ possible_size.error() };
 
-	auto width = possible_width.value();
+	auto width = possible_size.value();
 
 	auto first = uint64_t(*it);
 
-	if(width == 1) return { first };
+	enc::character_builder cb;
+	cb.width(width);
+	
+	if(width == 1)
+		return { cb.codepoint(first) };
 
 	auto left_mask_size = width + 1;
 	first &= 0xFF >> left_mask_size;
@@ -89,15 +83,7 @@ first_codepoint(It it, It end) {
 		result |= (nth & 0b00111111) << offset;
 	}
 
-	return result;
-}
-
-constexpr tl::expected<uint64_t, enc::request_error>
-first_codepoint(const std::ranges::range auto& range) {
-	util::bytes_visitor_iterator begin{ std::begin(range) };
-	util::bytes_visitor_iterator end{ std::end(range) };
-
-	return first_codepoint(begin, end);
+	return { cb.codepoint(result) };
 }
 
 }

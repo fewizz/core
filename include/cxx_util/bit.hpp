@@ -64,7 +64,7 @@ constexpr std::byte byte(Int val, unsigned index) {
 
 template<class Int>
 constexpr Int change_endianness(Int val) {
-	constexpr unsigned size = sizeof(Int);
+	unsigned size = sizeof(Int);
 
 	for(unsigned byte = 0; byte < size / 2; byte++) {
 		unsigned

@@ -119,21 +119,52 @@ concept byte_iterator =
 	std::input_iterator<It> && std::same_as<std::iter_value_t<It>, std::byte>;
 
 template<std::integral T, std::size_t N = sizeof(T)>
-constexpr tl::expected<T, enc::request_error>
+constexpr std::optional<T>
 next(byte_iterator auto& begin, byte_iterator auto end) {
 	std::size_t dist = std::distance(begin, end);
 
-	if(dist < N)
-		return tl::unexpected{ enc::request_error::unexpected_src_end };
+	if(dist < N) return { };
 
 	T res = T(*begin);
-
+	++begin;
+	
 	for(std::size_t i = 1; i < N; i++) {
-		++begin;
 		res <<= 8;
 		res |= T(*begin);
+		++begin;
 	}
 
 	return { res };
 }
+
+template<std::integral T, std::size_t N = sizeof(T)>
+constexpr std::optional<T>
+next(byte_range auto& range) {
+	return next(std::ranges::begin(range), std::ranges::end(range));
+}
+
+#include <iterator>
+
+template<std::ranges::range R, class It = std::ranges::iterator_t<R>>
+struct bytes {
+	bytes_visitor_iterator<It> m_begin;
+	bytes_visitor_iterator<It> m_end;
+
+	constexpr bytes(R& range)
+	:
+		m_begin{ std::ranges::begin(range) },
+		m_end{ std::ranges::end(range) }
+		{}
+
+	constexpr auto begin() const { return m_begin; }
+	constexpr auto end() const { return m_end; }
+	constexpr auto size() const { return m_end - m_begin; }
+};
+
+/*template<class R>
+constexpr auto begin(const bytes_visitor_range<R>& r) { return r.m_begin; }
+
+template<class R>
+constexpr auto end(const bytes_visitor_range<R>& r) { return r.m_end; }*/
+
 }
