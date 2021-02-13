@@ -17,13 +17,14 @@
 namespace enc {
 
 template<std::endian Endian = std::endian::native>
-struct utf16;
+struct utf16_base;
 
-using utf16be = utf16<std::endian::big>;
-using utf16le = utf16<std::endian::little>;
+using utf16be = utf16_base<std::endian::big>;
+using utf16le = utf16_base<std::endian::little>;
+using utf16 = utf16_base<std::endian::native>;
 
 template<std::endian Endian>
-struct utf16 {
+struct utf16_base {
 
 using character_set_type = unicode;
 

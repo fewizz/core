@@ -22,6 +22,7 @@
 #include <ranges>
 #include <string_view>
 #include <type_traits>
+#include <list>
 #include "include/cxx_util/int.hpp"
 #include "include/cxx_util/bit.hpp"
 #include "include/cxx_util/encoding/utf8.hpp"
@@ -30,8 +31,39 @@
 #include "include/cxx_util/encoding/encoding.hpp"
 #include "include/cxx_util/containers/concepts.hpp"
 
+
+//
+template<class It>
+struct is_input_iterator : std::false_type {};
+
 template<std::input_iterator It>
-void check_input_iterator() {}
+struct is_input_iterator<It> : std::true_type {};
+//
+
+//
+template<class It>
+struct is_indirectly_readable : std::false_type {};
+
+template<std::indirectly_readable It>
+struct is_indirectly_readable<It> : std::true_type {};
+//
+
+//
+template<class It, class T>
+struct is_output_iterator : std::false_type {};
+
+template<class T, std::output_iterator<T> It>
+struct is_output_iterator<It, T> : std::true_type {};
+//
+
+//
+template<class It>
+struct is_random_access_iterator : std::false_type {};
+
+template<std::random_access_iterator It>
+struct is_random_access_iterator<It> : std::true_type {};
+//
+
 template<std::input_iterator It> requires( std::sized_sentinel_for<It, It> )
 void check_sized_sentinel_for() {}
 template<std::random_access_iterator It>
@@ -49,8 +81,16 @@ template<util::byte_range It>
 void check_byte_range() {}
 
 void byte_iterator() {
-	check_input_iterator< util::bytes_visitor_iterator<int*> >();
-	check_sized_sentinel_for< util::bytes_visitor_iterator<int*> >();
+	using RAIt = util::bytes_visitor_iterator<int*>;
+
+	static_assert( is_indirectly_readable< RAIt >::value );
+	static_assert( is_input_iterator< RAIt >::value );
+	static_assert( not is_output_iterator< RAIt, int >::value );
+	static_assert( is_random_access_iterator< RAIt >::value );
+
+	using ListIt = util::bytes_visitor_iterator<std::list<int>::iterator>;
+
+	static_assert( not is_random_access_iterator< ListIt >::value );
 
 	static constexpr int arr[] { 0x1100FF, 2, 4 };
 
@@ -92,7 +132,7 @@ void _utf8() {
 	using namespace enc;
 
 	constexpr std::string_view str { "a" };
-	constexpr std::u8string_view smile { u8"😀" }; 
+	constexpr std::u8string_view smile { u8"😀" };
 
 	static_assert( size<utf8>(str) == 1 );
 	static_assert( size<utf8>(smile) == 4 );
@@ -106,15 +146,15 @@ void _utf16() {
 	constexpr std::u16string_view str { u"a" };
 	constexpr std::u16string_view wave { u"🌊" }; 
 
-	static_assert( size<utf16<>>(str) == 1 );
-	static_assert( size<utf16<>>(wave) == 2 );
+	static_assert( size<utf16>(str) == 1 );
+	static_assert( size<utf16>(wave) == 2 );
 
-	static_assert( codepoint<utf16<>>(str) == 'a' );
-	static_assert( codepoint<utf16<>>(wave) == 0x1F30A );
+	static_assert( codepoint<utf16>(str) == 'a' );
+	static_assert( codepoint<utf16>(wave) == 0x1F30A );
 }
 
 static_assert(enc::is_encoding_v<enc::utf8>);
-static_assert(enc::is_encoding_v<enc::utf16<>>);
+static_assert(enc::is_encoding_v<enc::utf16>);
 static_assert(enc::is_encoding_v<enc::ascii>);
 
 #include "include/cxx_util/vw/string_view.hpp"
@@ -141,6 +181,13 @@ void vw_string_view() {
 	static_assert(str_utf8[4] == std::string_view{ "е" });
 	static_assert(str_utf8.back() == std::string_view{ "т" });
 	static_assert(str_utf8.substr(1, 4) == vw::utf8_string_view { u8"риве" });
+
+	static_assert(str_utf8.find(vw::utf8_string_view { u8"вет" }) == 3);
+	static_assert(str_utf8.find(vw::utf8_string_view { u8"" }, 6) == 6);
+
+	constexpr auto _3 = str_utf8[3];
+
+	static_assert(str_utf8.find(_3) == 3);
 }
 
 /*void ascii_util() {

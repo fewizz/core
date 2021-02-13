@@ -2,12 +2,14 @@
 
 //#include "common.hpp"
 #include "../encoding/encoding.hpp"
+#include "../encoding/utf8.hpp"
 #include "character.hpp"
 #include "character_iterator.hpp"
 #include <algorithm>
 #include <bits/ranges_algo.h>
 #include <compare>
 #include <cstring>
+#include <iterator>
 #include <span>
 #include <stdexcept>
 #include <type_traits>
@@ -15,26 +17,36 @@
 namespace vw {
 
 template<enc::encoding E, class T>
-struct string_view_base : std::span<T> {
+struct basic_string_view : std::span<T> {
 	using base_type = std::span<T>;
 	using value_type = character_view<E, T>;
 	using iterator = character_iterator<E, T>;
+	
 	using typename base_type::size_type;
+
 	static constexpr size_type npos = size_type(-1);
 
-	constexpr string_view_base() = default;
+	constexpr basic_string_view() = default;
 
 	template<class It>
-	constexpr string_view_base(It begin, size_type count)
+	constexpr basic_string_view(It begin, size_type count)
 		: base_type(begin, count) {}
 
-	constexpr string_view_base(iterator begin, iterator end)
+	constexpr basic_string_view(iterator begin, iterator end)
 		: base_type(begin.cur, end.cur - begin.cur) {}
 
-	constexpr string_view_base(iterator begin, size_type count)
-		: string_view_base(begin, begin + count) {}
+	template<class R>
+	constexpr basic_string_view(R&& range)
+		: base_type(std::forward<R>(range)) {}
+
+	constexpr basic_string_view(const std::integral auto* c_str)
+		: base_type( std::basic_string_view { c_str } ) {}
 
 	using base_type::data;
+
+	constexpr size_type raw_size() const {
+		return base_type::size();
+	}
 
 	constexpr iterator begin() const {
 		return { data(), data(), data() + base_type::size() };
@@ -77,29 +89,57 @@ struct string_view_base : std::span<T> {
 		return *it;
 	}
 
-	constexpr string_view_base substr(size_type pos = 0, size_type n = npos) const {
+	constexpr basic_string_view substr(size_type pos = 0, size_type n = npos) const {
 		auto b = begin();
 		std::advance(b, pos);
 
-		return { b, n == npos ? size() - pos : n };
+		if(n == npos) n = size() - pos;
+
+		auto e = b;
+		std::advance(e, n);
+
+		return { b, e };
 	}
 
-	constexpr bool operator == (const string_view_base& that) const {
+	constexpr bool operator == (basic_string_view that) const {
 		return that.size() == size() && std::__memcmp(data(), that.data(), size()) == 0;
 	};
 
-	constexpr size_type find(value_type s, size_type pos = 0) const {
-		
+	constexpr size_type find(basic_string_view s, size_type pos = 0) const {
+		auto it = begin();
+		std::advance(it, pos);
+
+		auto remains = size() - pos;
+		auto that_size = s.size();
+
+		while(remains >= that_size) {
+			auto res = std::__memcmp(it.cur, s.data(), s.raw_size());
+			if(res == 0) return pos;
+
+			++pos;
+			++it;
+			--remains;
+		}
+
+		return npos;
+	}
+
+	constexpr size_type find(value_type c, size_type pos = 0) const {
+		return find(basic_string_view { c.data(), c.size() }, pos);
 	}
 
 };
+/*template<class E, class T = util::uint_with_size_t<sizeof(E::preferred_size)>>
+struct basic_string_view;
 
-template<class E, class T = util::uint_with_size_t<sizeof(E::preferred_size)>>
-struct basic_string_view : string_view_base<E, T> {
-	using string_view_base<E, T>::string_view_base;
-};
+template<class E, class T>
+struct basic_string_view : string_view_base<basic_string_view<E, T>, E, T> {
+	using base_type = string_view_base<basic_string_view<E, T>, E, T>;
 
-template<class T>
+	using base_type::base_type;
+};*/
+
+/*template<class T>
 struct basic_string_view<enc::ascii, T> : string_view_base<enc::ascii, T> {
 	using base_type = string_view_base<enc::ascii, T>;
 
@@ -121,7 +161,7 @@ struct basic_string_view<enc::utf8, T> : string_view_base<enc::utf8, T> {
 			str,
 			std::u8string_view(str).length()
 		) {}
-};
+};*/
 
 using ascii_string_view = basic_string_view<enc::ascii, const char>;
 using utf8_string_view = basic_string_view<enc::utf8, const char8_t>;

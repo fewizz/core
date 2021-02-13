@@ -63,7 +63,11 @@ struct ascii {
 
 	static constexpr tl::expected<character<ascii>, request_error>
 	decode(util::byte_iterator auto begin, util::byte_iterator auto end) {
-		return character_builder<ascii>{}.codepoint((uint64_t) *begin).width(1);
+		code_point_type possible = (uint8_t) *begin;
+
+		if(possible >= 0x80) return tl::unexpected { request_error::invalid_input };
+
+		return character_builder<ascii>{}.codepoint(possible).width(1);
 	}
 };
 
@@ -90,19 +94,6 @@ static constexpr auto codepoint(auto& range) {
 		util::bytes_visitor_iterator { std::ranges::end(range) }
 	).value().code_point;
 }
-
-/*struct utf16 {
-	static constexpr int preferred_size = 2;
-
-	static constexpr auto char_width(const auto& range) {
-		return util::utf16::char_width(range);
-	}
-
-	static constexpr auto codepoint(const auto& range) {
-		return util::utf16::codepoint(range);
-	}
-};
-*/
 
 /*struct usc2 {
 	using char_type = char16_t;
