@@ -17,23 +17,28 @@
 #include "../bit.hpp"
 #include <array>
 
+#include "encoding.hpp"
 #include <tl/expected.hpp>
 #include "../byte_iterator.hpp"
 
-namespace util {
+namespace enc {
 
-namespace utf8 {
+struct utf8 {
 
-constexpr std::optional<uint8_t> possible_size(std::byte byte) {
-	if(equalsl<0>(byte)) return { 1 };
-	if(equalsl<1, 1, 0>(byte)) return { 2 };
-	if(equalsl<1, 1, 1, 0>(byte)) return { 3 };
-	if(equalsl<1, 1, 1, 1, 0>(byte)) return { 4 };
+using character_set_type = unicode;
+static constexpr int code_unit_bits = 8;
+
+static constexpr std::optional<uint8_t>
+possible_size(std::byte byte) {
+	if(util::equalsl<0>(byte)) return { 1 };
+	if(util::equalsl<1, 1, 0>(byte)) return { 2 };
+	if(util::equalsl<1, 1, 1, 0>(byte)) return { 3 };
+	if(util::equalsl<1, 1, 1, 1, 0>(byte)) return { 4 };
 	return {};
 }
 
 template<util::byte_iterator It>
-constexpr tl::expected<uint8_t, enc::request_error>
+static constexpr tl::expected<uint8_t, enc::request_error>
 size(It it, It end) {
 	auto possible = possible_size(*it);
 	if(!possible) return tl::unexpected{ enc::request_error::invalid_input };
@@ -46,7 +51,7 @@ size(It it, It end) {
 	for(int i = 1; i < std::min(decltype(dist)(possible.value()), dist); i++) {
 		++it;
 
-		if(not equalsl<1,0>(*it))
+		if(not util::equalsl<1,0>(*it))
 			return tl::unexpected{ enc::request_error::invalid_input };
 	}
 
@@ -54,16 +59,16 @@ size(It it, It end) {
 }
 
 template<util::byte_iterator It>
-constexpr tl::expected<enc::character, enc::request_error>
-character(It it, It end) {
+static constexpr tl::expected<character<unicode>, enc::request_error>
+decode(It it, It end) {
 	auto possible_size = size(it, end);
 	if(!possible_size) return tl::unexpected{ possible_size.error() };
 
 	auto width = possible_size.value();
 
-	auto first = uint64_t(*it);
+	auto first = uint32_t(*it);
 
-	enc::character_builder cb;
+	enc::character_builder<unicode> cb;
 	cb.width(width);
 	
 	if(width == 1)
@@ -73,19 +78,19 @@ character(It it, It end) {
 	first &= 0xFF >> left_mask_size;
 
 	unsigned first_offset = (6 * (width - 1));
-	uint64_t result = first << first_offset;
+	uint32_t result = first << first_offset;
 
 	for(unsigned i = 1; i < (unsigned)width; i++) {
 		unsigned offset = 6 * ((width - 1) - i);
 		++it;
 
-		auto nth = uint64_t(*it);
+		auto nth = uint32_t(*it);
 		result |= (nth & 0b00111111) << offset;
 	}
 
 	return { cb.codepoint(result) };
 }
 
-}
+};
 
 }

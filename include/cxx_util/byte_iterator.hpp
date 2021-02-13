@@ -15,25 +15,26 @@
 
 namespace util {
 
-template<class Iter, std::endian Endian = std::endian::little>
+template<class It, std::endian Endian = std::endian::little>
 struct bytes_visitor_iterator {
-	using prev_value_type = std::iter_value_t<Iter>;
+	using prev_value_type = std::iter_value_t<It>;
 	constexpr static unsigned prev_value_type_size = sizeof(prev_value_type);
 
 	using value_type = std::byte;
-	using difference_type = int;
+	using difference_type = std::ptrdiff_t;
 	using reference = std::byte&;
 	using pointer = std::byte*;
-	using iterator_category = std::random_access_iterator_tag;
+	using iterator_category =
+		typename std::iterator_traits<It>::iterator_category;
 
-	Iter iter;
+	It iter;
 	unsigned byte_index = 0;
 
 	constexpr bytes_visitor_iterator() {}
-	constexpr bytes_visitor_iterator(Iter iter) : iter{iter} {}
+	constexpr bytes_visitor_iterator(It iter) : iter {iter} {}
 
 protected:
-	constexpr bytes_visitor_iterator(Iter iter, unsigned byte_index)
+	constexpr bytes_visitor_iterator(It iter, unsigned byte_index)
 		: iter{iter}, byte_index{byte_index} {}
 
 public:
@@ -118,7 +119,7 @@ template<class It>
 concept byte_iterator =
 	std::input_iterator<It> && std::same_as<std::iter_value_t<It>, std::byte>;
 
-template<std::integral T, std::size_t N = sizeof(T)>
+template<std::endian E, std::integral T, std::size_t N = sizeof(T)>
 constexpr std::optional<T>
 next(byte_iterator auto& begin, byte_iterator auto end) {
 	std::size_t dist = std::distance(begin, end);
@@ -129,12 +130,23 @@ next(byte_iterator auto& begin, byte_iterator auto end) {
 	++begin;
 	
 	for(std::size_t i = 1; i < N; i++) {
-		res <<= 8;
-		res |= T(*begin);
+		if constexpr (E == std::endian::little) {
+			res |= T(*begin) << ( 8 * i );
+		}
+		else {
+			res <<= 8;
+			res |= T(*begin);
+		}
 		++begin;
 	}
 
 	return { res };
+}
+
+template<std::integral T> requires(sizeof(T) == 1)
+constexpr std::optional<T>
+next(byte_iterator auto& begin, byte_iterator auto end) {
+	return next<std::endian::native, T, 1>(begin, end);
 }
 
 template<std::integral T, std::size_t N = sizeof(T)>

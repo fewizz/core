@@ -106,25 +106,16 @@ void _utf16() {
 	constexpr std::u16string_view str { u"a" };
 	constexpr std::u16string_view wave { u"🌊" }; 
 
-	static_assert( size<utf16>(str) == 1 );
-	static_assert( size<utf16>(wave) == 2 );
+	static_assert( size<utf16<>>(str) == 1 );
+	static_assert( size<utf16<>>(wave) == 2 );
 
-	static_assert( codepoint<utf16>(str) == 'a' );
-	static_assert( codepoint<utf16>(wave) == 0x1F30A );
+	static_assert( codepoint<utf16<>>(str) == 'a' );
+	static_assert( codepoint<utf16<>>(wave) == 0x1F30A );
 }
 
 static_assert(enc::is_encoding_v<enc::utf8>);
-static_assert(enc::is_encoding_v<enc::utf16>);
+static_assert(enc::is_encoding_v<enc::utf16<>>);
 static_assert(enc::is_encoding_v<enc::ascii>);
-
-template<util::container C>
-void check_for_container_concept() {
-	C c;
-	C a;
-	assert(c.empty());
-	assert(C().empty());
-	assert(C(a) == a);
-}
 
 #include "include/cxx_util/vw/string_view.hpp"
 
@@ -132,8 +123,24 @@ void vw_string_view() {
 	constexpr vw::ascii_string_view str_ascii { "Hello" };
 	static_assert(str_ascii.size() == 5);
 
+	static_assert(str_ascii.front() == std::string_view{ "H" });
+	static_assert(str_ascii[1] == std::string_view{ "e" });
+	static_assert(str_ascii[2] == std::string_view{ "l" });
+	static_assert(str_ascii[3] == std::string_view{ "l" });
+	static_assert(str_ascii.back() == std::string_view{ "o" });
+	static_assert(str_ascii.substr(2, 2) == vw::ascii_string_view { "ll" });
+
+
 	constexpr vw::utf8_string_view str_utf8 { u8"Привет" };
 	static_assert(str_utf8.size() == 6);
+
+	static_assert(str_utf8.front() == std::u8string_view{ u8"П" } );
+	static_assert(str_utf8[1] == std::string_view{ "р" });
+	static_assert(str_utf8[2] == std::string_view{ "и" });
+	static_assert(str_utf8[3] == std::string_view{ "в" });
+	static_assert(str_utf8[4] == std::string_view{ "е" });
+	static_assert(str_utf8.back() == std::string_view{ "т" });
+	static_assert(str_utf8.substr(1, 4) == vw::utf8_string_view { u8"риве" });
 }
 
 /*void ascii_util() {
@@ -277,8 +284,8 @@ void convert() {
 
 //#include "include/cxx_util/concepts.hpp"
 
-int main() {
 
+int main() {
 	//check_range<util::bytes_visitor_range<std::vector<int>>>();
 	//check_sized_range<util::bytes_visitor_range<std::vector<int>>>();
 	//check_byte_range<util::bytes_visitor_range<std::string_view>>();

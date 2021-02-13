@@ -1,5 +1,6 @@
 #pragma once
 
+#include <bits/stdint-uintn.h>
 #include <cinttypes>
 #include <concepts>
 #include <iterator>
@@ -59,7 +60,7 @@ constexpr bool equalsl(auto val) {
 
 template<class Int>
 constexpr std::byte byte(Int val, unsigned index) {
-	return std::byte{ uint8_t(( val >> ( index * 8 ) ) & 0xFF) };
+	return std::byte{ uint8_t( val >> ( index * 8 ) & 0xFF) };
 }
 
 template<class Int>

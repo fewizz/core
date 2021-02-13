@@ -4,36 +4,15 @@
 #include "../encoding/encoding.hpp"
 #include "character.hpp"
 #include "character_iterator.hpp"
+#include <algorithm>
+#include <bits/ranges_algo.h>
+#include <compare>
 #include <cstring>
 #include <span>
+#include <stdexcept>
 #include <type_traits>
 
 namespace vw {
-
-/*namespace internal {
-
-template<
-	class Derived,
-	enc::encoding E,
-	class T = std::char_traits<typename E::char_type>
->
-struct string_view :
-internal::common<std::basic_string_view<typename E::char_type, T>, E> {
-	using char_type = typename E::char_type;
-	using string_view_type = std::basic_string_view<char_type, T>;
-	using base_type = mb::internal::common<string_view_type, E>;
-	using size_type = typename base_type::size_type;
-
-	using base_type::base_type;
-
-	Derived substr(size_type pos = 0, size_type count = base_type::npos) const {
-		auto b = base_type::begin() + pos;
-		auto e = count == base_type::npos ? base_type::end() : b + count;
-		return { b, e };
-	}
-};
-
-}*/
 
 template<enc::encoding E, class T>
 struct string_view_base : std::span<T> {
@@ -41,12 +20,19 @@ struct string_view_base : std::span<T> {
 	using value_type = character_view<E, T>;
 	using iterator = character_iterator<E, T>;
 	using typename base_type::size_type;
+	static constexpr size_type npos = size_type(-1);
 
 	constexpr string_view_base() = default;
 
 	template<class It>
 	constexpr string_view_base(It begin, size_type count)
 		: base_type(begin, count) {}
+
+	constexpr string_view_base(iterator begin, iterator end)
+		: base_type(begin.cur, end.cur - begin.cur) {}
+
+	constexpr string_view_base(iterator begin, size_type count)
+		: string_view_base(begin, begin + count) {}
 
 	using base_type::data;
 
@@ -61,18 +47,63 @@ struct string_view_base : std::span<T> {
 	constexpr size_type size() const {
 		return std::distance(begin(), end());
 	}
+
+	constexpr size_type length() const {
+		return size();
+	}
+
+	constexpr bool empty() const { return size() == 0; }
+
+	constexpr value_type operator [] (size_type pos) const {
+		auto it = begin();
+		std::advance(it, pos);
+		return *it;
+	}
+
+	constexpr value_type at(size_type pos) const {
+		if(pos >= size()) throw std::runtime_error{ "vw::string_view::at" };
+		auto it = begin();
+		std::advance(it, pos);
+		return *it;
+	}
+
+	constexpr value_type front() const {
+		return *begin();
+	}
+
+	constexpr value_type back() const {
+		auto it = begin();
+		std::advance(it, size() - 1);
+		return *it;
+	}
+
+	constexpr string_view_base substr(size_type pos = 0, size_type n = npos) const {
+		auto b = begin();
+		std::advance(b, pos);
+
+		return { b, n == npos ? size() - pos : n };
+	}
+
+	constexpr bool operator == (const string_view_base& that) const {
+		return that.size() == size() && std::__memcmp(data(), that.data(), size()) == 0;
+	};
+
+	constexpr size_type find(value_type s, size_type pos = 0) const {
+		
+	}
+
 };
 
 template<class E, class T = util::uint_with_size_t<sizeof(E::preferred_size)>>
-struct string_view : string_view_base<E, T> {
+struct basic_string_view : string_view_base<E, T> {
 	using string_view_base<E, T>::string_view_base;
 };
 
 template<class T>
-struct string_view<enc::ascii, T> : string_view_base<enc::ascii, T> {
+struct basic_string_view<enc::ascii, T> : string_view_base<enc::ascii, T> {
 	using base_type = string_view_base<enc::ascii, T>;
 
-	constexpr string_view(const char* str)
+	constexpr basic_string_view(const char* str)
 	requires(std::is_same_v<T, const char>)
 		: base_type(
 			str,
@@ -81,10 +112,10 @@ struct string_view<enc::ascii, T> : string_view_base<enc::ascii, T> {
 };
 
 template<class T>
-struct string_view<enc::utf8, T> : string_view_base<enc::utf8, T> {
+struct basic_string_view<enc::utf8, T> : string_view_base<enc::utf8, T> {
 	using base_type = string_view_base<enc::utf8, T>;
 
-	constexpr string_view(const char8_t* str)
+	constexpr basic_string_view(const char8_t* str)
 	requires(std::is_same_v<T, const char8_t>)
 		: base_type(
 			str,
@@ -92,7 +123,7 @@ struct string_view<enc::utf8, T> : string_view_base<enc::utf8, T> {
 		) {}
 };
 
-using ascii_string_view = string_view<enc::ascii, const char>;
-using utf8_string_view = string_view<enc::utf8, const char8_t>;
+using ascii_string_view = basic_string_view<enc::ascii, const char>;
+using utf8_string_view = basic_string_view<enc::utf8, const char8_t>;
 
 }

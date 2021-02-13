@@ -7,96 +7,88 @@
 #include <tl/expected.hpp>
 #include <type_traits>
 #include <utility>
-#include "utf8.hpp"
-#include "utf16.hpp"
 #include "request_error.hpp"
+#include "../byte_iterator.hpp"
 
 namespace enc {
 
-/*template<class D>
-struct encoding_base {
-	static constexpr auto char_width(auto& range) {
-		return D::char_width(
-			util::bytes_visitor_iterator{ std::ranges::begin(range) },
-			util::bytes_visitor_iterator{ std::ranges::end(range) }
-		);
-	}
-
-	static constexpr auto character(auto& range) {
-		return D::character(
-			util::bytes_visitor_iterator{ std::ranges::begin(range) },
-			util::bytes_visitor_iterator{ std::ranges::end(range) }
-		);
-	}
-};*/
-
-struct utf8 {
-	static constexpr int preferred_size = 1;
-	
-	static constexpr auto size(auto begin, auto end) {
-		return util::utf8::size(begin, end);
-	}
-
-	static constexpr auto character(auto begin, auto end) {
-		return util::utf8::character(begin, end);
-	}
+struct unicode {
+	using code_point_type = uint32_t;
 };
 
-struct utf16 {
-	static constexpr int preferred_size = 2;
-	
-	static constexpr auto size(auto begin, auto end) {
-		return util::utf16::size(begin, end);
+using ucs = unicode;
+
+template<class CS>
+struct character {
+	typename CS::code_point_type code_point;
+	uint8_t width;
+};
+
+template<class CS>
+struct character_builder {
+	using code_point_type = typename CS::code_point_type;
+	using character_type = enc::character<CS>;
+	std::optional<code_point_type> m_codepoint;
+	std::optional<uint8_t> m_width;
+
+	constexpr character_builder() = default;
+
+	constexpr character_builder& codepoint(code_point_type v) {
+		m_codepoint = v;
+		return *this;
 	}
 
-	static constexpr auto character(auto begin, auto end) {
-		return util::utf16::character(begin, end);
+	constexpr character_builder& width(uint8_t v) {
+		m_width = v;
+		return *this;
 	}
+
+	constexpr operator character_type()
+	{ return { *m_codepoint, *m_width }; }
 };
+
+struct ascii;
 
 struct ascii {
-	static constexpr int preferred_size = 1;
-	static constexpr int fixed_size = 1;
+	using code_point_type = uint8_t;
+	using character_set_type = ascii;
+
+	static constexpr int code_unit_bits = 7;
+	static constexpr int code_unit_size = 1;
 
 	static constexpr tl::expected<uint8_t, request_error>
 	size(auto begin, auto end) {
 		return { 1 };
 	}
 
-	static constexpr tl::expected<uint64_t, request_error>
-	codepoint(util::byte_iterator auto begin, util::byte_iterator auto end) {
-		return { (uint64_t) *begin };
+	static constexpr tl::expected<character<ascii>, request_error>
+	decode(util::byte_iterator auto begin, util::byte_iterator auto end) {
+		return character_builder<ascii>{}.codepoint((uint64_t) *begin).width(1);
 	}
 };
 
 template<class E>
 static constexpr auto size(auto& range) {
-	auto begin = std::ranges::begin(range);
-	using It = decltype(begin);
-
 	return E::size(
-		util::bytes_visitor_iterator< It, std::endian::big > { begin },
-		util::bytes_visitor_iterator< It, std::endian::big > { std::ranges::end(range) }
+		util::bytes_visitor_iterator { std::ranges::begin(range) },
+		util::bytes_visitor_iterator { std::ranges::end(range) }
 	).value();
 }
 
 template<class E, class It>
 static constexpr auto size(It begin, It end) {
 	return E::size(
-		util::bytes_visitor_iterator< It, std::endian::big > { begin },
-		util::bytes_visitor_iterator< It, std::endian::big > { end }
+		util::bytes_visitor_iterator { begin },
+		util::bytes_visitor_iterator { end }
 	).value();
 }
 
 template<class E>
 static constexpr auto codepoint(auto& range) {
-	auto begin = std::ranges::begin(range);
-	using It = decltype(begin);
-
-	return E::character(
-		util::bytes_visitor_iterator< It, std::endian::big > { begin },
-		util::bytes_visitor_iterator< It, std::endian::big > { std::ranges::end(range) }
-	).value().codepoint;
+	return E::decode(
+		util::bytes_visitor_iterator { std::ranges::begin(range) },
+		util::bytes_visitor_iterator { std::ranges::end(range) }
+	).value().code_point;
 }
 
 /*struct utf16 {
@@ -133,7 +125,7 @@ template<class T>
 concept encoding = requires() {
 	/*{ T::width };
 	{ T::codepoint };*/
-	{ T::preferred_size };
+	typename T::character_set_type;
 };
 
 template<class T>

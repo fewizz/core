@@ -73,6 +73,12 @@ public:
 		return prev;
 	}
 
+	constexpr auto operator + (int n) {
+		auto it = *this;
+		std::advance(it, n);
+		return it;
+	}
+
 	/*constexpr auto operator + (std::integral auto offset) const {
 		auto offset0 = offset;
 		auto it = cur;
