@@ -15,6 +15,7 @@
 #include "include/cxx_util/convert.hpp"
 #include "include/cxx_util/containers/concepts.hpp"*/
 
+#include <bits/stdint-uintn.h>
 #include <iostream>
 #include <assert.h>
 #include <iterator>
@@ -64,12 +65,17 @@ template<std::random_access_iterator It>
 struct is_random_access_iterator<It> : std::true_type {};
 //
 
+template<std::input_iterator It>
+void check_input_iterator() {}
+
 template<std::input_iterator It> requires( std::sized_sentinel_for<It, It> )
 void check_sized_sentinel_for() {}
 template<std::random_access_iterator It>
 void check_random_access_iterator() {}
 template<std::contiguous_iterator It>
 void check_contiguous_iterator() {}
+template<std::indirectly_readable It>
+void check_indirectly_readable() {}
 
 template<std::ranges::range It>
 void check_range() {}
@@ -83,6 +89,8 @@ void check_byte_range() {}
 void byte_iterator() {
 	using RAIt = util::bytes_visitor_iterator<int*>;
 
+	check_input_iterator< RAIt> ();
+	check_indirectly_readable< RAIt >();
 	static_assert( is_indirectly_readable< RAIt >::value );
 	static_assert( is_input_iterator< RAIt >::value );
 	static_assert( not is_output_iterator< RAIt, int >::value );
@@ -96,6 +104,8 @@ void byte_iterator() {
 
 	constexpr auto beg = util::bytes_visitor_iterator(std::begin(arr));
 	constexpr auto end = util::bytes_visitor_iterator(std::end(arr));
+
+	static_assert(util::bytes { arr } == util::bytes { arr } );
 
 	static_assert(decltype(beg)::prev_value_type_size == sizeof(int));
 	static_assert(std::distance(beg, end) == 3*sizeof(int));
@@ -137,8 +147,8 @@ void _utf8() {
 	static_assert( size<utf8>(str) == 1 );
 	static_assert( size<utf8>(smile) == 4 );
 
-	static_assert( codepoint<utf8>(str) == 'a' );
-	static_assert( codepoint<utf8>(smile) == 0x1F600 );
+	static_assert( read_codepoint<utf8>(str) == 'a' );
+	static_assert( read_codepoint<utf8>(smile) == 0x1F600 );
 }
 
 void _utf16() {
@@ -149,8 +159,8 @@ void _utf16() {
 	static_assert( size<utf16>(str) == 1 );
 	static_assert( size<utf16>(wave) == 2 );
 
-	static_assert( codepoint<utf16>(str) == 'a' );
-	static_assert( codepoint<utf16>(wave) == 0x1F30A );
+	static_assert( read_codepoint<utf16>(str) == 'a' );
+	static_assert( read_codepoint<utf16>(wave) == 0x1F30A );
 }
 
 static_assert(enc::is_encoding_v<enc::utf8>);
@@ -188,6 +198,24 @@ void vw_string_view() {
 	constexpr auto _3 = str_utf8[3];
 
 	static_assert(str_utf8.find(_3) == 3);
+}
+
+#include "include/cxx_util/vw/string.hpp"
+
+consteval int vw_string() {
+	vw::utf8_string D = u8"D";
+	assert(D.size() == 1);
+
+	vw::utf8_string_view D_sv = D;
+
+	vw::utf8_string hello = u8"Привет";
+	assert(hello == u8"Привет");
+	assert(hello.size() == 6);
+	assert(hello.find(vw::utf8_string_view { u8"вет" }) == 3);
+	assert(hello.find(vw::utf8_string_view { u8"" }, 6) == 6);
+	//assert(hello[0] == std::u8string_view { u8"П" });
+ 
+	return 0;
 }
 
 /*void ascii_util() {
@@ -344,6 +372,7 @@ int main() {
 	//util::common_reference<int&, int&>::type;
 	byte_iterator();
 	bit();
+	constexpr int r = vw_string();
 	//utf8();
 	//utf16();
 	//vw_string_view();

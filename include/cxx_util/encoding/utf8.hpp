@@ -59,8 +59,8 @@ size(It it, It end) {
 }
 
 template<util::byte_iterator It>
-static constexpr tl::expected<character<unicode>, enc::request_error>
-decode(It it, It end) {
+static constexpr tl::expected<codepoint_parse_result<unicode>, enc::request_error>
+read(It it, It end) {
 	auto possible_size = size(it, end);
 	if(!possible_size) return tl::unexpected{ possible_size.error() };
 
@@ -68,27 +68,37 @@ decode(It it, It end) {
 
 	auto first = uint32_t(*it);
 
-	enc::character_builder<unicode> cb;
-	cb.width(width);
+	codepoint_parse_result<unicode> res;
+	res.width = width;
 	
-	if(width == 1)
-		return { cb.codepoint(first) };
+	if(width == 1) {
+		res.codepoint = first;
+		return res;
+	}
 
 	auto left_mask_size = width + 1;
 	first &= 0xFF >> left_mask_size;
 
 	unsigned first_offset = (6 * (width - 1));
-	uint32_t result = first << first_offset;
+	uint32_t resulting_cp = first << first_offset;
 
 	for(unsigned i = 1; i < (unsigned)width; i++) {
 		unsigned offset = 6 * ((width - 1) - i);
 		++it;
 
 		auto nth = uint32_t(*it);
-		result |= (nth & 0b00111111) << offset;
+		resulting_cp |= (nth & 0b00111111) << offset;
 	}
+	
+	res.codepoint = resulting_cp;
+	return res;
+}
 
-	return { cb.codepoint(result) };
+template<util::byte_iterator It> void
+write(codepoint<unicode> cp, It it, It end) {
+	if(cp <= 0x7F) {
+		it = 
+	}
 }
 
 };

@@ -12,9 +12,9 @@ namespace vw {
 
 template<enc::encoding Encoding, class T>
 struct character_iterator {
-	const T* begin;
-	const T* cur;
-	const T* end;
+	T* begin;
+	T* cur;
+	T* end;
 
 	using difference_type = std::ptrdiff_t;
 	using value_type = character_view<Encoding, T>;
@@ -22,7 +22,7 @@ struct character_iterator {
 	using reference = value_type&;
 	using iterator_category = std::forward_iterator_tag;
 
-	character_iterator() {}
+	character_iterator() = default;
 	character_iterator(character_iterator&& other) = default;
 	character_iterator& operator = (character_iterator&& other) = default;
 	character_iterator(const character_iterator& other) = default;
@@ -43,16 +43,16 @@ private:
 	}
 public:
 	constexpr character_iterator(
-		const T* begin,
-		const T* cur,
-		const T* end
+		T* begin,
+		T* cur,
+		T* end
 	) :
 	begin{ begin }, cur{ cur }, end{ end } {
 		check();
 	}
 
 	constexpr character_iterator(
-		const T* begin, const T* end
+		T* begin, T* end
 	) :
 	begin{ begin }, cur{ end }, end{ end } {}
 
@@ -98,7 +98,7 @@ public:
 	}*/
 
 	constexpr std::strong_ordering
-	operator <=>(const character_iterator& other) const {
+	operator <=> (const character_iterator& other) const {
 		return cur <=> other.cur;
 	}
 

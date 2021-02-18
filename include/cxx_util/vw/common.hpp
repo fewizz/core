@@ -3,198 +3,142 @@
 #include "string_def.hpp"
 #include "character.hpp"
 #include "character_iterator.hpp"
+#include <bits/c++config.h>
+#include <compare>
 #include <type_traits>
 
-namespace mb {
+namespace vw {
+
+template<enc::encoding E, class T>
+struct basic_string_view;
 
 namespace internal {
-    
-template<class Base, enc::encoding Encoding>
-struct common : protected Base {
-    using traits_type      = typename Base::traits_type;
-    using value_type       = character_view<Encoding>;
-    using size_type        = typename Base::size_type;
-    using iterator         = character_iterator<Encoding>;
-    using difference_type  = typename iterator::difference_type;
-    using pointer          = typename Base::pointer;
-    using const_pointer    = typename Base::const_pointer;
-    using reference        = value_type&;
-    using const_reference  = const value_type&;
-    using const_iterator   = const character_iterator<Encoding>;
-    static const
-        size_type npos     = Base::npos;
 
-    using char_type        = typename Encoding::char_type;
-    using encoding_type    = Encoding;
+template<class D, class E, class T>
+struct string_common {
+	using value_type = character_view<E, T>;
+	using iterator = character_iterator<E, T>;
+	using size_type = std::size_t;
+private:
+	constexpr T* data() const {
+		return ((D*)this)->data();
+	}
 
-    // constructor
+	constexpr size_type raw_size() const {
+		return ((D*)this)->raw_size();
+	}
 
-    using Base::Base;
-    
-    common(const Base& str) : Base( str ) {}
-    common(Base&& str) : Base( std::move(str) ) {}
-    common(iterator b, iterator e) :
-    Base( mb::internal::current(b), mb::internal::current(e) - mb::internal::current(b) ) {}
-    common(const mb::character<Encoding>& ch) : Base( ch.begin(), ch.end() ) {}
-    common(mb::character_view<Encoding> ch) : Base( ch.begin(), ch.end() ) {}
+public:
 
-    using Base::operator = ;
+	static constexpr size_type npos = size_type(-1);
 
-    // element access
-    
-    value_type at(size_type index) const {
-        auto prev_index = index;
-        for(auto ch : *this)
-            if(index-- == 0) return ch;
+	constexpr iterator begin() const {
+		return { data(), data(), data() + raw_size() };
+	}
 
-        throw std::out_of_range {
-            "size: " + std::to_string(size()) +
-            ", requested index: " + std::to_string(prev_index)
-        };
-    }
+	constexpr iterator end() const {
+		return { data(), data() + raw_size() };
+	}
 
-    value_type operator [] (size_type index) const {
-        return at(index);
-    }
+	constexpr size_type size() const {
+		return std::distance(begin(), end());
+	}
 
-    value_type front() const {
-        return *begin();
-    }
+	constexpr size_type length() const {
+		return size();
+	}
 
-    using Base::data;
+	constexpr bool empty() const { return size() == 0; }
 
-    operator std::basic_string_view<char_type> () const {
-        return to_string_view<char_type>();
-    }
-    
-    // iterators
+	constexpr value_type operator [] (size_type pos) const {
+		auto it = begin();
+		std::advance(it, pos);
+		return *it;
+	}
 
-    iterator begin() {
-        return { data(), data(), data() + raw_size() };
-    }
+	constexpr value_type at(size_type pos) const {
+		if(pos >= size()) throw std::runtime_error{ "vw::string_view::at" };
+		auto it = begin();
+		std::advance(it, pos);
+		return *it;
+	}
 
-    const_iterator begin() const {
-        return { data(), data(), data() + raw_size() };
-    }
+	constexpr value_type front() const {
+		return *begin();
+	}
 
-    const_iterator cbegin() const { return begin(); }
+	constexpr value_type back() const {
+		auto it = begin();
+		std::advance(it, size() - 1);
+		return *it;
+	}
 
-    iterator end() {
-        return { data(), data() + raw_size() };
-    }
+	constexpr D substr(size_type pos = 0, size_type n = npos) const {
+		auto b = begin();
+		std::advance(b, pos);
 
-    const_iterator end() const {
-        return { data(), data() + raw_size() };
-    }
+		if(n == D::npos) n = size() - pos;
 
-    const_iterator cend() const { return end(); }
+		auto e = b;
+		std::advance(e, n);
 
-    auto raw_begin() const { return Base::begin(); }
-    auto raw_end() const { return Base::end(); }
+		return { b, e };
+	}
 
-    // capacity
+	constexpr size_type find(auto s, size_type pos = 0) const {
+		auto it = begin();
+		std::advance(it, pos);
 
-    using Base::empty;
+		auto remains = size() - pos;
+		auto that_size = s.size();
 
-    size_type size() const { return std::distance(begin(), end()); }
+		while(remains >= that_size) {
+			auto res = std::__memcmp(it.cur, s.data(), s.raw_size());
+			if(res == 0) return pos;
 
-    auto length() const { return size(); }
+			++pos;
+			++it;
+			--remains;
+		}
 
-    size_type raw_size() const { return Base::size(); }
+		return npos;
+	}
 
-    // operations
-    
-    using Base::compare;
-    using Base::swap;
+	constexpr size_type find(value_type c, size_type pos = 0) const {
+		return find(basic_string_view<E, T> { c.data(), c.size() }, pos);
+	}
 
-    void swap(const common& that) {
-        return ((Base&)*this).swap(that);
-    }
+	constexpr std::strong_ordering
+	operator <=> (const string_common& that) const {
+		return
+		util::bytes { data(), data() + raw_size() }
+		<=>
+		util::bytes { that.data(), that.data() + that.raw_size() };
+	}
 
-    // search
-    
-    size_type find(auto ch, size_type pos = 0) const requires(std::is_integral_v<decltype(ch)>){
-        return find_first_of(ch, pos);
-    }
+	constexpr std::strong_ordering
+	operator <=> (const std::ranges::range auto& that) const {
+		return
+		util::bytes { data(), data() + raw_size() }
+		<=>
+		util::bytes { that };
+	}
 
-    size_type find_first_of(auto ch, size_type pos = 0) const requires(std::is_integral_v<decltype(ch)>){
-        auto sv = to_string_view<char_type>();
-        for(auto ch0 : sv.substr(pos)) {
-            if(ch0 == ch) return pos;
-            pos++;
-        }
-        return npos;
-    }
+	constexpr std::strong_ordering operator <=> (const T* that) const {
+		return
+		util::bytes { data(), data() + raw_size() }
+		<=>
+		util::bytes { std::basic_string_view<T> { that } };
+	}
 
-    // other
+	constexpr bool
+	operator == (const T* that) const {
+		return *this <=> that == 0;
+	}
 
-    friend std::strong_ordering operator <=> (const common& a, const common& b) = default;
-
-    template<enc::encoding Encoding0>
-    mb::basic_string<Encoding0> convert() const {
-        auto from = enc::template from<Encoding>(data(), data() + Base::size());
-
-        if(from.template to_always_noconv<Encoding0>()) {
-            return { raw_begin(), raw_end() };
-        }
-
-        std::basic_string<typename Encoding0::char_type> str;
-        str.resize(
-            from.template to_length<Encoding0>()
-        );
-
-        from.template to<Encoding0>(
-            str.data(), str.data() + str.size()
-        );
-
-        return { std::move(str) };
-    }
-
-    template<class CharT> requires(std::is_integral_v<CharT> && sizeof(char_type) == sizeof(CharT))
-    std::basic_string_view<CharT> to_string_view() const {
-        return {
-            (CharT*) data(), raw_size()
-        };
-    }
-
-    template<enc::encoding E>
-    mb::basic_string<E> to_string() const {
-        return convert<E>();
-    }
-
-    template<class CharT> requires(std::is_integral_v<CharT> && sizeof(char_type) == sizeof(CharT))
-    auto to_string() const {
-        return std::basic_string<CharT> { (CharT*) data(), raw_size() };
-    }
-
-    template<enc::encoding E, class CharT>
-    auto to_string() const {
-        return to_string<E>().template to_string<CharT>();
-    }
+	constexpr bool operator == (const string_common& that) const = default;
 };
 
-template<class Base, class Encoding>
-inline void swap(const common<Base, Encoding>& a, const common<Base, Encoding>& b) {
-    a.swap(b);
 }
-
-template<class Base, class Encoding>
-inline bool operator == (const common<Base, Encoding>& a, const typename Encoding::char_type* b) {
-    return ((Base&)a).compare(b) == 0;
-}
-}
-
-template<class CharT>
-struct char_or_wchar {
-    using type =
-        std::conditional_t<
-            sizeof(CharT) == sizeof(char),
-            char,
-            std::conditional_t<sizeof(CharT) == sizeof(wchar_t), wchar_t, void>
-        >;
-};
-
-template<class CharT>
-using char_or_wchar_t = typename char_or_wchar<CharT>::type;
 
 }

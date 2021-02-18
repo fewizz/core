@@ -3,7 +3,9 @@
 #include <bit>
 #include <bits/c++config.h>
 #include <bits/iterator_concepts.h>
+#include <bits/stdint-uintn.h>
 #include <codecvt>
+#include <compare>
 #include <cstddef>
 #include <iterator>
 #include <cstring>
@@ -12,8 +14,38 @@
 #include <type_traits>
 #include "bit.hpp"
 #include "encoding/request_error.hpp"
+#include <climits>
+
+static_assert( CHAR_BIT == 8 );
 
 namespace util {
+
+template<class It, std::endian Endian>
+class byte_ref {
+	//uint8_t m_value;
+	using prev_value_type = std::iter_value_t<It>;
+	constexpr static unsigned prev_value_type_size = sizeof(prev_value_type);
+	uint8_t m_byte_index;
+	It m_base;
+public:
+
+	constexpr byte_ref() = default;
+	constexpr byte_ref(It it, uint8_t in)
+		: m_byte_index{ in }, m_base { it } {}
+
+	constexpr byte_ref& operator == (std::byte v) {
+		util::
+	}
+
+	constexpr operator std::byte () const {
+		return util::read_byte(
+			*m_base,
+			Endian == std::endian::little ?
+				m_byte_index :
+				prev_value_type_size - m_byte_index - 1
+		);
+	}
+};
 
 template<class It, std::endian Endian = std::endian::little>
 struct bytes_visitor_iterator {
@@ -25,8 +57,9 @@ public:
 	using prev_value_type = std::iter_value_t<It>;
 	constexpr static unsigned prev_value_type_size = sizeof(prev_value_type);
 
-	using value_type = std::byte;
+	using value_type = byte_ref<It, Endian>;
 	using difference_type = std::ptrdiff_t;
+	//using iterator_category = std::input_iterator_tag;
 
 	using base_iterator_category = typename std::iterator_traits<It>::iterator_category;
 
@@ -43,14 +76,9 @@ protected:
 public:
 	constexpr auto base() const { return m_base; }
 
-	constexpr std::byte
+	constexpr value_type
 	operator * () const {
-		return util::byte(
-			*m_base,
-			Endian == std::endian::little ?
-				byte_index :
-				prev_value_type_size - byte_index - 1
-		);
+		return { *this, byte_index };
 	}
 
 	constexpr bytes_visitor_iterator&
@@ -200,20 +228,58 @@ next(byte_range auto& range) {
 
 #include <iterator>
 
-template<std::ranges::range R, class It = std::ranges::iterator_t<R>>
+template<std::input_iterator It>
 struct bytes {
 	bytes_visitor_iterator<It> m_begin;
 	bytes_visitor_iterator<It> m_end;
 
-	constexpr bytes(R& range)
+	constexpr bytes(It begin, It end)
 	:
-		m_begin{ std::ranges::begin(range) },
-		m_end{ std::ranges::end(range) }
+		m_begin { begin },
+		m_end { end }
 		{}
+
+	template<std::ranges::range R>
+	constexpr bytes(const R& range)
+	:
+		m_begin { std::ranges::begin(range) },
+		m_end { std::ranges::end(range) }
+		{}
+
+	template<class T, std::size_t N>
+	constexpr bytes(T (&arr )[N])
+	: bytes(arr, arr + N) {}
 
 	constexpr auto begin() const { return m_begin; }
 	constexpr auto end() const { return m_end; }
-	constexpr auto size() const { return std::ranges::size(m_begin, m_end); }
+	constexpr auto size() const { return std::distance(m_begin, m_end); }
+
+	template<class It0>
+	constexpr std::strong_ordering
+	operator <=> (const bytes<It0>& that) const {
+		if(auto s = size() <=> that.size(); s != 0) return s;
+
+		auto other_it = that.begin();
+
+		for(auto v : *this) {
+			auto other_v = *other_it;
+
+			if(auto s = v <=> other_v; s != 0) return s;
+			++other_it;
+		}
+
+		return std::strong_ordering::equal;
+	}
+
+	constexpr bool
+	operator == (const bytes& that) const = default;
 };
+
+// deduction guides
+template<std::ranges::range R>
+bytes(const R& range) -> bytes<std::ranges::iterator_t<R>>;
+
+template<class T, std::size_t N>
+bytes(T (&)[N]) -> bytes<T*>;
 
 }

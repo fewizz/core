@@ -59,8 +59,13 @@ constexpr bool equalsl(auto val) {
 }
 
 template<class Int>
-constexpr std::byte byte(Int val, unsigned index) {
+constexpr std::byte read_byte(Int val, unsigned index) {
 	return std::byte{ uint8_t( val >> ( index * 8 ) & 0xFF) };
+}
+
+template<class Int>
+constexpr void write_byte(std::byte b, Int& val, unsigned index) {
+	std::byte{ uint8_t( val >> ( index * 8 ) & 0xFF) };
 }
 
 template<class Int>

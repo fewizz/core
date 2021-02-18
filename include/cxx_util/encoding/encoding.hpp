@@ -1,6 +1,7 @@
 #pragma once
 
 #include <bits/stdint-uintn.h>
+#include <compare>
 #include <iterator>
 #include <stdexcept>
 #include <stdint.h>
@@ -9,31 +10,60 @@
 #include <utility>
 #include "request_error.hpp"
 #include "../byte_iterator.hpp"
+#include "../convert.hpp"
 
 namespace enc {
 
 struct unicode {
-	using code_point_type = uint32_t;
+	using codepoint_type = uint32_t;
 };
 
 using ucs = unicode;
 
 template<class CS>
-struct character {
-	typename CS::code_point_type code_point;
-	uint8_t width;
+struct codepoint {
+	using character_set_type = CS;
+	using base_type = typename CS::codepoint_type;
+	base_type m_value;
+
+	constexpr codepoint() = default;
+	constexpr codepoint(base_type v) : m_value{v} {}
+	constexpr codepoint& operator = (base_type v) {
+		m_value = v;
+		return *this;
+	}
+
+	constexpr std::strong_ordering
+	operator <=> (const codepoint&) const = default;
+
+	constexpr std::strong_ordering
+	operator <=> (base_type cp) const {
+		return m_value <=> cp;
+	};
+
+	constexpr bool operator == (base_type cp) const {
+		return cp == m_value;
+	};
+
+	//constexpr operator base_type () { return m_value; }
 };
 
 template<class CS>
+struct codepoint_parse_result {
+	codepoint<CS> codepoint;
+	uint8_t width;
+};
+
+/*template<class CS>
 struct character_builder {
-	using code_point_type = typename CS::code_point_type;
-	using character_type = enc::character<CS>;
-	std::optional<code_point_type> m_codepoint;
+	using codepoint_type = typename CS::codepoint_type;
+	using character_type = enc::codepoint_request_result<CS>;
+	std::optional<codepoint_type> m_codepoint;
 	std::optional<uint8_t> m_width;
 
 	constexpr character_builder() = default;
 
-	constexpr character_builder& codepoint(code_point_type v) {
+	constexpr character_builder& codepoint(codepoint_type v) {
 		m_codepoint = v;
 		return *this;
 	}
@@ -45,12 +75,16 @@ struct character_builder {
 
 	constexpr operator character_type()
 	{ return { *m_codepoint, *m_width }; }
-};
+};*/
 
-struct ascii;
+/*template<class CS>
+struct codepoint_from {
+	template<class ToCS>
+	typename ToCS::codepoint_type to(typename CS::codepoint_type cp);
+};*/
 
 struct ascii {
-	using code_point_type = uint8_t;
+	using codepoint_type = uint8_t;
 	using character_set_type = ascii;
 
 	static constexpr int code_unit_bits = 7;
@@ -61,15 +95,43 @@ struct ascii {
 		return { 1 };
 	}
 
-	static constexpr tl::expected<character<ascii>, request_error>
-	decode(util::byte_iterator auto begin, util::byte_iterator auto end) {
-		code_point_type possible = (uint8_t) *begin;
+	static constexpr tl::expected<codepoint_parse_result<ascii>, request_error>
+	read(util::byte_iterator auto begin, util::byte_iterator auto end) {
+		codepoint_type possible = (uint8_t) *begin;
 
 		if(possible >= 0x80) return tl::unexpected { request_error::invalid_input };
 
-		return character_builder<ascii>{}.codepoint(possible).width(1);
+		return codepoint_parse_result<ascii>{ possible, 1 };
 	}
 };
+
+template<class CP>
+requires(
+	std::is_same_v<
+		codepoint<typename CP::character_set_type>,
+		CP
+	>
+)
+constexpr CP convert_to(CP cp) {
+	return cp;
+}
+
+template<std::same_as<codepoint<unicode>>>
+constexpr codepoint<unicode> convert_to(codepoint<ascii> cp) {
+	return cp.m_value;
+}
+
+template<std::same_as<codepoint<ascii>>>
+constexpr codepoint<ascii> convert_to(codepoint<unicode> cp) {
+	if(cp.m_value > 0xFF) throw std::runtime_error{ "" };
+	return cp.m_value;
+}
+
+static_assert(util::is_convertible_to_v<codepoint<ascii>, codepoint<unicode>>);
+static_assert(util::is_convertible_to_v<codepoint<unicode>, codepoint<ascii>>);
+
+static_assert(util::is_convertible_to_v<codepoint<unicode>, codepoint<unicode>>);
+static_assert(util::is_convertible_to_v<codepoint<ascii>, codepoint<ascii>>);
 
 template<class E>
 static constexpr auto size(auto& range) {
@@ -88,12 +150,21 @@ static constexpr auto size(It begin, It end) {
 }
 
 template<class E>
+constexpr codepoint<typename E::character_set_type>
+read_codepoint(auto& range) {
+	return E::read(
+		util::bytes_visitor_iterator { std::ranges::begin(range) },
+		util::bytes_visitor_iterator { std::ranges::end(range) }
+	).value().codepoint;
+}
+
+/*template<class E>
 static constexpr auto codepoint(auto& range) {
 	return E::decode(
 		util::bytes_visitor_iterator { std::ranges::begin(range) },
 		util::bytes_visitor_iterator { std::ranges::end(range) }
 	).value().code_point;
-}
+}*/
 
 /*struct usc2 {
 	using char_type = char16_t;
@@ -113,7 +184,7 @@ static constexpr auto codepoint(auto& range) {
 };*/
 
 template<class T>
-concept encoding = requires() {
+concept encoding = requires {
 	/*{ T::width };
 	{ T::codepoint };*/
 	typename T::character_set_type;

@@ -54,27 +54,27 @@ size(It begin, It end) {
 }
 
 template<util::byte_iterator It>
-static constexpr tl::expected<enc::character<unicode>, enc::request_error>
-decode(It begin, It end) {
+static constexpr tl::expected<enc::codepoint_parse_result<unicode>, enc::request_error>
+read(It begin, It end) {
 	auto size_read = size(begin, end);
 	if(!size_read) return tl::unexpected{ size_read.error() };
 
-	enc::character_builder<unicode> cb;
-	cb.width(size_read.value());
+	codepoint_parse_result<unicode> res;
+	res.width = size_read.value();
 
 	auto hs = util::next<Endian, uint64_t, 2>(begin, end);
 	if(!hs) return tl::unexpected{ request_error::unexpected_src_end };
 
-	if(size_read.value() == 1) return { cb.codepoint(hs.value()) };
+	if(size_read.value() == 1) {
+		res.codepoint = hs.value();
+		return res;
+	};
 
 	auto ls = util::next<Endian, uint64_t, 2>(begin, end);
 	if(!ls) return tl::unexpected{ request_error::unexpected_src_end };
 
-	return {
-		cb.codepoint(
-			(((hs.value() & 0x3FF) << 10) | (ls.value() & 0x3FF)) + 0x10000
-		)
-	};
+	res.codepoint = (((hs.value() & 0x3FF) << 10) | (ls.value() & 0x3FF)) + 0x10000;
+	return res;
 }
 
 };

@@ -7,6 +7,7 @@
 #include "../encoding/encoding.hpp"
 //#include "../encoding/convert.hpp"
 #include "../int.hpp"
+#include "../bit.hpp"
 
 namespace vw {
 
@@ -21,27 +22,18 @@ struct character_view : std::span<T> {
 	constexpr character_view() = default;
 	constexpr character_view(const character_view& ch) = default;
 	constexpr character_view(character_view&& base) = default;
-	constexpr character_view(const T* begin, size_type count) : base_type(begin, count) {};
+	constexpr character_view(T* begin, size_type count) : base_type(begin, count) {};
 
 	using base_type::data;
 	using base_type::size;
-
-	constexpr auto operator <=> (const character_view& that) const {
-		return
-			enc::codepoint<Encoding>(*this)
-			<=>
-			enc::codepoint<Encoding>(that)
-		;
-	}
-
-	constexpr bool operator == (const character_view& that) const = default;
+	using base_type::begin;
+	using base_type::end;
 
 	constexpr auto operator <=> (const auto& range) const {
 		return
-			enc::codepoint<Encoding>(*this)
+			util::bytes { *this }
 			<=>
-			enc::codepoint<Encoding>(range)
-		;
+			util::bytes { range };
 	}
 
 	constexpr bool operator == (const auto& range) const {

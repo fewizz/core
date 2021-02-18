@@ -6,6 +6,7 @@
 #include "character.hpp"
 #include "character_iterator.hpp"
 #include <algorithm>
+#include <bits/c++config.h>
 #include <bits/ranges_algo.h>
 #include <compare>
 #include <cstring>
@@ -13,18 +14,20 @@
 #include <span>
 #include <stdexcept>
 #include <type_traits>
+#include "common.hpp"
 
 namespace vw {
 
 template<enc::encoding E, class T>
-struct basic_string_view : std::span<T> {
+struct basic_string_view : std::span<T>, internal::string_common<basic_string_view<E, T>, E, T> {
 	using base_type = std::span<T>;
-	using value_type = character_view<E, T>;
-	using iterator = character_iterator<E, T>;
-	
-	using typename base_type::size_type;
+	using common_type = internal::string_common<basic_string_view<E, T>, E, T>;
 
-	static constexpr size_type npos = size_type(-1);
+	using typename common_type::size_type;
+	using typename common_type::value_type;
+	using typename common_type::iterator;
+
+	using common_type::npos;
 
 	constexpr basic_string_view() = default;
 
@@ -39,8 +42,10 @@ struct basic_string_view : std::span<T> {
 	constexpr basic_string_view(R&& range)
 		: base_type(std::forward<R>(range)) {}
 
-	constexpr basic_string_view(const std::integral auto* c_str)
-		: base_type( std::basic_string_view { c_str } ) {}
+	constexpr basic_string_view(T* c_str)
+		: base_type(
+			std::basic_string_view { c_str }
+		) {}
 
 	using base_type::data;
 
@@ -48,120 +53,12 @@ struct basic_string_view : std::span<T> {
 		return base_type::size();
 	}
 
-	constexpr iterator begin() const {
-		return { data(), data(), data() + base_type::size() };
-	}
-
-	constexpr iterator end() const {
-		return { data(), data() + base_type::size() };
-	}
-
-	constexpr size_type size() const {
-		return std::distance(begin(), end());
-	}
-
-	constexpr size_type length() const {
-		return size();
-	}
-
-	constexpr bool empty() const { return size() == 0; }
-
-	constexpr value_type operator [] (size_type pos) const {
-		auto it = begin();
-		std::advance(it, pos);
-		return *it;
-	}
-
-	constexpr value_type at(size_type pos) const {
-		if(pos >= size()) throw std::runtime_error{ "vw::string_view::at" };
-		auto it = begin();
-		std::advance(it, pos);
-		return *it;
-	}
-
-	constexpr value_type front() const {
-		return *begin();
-	}
-
-	constexpr value_type back() const {
-		auto it = begin();
-		std::advance(it, size() - 1);
-		return *it;
-	}
-
-	constexpr basic_string_view substr(size_type pos = 0, size_type n = npos) const {
-		auto b = begin();
-		std::advance(b, pos);
-
-		if(n == npos) n = size() - pos;
-
-		auto e = b;
-		std::advance(e, n);
-
-		return { b, e };
-	}
-
-	constexpr bool operator == (basic_string_view that) const {
-		return that.size() == size() && std::__memcmp(data(), that.data(), size()) == 0;
-	};
-
-	constexpr size_type find(basic_string_view s, size_type pos = 0) const {
-		auto it = begin();
-		std::advance(it, pos);
-
-		auto remains = size() - pos;
-		auto that_size = s.size();
-
-		while(remains >= that_size) {
-			auto res = std::__memcmp(it.cur, s.data(), s.raw_size());
-			if(res == 0) return pos;
-
-			++pos;
-			++it;
-			--remains;
-		}
-
-		return npos;
-	}
-
-	constexpr size_type find(value_type c, size_type pos = 0) const {
-		return find(basic_string_view { c.data(), c.size() }, pos);
-	}
-
+	using common_type::size;
+	using common_type::front;
+	using common_type::back;
+	using common_type::at;
+	using common_type::operator [];
 };
-/*template<class E, class T = util::uint_with_size_t<sizeof(E::preferred_size)>>
-struct basic_string_view;
-
-template<class E, class T>
-struct basic_string_view : string_view_base<basic_string_view<E, T>, E, T> {
-	using base_type = string_view_base<basic_string_view<E, T>, E, T>;
-
-	using base_type::base_type;
-};*/
-
-/*template<class T>
-struct basic_string_view<enc::ascii, T> : string_view_base<enc::ascii, T> {
-	using base_type = string_view_base<enc::ascii, T>;
-
-	constexpr basic_string_view(const char* str)
-	requires(std::is_same_v<T, const char>)
-		: base_type(
-			str,
-			std::string_view(str).length()
-		) {}
-};
-
-template<class T>
-struct basic_string_view<enc::utf8, T> : string_view_base<enc::utf8, T> {
-	using base_type = string_view_base<enc::utf8, T>;
-
-	constexpr basic_string_view(const char8_t* str)
-	requires(std::is_same_v<T, const char8_t>)
-		: base_type(
-			str,
-			std::u8string_view(str).length()
-		) {}
-};*/
 
 using ascii_string_view = basic_string_view<enc::ascii, const char>;
 using utf8_string_view = basic_string_view<enc::utf8, const char8_t>;
