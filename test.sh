@@ -1,14 +1,20 @@
-if ! g++ -g -Wall -std=c++20 -o test test.cpp; then
-	exit 1
-fi
-if [[ $1 == "gdb" ]]; then
-	gdb test
-else
-	if ! ./test
-	then 
-		echo "error"
+mkdir --parents build
+
+test() {
+	echo "test \"$1\""
+	if ! clang++ -g -Wall -std=c++20 -Iinclude/cxx_util -o build/$1 test/$1.cpp; then
+		echo "compilation error"
 		exit 1
 	fi
-fi
 
-rm test
+	if ! build/$1; then 
+		echo "not passed"
+		exit 1
+	fi
+
+	echo "passed"
+}
+
+test mem_address
+test obj_representation
+test byte_iterator

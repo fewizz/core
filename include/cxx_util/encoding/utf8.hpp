@@ -18,6 +18,7 @@
 #include <array>
 
 #include "encoding.hpp"
+#include "unicode.hpp"
 #include <tl/expected.hpp>
 #include "../byte_iterator.hpp"
 
@@ -30,14 +31,14 @@ static constexpr int code_unit_bits = 8;
 
 static constexpr std::optional<uint8_t>
 possible_size(std::byte byte) {
-	if(util::equalsl<0>(byte)) return { 1 };
-	if(util::equalsl<1, 1, 0>(byte)) return { 2 };
-	if(util::equalsl<1, 1, 1, 0>(byte)) return { 3 };
-	if(util::equalsl<1, 1, 1, 1, 0>(byte)) return { 4 };
+	if(u::equalsl<0>(byte)) return { 1 };
+	if(u::equalsl<1, 1, 0>(byte)) return { 2 };
+	if(u::equalsl<1, 1, 1, 0>(byte)) return { 3 };
+	if(u::equalsl<1, 1, 1, 1, 0>(byte)) return { 4 };
 	return {};
 }
 
-template<util::byte_iterator It>
+template<u::input_iterator_of_type_convertible_to_byte It>
 static constexpr tl::expected<uint8_t, enc::request_error>
 size(It it, It end) {
 	auto possible = possible_size(*it);
@@ -51,24 +52,24 @@ size(It it, It end) {
 	for(int i = 1; i < std::min(decltype(dist)(possible.value()), dist); i++) {
 		++it;
 
-		if(not util::equalsl<1,0>(*it))
+		if(not u::equalsl<1,0>( std::byte { *it }))
 			return tl::unexpected{ enc::request_error::invalid_input };
 	}
 
 	return { possible.value() };
 }
 
-template<util::byte_iterator It>
-static constexpr tl::expected<codepoint_parse_result<unicode>, enc::request_error>
+template<u::input_iterator_of_type_convertible_to_byte It>
+static constexpr tl::expected<codepoint_read_result<unicode>, enc::request_error>
 read(It it, It end) {
 	auto possible_size = size(it, end);
 	if(!possible_size) return tl::unexpected{ possible_size.error() };
 
 	auto width = possible_size.value();
 
-	auto first = uint32_t(*it);
+	auto first = uint32_t( std::byte{ *it } );
 
-	codepoint_parse_result<unicode> res;
+	codepoint_read_result<unicode> res;
 	res.width = width;
 	
 	if(width == 1) {
@@ -86,7 +87,7 @@ read(It it, It end) {
 		unsigned offset = 6 * ((width - 1) - i);
 		++it;
 
-		auto nth = uint32_t(*it);
+		auto nth = uint32_t( std::byte{ *it } );
 		resulting_cp |= (nth & 0b00111111) << offset;
 	}
 	
@@ -94,10 +95,25 @@ read(It it, It end) {
 	return res;
 }
 
-template<util::byte_iterator It> void
-write(codepoint<unicode> cp, It it, It end) {
+template<u::input_iterator_of_type_convertible_to_byte It> void
+static constexpr write(codepoint<unicode> cp, It it, It end) {
 	if(cp <= 0x7F) {
-		it = 
+		*it++ = std::byte( cp.m_value );
+	}
+	else if(cp <= 0x7FF) {
+		*it++ = std::byte( ((cp.m_value >> 6 ) & 0x7F) | 0b11000000 );
+		*it++ = std::byte( ((cp.m_value >> 0 ) & 0x3F) | 0x80 );
+	}
+	else if(cp <= 0xFFFF) {
+		*it++ = std::byte( ((cp.m_value >> 12) & 0xF ) | 0b11100000 );
+		*it++ = std::byte( ((cp.m_value >> 6 ) & 0x3F) | 0x80 );
+		*it++ = std::byte( ((cp.m_value >> 0 ) & 0x3F) | 0x80 );
+	}
+	else if(cp <= 0x10FFFF) {
+		*it++ = std::byte( ((cp.m_value >> 18) & 0x7 ) | 0b11110000 );
+		*it++ = std::byte( ((cp.m_value >> 12) & 0x3F) | 0x80 );
+		*it++ = std::byte( ((cp.m_value >> 6 ) & 0x3F) | 0x80 );
+		*it++ = std::byte( ((cp.m_value >> 0 ) & 0x3F) | 0x80 );
 	}
 }
 

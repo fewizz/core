@@ -24,6 +24,7 @@
 #include <string_view>
 #include <type_traits>
 #include <list>
+#include "include/cxx_util/bytes.hpp"
 #include "include/cxx_util/int.hpp"
 #include "include/cxx_util/bit.hpp"
 #include "include/cxx_util/encoding/utf8.hpp"
@@ -83,34 +84,36 @@ void check_range() {}
 template<std::ranges::sized_range It>
 void check_sized_range() {}
 
-template<util::byte_range It>
-void check_byte_range() {}
+//template<u::byte_range It>
+//void check_byte_range() {}
 
 void byte_iterator() {
-	using RAIt = util::bytes_visitor_iterator<int*>;
+	using RAIt = u::byte_iterator<int*>;
 
 	check_input_iterator< RAIt> ();
 	check_indirectly_readable< RAIt >();
 	static_assert( is_indirectly_readable< RAIt >::value );
 	static_assert( is_input_iterator< RAIt >::value );
 	static_assert( not is_output_iterator< RAIt, int >::value );
-	static_assert( is_random_access_iterator< RAIt >::value );
+	//static_assert( is_random_access_iterator< RAIt >::value );
 
-	using ListIt = util::bytes_visitor_iterator<std::list<int>::iterator>;
+	static_assert( u::is_input_iterator_of_type_convertible_to_byte<RAIt>::value );
+
+	using ListIt = u::byte_iterator<std::list<int>::iterator>;
 
 	static_assert( not is_random_access_iterator< ListIt >::value );
 
 	static constexpr int arr[] { 0x1100FF, 2, 4 };
 
-	constexpr auto beg = util::bytes_visitor_iterator(std::begin(arr));
-	constexpr auto end = util::bytes_visitor_iterator(std::end(arr));
+	constexpr auto beg = u::byte_iterator(std::begin(arr));
+	constexpr auto end = u::byte_iterator(std::end(arr));
 
-	static_assert(util::bytes { arr } == util::bytes { arr } );
+	static_assert(u::bytes { arr } == u::bytes { arr } );
 
-	static_assert(decltype(beg)::prev_value_type_size == sizeof(int));
-	static_assert(std::distance(beg, end) == 3*sizeof(int));
+	static_assert(decltype(beg)::base_iterator_value_type_size == sizeof(int));
+	static_assert(std::distance(beg, end) == 3 * sizeof(int));
 
-	constexpr util::bytes_visitor_iterator bi { std::begin(arr) };
+	constexpr u::byte_iterator bi { std::begin(arr) };
 
 	static_assert(*bi == std::byte{ 0xFF });
 	static_assert(*(bi + 1) == std::byte{ 0x00 });
@@ -124,31 +127,18 @@ void byte_iterator() {
 void bit() {
 	{
 		constexpr unsigned val = 0xF102F304;
-		static_assert(util::change_endianness(val) == 0x04F302F1);
+		static_assert(u::change_endianness(val) == 0x04F302F1);
 	}
 	{
-		static_assert(util::equals<0,0,1,1>(0b01010011, 0));
-		static_assert(util::equals<0,1,0,1,0,0>(0b01010011, 2));
+		static_assert(u::equals<0,0,1,1>(0b01010011, 0));
+		static_assert(u::equals<0,1,0,1,0,0>(0b01010011, 2));
 
-		static_assert(util::equalsl<uint8_t>(0b0101, 4, 0b01010011));
-		static_assert(util::equalsl<0,1,0,1>(uint8_t(0b01010011)));
+		static_assert(u::equalsl<uint8_t>(0b0101, 4, 0b01010011));
+		static_assert(u::equalsl<0,1,0,1>(uint8_t(0b01010011)));
 
-		static_assert(util::equalsr<uint8_t>(0b0101, 4, 0b00000101));
-		static_assert(util::equalsr<0,1,0,1>(0b00000101));
+		static_assert(u::equalsr<uint8_t>(0b0101, 4, 0b00000101));
+		static_assert(u::equalsr<0,1,0,1>(0b00000101));
 	}
-}
-
-void _utf8() {
-	using namespace enc;
-
-	constexpr std::string_view str { "a" };
-	constexpr std::u8string_view smile { u8"😀" };
-
-	static_assert( size<utf8>(str) == 1 );
-	static_assert( size<utf8>(smile) == 4 );
-
-	static_assert( read_codepoint<utf8>(str) == 'a' );
-	static_assert( read_codepoint<utf8>(smile) == 0x1F600 );
 }
 
 void _utf16() {

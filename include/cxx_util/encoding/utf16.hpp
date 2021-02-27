@@ -1,7 +1,6 @@
 #pragma once
 
 #include <bit>
-#include <bits/stdint-uintn.h>
 #include <iterator>
 #include <locale>
 #include <stdexcept>
@@ -10,8 +9,9 @@
 #include <utility>
 #include <codecvt>
 #include "encoding.hpp"
+#include "unicode.hpp"
 #include "request_error.hpp"
-#include "../byte_iterator.hpp"
+#include "../bytes.hpp"
 #include <tl/expected.hpp>
 
 namespace enc {
@@ -28,10 +28,12 @@ struct utf16_base {
 
 using character_set_type = unicode;
 
-template<util::byte_iterator It>
 static constexpr tl::expected<uint8_t, enc::request_error>
-size(It begin, It end) {
-	auto first_possible = util::next<Endian, uint16_t>(begin, end);
+size(
+	u::input_iterator_of_type_convertible_to_byte auto begin,
+	u::input_iterator_of_type_convertible_to_byte auto end
+) {
+	auto first_possible = u::next<Endian, uint16_t>(begin, end);
 	if(!first_possible)
 		return tl::unexpected {
 			request_error::unexpected_src_end
@@ -42,7 +44,7 @@ size(It begin, It end) {
 	if(((first >= 0x0) && (first <= 0xD800)) || ((first >= 0xE000) && (first <= 0xFFFF)))
 		return { 1 };
 	
-	auto second = util::next<Endian, uint16_t>(begin, end);
+	auto second = u::next<Endian, uint16_t>(begin, end);
 	if(!second) return tl::unexpected{ request_error::unexpected_src_end };
 
 	uint16_t hs = first, ls = second.value();
@@ -53,16 +55,16 @@ size(It begin, It end) {
 	return tl::unexpected{ request_error::invalid_input };
 }
 
-template<util::byte_iterator It>
-static constexpr tl::expected<enc::codepoint_parse_result<unicode>, enc::request_error>
-read(It begin, It end) {
+template<class It>
+static constexpr tl::expected<enc::codepoint_read_result<unicode>, enc::request_error>
+read(u::byte_iterator<It> begin, u::byte_iterator<It> end) {
 	auto size_read = size(begin, end);
 	if(!size_read) return tl::unexpected{ size_read.error() };
 
-	codepoint_parse_result<unicode> res;
+	codepoint_read_result<unicode> res;
 	res.width = size_read.value();
 
-	auto hs = util::next<Endian, uint64_t, 2>(begin, end);
+	auto hs = u::next<Endian, uint64_t, 2>(begin, end);
 	if(!hs) return tl::unexpected{ request_error::unexpected_src_end };
 
 	if(size_read.value() == 1) {
@@ -70,7 +72,7 @@ read(It begin, It end) {
 		return res;
 	};
 
-	auto ls = util::next<Endian, uint64_t, 2>(begin, end);
+	auto ls = u::next<Endian, uint64_t, 2>(begin, end);
 	if(!ls) return tl::unexpected{ request_error::unexpected_src_end };
 
 	res.codepoint = (((hs.value() & 0x3FF) << 10) | (ls.value() & 0x3FF)) + 0x10000;
