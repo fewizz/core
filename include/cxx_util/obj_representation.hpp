@@ -1,7 +1,6 @@
 #pragma once
 
 #include "mem_address.hpp"
-#include <bits/c++config.h>
 #include <cstring>
 #include <memory>
 #include <type_traits>

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <bits/stdint-uintn.h>
 #include <compare>
 #include <iterator>
 #include <stdexcept>
@@ -9,16 +8,19 @@
 #include <type_traits>
 #include <utility>
 #include "request_error.hpp"
-#include "../bytes.hpp"
-#include "../convert.hpp"
+#include "../byte_iterator.hpp"
 
 namespace enc {
 
-template<class CS>
+template<class CarSet>
 struct codepoint {
-	using character_set_type = CS;
-	using base_type = typename CS::codepoint_type;
+	using base_type = typename CarSet::codepoint_type;
+
+	static_assert(std::unsigned_integral<base_type>);
+private:
 	base_type m_value;
+public:
+	using character_set_type = CarSet;
 
 	constexpr codepoint() = default;
 	constexpr codepoint(base_type v) : m_value{v} {}
@@ -28,53 +30,46 @@ struct codepoint {
 	}
 
 	constexpr std::strong_ordering
-	operator <=> (const codepoint&) const = default;
+	operator <=> (const codepoint& cp) const = default;
+
+	constexpr bool
+	operator == (const codepoint& cp) const = default;
 
 	constexpr std::strong_ordering
-	operator <=> (base_type cp) const {
-		return m_value <=> cp;
+	operator <=> (std::signed_integral auto cp) const {
+		if(cp < 0) return std::strong_ordering::greater;
+		return m_value <=> uintmax_t(cp);
 	};
 
-	constexpr bool operator == (base_type cp) const {
-		return cp == m_value;
+	constexpr bool
+	operator == (std::integral auto cp) const {
+		return (*this <=> cp) == 0;
 	};
 
-	constexpr codepoint operator >> (const auto& b) const {
-		return { m_value >> b };
-	}
-
-	constexpr codepoint operator << (const auto& b) const {
-		return { m_value << b };
-	}
-
-	constexpr codepoint operator & (const auto& b) const {
-		return { m_value & b };
-	}
-
-	constexpr codepoint operator | (const auto& b) const {
-		return { m_value | b };
+	constexpr base_type value () const {
+		return m_value;
 	}
 };
 
 template<class CS>
 struct codepoint_read_result {
-	codepoint<CS> codepoint;
+	enc::codepoint<CS> codepoint;
 	uint8_t width;
 };
 
 template<class CS>
 struct codepoint_write_result {
-	uint8_t code_units;
+	uint8_t width;
 };
 
-template<class CP>
+template<class Codepoint>
 requires(
 	std::is_same_v<
-		codepoint<typename CP::character_set_type>,
-		CP
+		codepoint<typename Codepoint::character_set_type>,
+		Codepoint
 	>
 )
-constexpr CP convert_to(CP cp) {
+constexpr Codepoint convert_to(Codepoint cp) {
 	return cp;
 }
 

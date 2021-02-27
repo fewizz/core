@@ -2,6 +2,7 @@
 
 #include <cinttypes>
 #include "encoding.hpp"
+#include "../iterator.hpp"
 
 namespace enc {
 
@@ -18,7 +19,10 @@ struct ascii {
 	}
 
 	static constexpr tl::expected<codepoint_read_result<ascii>, request_error>
-	read(u::byte_iterator auto begin, u::byte_iterator auto end) {
+	read(
+		u::iterator_of_bytes auto begin,
+		u::iterator_of_bytes auto end
+	) {
 		codepoint_type possible = (uint8_t) *begin;
 
 		if(possible >= 0x80) return tl::unexpected { request_error::invalid_input };
@@ -27,7 +31,11 @@ struct ascii {
 	}
 
 	static constexpr tl::expected<codepoint_write_result<ascii>, request_error>
-	write(codepoint<ascii> cp, u::byte_iterator auto it, u::byte_iterator auto end) {
+	write(
+		codepoint<ascii> cp,
+		u::iterator_of_bytes auto it,
+		u::iterator_of_bytes auto end
+	) {
 		*it = cp;
 		return codepoint_write_result<ascii>{ 1 };
 	}

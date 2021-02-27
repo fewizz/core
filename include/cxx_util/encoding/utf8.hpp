@@ -1,12 +1,6 @@
 #pragma once
 
-#include <bits/iterator_concepts.h>
-#include <bits/stdint-uintn.h>
-#include <cstddef>
-#include <cstdint>
 #include <iterator>
-#include <locale>
-#include <stdint.h>
 #include <type_traits>
 #include <utility>
 #include <cinttypes>
@@ -21,6 +15,7 @@
 #include "unicode.hpp"
 #include <tl/expected.hpp>
 #include "../byte_iterator.hpp"
+#include "../iterator.hpp"
 
 namespace enc {
 
@@ -38,7 +33,7 @@ possible_size(std::byte byte) {
 	return {};
 }
 
-template<u::input_iterator_of_type_convertible_to_byte It>
+template<u::iterator_of_bytes It>
 static constexpr tl::expected<uint8_t, enc::request_error>
 size(It it, It end) {
 	auto possible = possible_size(*it);
@@ -59,7 +54,7 @@ size(It it, It end) {
 	return { possible.value() };
 }
 
-template<u::input_iterator_of_type_convertible_to_byte It>
+template<u::iterator_of_bytes It>
 static constexpr tl::expected<codepoint_read_result<unicode>, enc::request_error>
 read(It it, It end) {
 	auto possible_size = size(it, end);
@@ -95,25 +90,25 @@ read(It it, It end) {
 	return res;
 }
 
-template<u::input_iterator_of_type_convertible_to_byte It> void
+template<u::iterator_of_bytes It> void
 static constexpr write(codepoint<unicode> cp, It it, It end) {
 	if(cp <= 0x7F) {
-		*it++ = std::byte( cp.m_value );
+		*it++ = std::byte( cp.value() );
 	}
 	else if(cp <= 0x7FF) {
-		*it++ = std::byte( ((cp.m_value >> 6 ) & 0x7F) | 0b11000000 );
-		*it++ = std::byte( ((cp.m_value >> 0 ) & 0x3F) | 0x80 );
+		*it++ = std::byte( ((cp.value() >> 6 ) & 0x7F) | 0b11000000 );
+		*it++ = std::byte( ((cp.value() >> 0 ) & 0x3F) | 0x80 );
 	}
 	else if(cp <= 0xFFFF) {
-		*it++ = std::byte( ((cp.m_value >> 12) & 0xF ) | 0b11100000 );
-		*it++ = std::byte( ((cp.m_value >> 6 ) & 0x3F) | 0x80 );
-		*it++ = std::byte( ((cp.m_value >> 0 ) & 0x3F) | 0x80 );
+		*it++ = std::byte( ((cp.value() >> 12) & 0xF ) | 0b11100000 );
+		*it++ = std::byte( ((cp.value() >> 6 ) & 0x3F) | 0x80 );
+		*it++ = std::byte( ((cp.value() >> 0 ) & 0x3F) | 0x80 );
 	}
 	else if(cp <= 0x10FFFF) {
-		*it++ = std::byte( ((cp.m_value >> 18) & 0x7 ) | 0b11110000 );
-		*it++ = std::byte( ((cp.m_value >> 12) & 0x3F) | 0x80 );
-		*it++ = std::byte( ((cp.m_value >> 6 ) & 0x3F) | 0x80 );
-		*it++ = std::byte( ((cp.m_value >> 0 ) & 0x3F) | 0x80 );
+		*it++ = std::byte( ((cp.value() >> 18) & 0x7 ) | 0b11110000 );
+		*it++ = std::byte( ((cp.value() >> 12) & 0x3F) | 0x80 );
+		*it++ = std::byte( ((cp.value() >> 6 ) & 0x3F) | 0x80 );
+		*it++ = std::byte( ((cp.value() >> 0 ) & 0x3F) | 0x80 );
 	}
 }
 

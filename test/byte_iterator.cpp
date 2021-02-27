@@ -1,10 +1,12 @@
 #include "../include/cxx_util/byte_iterator.hpp"
+#include "../include/cxx_util/iterator.hpp"
 #include <cassert>
 #include <iterator>
 #include <type_traits>
 
 using BIint = u::byte_iterator<int*>;
 
+static_assert(u::iterator_of_bytes<u::byte_iterator<BIint>>);
 static_assert(std::contiguous_iterator<int*>);
 
 static_assert(
@@ -25,6 +27,8 @@ static_assert(std::contiguous_iterator<BIint>);
 
 using BIlist = u::byte_iterator<std::list<int>::iterator>;
 
+static_assert(u::iterator_of_bytes<u::byte_iterator<BIlist>>);
+
 static_assert(std::input_iterator<BIlist>);
 static_assert(std::output_iterator<BIlist, std::byte>);
 static_assert(std::forward_iterator<BIlist>);
@@ -35,6 +39,8 @@ static_assert(not std::contiguous_iterator<BIlist>);
 #include <forward_list>
 
 using BIfl = u::byte_iterator<std::forward_list<int>::iterator>;
+
+static_assert(u::iterator_of_bytes<u::byte_iterator<BIfl>>);
 
 static_assert(std::input_iterator<BIfl>);
 static_assert(std::output_iterator<BIfl, std::byte>);
