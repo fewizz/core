@@ -36,11 +36,16 @@ public:
 	: m_it{ it } {}
 
 	element_type& operator * () const {
-		return u::obj_representation{ *m_it }[m_byte_index];
+		auto real_index = m_byte_index;
+		if(E == std::endian::big)
+			real_index
+				= base_value_type_size - real_index - 1;
+
+		return u::obj_representation{ *m_it }[real_index];
 	}
 
 	element_type* operator -> () const {
-		return & u::obj_representation{ *m_it }[m_byte_index];
+		return & (**this);
 	}
 
 	byte_iterator& operator ++ () {
@@ -75,6 +80,7 @@ public:
 	}
 
 	byte_iterator& operator += (difference_type n) {
+		static_assert(std::random_access_iterator<It>);
 		auto full = n + m_byte_index;
 
 		auto df = u::div_floor(
@@ -93,7 +99,6 @@ public:
 	}
 
 	byte_iterator operator + (difference_type n) const {
-		static_assert(std::random_access_iterator<It>);
 		auto copy = *this;
 		copy += n;
 		return copy;
@@ -111,15 +116,13 @@ public:
 	}
 
 	auto& operator [] (difference_type n) const {
+		static_assert(std::random_access_iterator<It>);
 		return *(*this + n);
 	}
 
 	std::strong_ordering
 	operator <=> (const byte_iterator& that) const = default;
 };
-
-//template<std::endian E>
-//byte_iterator(auto&& it) -> byte_iterator<decltype(it), E>;
 
 template<std::endian E, class It>
 inline auto operator - (

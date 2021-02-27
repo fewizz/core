@@ -58,8 +58,9 @@ int main() {
 
 	std::set<int> s{ 0x1, 0x2, 0x3, 0x4 };
 
-	auto it2 = u::make_byte_iterator<std::endian::little>(s.begin());
+	auto it2 = u::make_byte_iterator<std::endian::big>(s.begin());
 
+	std::advance(it2, 3); // because of endian::big
 	assert(*it2 == std::byte{ 0x1 });
 	std::advance(it2, sizeof(int));
 	assert(*it2 == std::byte{ 0x2 });
@@ -67,4 +68,7 @@ int main() {
 	assert(*it2 == std::byte{ 0x3 });
 	std::advance(it2, sizeof(int));
 	assert(*it2 == std::byte{ 0x4 });
+
+	*it2 = std::byte{ 42 };
+	assert(*it2 == std::byte{ 42 });
 }
