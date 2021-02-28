@@ -16,8 +16,6 @@ test() {
 		echo "not passed"
 		exit 1
 	fi
-
-	echo "passed"
 }
 
 test mem_address

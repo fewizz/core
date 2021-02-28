@@ -5,6 +5,7 @@
 #include <iterator>
 #include <cstring>
 #include <memory>
+#include <stdexcept>
 #include <tl/expected.hpp>
 #include <type_traits>
 #include "bit.hpp"
@@ -19,7 +20,11 @@ static_assert( CHAR_BIT == 8 );
 
 namespace u {
 
-template<std::endian E, class T, std::size_t N = sizeof(T)>
+template<
+	class T,
+	std::endian E = std::endian::native,
+	std::size_t N = sizeof(T)
+>
 constexpr std::optional<T>
 read(
 	u::iterator_of_bytes auto&& begin,
@@ -30,45 +35,64 @@ read(
 	if(dist < N) return { };
 
 	if(E == std::endian::native) {
-		return u::obj_representation<T>{ begin }.create();	
+		return u::obj_representation<T>{ begin }.create();
 	}
+
+	std::advance(begin, sizeof(T));
 
 	return u::obj_representation<T>{
 		std::reverse_iterator(begin)
 	}.create();
-
-	/*T result = T(std::byte(*begin));
-	++begin;
-	
-	for(std::size_t i = 1; i < N; i++) {
-		if constexpr (E == std::endian::little) {
-			result |= T(std::byte(*begin)) << ( 8 * i );
-		}
-		else {
-			result <<= 8;
-			result |= T(std::byte(*begin));
-		}
-		++begin;
-	}
-
-	return { result };*/
 }
 
-template<class T>
-requires(sizeof(T) == 1)
+template<
+	class T,
+	std::endian E = std::endian::native,
+	std::ranges::input_range R>
 constexpr std::optional<T>
-read(auto&& begin, auto end) {
-	return read<std::endian::native, T, 1>(
-		std::forward<std::remove_reference_t<decltype(begin)>>(begin),
-		end
+read(R&& range) {
+	return read<T, E>(
+		std::ranges::begin(range),
+		std::ranges::end(range)
 	);
 }
 
-template<class T, std::ranges::input_range R>
-requires(sizeof(T) == 1)
-constexpr std::optional<T>
-read(R&& range) {
-	return read<std::endian::native, T, 1>(
+template<
+	class T,
+	std::endian E = std::endian::native,
+	std::size_t N = sizeof(T)
+>
+constexpr void
+write(
+	T&& t,
+	u::iterator_of_bytes auto&& begin,
+	u::iterator_of_bytes auto end
+) {
+	auto dist = std::distance(begin, end);
+
+	if(dist < N) throw std::out_of_range{""};
+
+	if(E == std::endian::native) {
+		std::ranges::copy(u::obj_representation<T>{ t }, begin);
+		return;
+	}
+
+	std::advance(begin, sizeof(T));
+
+	std::ranges::copy(
+		u::obj_representation<T>{ t },
+		std::reverse_iterator(begin)
+	);
+}
+
+template<
+	class T,
+	std::endian E = std::endian::native,
+	std::ranges::input_range R>
+constexpr void
+write(T&& t, R&& range) {
+	write<T, E>(
+		std::forward<T>(t),
 		std::ranges::begin(range),
 		std::ranges::end(range)
 	);
