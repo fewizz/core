@@ -91,7 +91,8 @@ read(It it, It end) {
 }
 
 template<u::iterator_of_bytes It> void
-static constexpr write(codepoint<unicode> cp, It it, It end) {
+static constexpr write
+(codepoint<unicode> cp, It it, It end) {
 	if(cp <= 0x7F) {
 		*it++ = std::byte( cp.value() );
 	}

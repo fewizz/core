@@ -4,6 +4,8 @@
 #include <cstring>
 #include <memory>
 #include <type_traits>
+#include <new>
+#include "iterator.hpp"
 
 namespace u {
 
@@ -38,16 +40,42 @@ public:
 	ValueReturn operator [] (size_type n) {
 		return *(begin() + n);
 	}
+
+	std::array<std::byte, sizeof(T)> to_array() {
+		std::array<std::byte, sizeof(T)> rep;
+		std::copy(begin(), end(), rep.begin());
+		return rep;
+	}
+
+	T create()
+	requires(std::copy_constructible<T>) {
+		alignas(T) std::byte rep[sizeof(T)];
+		std::copy(begin(), end(), rep);
+		T* t_ptr = new (rep) T;
+		return { *t_ptr };
+	}
 };
 
 template<class T> requires std::is_object_v<T>
 class obj_representation<T>
-: public obj_representation_base<obj_representation<T>, T, std::byte> {
+: public obj_representation_base<
+	obj_representation<T>,
+	T,
+	std::byte
+> {
 
-	std::byte m_obj_representation[sizeof(T)];
+	alignas(T) std::byte m_obj_representation[sizeof(T)];
 public:
 	constexpr obj_representation(T obj) {
 		std::memcpy(m_obj_representation, &obj, sizeof(T));
+	}
+
+	obj_representation(
+		u::iterator_of_bytes auto b
+	) {
+		auto e = b;
+		std::advance(e, sizeof(T));
+		std::copy(b, e, m_obj_representation);
 	}
 
 	u::mem_address begin() const {
@@ -57,15 +85,19 @@ public:
 
 template<class T> requires ( std::is_lvalue_reference_v<T> )
 class obj_representation<T>
-: public obj_representation_base< obj_representation<T>, T, std::byte&> {
+: public obj_representation_base<
+	obj_representation<T>,
+	std::remove_reference_t<T>,
+	std::byte&
+> {
 
-	u::mem_address m_begin;
+	u::mem_address m_address;
 public:
 	obj_representation(T& obj)
-	: m_begin{ std::addressof(obj) } {}
+	: m_address{ std::addressof(obj) } {}
 
 	auto begin() const {
-		return m_begin;
+		return m_address;
 	}
 };
 

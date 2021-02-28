@@ -2,17 +2,15 @@
 
 #include <bit>
 #include <iterator>
-#include <locale>
 #include <stdexcept>
-#include <stdint.h>
-#include <sys/types.h>
 #include <utility>
 #include <codecvt>
 #include "encoding.hpp"
 #include "unicode.hpp"
 #include "request_error.hpp"
-#include "../bytes.hpp"
+#include "../iterator.hpp"
 #include <tl/expected.hpp>
+#include "../bytes.hpp"
 
 namespace enc {
 
@@ -28,11 +26,9 @@ struct utf16_base {
 
 using character_set_type = unicode;
 
-static constexpr tl::expected<uint8_t, enc::request_error>
-size(
-	u::input_iterator_of_type_convertible_to_byte auto begin,
-	u::input_iterator_of_type_convertible_to_byte auto end
-) {
+template<u::iterator_of_bytes It>
+static tl::expected<uint8_t, enc::request_error>
+size(It begin, It end) {
 	auto first_possible = u::next<Endian, uint16_t>(begin, end);
 	if(!first_possible)
 		return tl::unexpected {
@@ -55,9 +51,9 @@ size(
 	return tl::unexpected{ request_error::invalid_input };
 }
 
-template<class It>
+template<u::iterator_of_bytes It>
 static constexpr tl::expected<enc::codepoint_read_result<unicode>, enc::request_error>
-read(u::byte_iterator<It> begin, u::byte_iterator<It> end) {
+read(It begin, It end) {
 	auto size_read = size(begin, end);
 	if(!size_read) return tl::unexpected{ size_read.error() };
 
@@ -77,6 +73,14 @@ read(u::byte_iterator<It> begin, u::byte_iterator<It> end) {
 
 	res.codepoint = (((hs.value() & 0x3FF) << 10) | (ls.value() & 0x3FF)) + 0x10000;
 	return res;
+}
+
+template<u::iterator_of_bytes It> void
+static constexpr write
+(codepoint<unicode> cp, It it, It end) {
+	if(cp >= 0 && cp < 0xD800) {
+		
+	}
 }
 
 };
