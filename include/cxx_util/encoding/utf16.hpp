@@ -80,19 +80,17 @@ template<u::iterator_of_bytes It>
 static constexpr
 void write(codepoint<unicode> cp, It it, It end) {
 	if((cp >= 0 && cp < 0xD800) || (cp >= 0xE000 && cp < 0x10000)) {
-		u::write<uint16_t, Endian>(uint16_t(cp.value()), it, end);
+		u::write<Endian>(uint16_t(cp.value()), it, end);
 		return;
 	}
 
 	uint32_t cp0 = cp.value() - 0x10000;
 
 	uint32_t hs = 0xD800 + (cp0 >> 10);
-
-	u::write<uint32_t, Endian>(hs, it, end);
+	u::write<Endian>(hs, it, end);
 
 	uint32_t ls = 0xD800 + (cp0 >> 10);
-
-	u::write<uint32_t, Endian>(ls, it, end);
+	u::write<Endian>(ls, it, end);
 }
 
 };

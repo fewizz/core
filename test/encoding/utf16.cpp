@@ -15,12 +15,11 @@ int main() {
 	assert( read_codepoint<utf16>(smile) == 0x1F600 );
 
 	char16_t a = 'a';
-	u::obj_representation a_rep{ a };
 
-	u::byte_iterator beg{ a_rep.begin() };
-	u::byte_iterator end{ a_rep.end() };
-
-	enc::utf16::write(enc::codepoint<enc::unicode>{'b'}, beg, end);
+	write_codepoint<utf16>(
+		codepoint<enc::unicode>{'b'},
+		u::obj_representation{ a }
+	);
 
 	assert(a == 'b');
 }

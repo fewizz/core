@@ -90,12 +90,22 @@ static constexpr auto size(It begin, It end) {
 }
 
 template<class E>
-constexpr codepoint<typename E::character_set_type>
-read_codepoint(auto& range) {
+codepoint<typename E::character_set_type>
+read_codepoint(auto&& range) {
 	return E::read(
 		u::byte_iterator { std::ranges::begin(range) },
 		u::byte_iterator { std::ranges::end(range) }
 	).value().codepoint;
+}
+
+template<class E>
+void
+write_codepoint(auto cp, auto&& range) {
+	E::write(
+		cp,
+		u::byte_iterator { std::ranges::begin(range) },
+		u::byte_iterator { std::ranges::end(range) }
+	);
 }
 
 template<class T>

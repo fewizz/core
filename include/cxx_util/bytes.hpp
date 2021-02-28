@@ -61,8 +61,8 @@ read(R&& range) {
 
 template<
 	class T,
-	std::endian E = std::endian::native,
 	std::size_t N = sizeof(T),
+	std::endian E = std::endian::native,
 	class BeginIt
 > requires( u::iterator_of_bytes<std::remove_reference_t<BeginIt>> )
 constexpr void
@@ -92,10 +92,51 @@ write(
 template<
 	class T,
 	std::endian E = std::endian::native,
+	class BeginIt
+> requires( u::iterator_of_bytes<std::remove_reference_t<BeginIt>> )
+constexpr void
+write(
+	T t,
+	BeginIt&& begin,
+	u::iterator_of_bytes auto end
+) {
+	write<T, sizeof(T), E>(t, std::forward<BeginIt>(begin), end);
+}
+
+template<
+	std::endian E = std::endian::native,
+	class BeginIt
+> requires( u::iterator_of_bytes<std::remove_reference_t<BeginIt>> )
+constexpr void
+write(
+	auto t,
+	BeginIt&& begin,
+	u::iterator_of_bytes auto end
+) {
+	write<decltype(t), sizeof(t), E>(t, std::forward<BeginIt>(begin), end);
+}
+
+template<
+	class T,
+	std::size_t N,
+	std::endian E = std::endian::native,
 	std::ranges::input_range R>
 constexpr void
-write(T&& t, R&& range) {
-	write<T, E>(
+write(T t, R&& range) {
+	write<T, N, E>(
+		std::forward<T>(t),
+		std::ranges::begin(range),
+		std::ranges::end(range)
+	);
+}
+
+template<
+	class T,
+	std::endian E = std::endian::native,
+	std::ranges::input_range R>
+constexpr void
+write(T t, R&& range) {
+	write<T, sizeof(T), E>(
 		std::forward<T>(t),
 		std::ranges::begin(range),
 		std::ranges::end(range)
