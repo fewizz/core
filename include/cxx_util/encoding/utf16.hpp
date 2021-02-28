@@ -1,6 +1,7 @@
 #pragma once
 
 #include <bit>
+#include <bits/stdint-uintn.h>
 #include <iterator>
 #include <stdexcept>
 #include <utility>
@@ -29,7 +30,7 @@ using character_set_type = unicode;
 template<u::iterator_of_bytes It>
 static tl::expected<uint8_t, enc::request_error>
 size(It begin, It end) {
-	auto first_possible = u::next<Endian, uint16_t>(begin, end);
+	auto first_possible = u::read<uint16_t, Endian>(begin, end);
 	if(!first_possible)
 		return tl::unexpected {
 			request_error::unexpected_src_end
@@ -40,7 +41,7 @@ size(It begin, It end) {
 	if(((first >= 0x0) && (first <= 0xD800)) || ((first >= 0xE000) && (first <= 0xFFFF)))
 		return { 1 };
 	
-	auto second = u::next<Endian, uint16_t>(begin, end);
+	auto second = u::read<uint16_t, Endian>(begin, end);
 	if(!second) return tl::unexpected{ request_error::unexpected_src_end };
 
 	uint16_t hs = first, ls = second.value();
@@ -60,7 +61,7 @@ read(It begin, It end) {
 	codepoint_read_result<unicode> res;
 	res.width = size_read.value();
 
-	auto hs = u::next<Endian, uint64_t, 2>(begin, end);
+	auto hs = u::read<uint64_t, Endian, 2>(begin, end);
 	if(!hs) return tl::unexpected{ request_error::unexpected_src_end };
 
 	if(size_read.value() == 1) {
@@ -68,19 +69,30 @@ read(It begin, It end) {
 		return res;
 	};
 
-	auto ls = u::next<Endian, uint64_t, 2>(begin, end);
+	auto ls = u::read<uint64_t, Endian, 2>(begin, end);
 	if(!ls) return tl::unexpected{ request_error::unexpected_src_end };
 
 	res.codepoint = (((hs.value() & 0x3FF) << 10) | (ls.value() & 0x3FF)) + 0x10000;
 	return res;
 }
 
-template<u::iterator_of_bytes It> void
-static constexpr write
-(codepoint<unicode> cp, It it, It end) {
-	if(cp >= 0 && cp < 0xD800) {
-		
+template<u::iterator_of_bytes It>
+static constexpr
+void write(codepoint<unicode> cp, It it, It end) {
+	if((cp >= 0 && cp < 0xD800) || (cp >= 0xE000 && cp < 0x10000)) {
+		u::write<uint16_t, Endian>(uint16_t(cp.value()), it, end);
+		return;
 	}
+
+	uint32_t cp0 = cp.value() - 0x10000;
+
+	uint32_t hs = 0xD800 + (cp0 >> 10);
+
+	u::write<uint32_t, Endian>(hs, it, end);
+
+	uint32_t ls = 0xD800 + (cp0 >> 10);
+
+	u::write<uint32_t, Endian>(ls, it, end);
 }
 
 };

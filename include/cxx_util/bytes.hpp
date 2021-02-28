@@ -23,22 +23,24 @@ namespace u {
 template<
 	class T,
 	std::endian E = std::endian::native,
-	std::size_t N = sizeof(T)
->
+	std::size_t N = sizeof(T),
+	class ItBegin
+> requires ( u::iterator_of_bytes<std::remove_reference_t<ItBegin>> )
 constexpr std::optional<T>
 read(
-	u::iterator_of_bytes auto&& begin,
+	ItBegin&& begin,
 	u::iterator_of_bytes auto end
 ) {
 	auto dist = std::distance(begin, end);
 
 	if(dist < N) return { };
 
-	if(E == std::endian::native) {
-		return u::obj_representation<T>{ begin }.create();
-	}
+	auto begin_copy = begin;
+	std::advance(begin, N);
 
-	std::advance(begin, sizeof(T));
+	if(E == std::endian::native) {
+		return u::obj_representation<T>{ begin_copy }.create();
+	}
 
 	return u::obj_representation<T>{
 		std::reverse_iterator(begin)
@@ -60,24 +62,26 @@ read(R&& range) {
 template<
 	class T,
 	std::endian E = std::endian::native,
-	std::size_t N = sizeof(T)
->
+	std::size_t N = sizeof(T),
+	class BeginIt
+> requires( u::iterator_of_bytes<std::remove_reference_t<BeginIt>> )
 constexpr void
 write(
-	T&& t,
-	u::iterator_of_bytes auto&& begin,
+	T t,
+	BeginIt&& begin,
 	u::iterator_of_bytes auto end
 ) {
 	auto dist = std::distance(begin, end);
 
 	if(dist < N) throw std::out_of_range{""};
 
+	auto begin_copy = begin;
+	std::advance(begin, N);
+
 	if(E == std::endian::native) {
-		std::ranges::copy(u::obj_representation<T>{ t }, begin);
+		std::ranges::copy(u::obj_representation<T>{ t }, begin_copy);
 		return;
 	}
-
-	std::advance(begin, sizeof(T));
 
 	std::ranges::copy(
 		u::obj_representation<T>{ t },

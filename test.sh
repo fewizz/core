@@ -24,3 +24,4 @@ test byte_iterator
 test bytes
 test encoding/ascii
 test encoding/utf8
+test encoding/utf16
