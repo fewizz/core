@@ -3,6 +3,7 @@
 #include <cassert>
 #include <iterator>
 #include <type_traits>
+#include <iostream>
 
 using BIint = u::byte_iterator<int*>;
 
@@ -56,6 +57,17 @@ int main() {
 
 	auto it
 		= u::make_byte_iterator<std::endian::little>(arr);
+
+	auto copy = it;
+	assert((++copy).byte_index() == 1);
+	assert((it + 4) - 4 == it);
+
+	assert(
+		std::distance(
+			it,
+			u::make_byte_iterator<std::endian::little>(arr + 4)
+		) == sizeof(int) * 4
+	);
 
 	assert(*it                   == std::byte{ 0x1 });
 	assert(*(it + 1*sizeof(int)) == std::byte{ 0x2 });

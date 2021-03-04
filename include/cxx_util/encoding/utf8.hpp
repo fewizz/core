@@ -34,7 +34,7 @@ possible_size(std::byte byte) {
 }
 
 template<u::iterator_of_bytes It>
-static constexpr tl::expected<uint8_t, enc::request_error>
+static tl::expected<uint8_t, enc::request_error>
 size(It it, It end) {
 	auto possible = possible_size(*it);
 	if(!possible) return tl::unexpected{ enc::request_error::invalid_input };
@@ -55,7 +55,7 @@ size(It it, It end) {
 }
 
 template<u::iterator_of_bytes It>
-static constexpr tl::expected<codepoint_read_result<unicode>, enc::request_error>
+static tl::expected<codepoint_read_result<unicode>, enc::request_error>
 read(It it, It end) {
 	auto possible_size = size(it, end);
 	if(!possible_size) return tl::unexpected{ possible_size.error() };
@@ -91,7 +91,7 @@ read(It it, It end) {
 }
 
 template<u::iterator_of_bytes It> void
-static constexpr write
+static write
 (codepoint<unicode> cp, It it, It end) {
 	if(cp <= 0x7F) {
 		*it++ = std::byte( cp.value() );

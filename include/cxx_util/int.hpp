@@ -3,7 +3,7 @@
 #include <cinttypes>
 #include <type_traits>
 
-namespace util {
+namespace u {
 
 template<unsigned size>
 struct int_with_size;

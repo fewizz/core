@@ -35,6 +35,10 @@ public:
 	byte_iterator(It it)
 	: m_it{ it } {}
 
+	auto byte_index() const {
+		return m_byte_index;
+	}
+
 	element_type& operator * () const {
 		auto real_index = m_byte_index;
 		if(E == std::endian::big)
@@ -109,10 +113,11 @@ public:
 	}
 
 	difference_type operator - (byte_iterator that) const {
-		return 
-			u::mem_address{ std::addressof(*this) }
-			-
-			u::mem_address{ std::addressof(*that) };
+		return
+			(m_it - that.m_it)
+			* base_value_type_size
+			+ (byte_index() - that.byte_index())
+		;
 	}
 
 	auto& operator [] (difference_type n) const {

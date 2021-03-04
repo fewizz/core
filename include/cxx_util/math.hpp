@@ -2,8 +2,6 @@
 
 #include <concepts>
 #include <type_traits>
-#include <cstdlib>
-#include <cinttypes>
 
 namespace u {
 
@@ -11,27 +9,17 @@ namespace u {
 	struct div_t {
 		T quot;
 		T rem;
+
+		constexpr div_t(T q, T r) : quot{q}, rem{r} {}
 	};
 
-	template<std::unsigned_integral UInt>
-	div_t<UInt> div(UInt a, UInt b) {
+	template<std::integral Int>
+	constexpr div_t<Int> div(Int a, Int b) {
 		return { a / b, a % b };
 	}
 
-	inline auto div(int a, int b) {
-		return std::div(a, b);
-	}
-
-	inline auto div(long int a, long int b) {
-		return std::ldiv(a, b);
-	}
-
-	inline auto div(long long int a, long long int b) {
-		return std::lldiv(a, b);
-	}
-
 	template<std::integral Int>
-	auto div_floor(Int a, Int b) {
+	constexpr auto div_floor(Int a, Int b) {
 		auto div_res = u::div(a, b);
 
 		if(a < 0 && div_res.rem != 0) {
