@@ -9,18 +9,19 @@
 #include <utility>
 #include "request_error.hpp"
 #include "../byte_iterator.hpp"
+#include "../bytes.hpp"
 
 namespace enc {
 
-template<class CarSet>
+template<class CharSet>
 struct codepoint {
-	using base_type = typename CarSet::codepoint_type;
+	using base_type = typename CharSet::codepoint_type;
 
 	static_assert(std::unsigned_integral<base_type>);
 private:
 	base_type m_value;
 public:
-	using character_set_type = CarSet;
+	using character_set_type = CharSet;
 
 	constexpr codepoint() = default;
 	constexpr codepoint(base_type v) : m_value{v} {}
@@ -135,5 +136,40 @@ struct is_fixed_width_encoding<T> : std::true_type {};
 
 template<class T>
 static constexpr bool is_fixed_width_encoding_v = is_fixed_width_encoding<T>::value;
+
+template<class T>
+concept char_set = requires {
+	typename T::codepoint_type;
+};
+
+template<class CS, class CP = typename CS::codepoint_type>
+struct char_set_encoding {
+	using character_set_type = CS;
+
+	template<u::iterator_of_bytes It>
+	static constexpr tl::expected<CP, request_error>
+	size(It b, It e) {
+		return { sizeof(CP) };
+	}
+
+	template<u::iterator_of_bytes It>
+	static tl::expected<codepoint_read_result<CS>, enc::request_error>
+	read(It b, It e) {
+		auto cp = u::read<CP>(b, e);
+		if(!cp) {
+			return tl::unexpected{ enc::request_error::unexpected_src_end };
+		}
+		return codepoint_read_result<CS> {
+			cp.value(),
+			sizeof(CP)
+		};
+	}
+
+	template<u::iterator_of_bytes It>
+	static void
+	write (codepoint<CS> cp, It b, It e) {
+		u::write(cp, b, e);
+	}
+};
 
 }

@@ -6,11 +6,13 @@
 #include <compare>
 #include <cstddef>
 #include <iterator>
+#include <type_traits>
 #include "character.hpp"
+#include "encoding/encoding.hpp"
 
 namespace u {
 
-template<enc::encoding Encoding, class It>
+template<enc::encoding E, class It>
 struct character_iterator {
 private:
 	It m_begin;
@@ -20,10 +22,35 @@ public:
 	using base_value_type = std::iter_value_t<It>;
 	using base_iterator_category =
 		typename std::__detail::__iter_concept<It>;
+	static constexpr bool base_is_random_access
+		= std::is_base_of_v<
+			std::random_access_iterator_tag,
+			base_iterator_category
+		>;
+
+	static constexpr bool base_is_contiguous
+		= std::is_base_of_v<
+			std::contiguous_iterator_tag,
+			base_iterator_category
+		>;
+	
+	static constexpr bool encoding_is_fixed
+		= enc::is_fixed_width_encoding_v<E>;
 
 	using difference_type = std::ptrdiff_t;
-	using value_type = character_view<Encoding, It>;
-	using iterator_category = std::forward_iterator_tag;
+	using value_type = character_view<E, It>;
+	using iterator_category
+		= std::conditional_t<
+			encoding_is_fixed && base_is_contiguous,
+			std::contiguous_iterator_tag,
+			std::forward_iterator_tag
+		>;
+	
+	static constexpr bool is_contiguous
+		= std::is_base_of_v<
+			std::contiguous_iterator_tag,
+			iterator_category
+		>;
 
 	character_iterator() = default;
 	character_iterator(character_iterator&& other) = default;
@@ -40,7 +67,7 @@ private:
 	}
 
 	constexpr auto width() const {
-		return enc::size<Encoding>(m_current, m_end);
+		return enc::size<E>(m_current, m_end);
 	}
 public:
 	constexpr character_iterator(
@@ -83,6 +110,27 @@ public:
 		return copy;
 	}
 
+	character_iterator& operator -- () const;
+	character_iterator operator -- (int) const;
+
+	difference_type
+	operator - (character_iterator that) const
+	requires(is_contiguous) {
+		return (m_current - that.m_current);
+	}
+
+	auto& operator += (difference_type n)
+	requires(is_contiguous) {
+		m_current += n;
+		return *this;
+	}
+
+	auto operator + (difference_type n) const
+	requires(is_contiguous) {
+		auto copy = *this;
+		return copy += n;
+	}
+
 	constexpr void skip (
 		typename std::iterator_traits<It>::difference_type n
 	) {
@@ -91,10 +139,11 @@ public:
 
 	constexpr std::strong_ordering
 	operator <=> (const character_iterator& other) const {
-		return m_current <=> other.cur;
+		return m_current <=> other.m_current;
 	}
 
-	constexpr bool operator == (const character_iterator& other) const = default;
+	constexpr bool
+	operator == (const character_iterator& other) const = default;
 };
 
 template<enc::encoding E, class It>

@@ -33,3 +33,4 @@ test encoding/utf8
 test encoding/utf16
 test byte_range
 test character_iterator
+test string_view

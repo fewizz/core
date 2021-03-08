@@ -66,7 +66,7 @@ class obj_representation<T>
 
 	alignas(T) std::byte m_obj_representation[sizeof(T)];
 public:
-	constexpr obj_representation(T obj) {
+	obj_representation(T obj) {
 		std::memcpy(m_obj_representation, &obj, sizeof(T));
 	}
 

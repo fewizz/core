@@ -1,7 +1,9 @@
 #pragma once
 
 #include "byte_iterator.hpp"
+#include "obj_representation.hpp"
 #include <bits/c++config.h>
+#include <bits/iterator_concepts.h>
 #include <iterator>
 
 namespace u {
@@ -64,6 +66,23 @@ public:
 	operator == (const byte_range<It0>& that) const {
 		return (*this <=> that) == 0;
 	};
+
+	template<class It0>
+	void copy_to(It0 it) const {
+		using val_type = std::iter_value_t<It0>;
+
+		auto this_is = begin();
+
+		while(this_is < end()) {
+			val_type v{};
+
+			for(std::byte& b : u::obj_representation{v}) {
+				b = *(this_is++);
+			}
+
+			*it++ = v;
+		}
+	}
 };
 
 // deduction guides

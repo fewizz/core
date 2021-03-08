@@ -2,9 +2,16 @@
 #include "../include/cxx_util/encoding/ascii.hpp"
 #include <cassert>
 #include <iostream>
+#include <iterator>
 
 static_assert(
 	std::forward_iterator<u::character_iterator<enc::ascii, char*>>
+);
+static_assert(u::character_iterator<enc::ascii, char*>::base_is_contiguous);
+static_assert(u::character_iterator<enc::ascii, char*>::encoding_is_fixed);
+
+static_assert(
+	std::contiguous_iterator<u::character_iterator<enc::ascii, char*>>
 );
 
 int main() {
@@ -23,5 +30,8 @@ int main() {
 		assert(ch == u::obj_representation{ str[index++] });
 	}
 
-	
+	auto pit = it;
+	assert(pit < e);
+	std::advance(pit, 4);
+	assert(pit == e);
 }

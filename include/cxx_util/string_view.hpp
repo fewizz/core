@@ -11,6 +11,8 @@
 #include <type_traits>
 #include "string_common_base.hpp"
 #include <string_view>
+#include "encoding/utf8.hpp"
+#include "encoding/ascii.hpp"
 
 namespace u {
 
@@ -70,13 +72,9 @@ public:
 	auto raw_end() const {
 		return m_end;
 	}
-
-	using base_type::front;
-	using base_type::at;
-	using base_type::operator [];
 };
 
-//using ascii_string_view = basic_string_view<enc::ascii, const char>;
-//using u8_string_view = basic_string_view<enc::utf8, const char8_t>;
+using ascii_string_view = basic_string_view<enc::ascii, const char*>;
+using u8_string_view = basic_string_view<enc::utf8, const char8_t*>;
 
 }

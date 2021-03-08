@@ -15,25 +15,22 @@ struct basic_string_view;
 
 namespace internal {
 
-template<class D, enc::encoding E, class It>
+template<class D, enc::encoding E, class RawIt>
 struct string_common_base {
-	using value_type = character_view<E, It>;
-	using iterator = character_iterator<E, It>;
+	using value_type = character_view<E, RawIt>;
+	using iterator = character_iterator<E, RawIt>;
 	using size_type = std::size_t;
-	using base_iterator_value_type = std::iter_value_t<It>;
+	using base_iterator_value_type = std::iter_value_t<RawIt>;
+	using derived_iterator_category =
+		typename std::__detail::__iter_concept<RawIt>;
 private:
-	/*constexpr T* data() const {
-		return ((D*)this)->data();
-	}*/
-
-	constexpr It raw_begin() const {
+	constexpr RawIt raw_begin() const {
 		return ((D*)this)->raw_begin();
 	}
 
-	constexpr It raw_end() const {
+	constexpr RawIt raw_end() const {
 		return ((D*)this)->raw_end();
 	}
-
 public:
 
 	static constexpr size_type npos = size_type(-1);
@@ -48,7 +45,10 @@ public:
 
 	constexpr bool empty() const { return raw_begin() == raw_end(); }
 
-	constexpr value_type operator [] (size_type pos) const {
+	constexpr value_type
+	operator [] (size_type pos) const
+	requires(std::random_access_iterator<RawIt>)
+	{
 		auto it = begin();
 		std::advance(it, pos);
 		return *it;
@@ -63,12 +63,6 @@ public:
 	constexpr value_type front() const {
 		return *begin();
 	}
-
-	/*constexpr value_type back() const {
-		auto it = begin();
-		std::advance(it, size() - 1);
-		return *it;
-	}*/
 
 	constexpr D substr(size_type pos = 0, size_type n = npos) const {
 		auto b = begin();
@@ -97,6 +91,8 @@ public:
 				<=>
 				u::byte_range{ s.begin().base(), s.end().base() };
 			if(res == 0) return pos;
+
+			if(e == end()) break;
 
 			++pos;
 			++b;

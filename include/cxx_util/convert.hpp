@@ -26,4 +26,9 @@ struct is_convertible_to<To, From> : std::true_type {};
 template<class To, class From>
 static constexpr bool is_convertible_to_v = is_convertible_to<To, From>::value;
 
+template<class T>
+T convert(const T& t) {
+	return t;
+}
+
 }

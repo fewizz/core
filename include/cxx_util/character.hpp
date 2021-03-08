@@ -9,6 +9,7 @@
 #include "int.hpp"
 #include "bit.hpp"
 #include "byte_range.hpp"
+#include "obj_representation.hpp"
 
 namespace u {
 
@@ -41,15 +42,20 @@ public:
 		return m_end;
 	};
 
-	constexpr auto operator <=> (const auto& range) const {
+	template<std::ranges::range R>
+	constexpr auto operator <=> (const R& range) const {
 		return
 			u::byte_range { *this }
 			<=>
 			u::byte_range { range };
 	}
 
-	constexpr bool operator == (const auto& range) const {
-		return (*this <=> range) == 0;
+	constexpr auto operator <=> (const auto& obj) const {
+		return *this <=> (u::obj_representation{ obj });
+	}
+
+	constexpr bool operator == (const auto& v) const {
+		return (*this <=> v) == 0;
 	}
 };
 

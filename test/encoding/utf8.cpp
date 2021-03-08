@@ -2,6 +2,8 @@
 #include "../../include/cxx_util/obj_representation.hpp"
 #include <cassert>
 
+static_assert(enc::char_set<enc::unicode>);
+
 int main() {
 	using namespace enc;
 	
