@@ -39,12 +39,10 @@ read(
 	std::advance(begin, N);
 
 	if(E == std::endian::native) {
-		return u::obj_representation<T>{ begin_copy }.create();
+		return u::read_object<T>(begin_copy);
 	}
 
-	return u::obj_representation<T>{
-		std::reverse_iterator(begin)
-	}.create();
+	return u::read_object<T>(std::reverse_iterator(begin));
 }
 
 template<
@@ -79,12 +77,12 @@ write(
 	std::advance(begin, N);
 
 	if(E == std::endian::native) {
-		std::ranges::copy(u::obj_representation<T>{ t }, begin_copy);
+		std::ranges::copy(u::obj_representation_copy{ t }, begin_copy);
 		return;
 	}
 
 	std::ranges::copy(
-		u::obj_representation<T>{ t },
+		u::obj_representation_copy{ t },
 		std::reverse_iterator(begin)
 	);
 }

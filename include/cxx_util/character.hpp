@@ -1,6 +1,5 @@
 #pragma once
 
-#include <bits/c++config.h>
 #include <compare>
 #include <type_traits>
 #include <utility>
@@ -14,7 +13,7 @@
 namespace u {
 
 template<
-	enc::encoding Encoding,
+	enc::encoding E,
 	class It
 >
 struct character_view {
@@ -23,6 +22,7 @@ private:
 	It m_end;
 public:
 	using size_type = std::size_t;
+	using character_set_type = typename E::character_set_type;
 
 	constexpr character_view() = default;
 	constexpr character_view(const character_view& ch) = default;
@@ -42,19 +42,27 @@ public:
 		return m_end;
 	};
 
+	enc::codepoint<character_set_type> codepoint() {
+		return enc::read_codepoint<E>(*this);
+	}
+
 	template<std::ranges::range R>
-	constexpr auto operator <=> (const R& range) const {
+	auto operator <=> (const R& range) const {
 		return
 			u::byte_range { *this }
 			<=>
 			u::byte_range { range };
 	}
 
-	constexpr auto operator <=> (const auto& obj) const {
+	auto operator <=> (const auto& obj) const {
 		return *this <=> (u::obj_representation{ obj });
 	}
 
-	constexpr bool operator == (const auto& v) const {
+	auto operator <=> (const enc::codepoint<character_set_type>& cp) const {
+		codepoint() <=> cp;
+	}
+
+	bool operator == (const auto& v) const {
 		return (*this <=> v) == 0;
 	}
 };

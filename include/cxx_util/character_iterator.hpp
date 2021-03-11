@@ -12,6 +12,12 @@
 
 namespace u {
 
+template<
+	enc::encoding E,
+	class It
+>
+struct character_view;
+
 template<enc::encoding E, class It>
 struct character_iterator {
 private:
@@ -27,28 +33,23 @@ public:
 			std::random_access_iterator_tag,
 			base_iterator_category
 		>;
-
-	static constexpr bool base_is_contiguous
-		= std::is_base_of_v<
-			std::contiguous_iterator_tag,
-			base_iterator_category
-		>;
 	
 	static constexpr bool encoding_is_fixed
 		= enc::is_fixed_width_encoding_v<E>;
 
 	using difference_type = std::ptrdiff_t;
 	using value_type = character_view<E, It>;
+
 	using iterator_category
 		= std::conditional_t<
-			encoding_is_fixed && base_is_contiguous,
-			std::contiguous_iterator_tag,
+			encoding_is_fixed && base_is_random_access,
+			std::random_access_iterator_tag,
 			std::forward_iterator_tag
 		>;
 	
-	static constexpr bool is_contiguous
+	static constexpr bool is_random_access
 		= std::is_base_of_v<
-			std::contiguous_iterator_tag,
+			std::random_access_iterator_tag,
 			iterator_category
 		>;
 
@@ -115,20 +116,32 @@ public:
 
 	difference_type
 	operator - (character_iterator that) const
-	requires(is_contiguous) {
+	requires( is_random_access ) {
 		return (m_current - that.m_current);
 	}
 
 	auto& operator += (difference_type n)
-	requires(is_contiguous) {
+	requires( is_random_access ) {
 		m_current += n;
 		return *this;
 	}
 
+	auto& operator -= (difference_type n)
+	requires( is_random_access ) {
+		m_current -= n;
+		return *this;
+	}
+
 	auto operator + (difference_type n) const
-	requires(is_contiguous) {
+	requires( is_random_access ) {
 		auto copy = *this;
 		return copy += n;
+	}
+
+	auto operator - (difference_type n) const
+	requires( is_random_access ) {
+		auto copy = *this;
+		return copy -= n;
 	}
 
 	constexpr void skip (
@@ -144,7 +157,22 @@ public:
 
 	constexpr bool
 	operator == (const character_iterator& other) const = default;
+
+	value_type operator [] (difference_type n) const {
+		auto copy = *this;
+		copy += n;
+		return *copy;
+	}
 };
+
+template<enc::encoding E, class It>
+character_iterator<E, It>
+operator + (
+	typename character_iterator<E, It>::difference_type n,
+	character_iterator<E, It> it
+) {
+	return it + n;
+}
 
 template<enc::encoding E, class It>
 character_iterator<E, It> make_character_iterator(It b, It e) {

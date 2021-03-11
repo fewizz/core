@@ -76,7 +76,7 @@ public:
 		while(this_is < end()) {
 			val_type v{};
 
-			for(std::byte& b : u::obj_representation{v}) {
+			for(std::byte& b : u::obj_representation_copy{v}) {
 				b = *(this_is++);
 			}
 

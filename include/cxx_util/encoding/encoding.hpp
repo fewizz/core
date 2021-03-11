@@ -13,15 +13,20 @@
 
 namespace enc {
 
-template<class CharSet>
+template<class T>
+concept character_set = requires {
+	typename T::codepoint_type;
+};
+
+template<character_set CS>
 struct codepoint {
-	using base_type = typename CharSet::codepoint_type;
+	using base_type = typename CS::codepoint_type;
 
 	static_assert(std::unsigned_integral<base_type>);
 private:
 	base_type m_value;
 public:
-	using character_set_type = CharSet;
+	using character_set_type = CS;
 
 	constexpr codepoint() = default;
 	constexpr codepoint(base_type v) : m_value{v} {}
@@ -137,14 +142,10 @@ struct is_fixed_width_encoding<T> : std::true_type {};
 template<class T>
 static constexpr bool is_fixed_width_encoding_v = is_fixed_width_encoding<T>::value;
 
-template<class T>
-concept char_set = requires {
-	typename T::codepoint_type;
-};
-
-template<class CS, class CP = typename CS::codepoint_type>
-struct char_set_encoding {
-	using character_set_type = CS;
+template<class CP>
+struct character_set_encoding {
+	using character_set_type = character_set_encoding;
+	using codepoint_type = CP;
 
 	template<u::iterator_of_bytes It>
 	static constexpr tl::expected<CP, request_error>
@@ -153,13 +154,13 @@ struct char_set_encoding {
 	}
 
 	template<u::iterator_of_bytes It>
-	static tl::expected<codepoint_read_result<CS>, enc::request_error>
+	static tl::expected<codepoint_read_result<character_set_type>, enc::request_error>
 	read(It b, It e) {
 		auto cp = u::read<CP>(b, e);
 		if(!cp) {
 			return tl::unexpected{ enc::request_error::unexpected_src_end };
 		}
-		return codepoint_read_result<CS> {
+		return codepoint_read_result<character_set_type> {
 			cp.value(),
 			sizeof(CP)
 		};
@@ -167,7 +168,7 @@ struct char_set_encoding {
 
 	template<u::iterator_of_bytes It>
 	static void
-	write (codepoint<CS> cp, It b, It e) {
+	write (codepoint<character_set_type> cp, It b, It e) {
 		u::write(cp, b, e);
 	}
 };

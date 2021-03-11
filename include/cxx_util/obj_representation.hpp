@@ -2,6 +2,7 @@
 
 #include "mem_address.hpp"
 #include <cstring>
+#include <iterator>
 #include <memory>
 #include <type_traits>
 #include <new>
@@ -10,11 +11,28 @@
 namespace u {
 
 template<class T>
-class obj_representation;
+requires (
+	std::is_trivial_v<T>
+	&&
+	std::is_default_constructible_v<T>
+)
+T read_object(u::iterator_of_bytes auto it) {
+	alignas(T) std::byte representation[sizeof(T)];
+
+	auto end = it;
+	std::advance(end, sizeof(T));
+	std::copy(it, end, representation);
+
+	T t;
+	std::memcpy(&t, representation, sizeof(T));
+	return t;
+}
+
+namespace internal {
 
 template<class D, class T, class ValueReturn>
 class obj_representation_base {
-	auto begin() const {
+	u::mem_address begin() const {
 		return ((D*)this)->begin();
 	}
 public:
@@ -37,7 +55,7 @@ public:
 		return *(end() - 1);
 	}
 
-	ValueReturn operator [] (size_type n) {
+	ValueReturn& operator [] (size_type n) {
 		return *(begin() + n);
 	}
 
@@ -47,35 +65,26 @@ public:
 		return rep;
 	}
 
-	T create()
-	requires(std::copy_constructible<T>) {
-		alignas(T) std::byte rep[sizeof(T)];
-		std::copy(begin(), end(), rep);
-		T* t_ptr = new (rep) T;
-		return { *t_ptr };
+	T create() {
+		return read_object<T>(begin());
 	}
 };
 
+}
+
 template<class T> requires std::is_object_v<T>
-class obj_representation<T>
-: public obj_representation_base<
-	obj_representation<T>,
+class obj_representation_copy
+: public internal::obj_representation_base<
+	obj_representation_copy<T>,
 	T,
 	std::byte
 > {
 
 	alignas(T) std::byte m_obj_representation[sizeof(T)];
-public:
-	obj_representation(T obj) {
-		std::memcpy(m_obj_representation, &obj, sizeof(T));
-	}
 
-	obj_representation(
-		u::iterator_of_bytes auto b
-	) {
-		auto e = b;
-		std::advance(e, sizeof(T));
-		std::copy(b, e, m_obj_representation);
+public:
+	obj_representation_copy(const T& obj) {
+		std::memcpy(m_obj_representation, &obj, sizeof(T));
 	}
 
 	u::mem_address begin() const {
@@ -83,31 +92,23 @@ public:
 	}
 };
 
-template<class T> requires ( std::is_lvalue_reference_v<T> )
-class obj_representation<T>
-: public obj_representation_base<
-	obj_representation<T>,
-	std::remove_reference_t<T>,
+template<class T> requires std::is_object_v<T>
+class obj_representation_reference
+: public internal::obj_representation_base<
+	obj_representation_reference<T>,
+	T,
 	std::byte&
 > {
 
 	u::mem_address m_address;
+
 public:
-	obj_representation(T& obj)
+	obj_representation_reference(T& obj)
 	: m_address{ std::addressof(obj) } {}
 
 	auto begin() const {
 		return m_address;
 	}
 };
-
-template<class T>
-obj_representation(T& t) -> obj_representation<T&>;
-
-auto make_obj_representation_copy(const auto& v) {
-	return obj_representation<
-		std::remove_cvref_t<decltype(v)>
-	>{ v };
-}
 
 }

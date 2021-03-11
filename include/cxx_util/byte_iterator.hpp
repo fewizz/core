@@ -41,11 +41,12 @@ public:
 
 	element_type& operator * () const {
 		auto real_index = m_byte_index;
-		if(E == std::endian::big)
+		
+		if constexpr (E == std::endian::big)
 			real_index
 				= base_value_type_size - real_index - 1;
 
-		return u::obj_representation{ *m_it }[real_index];
+		return u::obj_representation_reference{ *m_it }[real_index];
 	}
 
 	element_type* operator -> () const {

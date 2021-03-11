@@ -7,11 +7,12 @@
 static_assert(
 	std::forward_iterator<u::character_iterator<enc::ascii, char*>>
 );
-static_assert(u::character_iterator<enc::ascii, char*>::base_is_contiguous);
+static_assert(u::character_iterator<enc::ascii, char*>::base_is_random_access);
+static_assert(u::character_iterator<enc::ascii, char*>::is_random_access);
 static_assert(u::character_iterator<enc::ascii, char*>::encoding_is_fixed);
 
 static_assert(
-	std::contiguous_iterator<u::character_iterator<enc::ascii, char*>>
+	std::random_access_iterator<u::character_iterator<enc::ascii, char*>>
 );
 
 int main() {

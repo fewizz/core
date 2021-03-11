@@ -4,7 +4,7 @@
 #include <iostream>
 
 int main() {
-	auto int_bytes = u::obj_representation<int>{ 0xFF };
+	auto int_bytes = u::obj_representation_copy<int>{ 0xFF };
 
 	assert( u::read<int>(int_bytes) == 0xFF );
 
@@ -18,9 +18,9 @@ int main() {
 	assert( result );
 
 	u::write<int>(0x10, int_bytes);
-	assert( u::obj_representation<int>{ int_bytes }.create() == 0x10 );
+	assert( u::obj_representation_copy{ int_bytes }.create() == 0x10 );
 
 	u::write<int, reverted_endian>(0x10, int_bytes);
 	reverted = u::change_endianness(0x10);
-	assert( u::obj_representation<int>{ int_bytes }.create() == reverted );
+	assert( u::obj_representation_copy{ int_bytes }.create() == reverted );
 }
