@@ -1,9 +1,7 @@
 #pragma once
 
 #include "byte_iterator.hpp"
-#include "obj_representation.hpp"
-#include <bits/c++config.h>
-#include <bits/iterator_concepts.h>
+#include "object.hpp"
 #include <iterator>
 
 namespace u {

@@ -5,19 +5,13 @@
 #include <utility>
 #include <cinttypes>
 #include <stdexcept>
-#include <codecvt>
-#include "request_error.hpp"
-#include "../int.hpp"
-#include "../bit.hpp"
-#include <array>
-
-#include "encoding.hpp"
+#include "codepoint.hpp"
 #include "unicode.hpp"
 #include <tl/expected.hpp>
-#include "../byte_iterator.hpp"
-#include "../iterator.hpp"
+#include "byte_iterator.hpp"
+#include "iterator.hpp"
 
-namespace enc {
+namespace u {
 
 struct utf8 {
 
@@ -34,7 +28,7 @@ possible_size(std::byte byte) {
 }
 
 template<u::iterator_of_bytes It>
-static tl::expected<uint8_t, enc::request_error>
+static std::optional<uint8_t, enc::request_error>
 size(It it, It end) {
 	auto possible = possible_size(*it);
 	if(!possible) return tl::unexpected{ enc::request_error::invalid_input };
@@ -54,41 +48,46 @@ size(It it, It end) {
 	return { possible.value() };
 }
 
-template<u::iterator_of_bytes It>
-static tl::expected<codepoint_read_result<unicode>, enc::request_error>
-read(It it, It end) {
-	auto possible_size = size(it, end);
-	if(!possible_size) return tl::unexpected{ possible_size.error() };
+struct decoder_type {
 
-	auto width = possible_size.value();
+	template<class It> requires(
+		u::iterator_of_bytes<std::remove_reference_t<It>>
+	)
+	u::codepoint<u::unicode> convert(It&& it, It end) {
+		auto possible_size = size(it, end);
+		if(!possible_size) return tl::unexpected{ possible_size.error() };
 
-	auto first = uint32_t( std::byte{ *it } );
+		auto width = possible_size.value();
 
-	codepoint_read_result<unicode> res;
-	res.width = width;
-	
-	if(width == 1) {
-		res.codepoint = first;
-		return res;
-	}
+		auto first = uint32_t( std::byte{ *it } );
 
-	auto left_mask_size = width + 1;
-	first &= 0xFF >> left_mask_size;
+		codepoint_read_result<unicode> res;
+		res.width = width;
 
-	unsigned first_offset = (6 * (width - 1));
-	uint32_t resulting_cp = first << first_offset;
+		if(width == 1) {
+			res.codepoint = first;
+			return res;
+		}
 
-	for(unsigned i = 1; i < (unsigned)width; i++) {
-		unsigned offset = 6 * ((width - 1) - i);
-		++it;
+		auto left_mask_size = width + 1;
+		first &= 0xFF >> left_mask_size;
 
-		auto nth = uint32_t( std::byte{ *it } );
-		resulting_cp |= (nth & 0b00111111) << offset;
-	}
+		unsigned first_offset = (6 * (width - 1));
+		uint32_t resulting_cp = first << first_offset;
+
+		for(unsigned i = 1; i < (unsigned)width; i++) {
+			unsigned offset = 6 * ((width - 1) - i);
+			++it;
+
+			auto nth = uint32_t( std::byte{ *it } );
+			resulting_cp |= (nth & 0b00111111) << offset;
+		}
 	
 	res.codepoint = resulting_cp;
 	return res;
 }
+
+};
 
 template<u::iterator_of_bytes It> void
 static write

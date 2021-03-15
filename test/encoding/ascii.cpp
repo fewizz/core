@@ -1,16 +1,17 @@
-#include "../../include/cxx_util/encoding/ascii.hpp"
-#include "../../include/cxx_util/obj_representation.hpp"
+#include "../../include/cxx_util/ascii.hpp"
+#include "../../include/cxx_util/object.hpp"
+#include "../../include/cxx_util/codec.hpp"
 #include <cassert>
 
-static_assert(enc::char_set<enc::ascii>);
-static_assert(enc::encoding<enc::ascii>);
+static_assert(u::character_set<u::ascii>);
+static_assert(u::codec<u::ascii>);
 
 int main() {
 	char ascii_a = 'a';
 
-	auto rep = u::obj_representation{ ascii_a };
+	u::obj_representation_copy rep{ ascii_a };
 
-	auto cp = enc::read_codepoint<enc::ascii>(rep);
+	auto cp = (typename u::ascii::decoder_type){}.convert(rep.begin());
 
 	assert(cp == 'a');
 }

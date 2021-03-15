@@ -2,10 +2,10 @@
 
 #include <cinttypes>
 
-namespace enc {
+namespace u {
 
 struct unicode {
-	using codepoint_type = uint32_t;
+	using codepoint_base_type = uint32_t;
 };
 
 }

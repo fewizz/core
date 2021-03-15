@@ -6,7 +6,7 @@
 #include <memory>
 #include "byte.hpp"
 #include "mem_address.hpp"
-#include "obj_representation.hpp"
+#include "object.hpp"
 #include "math.hpp"
 
 namespace u {

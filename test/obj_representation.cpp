@@ -1,10 +1,29 @@
-#include "../include/cxx_util/obj_representation.hpp"
+#include "../include/cxx_util/object.hpp"
 #include <algorithm>
 #include <cassert>
 #include <type_traits>
 #include <iostream>
 
 int main() {
+
+	{
+		std::byte minus_one_int[sizeof(int)];
+		std::ranges::fill(minus_one_int, std::byte{ 0xFF });
+
+		auto it = std::begin(minus_one_int);
+		auto prev = it;
+
+		assert( u::read_object<int>(it) == -1 );
+
+		auto dist = std::distance(prev, it);
+
+		assert( dist == sizeof(int) );
+
+		it = prev;
+		u::write_object(0xFF, it);
+		assert( u::read_object<int>(prev) == 0xFF );
+	}
+
 	bool big = std::endian::native == std::endian::big;
 
 	auto check_front_and_back = [&](auto& c, int low) {

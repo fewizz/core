@@ -9,18 +9,12 @@
 #include <utility>
 #include "request_error.hpp"
 #include "../byte_iterator.hpp"
-#include "../bytes.hpp"
 
 namespace enc {
 
-template<class T>
-concept character_set = requires {
-	typename T::codepoint_type;
-};
-
 template<character_set CS>
 struct codepoint {
-	using base_type = typename CS::codepoint_type;
+	using base_type = typename CS::codepoint_base_type;
 
 	static_assert(std::unsigned_integral<base_type>);
 private:
@@ -68,17 +62,6 @@ struct codepoint_write_result {
 	uint8_t width;
 };
 
-template<class Codepoint>
-requires(
-	std::is_same_v<
-		codepoint<typename Codepoint::character_set_type>,
-		Codepoint
-	>
-)
-constexpr Codepoint convert_to(Codepoint cp) {
-	return cp;
-}
-
 template<class E>
 static constexpr auto size(auto& range) {
 	return E::size(
@@ -113,64 +96,5 @@ write_codepoint(auto cp, auto&& range) {
 		u::byte_iterator { std::ranges::end(range) }
 	);
 }
-
-template<class T>
-concept encoding = requires {
-	typename T::character_set_type;
-};
-
-template<class T>
-concept fixed_size_encoding = encoding<T> && requires() {
-	{ T::size };
-};
-
-template<class T>
-struct is_encoding : std::false_type {}; 
-
-template<encoding T>
-struct is_encoding<T> : std::true_type {};
-
-template<class T>
-static constexpr bool is_encoding_v = is_encoding<T>::value;
-
-template<class T>
-struct is_fixed_width_encoding : std::false_type {}; 
-
-template<encoding T>
-struct is_fixed_width_encoding<T> : std::true_type {};
-
-template<class T>
-static constexpr bool is_fixed_width_encoding_v = is_fixed_width_encoding<T>::value;
-
-template<class CP>
-struct character_set_encoding {
-	using character_set_type = character_set_encoding;
-	using codepoint_type = CP;
-
-	template<u::iterator_of_bytes It>
-	static constexpr tl::expected<CP, request_error>
-	size(It b, It e) {
-		return { sizeof(CP) };
-	}
-
-	template<u::iterator_of_bytes It>
-	static tl::expected<codepoint_read_result<character_set_type>, enc::request_error>
-	read(It b, It e) {
-		auto cp = u::read<CP>(b, e);
-		if(!cp) {
-			return tl::unexpected{ enc::request_error::unexpected_src_end };
-		}
-		return codepoint_read_result<character_set_type> {
-			cp.value(),
-			sizeof(CP)
-		};
-	}
-
-	template<u::iterator_of_bytes It>
-	static void
-	write (codepoint<character_set_type> cp, It b, It e) {
-		u::write(cp, b, e);
-	}
-};
 
 }
