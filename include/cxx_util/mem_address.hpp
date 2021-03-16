@@ -3,14 +3,27 @@
 #include <compare>
 #include <iterator>
 #include <type_traits>
-//#include "memory_location.hpp"
+#include "interface/iterator.hpp"
 
 namespace u {
 
-class mem_address {
+struct mem_address
+:
+	u::incr_and_decr_from_add_and_sub_assign<mem_address>,
+	u::sub_assign_from_add_assign<mem_address>,
+	u::add_from_add_assign<mem_address>,
+	u::sub_from_add_assign<mem_address>,
+	u::subscipt_from_add_and_dereference<mem_address>,
+	u::member_pointer_from_dereference<mem_address, std::byte>
+{
+private:
 	std::byte* m_memory_address;
 
 public:
+	using incr_and_decr_from_add_and_sub_assign::operator ++;
+	using incr_and_decr_from_add_and_sub_assign::operator --;
+	using sub_from_add_assign::operator -;
+
 	using element_type = std::byte;
 	using difference_type = std::ptrdiff_t;
 	using iterator_category = std::contiguous_iterator_tag;
@@ -38,54 +51,18 @@ public:
 		return *this;
 	}
 
-	mem_address& operator -= (difference_type n) {
-		return *this += -n;
-	}
-
-	mem_address& operator ++ () {
-		return *this += 1;
-	}
-
-	mem_address& operator -- () {
-		return *this -= 1;
-	}
-
-	mem_address operator + (difference_type n) const {
-		return { m_memory_address + n};
-	}
-
-	mem_address operator - (difference_type n) const {
-		return *this + (-n);
-	}
-
-	mem_address operator ++ (int) {
-		auto prev = *this;
-		++(*this);
-		return prev;
-	}
-
-	mem_address operator -- (int) {
-		auto prev = *this;
-		--(*this);
-		return prev;
-	}
-
 	difference_type operator - (mem_address that) const {
 		return m_memory_address - that.m_memory_address;
 	}
 
-	element_type& operator [] (difference_type n) const {
-		return m_memory_address[n];
-	}
-
-	element_type* operator -> () const {
-		return m_memory_address;
-	}
-
 	std::strong_ordering
-	operator <=> (const mem_address& that) const = default;
+	operator <=> (const mem_address& that) const {
+		return m_memory_address <=> that.m_memory_address;
+	}
 
-	bool operator == (const mem_address& that) const = default;
+	bool operator == (const mem_address& that) const {
+		return *this <=> that == 0;
+	};
 
 	std::strong_ordering
 	operator <=> (auto* ptr) const {

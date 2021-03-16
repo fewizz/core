@@ -11,7 +11,7 @@ namespace u {
 
 struct one_to_one_converter_tag {};
 struct one_to_range_converter_tag {};
-struct range_to_one_converter_tag {};;
+struct range_to_one_converter_tag {};
 
 enum class convert_error {
 	invalid_input,

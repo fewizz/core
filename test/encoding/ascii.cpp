@@ -11,7 +11,7 @@ int main() {
 
 	u::obj_representation_copy rep{ ascii_a };
 
-	auto cp = (typename u::ascii::decoder_type){}.convert(rep.begin());
+	auto cp = u::ascii::decoder_type{}.convert(rep.begin());
 
 	assert(cp == 'a');
 }

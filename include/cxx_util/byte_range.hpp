@@ -63,7 +63,7 @@ public:
 	constexpr bool
 	operator == (const byte_range<It0>& that) const {
 		return (*this <=> that) == 0;
-	};
+	}
 
 	template<class It0>
 	void copy_to(It0 it) const {

@@ -11,11 +11,7 @@ namespace u {
 
 template<class It>
 struct checking_iterator
-:
-	u::incr_and_decr_from_add_and_sub_assign<checking_iterator<It>>,
-	u::sub_assign_from_add_assign<checking_iterator<It>>,
-	u::add_from_add_assign<checking_iterator<It>>,
-	u::sub_from_add_assign<checking_iterator<It>>
+: u::contiguous_iterator<checking_iterator<It>, It>
 {
 	using this_type = checking_iterator<It>;
 
@@ -23,8 +19,6 @@ struct checking_iterator
 	using u::incr_and_decr_from_add_and_sub_assign<this_type>::operator --;
 
 	using base_iterator_type = It;
-	using value_type = std::iter_value_t<It>;
-	using reference = std::iter_reference_t<It>;
 	using pointer = typename std::iterator_traits<It>::pointer;
 	using difference_type = std::iter_difference_t<It>;
 	using iterator_category = typename std::__detail::__iter_concept<It>;
@@ -113,10 +107,6 @@ public:
 		if(m_current + n > m_end)
 			throw std::out_of_range{ "passed the end" };
 		return m_current[n];
-	}
-
-	pointer operator -> () const {
-		return std::to_address(m_current);
 	}
 };
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "mem_address.hpp"
+#include <bits/c++config.h>
 #include <cstring>
 #include <iterator>
 #include <memory>
@@ -25,7 +26,7 @@ requires (
 T read_object(It&& it) {
 	alignas(T) std::byte representation[sizeof(T)];
 
-	for(int i = 0; i < sizeof(T); i++) {
+	for(std::size_t i = 0; i < sizeof(T); i++) {
 		representation[
 			E == std::endian::native ? i : sizeof(T) - i - 1
 		] = *it++;
@@ -49,7 +50,7 @@ requires (
 	u::iterator_of_bytes<std::remove_reference_t<It>>
 )
 void write_object(const T& t, It&& it) {
-	for(int i = 0; i < sizeof(T); i++) {
+	for(std::size_t i = 0; i < sizeof(T); i++) {
 		*it++ = ( (std::byte*) &t )[
 			E == std::endian::native ? i : sizeof(T) - i - 1
 		];
