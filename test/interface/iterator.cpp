@@ -3,86 +3,49 @@
 #include <cstddef>
 #include <iterator>
 
-int global;
-
-struct f_iterator_test
-: u::forward_iterator<f_iterator_test, u::value_type<int>> {
+struct f_iterator
+: u::forward_iterator<f_iterator, u::value_type<int>> {
 	using forward_iterator::operator ++;
 
-	auto& operator * () const {
-		return global;
-	}
-
-	auto& operator ++ () {
-		return *this;
-	}
-
-	bool operator == (const f_iterator_test&) const {
-		return false;
-	}
+	int& operator * () const;
+	f_iterator& operator ++ ();
+	bool operator == (const f_iterator&) const;
 };
 
-static_assert(std::input_or_output_iterator<f_iterator_test>);
-static_assert(std::forward_iterator<f_iterator_test>);
+static_assert(std::input_or_output_iterator<f_iterator>);
+static_assert(std::forward_iterator<f_iterator>);
 
-struct bi_iterator_test
-: u::bidirectional_iterator<bi_iterator_test, u::value_type<int>> {
-	using base_type = u::bidirectional_iterator<bi_iterator_test, u::value_type<int>>;
+struct bi_iterator
+: u::bidirectional_iterator<bi_iterator, u::value_type<int>> {
+	using base_type = u::bidirectional_iterator<bi_iterator, u::value_type<int>>;
 
 	using base_type::operator ++;
 	using base_type::operator --;
 
-	auto& operator * () const {
-		return global;
-	}
-
-	auto& operator ++ () {
-		return *this;
-	}
-
-	auto& operator -- () {
-		return *this;
-	}
-
-	bool operator == (const bi_iterator_test&) const {
-		return false;
-	}
+	int& operator * () const;
+	bi_iterator& operator ++ ();
+	bi_iterator& operator -- ();
+	bool operator == (const bi_iterator&) const;
 };
 
-static_assert(std::bidirectional_iterator<bi_iterator_test>);
+static_assert(std::bidirectional_iterator<bi_iterator>);
 
-struct c_iterator_test
-: u::contiguous_iterator<c_iterator_test, u::value_type<int>> {
-	using base_type = u::contiguous_iterator<c_iterator_test, u::value_type<int>>;
+struct c_iterator
+: u::contiguous_iterator<c_iterator, u::value_type<int>> {
+	using base_type = u::contiguous_iterator<c_iterator, u::value_type<int>>;
 	using base_type::operator-;
 
-	int& operator * () const {
-		return global;
-	}
-
-	auto& operator += (std::ptrdiff_t n) {
-		return *this;
-	}
-
-	std::ptrdiff_t operator - (const c_iterator_test& that) const {
-		return 0;
-	}
-
-	std::strong_ordering operator <=> (const c_iterator_test&) const {
-		return std::strong_ordering::equal;
-	}
-
-	bool operator == (const c_iterator_test&) const {
-		return true;
-	}
+	int& operator * () const;
+	c_iterator& operator += (std::ptrdiff_t n);
+	std::ptrdiff_t operator - (const c_iterator& that) const;
+	std::strong_ordering operator <=> (const c_iterator&) const;
+	bool operator == (const c_iterator&) const;
 };
 
-c_iterator_test operator + (std::ptrdiff_t n, c_iterator_test it) {
-	return { };
-} 
+c_iterator operator + (std::ptrdiff_t n, c_iterator it);
 
-static_assert(std::random_access_iterator<c_iterator_test>);
-static_assert(std::contiguous_iterator<c_iterator_test>);
+static_assert(std::random_access_iterator<c_iterator>);
+static_assert(std::contiguous_iterator<c_iterator>);
 
 int main() {
 	

@@ -3,8 +3,70 @@
 #include <iterator>
 #include <concepts>
 #include <optional>
+#include <type_traits>
 
 namespace u {
+
+namespace internal {
+	template<class T>
+	concept has_iterator_concept = requires {
+		typename T::iterator_concept;
+	};
+
+	template<class It>
+	struct iterator_concept {
+		using type = typename std::iterator_traits<It>::iterator_category;
+	};
+
+	template<class It>
+	requires requires { typename It::iterator_concept; }
+	struct iterator_concept<It> {
+		using type = typename It::iterator_concept;
+	};
+
+	template<class It>
+	requires requires { typename std::iterator_traits<It>::iterator_concept; }
+	struct iterator_concept<It> {
+		using type = typename std::iterator_traits<It>::iterator_concept;
+	};
+	/*template<class It>
+	struct iterator_has_iterator_concept : std::false_type {};
+
+	template<has_iterator_concept It>
+	struct iterator_has_iterator_concept<It> : std::true_type {};
+
+	template<class It>
+	struct iterator_traits_has_iterator_concept : std::false_type {};
+	
+	template<class It>
+	requires requires {
+		typename std::iterator_traits<It>::concept_type;
+	}
+	struct iterator_traits_has_iterator_concept<It> : std::true_type {};
+
+	template<
+		class It,
+		bool = iterator_has_iterator_concept<It>::value,
+		bool = iterator_traits_has_iterator_concept<It>::value
+	>
+	struct iterator_concept {
+		using type = typename std::iterator_traits<It>::iterator_category;
+	};
+
+	template<class It, bool b>
+	struct iterator_concept<It, true, b> {
+		using type = typename It::iterator_category;
+	};
+
+	template<class It>
+	struct iterator_concept<It, false, true> {
+		using type = typename std::iterator_traits<It>::iterator_concept;
+	};*/
+}
+
+template<class It>
+using iter_concept_t = typename internal::iterator_concept<It>::type;
+
 
 template<class It>
 concept iterator_of_bytes

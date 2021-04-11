@@ -46,10 +46,24 @@ concept range_to_one_converter =
 	requires(C& c) {
 		typename C::input_type;
 		typename C::output_type;
+		typename C::size_type;
 	} && 
 	requires(C& c, std::add_pointer_t<typename C::input_type> i) {
 		{ c.convert(i) } -> std::same_as<typename C::output_type>;
+	};
+
+template<class C>
+concept dynamic_size_range_to_one_converter =
+	range_to_one_converter<C> &&
+	requires(C& c, std::add_pointer_t<typename C::input_type> i) {
 		{ c.size(i) } -> std::same_as<typename C::size_type>;
+	};
+
+template<class C>
+concept fixed_size_range_to_one_converter =
+	range_to_one_converter<C> &&
+	requires(C& c) {
+		{ C::size } -> std::same_as<const typename C::size_type>;
 	};
 
 template<class T>
@@ -57,6 +71,7 @@ struct bytes_to_object_converter {
 	using input_type = std::byte;
 	using output_type = T;
 	using size_type = std::size_t;
+	static constexpr size_type size = sizeof(T);
 
 	template<class It> requires(
 		u::iterator_of_bytes<std::remove_reference_t<It>>
@@ -64,17 +79,10 @@ struct bytes_to_object_converter {
 	output_type convert(It b) const {
 		return u::read_object<T>(std::forward<It>(b));
 	}
-
-	template<class It> requires(
-		u::iterator_of_bytes<std::remove_reference_t<It>>
-	)
-	size_type size(It b) const {
-		return sizeof(T);
-	}
 };
 
 static_assert(
-	u::range_to_one_converter<bytes_to_object_converter<int>>
+	u::fixed_size_range_to_one_converter<bytes_to_object_converter<int>>
 );
 
 template<class T>

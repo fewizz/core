@@ -2,11 +2,11 @@
 #include <cassert>
 #include <iostream>
 #include <iterator>
-#include "character_iterator.hpp"
+#include "encoded_string_iterator.hpp"
 #include "ascii.hpp"
 
 static_assert(
-	std::input_iterator<
+	std::random_access_iterator<
 		u::encoded_string_iterator<u::ascii, std::byte*>
 	>
 );

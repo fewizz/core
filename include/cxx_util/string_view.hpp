@@ -1,68 +1,63 @@
 #pragma once
 
-#include "character.hpp"
-#include "character_iterator.hpp"
 #include <algorithm>
+#include <bits/c++config.h>
 #include <compare>
 #include <cstring>
 #include <iterator>
 #include <span>
 #include <stdexcept>
 #include <type_traits>
-#include "string_common_base.hpp"
 #include <string_view>
-#include "encoding/utf8.hpp"
-#include "encoding/ascii.hpp"
+#include "encoded_string_iterator.hpp"
+#include "utf8.hpp"
+#include "ascii.hpp"
+#include "codec.hpp"
 
 namespace u {
 
-template<enc::encoding E, class It>
-struct basic_string_view
-: internal::string_common_base<
-	basic_string_view<E, It>,
-	E,
-	It
-> {
-	using base_type = internal::string_common_base<
-		basic_string_view<E, It>,
-		E,
-		It
-	>;
-
-	using typename base_type::base_iterator_value_type;
-	using typename base_type::size_type;
-	using typename base_type::value_type;
-	using typename base_type::iterator;
-	using base_type::npos;
+template<u::codec C, class It>
+struct encoded_string_view {
+	using size_type = std::size_t;
+	using value_type = u::encoded_character_view<C, It>;
+	using iterator = u::encoded_string_iterator<C, It>;
 
 private:
 	It m_begin;
 	It m_end;
 public:
 
-	constexpr basic_string_view() = default;
+	constexpr encoded_string_view() = default;
 
-	constexpr basic_string_view(It begin, It end)
+	constexpr encoded_string_view(It begin, It end)
 		: m_begin{ begin}, m_end{ end } {}
 
-	constexpr basic_string_view(It begin, size_type count)
-		: basic_string_view(begin, begin + count) {}
+	constexpr encoded_string_view(It begin, size_type count)
+		: encoded_string_view(begin, begin + count) {}
 
-	constexpr basic_string_view(iterator begin, iterator end)
-		: basic_string_view(begin.base(), end.base()) {}
+	constexpr encoded_string_view(iterator begin, iterator end)
+		: encoded_string_view(begin.base(), end.base()) {}
 
 	template<std::ranges::range R>
-	constexpr basic_string_view(R& range)
+	constexpr encoded_string_view(R& range)
 		:
 		m_begin{ std::ranges::begin(range) },
 		m_end{ std::ranges::end(range) } {}
 
-	constexpr basic_string_view(const base_iterator_value_type* c_str) {
+	/*constexpr encoded_string_view(const * c_str) {
 		m_begin = c_str;
 		m_end = c_str
 			+ std::basic_string_view<
 				base_iterator_value_type
 			>{ c_str }.size();
+	}*/
+
+	auto begin() const {
+		return m_begin;
+	}
+
+	auto end() const {
+		return m_begin;
 	}
 
 	auto raw_begin() const {
@@ -72,9 +67,11 @@ public:
 	auto raw_end() const {
 		return m_end;
 	}
+
+	constexpr bool empty() const { return raw_begin() == raw_end(); }
 };
 
-using ascii_string_view = basic_string_view<enc::ascii, const char*>;
-using u8_string_view = basic_string_view<enc::utf8, const char8_t*>;
+//using ascii_string_view = basic_string_view<enc::ascii, const char*>;
+//using u8_string_view = basic_string_view<enc::utf8, const char8_t*>;
 
 }

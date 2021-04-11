@@ -1,17 +1,14 @@
 #pragma once
 
-#include "byte_range.hpp"
-#include "character.hpp"
-#include "character_iterator.hpp"
-#include <bits/iterator_concepts.h>
 #include <compare>
 #include <iterator>
 #include <type_traits>
+#include "codec.hpp"
 
 namespace u {
 
-template<enc::encoding E, class T>
-struct basic_string_view;
+template<u::codec E, class T>
+struct encoded_string_view;
 
 namespace internal {
 

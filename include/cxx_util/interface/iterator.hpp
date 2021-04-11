@@ -19,6 +19,11 @@ struct value_type {
 	using type = T;
 };
 
+template<class T>
+struct reference_type {
+	using type = T;
+};
+
 template<typename D>
 struct post_incr_from_pre_incr {
 	D operator ++ (int) {
@@ -128,9 +133,9 @@ struct sub_from_sub_assign {
 	}
 };
 
-template<typename D>
+template<typename D, typename RT>
 struct subscipt_from_add_and_dereference {
-	auto& operator [] (const auto& n) const {
+	typename RT::type operator [] (const auto& n) const {
 		return *(static_cast<const D&>(*this) + n);
 	}
 };
@@ -139,7 +144,12 @@ namespace internal {
 	struct rai_mark {};
 }
 
-template<typename It, class VT, class DT = difference_type<std::ptrdiff_t>>
+template<
+	typename It,
+	typename VT,
+	typename DT = difference_type<std::ptrdiff_t>,
+	typename RT = reference_type<std::add_lvalue_reference_t<typename VT::type>>
+>
 struct random_access_iterator
 :
 	internal::rai_mark,
@@ -147,7 +157,7 @@ struct random_access_iterator
 	sub_assign_from_add_assign<It>,
 	add_from_add_assign<It>,
 	sub_from_sub_assign<It>,
-	subscipt_from_add_and_dereference<It>
+	subscipt_from_add_and_dereference<It, RT>
 {
 	static_assert(std::is_same_v<VT, u::value_type<typename VT::type>>);
 	static_assert(std::is_same_v<DT, u::difference_type<typename DT::type>>);
@@ -170,26 +180,31 @@ It operator -
 	return static_cast<const It&>(it).operator - (n);
 }
 
-template<typename D, class value_type>
+template<typename D, class RT>
 struct member_pointer_from_dereference {
-	value_type* operator -> () {
+	std::remove_reference_t<typename RT::type>* operator -> () {
 		return std::to_address(static_cast<D&>(*this));
 	}
 
-	value_type* operator -> () const {
+	std::remove_reference_t<typename RT::type>* operator -> () const {
 		return std::to_address(static_cast<const D&>(*this));
 	}
 };
 
-template<typename It, class VT, class DT = difference_type<std::ptrdiff_t>>
+template <
+	typename It,
+	typename VT,
+	typename DT = difference_type<std::ptrdiff_t>,
+	typename RT = reference_type<std::add_lvalue_reference_t<typename VT::type>>
+>
 struct contiguous_iterator
 :
 	incr_and_decr_from_add_and_sub_assign<It>,
 	sub_assign_from_add_assign<It>,
 	add_from_add_assign<It>,
 	sub_from_sub_assign<It>,
-	subscipt_from_add_and_dereference<It>,
-	member_pointer_from_dereference<It, typename VT::type>
+	subscipt_from_add_and_dereference<It, RT>,
+	member_pointer_from_dereference<It, RT>
 {
 	static_assert(std::is_same_v<VT, u::value_type<typename VT::type>>);
 	static_assert(std::is_same_v<DT, u::difference_type<typename DT::type>>);
@@ -211,28 +226,34 @@ It operator -
 	return it.operator - (n);
 }
 
-template<class Tag, typename It, class VT, class DT = difference_type<std::ptrdiff_t>>
+template<
+	typename Tag,
+	typename It,
+	typename VT,
+	typename DT = difference_type<std::ptrdiff_t>,
+	typename RT = reference_type<std::add_lvalue_reference_t<typename VT::type>>
+>
 struct iterator;
 
-template<typename It, class VT, class DT>
+template<typename It, typename VT, typename DT>
 struct iterator<std::input_iterator_tag, It, VT, DT>
 	: u::input_iterator<It, VT, DT>{};
 
-template<typename It, class VT, class DT>
+template<typename It, typename VT, typename DT>
 struct iterator<std::forward_iterator_tag, It, VT, DT>
 	: u::forward_iterator<It, VT, DT>{};
 
-template<typename It, class VT, class DT>
+template<typename It, typename VT, typename DT>
 struct iterator<std::bidirectional_iterator_tag, It, VT, DT>
 	: u::bidirectional_iterator<It, VT, DT>{};
 
-template<typename It, class VT, class DT>
-struct iterator<std::random_access_iterator_tag, It, VT, DT>
-	: u::random_access_iterator<It, VT, DT>{};
+template<typename It, typename VT, typename DT, typename RT>
+struct iterator<std::random_access_iterator_tag, It, VT, DT, RT>
+	: u::random_access_iterator<It, VT, DT, RT>{};
 
-template<typename It, class VT, class DT>
-struct iterator<std::contiguous_iterator_tag, It, VT, DT>
-	: u::contiguous_iterator<It, VT, DT>{};
+template<typename It, typename VT, typename DT, typename RT>
+struct iterator<std::contiguous_iterator_tag, It, VT, DT, RT>
+	: u::contiguous_iterator<It, VT, DT, RT> {};
 
 
 }
