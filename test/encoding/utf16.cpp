@@ -1,5 +1,5 @@
-#include "../../include/cxx_util/encoding/utf16.hpp"
-#include "../../include/cxx_util/obj_representation.hpp"
+#include "utf16.hpp"
+#include "obj_representation.hpp"
 #include <cassert>
 
 int main() {

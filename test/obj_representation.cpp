@@ -1,4 +1,4 @@
-#include "../include/cxx_util/object.hpp"
+#include "object.hpp"
 #include <algorithm>
 #include <cassert>
 #include <type_traits>

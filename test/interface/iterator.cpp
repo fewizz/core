@@ -3,14 +3,14 @@
 #include <cstddef>
 #include <iterator>
 
+int global;
+
 struct f_iterator_test
 : u::forward_iterator<f_iterator_test, u::value_type<int>> {
 	using forward_iterator::operator ++;
 
-	int val = 0;
-
 	auto& operator * () const {
-		return val;
+		return global;
 	}
 
 	auto& operator ++ () {
@@ -32,10 +32,8 @@ struct bi_iterator_test
 	using base_type::operator ++;
 	using base_type::operator --;
 
-	int val = 0;
-
 	auto& operator * () const {
-		return val;
+		return global;
 	}
 
 	auto& operator ++ () {
@@ -53,40 +51,38 @@ struct bi_iterator_test
 
 static_assert(std::bidirectional_iterator<bi_iterator_test>);
 
-struct ra_iterator_test
-: u::contiguous_iterator<ra_iterator_test, u::value_type<int>> {
-	using base_type = u::contiguous_iterator<ra_iterator_test, u::value_type<int>>;
+struct c_iterator_test
+: u::contiguous_iterator<c_iterator_test, u::value_type<int>> {
+	using base_type = u::contiguous_iterator<c_iterator_test, u::value_type<int>>;
 	using base_type::operator-;
 
-	int val = 0;
-
-	auto& operator * () const {
-		return val;
+	int& operator * () const {
+		return global;
 	}
 
 	auto& operator += (std::ptrdiff_t n) {
 		return *this;
 	}
 
-	std::ptrdiff_t operator - (const ra_iterator_test& that) const {
+	std::ptrdiff_t operator - (const c_iterator_test& that) const {
 		return 0;
 	}
 
-	std::strong_ordering operator <=> (const ra_iterator_test&) const {
+	std::strong_ordering operator <=> (const c_iterator_test&) const {
 		return std::strong_ordering::equal;
 	}
 
-	bool operator == (const ra_iterator_test&) const {
+	bool operator == (const c_iterator_test&) const {
 		return true;
 	}
 };
 
-ra_iterator_test operator + (std::ptrdiff_t n, ra_iterator_test it) {
+c_iterator_test operator + (std::ptrdiff_t n, c_iterator_test it) {
 	return { };
 } 
 
-static_assert(std::random_access_iterator<ra_iterator_test>);
-static_assert(std::contiguous_iterator<ra_iterator_test>);
+static_assert(std::random_access_iterator<c_iterator_test>);
+static_assert(std::contiguous_iterator<c_iterator_test>);
 
 int main() {
 	

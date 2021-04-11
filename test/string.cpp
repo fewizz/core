@@ -1,4 +1,4 @@
-#include "../include/cxx_util/string.hpp"
+#include "string.hpp"
 #include <cassert>
 #include <iostream>
 

@@ -1,4 +1,4 @@
-#include "../include/cxx_util/math.hpp"
+#include "math.hpp"
 #include <cassert>
 
 int main() {

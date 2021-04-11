@@ -1,38 +1,29 @@
-#include "../include/cxx_util/character_iterator.hpp"
-#include "../include/cxx_util/encoding/ascii.hpp"
+#include <algorithm>
 #include <cassert>
 #include <iostream>
 #include <iterator>
+#include "character_iterator.hpp"
+#include "ascii.hpp"
 
 static_assert(
-	std::forward_iterator<u::character_iterator<enc::ascii, char*>>
-);
-static_assert(u::character_iterator<enc::ascii, char*>::base_is_random_access);
-static_assert(u::character_iterator<enc::ascii, char*>::is_random_access);
-static_assert(u::character_iterator<enc::ascii, char*>::encoding_is_fixed);
-
-static_assert(
-	std::random_access_iterator<u::character_iterator<enc::ascii, char*>>
+	std::input_iterator<
+		u::encoded_string_iterator<u::ascii, std::byte*>
+	>
 );
 
 int main() {
 	std::string_view str { "Test" };
 
-	auto it = u::make_character_iterator<enc::ascii>(str.begin(), str.end());
-	auto e = u::make_character_iterator_end<enc::ascii>(str.begin(), str.end());
+	u::byte_range str_bytes{ str };
+	using it_t = decltype(str_bytes.begin());
 
-	assert(std::distance(it, e) == 4);
-	assert((*it).size() == 1);
-	assert(*it == std::string_view{"T"});
+	auto b = u::encoded_string_iterator<u::ascii, it_t>{ str_bytes.begin() };
+	auto e = u::encoded_string_iterator<u::ascii, it_t>{ str_bytes.end() };
+
+	assert(std::distance(b, e) == 4);
 
 	int index = 0;
-	for(auto ch : it) {
-		assert(ch.size() == 1);
-		assert(ch == u::obj_representation{ str[index++] });
-	}
-
-	auto pit = it;
-	assert(pit < e);
-	std::advance(pit, 4);
-	assert(pit == e);
+	std::for_each(b, e, [&](auto ch) {
+		assert(ch == str[index++]);
+	});
 }

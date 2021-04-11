@@ -3,10 +3,8 @@ test() {
 
 	mkdir --parents $(dirname build/$1)
 
-	if ! g++ -g -Wall -pedantic \
-		-std=c++20 -Iinclude/cxx_util \
-		-fsanitize=undefined \
-		-fsanitize=address \
+	if ! clang++ \
+		--config ./compile_flags.txt \
 		-o build/$1 \
 		test/$1.cpp
 	then

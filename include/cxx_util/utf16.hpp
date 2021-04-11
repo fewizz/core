@@ -1,19 +1,14 @@
 #pragma once
 
 #include <bit>
-#include <bits/stdint-uintn.h>
 #include <iterator>
 #include <stdexcept>
 #include <utility>
 #include <codecvt>
-#include "encoding.hpp"
-#include "unicode.hpp"
-#include "request_error.hpp"
-#include "../iterator.hpp"
 #include <tl/expected.hpp>
-#include "../bytes.hpp"
+#include "unicode.hpp"
 
-namespace enc {
+namespace u {
 
 template<std::endian Endian = std::endian::native>
 struct utf16_base;

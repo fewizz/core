@@ -1,4 +1,4 @@
-#include "../include/cxx_util/checking_iterator.hpp"
+#include "checking_iterator.hpp"
 #include <cassert>
 #include <iterator>
 #include <stdexcept>
@@ -14,7 +14,7 @@ int main() {
 
 	u::checking_iterator<int*> it{&i, &i + 1};
 	++it;
-	assert(std::ranges::distance(it.begin_to_base_subrange()) == 1);
+	assert(it.distance_from_begin() == 1);
 
 	bool catched = false;
 
@@ -25,10 +25,10 @@ int main() {
 	}
 
 	assert( catched );
-	assert(std::ranges::distance(it.begin_to_base_subrange()) == 1);
+	assert(it.distance_from_begin() == 1);
 
 	--it;
-	assert(std::ranges::distance(it.begin_to_base_subrange()) == 0);
+	assert(it.distance_from_begin() == 0);
 
 	catched = false;
 	try {
@@ -38,5 +38,5 @@ int main() {
 	}
 
 	assert( catched );
-	assert(std::ranges::distance(it.begin_to_base_subrange()) == 0);
+	assert( it.distance_from_begin() == 0);
 }

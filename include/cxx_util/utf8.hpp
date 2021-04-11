@@ -1,5 +1,8 @@
 #pragma once
 
+#include <bits/c++config.h>
+#include <bits/stdint-uintn.h>
+#include <cstdint>
 #include <iterator>
 #include <type_traits>
 #include <utility>
@@ -18,7 +21,7 @@ struct utf8 {
 using character_set_type = unicode;
 static constexpr int code_unit_bits = 8;
 
-static constexpr std::optional<uint8_t>
+inline static constexpr std::optional<uint8_t>
 possible_size(std::byte byte) {
 	if(u::equalsl<0>(byte)) return { 1 };
 	if(u::equalsl<1, 1, 0>(byte)) return { 2 };
@@ -27,71 +30,47 @@ possible_size(std::byte byte) {
 	return {};
 }
 
-template<u::iterator_of_bytes It>
-static std::optional<uint8_t, enc::request_error>
-size(It it, It end) {
-	auto possible = possible_size(*it);
-	if(!possible) return tl::unexpected{ enc::request_error::invalid_input };
-
-	auto dist = std::distance(it, end);
-
-	if(possible.value() > dist)
-		return tl::unexpected{ enc::request_error::unexpected_src_end };
-	
-	for(int i = 1; i < std::min(decltype(dist)(possible.value()), dist); i++) {
-		++it;
-
-		if(not u::equalsl<1,0>( std::byte { *it }))
-			return tl::unexpected{ enc::request_error::invalid_input };
-	}
-
-	return { possible.value() };
-}
-
 struct decoder_type {
 
 	template<class It> requires(
 		u::iterator_of_bytes<std::remove_reference_t<It>>
 	)
-	u::codepoint<u::unicode> convert(It&& it, It end) {
-		auto possible_size = size(it, end);
-		if(!possible_size) return tl::unexpected{ possible_size.error() };
+	u::codepoint<u::unicode> convert(It&& it) {
+		std::byte first_byte{ *it };
 
-		auto width = possible_size.value();
+		auto size = possible_size(first_byte).value();
 
-		auto first = uint32_t( std::byte{ *it } );
+		uint32_t result = std::to_integer<uint32_t>(first_byte);
 
-		codepoint_read_result<unicode> res;
-		res.width = width;
-
-		if(width == 1) {
-			res.codepoint = first;
-			return res;
+		if(size == 1) {
+			return { result };
 		}
 
-		auto left_mask_size = width + 1;
-		first &= 0xFF >> left_mask_size;
+		uint8_t left_mask_size = size + 1;
+		result &= 0xFF >> left_mask_size;
 
-		unsigned first_offset = (6 * (width - 1));
-		uint32_t resulting_cp = first << first_offset;
+		uint8_t first_offset = (6 * (size - 1));
+		result <<= first_offset;
 
-		for(unsigned i = 1; i < (unsigned)width; i++) {
-			unsigned offset = 6 * ((width - 1) - i);
+		for(uint8_t byte_index = 1; byte_index < size; byte_index++) {
 			++it;
 
-			auto nth = uint32_t( std::byte{ *it } );
-			resulting_cp |= (nth & 0b00111111) << offset;
+			std::byte nth_byte = *it;
+
+			uint8_t offset = 6 * ((size - 1) - byte_index);
+
+			result |= (std::to_integer<uint32_t>(nth_byte) & 0b00111111) << offset;
 		}
 	
-	res.codepoint = resulting_cp;
-	return res;
-}
+		return result;
+	}
 
 };
 
+struct encoder_type {
+
 template<u::iterator_of_bytes It> void
-static write
-(codepoint<unicode> cp, It it, It end) {
+static convert(codepoint<unicode> cp, It&& it) {
 	if(cp <= 0x7F) {
 		*it++ = std::byte( cp.value() );
 	}
@@ -112,6 +91,7 @@ static write
 	}
 }
 
+};
 };
 
 }

@@ -1,27 +1,21 @@
-#include "../../include/cxx_util/encoding/utf8.hpp"
-#include "../../include/cxx_util/obj_representation.hpp"
+#include "../../include/cxx_util/utf8.hpp"
+#include "../../include/cxx_util/object.hpp"
+#include "../../include/cxx_util/byte_iterator.hpp"
+#include "../../include/cxx_util/codec.hpp"
 #include <cassert>
 
-static_assert(enc::char_set<enc::unicode>);
+static_assert(u::codec<u::utf8>);
 
 int main() {
-	using namespace enc;
-	
 	std::string_view str { "a" };
 	std::u8string_view smile { u8"😀" };
 
-	assert( size<utf8>(str) == 1 );
-	assert( size<utf8>(smile) == 4 );
-
-	assert( read_codepoint<utf8>(str) == 'a' );
-	assert( read_codepoint<utf8>(smile) == 0x1F600 );
+	assert( u::utf8::decoder_type{}.convert(u::byte_iterator{ str.begin() }) == 'a' );
+	assert( u::utf8::decoder_type{}.convert(u::byte_iterator{ smile.begin() }) == 0x1F600 );
 
 	char a = 'a';
 
-	write_codepoint<utf8>(
-		enc::codepoint<enc::unicode>{'b'},
-		u::obj_representation{ a }
-	);
+	u::utf8::encoder_type{}.convert('b', u::obj_representation_reference{ a }.begin());
 
 	assert(a == 'b');
 }

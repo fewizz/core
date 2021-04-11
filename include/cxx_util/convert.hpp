@@ -1,5 +1,6 @@
 #pragma once
 
+#include <bits/c++config.h>
 #include <string>
 #include <filesystem>
 #include <type_traits>
@@ -18,18 +19,63 @@ enum class convert_error {
 	unexpected_src_end
 };
 
+template<class C>
+concept one_to_one_converter = requires(C& c) {
+	typename C::input_type;
+	typename C::output_type;
+
+	{ c.convert(std::declval<typename C::input_type>() ) }
+		-> std::same_as<typename C::output_type>;
+};
+
+template<class C>
+concept one_to_range_converter = requires(C& c) {
+	typename C::input_type;
+	typename C::output_type;
+
+	{ 
+		c.convert(
+			std::declval<typename C::input_type>(),
+			std::declval<std::add_pointer_t<typename C::output_type>>()
+		)
+	} -> std::same_as<void>;
+};
+
+template<class C>
+concept range_to_one_converter =
+	requires(C& c) {
+		typename C::input_type;
+		typename C::output_type;
+	} && 
+	requires(C& c, std::add_pointer_t<typename C::input_type> i) {
+		{ c.convert(i) } -> std::same_as<typename C::output_type>;
+		{ c.size(i) } -> std::same_as<typename C::size_type>;
+	};
+
 template<class T>
 struct bytes_to_object_converter {
 	using input_type = std::byte;
 	using output_type = T;
+	using size_type = std::size_t;
 
 	template<class It> requires(
 		u::iterator_of_bytes<std::remove_reference_t<It>>
 	)
-	output_type convert(It&& b) {
+	output_type convert(It b) const {
 		return u::read_object<T>(std::forward<It>(b));
 	}
+
+	template<class It> requires(
+		u::iterator_of_bytes<std::remove_reference_t<It>>
+	)
+	size_type size(It b) const {
+		return sizeof(T);
+	}
 };
+
+static_assert(
+	u::range_to_one_converter<bytes_to_object_converter<int>>
+);
 
 template<class T>
 struct object_to_bytes_converter {
@@ -43,5 +89,9 @@ struct object_to_bytes_converter {
 		u::write_object(&t, std::forward<It>(out));
 	}
 };
+
+static_assert(
+	u::one_to_range_converter<object_to_bytes_converter<int>>
+);
 
 }

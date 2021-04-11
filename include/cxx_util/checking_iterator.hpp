@@ -1,5 +1,6 @@
 #pragma once
 
+#include <bits/iterator_concepts.h>
 #include <compare>
 #include <iterator>
 #include <memory>
@@ -11,17 +12,28 @@ namespace u {
 
 template<class It>
 struct checking_iterator
-: u::contiguous_iterator<checking_iterator<It>, It>
+: u::iterator<
+	typename std::__detail::__iter_concept<It>,
+	checking_iterator<It>,
+	u::value_type<std::iter_value_t<It>>,
+	u::difference_type<std::iter_difference_t<It>>
+>
 {
+	using base_type = u::iterator<
+		typename std::__detail::__iter_concept<It>,
+		checking_iterator<It>,
+		u::value_type<std::iter_value_t<It>>,
+		u::difference_type<std::iter_difference_t<It>>
+	>;
+	
 	using this_type = checking_iterator<It>;
 
-	using u::incr_and_decr_from_add_and_sub_assign<this_type>::operator ++;
-	using u::incr_and_decr_from_add_and_sub_assign<this_type>::operator --;
+	using base_type::operator -;
 
 	using base_iterator_type = It;
 	using pointer = typename std::iterator_traits<It>::pointer;
-	using difference_type = std::iter_difference_t<It>;
-	using iterator_category = typename std::__detail::__iter_concept<It>;
+	using typename base_type::difference_type;
+	using reference = std::iter_reference_t<It>;
 
 private:
 
@@ -56,12 +68,8 @@ public:
 		return m_end;
 	}
 
-	auto base_to_end_subrange() const {
-		return std::ranges::subrange(m_current, m_end);
-	}
-
-	auto begin_to_base_subrange() const {
-		return std::ranges::subrange(m_begin, m_current);
+	auto distance_from_begin() const {
+		return std::distance(m_begin, m_current);
 	}
 
 	reference operator * () const {
@@ -75,8 +83,6 @@ public:
 	difference_type operator - (checking_iterator that) const {
 		return { m_current - that.m_current };
 	}
-
-	using sub_from_add_assign<this_type>::operator -;
 
 	auto& operator += (difference_type n) {
 		auto res = u::advance(m_current, m_begin, m_end, n);
@@ -109,14 +115,5 @@ public:
 		return m_current[n];
 	}
 };
-
-template<class It>
-checking_iterator<It> operator + (
-	typename checking_iterator<It>::difference_type n,
-	checking_iterator<It> it
-) {
-	auto i = n + it.base();
-	return { i, it.base_end() };
-}
 
 }

@@ -1,5 +1,5 @@
-#include "../include/cxx_util/string_view.hpp"
-#include "../include/cxx_util/encoding/utf8.hpp"
+#include "string_view.hpp"
+#include "encoding/utf8.hpp"
 #include <cassert>
 #include <string_view>
 

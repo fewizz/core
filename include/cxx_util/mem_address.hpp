@@ -7,27 +7,13 @@
 
 namespace u {
 
-struct mem_address
-:
-	u::incr_and_decr_from_add_and_sub_assign<mem_address>,
-	u::sub_assign_from_add_assign<mem_address>,
-	u::add_from_add_assign<mem_address>,
-	u::sub_from_add_assign<mem_address>,
-	u::subscipt_from_add_and_dereference<mem_address>,
-	u::member_pointer_from_dereference<mem_address, std::byte>
-{
+struct mem_address : u::contiguous_iterator<mem_address, u::value_type<std::byte>>{
 private:
+	using base_type = contiguous_iterator;
+
 	std::byte* m_memory_address;
 
 public:
-	using incr_and_decr_from_add_and_sub_assign::operator ++;
-	using incr_and_decr_from_add_and_sub_assign::operator --;
-	using sub_from_add_assign::operator -;
-
-	using element_type = std::byte;
-	using difference_type = std::ptrdiff_t;
-	using iterator_category = std::contiguous_iterator_tag;
-
 	mem_address() = default;
 	mem_address(mem_address&& that) = default;
 	mem_address& operator = (mem_address&& that) = default;
@@ -36,7 +22,7 @@ public:
 
 	template<class T>
 	mem_address(T* ptr)
-	: m_memory_address{
+	: m_memory_address {
 		reinterpret_cast<std::byte*>(
 			const_cast< std::remove_const_t<T>* >(ptr)
 		)
@@ -54,6 +40,8 @@ public:
 	difference_type operator - (mem_address that) const {
 		return m_memory_address - that.m_memory_address;
 	}
+
+	using base_type::operator -;
 
 	std::strong_ordering
 	operator <=> (const mem_address& that) const {
@@ -73,14 +61,6 @@ public:
 		return *this <=> ptr == 0;
 	};
 };
-
-inline mem_address
-operator + (
-	typename mem_address::difference_type n,
-	mem_address it
-) {
-	return it + n;
-}
 
 inline std::strong_ordering
 operator <=> (auto* ptr, mem_address loc) {

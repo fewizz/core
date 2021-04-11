@@ -1,6 +1,6 @@
-#include "../../include/cxx_util/ascii.hpp"
-#include "../../include/cxx_util/object.hpp"
-#include "../../include/cxx_util/codec.hpp"
+#include "ascii.hpp"
+#include "object.hpp"
+#include "codec.hpp"
 #include <cassert>
 
 static_assert(u::character_set<u::ascii>);

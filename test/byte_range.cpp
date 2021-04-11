@@ -1,4 +1,4 @@
-#include "../include/cxx_util/byte_range.hpp"
+#include "byte_range.hpp"
 #include <cassert>
 #include <iostream>
 

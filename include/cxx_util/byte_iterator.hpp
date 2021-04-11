@@ -8,27 +8,36 @@
 #include "mem_address.hpp"
 #include "object.hpp"
 #include "math.hpp"
+#include "interface/iterator.hpp"
 
 namespace u {
 
 template<class It, std::endian E = std::endian::native>
-class byte_iterator {
+class byte_iterator
+: public u::iterator<
+	typename std::__detail::__iter_concept<It>,
+	byte_iterator<It>,
+	u::value_type<std::byte>
+> {
 	It m_it;
 	std::size_t m_byte_index = 0;
+
+	using base_type = u::iterator<
+		typename std::__detail::__iter_concept<It>,
+		byte_iterator<It>,
+		u::value_type<std::byte>
+	>;
 
 public:
 	using base_value_type = std::iter_value_t<It>;
 
 	static constexpr std::size_t
 		base_value_type_size = sizeof(base_value_type);
-	
-	using element_type = std::byte;
-	using difference_type = std::ptrdiff_t;
 
 	using base_iterator_category =
 		typename std::__detail::__iter_concept<It>;
 
-	using iterator_category = base_iterator_category;
+	using typename base_type::difference_type;
 
 	byte_iterator() = default;
 
@@ -39,18 +48,14 @@ public:
 		return m_byte_index;
 	}
 
-	element_type& operator * () const {
+	std::byte& operator * () const {
 		auto real_index = m_byte_index;
-		
+
 		if constexpr (E == std::endian::big)
 			real_index
 				= base_value_type_size - real_index - 1;
 
 		return u::obj_representation_reference{ *m_it }[real_index];
-	}
-
-	element_type* operator -> () const {
-		return & (**this);
 	}
 
 	byte_iterator& operator ++ () {
@@ -61,8 +66,10 @@ public:
 		}
 		return *this;
 	}
+	using base_type::operator ++ ;
 
-	byte_iterator& operator -- () {
+	byte_iterator& operator -- ()
+	requires(std::bidirectional_iterator<It>) {
 		if(m_byte_index == 0) {
 			--m_it;
 			m_byte_index = base_value_type_size;
@@ -72,16 +79,9 @@ public:
 		return *this;
 	}
 
-	byte_iterator operator ++ (int) {
-		auto prev = *this;
-		++*this;
-		return prev;
-	}
-
-	byte_iterator operator -- (int) {
-		auto prev = *this;
-		--*this;
-		return prev;
+	byte_iterator operator -- (int)
+	requires(std::bidirectional_iterator<It>) {
+		return base_type::operator -- (int());
 	}
 
 	byte_iterator& operator += (difference_type n) {
@@ -99,21 +99,7 @@ public:
 		return *this;
 	}
 
-	byte_iterator& operator -= (difference_type n) {
-		return *this += (-n);
-	}
-
-	byte_iterator operator + (difference_type n) const {
-		auto copy = *this;
-		copy += n;
-		return copy;
-	}
-
-	byte_iterator operator - (difference_type n) const {
-		return *this + (-n);
-	}
-
-	difference_type operator - (byte_iterator that) const {
+	difference_type operator - (const byte_iterator& that) const {
 		return
 			(m_it - that.m_it)
 			* base_value_type_size
@@ -127,24 +113,18 @@ public:
 	}
 
 	std::strong_ordering
-	operator <=> (const byte_iterator& that) const = default;
+	operator <=> (const byte_iterator& that) const {
+		if(auto res = std::compare_three_way{}(m_it, that.m_it); res != 0) {
+			return res;
+		}
+
+		return m_byte_index <=> that.m_byte_index;
+	};
+
+	bool operator == (const byte_iterator& that) const {
+		return *this <=> that == 0;
+	}
 };
-
-template<std::endian E, class It>
-inline auto operator - (
-	typename byte_iterator<It, E>::difference_type n,
-	byte_iterator<It, E> it
-) {
-	return it - (-n);
-}
-
-template<std::endian E, class It>
-inline auto operator + (
-	typename byte_iterator<It, E>::difference_type n,
-	byte_iterator<It, E> it
-) {
-	return it + n;
-}
 
 template<std::endian Endian, class It>
 inline auto make_byte_iterator(It it) {
