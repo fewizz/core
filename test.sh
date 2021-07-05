@@ -3,8 +3,9 @@ test() {
 
 	mkdir --parents $(dirname build/$1)
 
-	if ! clang++ \
+	if ! $CXX \
 		--config ./compile_flags.txt \
+		-g \
 		-o build/$1 \
 		test/$1.cpp
 	then
@@ -31,5 +32,5 @@ test encoding/ascii
 test encoding/utf8
 test encoding/utf16
 test byte_range
-test character_iterator
+test encoded_string_iterator
 test string_view

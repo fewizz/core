@@ -8,9 +8,12 @@ namespace u {
 template<std::endian E = std::endian::native>
 constexpr std::byte read_byte(auto from, unsigned index)
 requires( std::integral<decltype(from)> ) {
-	auto byte_shift = E == std::endian::big ?
-		sizeof(from) - index - 1
-		: index;
+	auto byte_shift =
+		E == std::endian::big ?
+			sizeof(from) - index - 1
+			:
+			index;
+
 	auto bit_shift = byte_shift * 8;
 
 	return std::byte {

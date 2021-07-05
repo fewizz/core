@@ -1,16 +1,15 @@
 #pragma once
 
-#include <bits/c++config.h>
-#include <bits/stdint-uintn.h>
+#include <cstddef>
 #include <cstdint>
 #include <iterator>
 #include <type_traits>
 #include <utility>
 #include <cinttypes>
 #include <stdexcept>
+#include <tl/expected.hpp>
 #include "codepoint.hpp"
 #include "unicode.hpp"
-#include <tl/expected.hpp>
 #include "byte_iterator.hpp"
 #include "iterator.hpp"
 
@@ -19,26 +18,28 @@ namespace u {
 struct utf8 {
 
 using character_set_type = unicode;
-static constexpr int code_unit_bits = 8;
-
-inline static constexpr std::optional<uint8_t>
-possible_size(std::byte byte) {
-	if(u::equalsl<0>(byte)) return { 1 };
-	if(u::equalsl<1, 1, 0>(byte)) return { 2 };
-	if(u::equalsl<1, 1, 1, 0>(byte)) return { 3 };
-	if(u::equalsl<1, 1, 1, 1, 0>(byte)) return { 4 };
-	return {};
-}
 
 struct decoder_type {
+	using size_type = std::size_t;
+	
+	template<class It> requires(
+		u::iterator_of_bytes<std::remove_reference_t<It>>
+	)
+	size_type size(It it) {
+		if(u::equalsl<0>(*it)) return 1;
+		if(u::equalsl<1, 1, 0>(*it)) return 2;
+		if(u::equalsl<1, 1, 1, 0>(*it)) return 3;
+		if(u::equalsl<1, 1, 1, 1, 0>(*it)) return 4;
+		return -1;
+	}
 
 	template<class It> requires(
 		u::iterator_of_bytes<std::remove_reference_t<It>>
 	)
-	u::codepoint<u::unicode> convert(It&& it) {
+	u::codepoint<u::unicode> operator () (It&& it) {
 		std::byte first_byte{ *it };
 
-		auto size = possible_size(first_byte).value();
+		auto size = size(first_byte).value();
 
 		uint32_t result = std::to_integer<uint32_t>(first_byte);
 

@@ -70,19 +70,6 @@ private:
 
 public:
 
-	//using value_type = //using typename base_type::value_type;
-	//using typename base_type::iterator_category;
-
-	/*using typename base_type::difference_type;
-	static constexpr bool base_iterator_is_random_access
-		= std::derived_from<u::iter_concept_t<It>, std::random_access_iterator_tag>;
-
-	static constexpr bool codepoint_is_fixed_size
-		= u::fixed_size_range_to_one_converter<typename C::decoder_type>;
-
-	static constexpr bool allow_random_access
-		= base_iterator_is_random_access && codepoint_is_fixed_size;*/
-
 	encoded_string_iterator() = default;
 	encoded_string_iterator(encoded_string_iterator&& other) = default;
 	encoded_string_iterator& operator = (encoded_string_iterator&& other) = default;
@@ -108,12 +95,6 @@ public:
 		m_it += typename C::decoder_type{}.size(m_it);
 		return *this;
 	}
-
-	/*auto& operator ++ ()
-	requires codepoint_is_fixed_size {
-		m_it += typename C::decoder_type::size;
-		return *this;
-	}*/
 
 	using base_type::operator ++ ;
 
@@ -142,42 +123,5 @@ public:
 		return m_it - that;
 	}
 };
-
-template<u::codec C, class It>
-encoded_string_iterator<C, It> operator + (
-	std::iter_difference_t<encoded_string_iterator<C, It>> n,
-	const encoded_string_iterator<C, It>& it
-) {
-	return it + n;
-}
-
-/*template<enc::encoding E, class It>
-character_iterator<E, It>
-operator + (
-	typename character_iterator<E, It>::difference_type n,
-	character_iterator<E, It> it
-) {
-	return it + n;
-}
-
-template<enc::encoding E, class It>
-character_iterator<E, It> make_character_iterator(It b, It e) {
-	return { b, b, e };
-}
-
-template<enc::encoding E, class It>
-character_iterator<E, It> make_character_iterator_end(It b, It e) {
-	return { b, e, e };
-}
-
-template<enc::encoding E, class I>
-character_iterator<E, I> begin(character_iterator<E, I> ci) {
-	return ci;
-}
-
-template<enc::encoding E, class I>
-character_iterator<E, I> end(character_iterator<E, I> ci) {
-	return make_character_iterator_end<E, I>(ci.base_begin(), ci.base_end());
-}*/
 
 }

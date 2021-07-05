@@ -1,29 +1,10 @@
-#include "object.hpp"
+#include "object/object_representation.hpp"
 #include <algorithm>
 #include <cassert>
 #include <type_traits>
 #include <iostream>
 
-int main() {
-
-	{
-		std::byte minus_one_int[sizeof(int)];
-		std::ranges::fill(minus_one_int, std::byte{ 0xFF });
-
-		auto it = std::begin(minus_one_int);
-		auto prev = it;
-
-		assert( u::read_object<int>(it) == -1 );
-
-		auto dist = std::distance(prev, it);
-
-		assert( dist == sizeof(int) );
-
-		it = prev;
-		u::write_object(0xFF, it);
-		assert( u::read_object<int>(prev) == 0xFF );
-	}
-
+consteval int f() {
 	bool big = std::endian::native == std::endian::big;
 
 	auto check_front_and_back = [&](auto& c, int low) {
@@ -34,7 +15,7 @@ int main() {
 	int num = 0x42;
 
 	// create by reference
-	u::obj_representation_reference rep{ num };
+	u::object_representation_reference rep{ num };
 	assert(rep.size() == sizeof(int));
 	// object copy creation from representation
 	assert( rep.create() == 0x42 );
@@ -43,7 +24,7 @@ int main() {
 	num = 0xFF; // changes object representation
 	check_front_and_back(rep, 0xFF);
 
-	auto rep_copy = u::obj_representation_copy{ num };
+	auto rep_copy = u::object_representation_copy{ num };
 	check_front_and_back(rep_copy, 0xFF);
 	num = 0x01; // should not change copied object representation
 	check_front_and_back(rep_copy, 0xFF);
@@ -51,7 +32,7 @@ int main() {
 	assert( rep_copy.create() == 0xFF );
 
 	// convert to array
-	auto int_bytes = u::obj_representation_copy<int>{ 0x44 };
+	auto int_bytes = u::object_representation_copy<int>{ 0x44 };
 	int_bytes[big ? sizeof(int) - 1 : 0] = std::byte{ 0x11 };
 
 	// create from iterator
@@ -59,4 +40,10 @@ int main() {
 		int_bytes.create()
 		== 0x11
 	);
+
+	return 0;
+}
+
+int main() {
+	return f();
 }

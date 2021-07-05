@@ -7,22 +7,22 @@
 #include <memory>
 #include <type_traits>
 
-namespace u {
+namespace u { namespace i {
 
-template<class T>
-struct difference_type {
-	using type = T;
-};
+template<typename T>
+struct difference_type { using type = T; };
 
-template<class T>
-struct value_type {
-	using type = T;
-};
+template<typename T>
+struct value_type { using type = T; };
 
-template<class T>
-struct reference_type {
-	using type = T;
-};
+template<typename T>
+struct reference_type { using type = T; };
+
+template<typename T>
+concept has_type_alias = requires { T::type; };
+
+template<typename T>
+concept is_difference_type = std::same_as<T, difference_type<typename T::type>>;
 
 template<typename D>
 struct post_incr_from_pre_incr {
@@ -34,28 +34,27 @@ struct post_incr_from_pre_incr {
 	}
 };
 
-template<typename It, class VT, class DT = difference_type<std::ptrdiff_t>>
+template<typename It, typename VT, typename DT = difference_type<std::ptrdiff_t>>
 struct input_or_output_iterator : post_incr_from_pre_incr<It> {
-	static_assert(std::is_same_v<VT, u::value_type<typename VT::type>>);
-	static_assert(std::is_same_v<DT, u::difference_type<typename DT::type>>);
+	static_assert(std::is_same_v<VT, i::value_type<typename VT::type>>);
+	static_assert(std::is_same_v<DT, i::difference_type<typename DT::type>>);
 
 	using value_type = typename VT::type;
 	using reference = value_type&;
 	using difference_type = typename DT::type;
 };
 
-template<typename It, class VT, class DT = difference_type<std::ptrdiff_t>>
+template<typename It, typename VT, typename DT = difference_type<std::ptrdiff_t>>
 struct input_iterator : input_or_output_iterator<It, VT, DT> {
 	using iterator_category = std::input_iterator_tag;
-	//auto operator <=> (const input_iterator&) const = default;
 };
 
-template<typename It, class VT, class DT = difference_type<std::ptrdiff_t>>
+template<typename It, typename VT, typename DT = difference_type<std::ptrdiff_t>>
 struct output_iterator : input_or_output_iterator<It, VT, DT> {
 	using iterator_category = std::output_iterator_tag;
 };
 
-template<typename It, class VT, class DT = difference_type<std::ptrdiff_t>>
+template<typename It, typename VT, typename DT = difference_type<std::ptrdiff_t>>
 struct forward_iterator : input_or_output_iterator<It, VT, DT> {
 	using iterator_category = std::forward_iterator_tag;
 };
@@ -70,14 +69,14 @@ struct post_decr_from_pre_decr {
 	}
 };
 
-template<typename It, class VT, class DT = difference_type<std::ptrdiff_t>>
+template<typename It, typename VT, typename DT = difference_type<std::ptrdiff_t>>
 struct bidirectional_iterator
 :
 	post_incr_from_pre_incr<It>,
 	post_decr_from_pre_decr<It>
 {
-	static_assert(std::is_same_v<VT, u::value_type<typename VT::type>>);
-	static_assert(std::is_same_v<DT, u::difference_type<typename DT::type>>);
+	static_assert(std::is_same_v<VT, i::value_type<typename VT::type>>);
+	static_assert(std::is_same_v<DT, i::difference_type<typename DT::type>>);
 
 	using iterator_category = std::bidirectional_iterator_tag;
 	using value_type = typename VT::type;
@@ -159,8 +158,8 @@ struct random_access_iterator
 	sub_from_sub_assign<It>,
 	subscipt_from_add_and_dereference<It, RT>
 {
-	static_assert(std::is_same_v<VT, u::value_type<typename VT::type>>);
-	static_assert(std::is_same_v<DT, u::difference_type<typename DT::type>>);
+	static_assert(std::is_same_v<VT, i::value_type<typename VT::type>>);
+	static_assert(std::is_same_v<DT, i::difference_type<typename DT::type>>);
 
 	using derived_type = It;
 	using iterator_category = std::random_access_iterator_tag;
@@ -168,19 +167,19 @@ struct random_access_iterator
 	using difference_type = typename DT::type;
 };
 
-template<typename It, class VT, class DT>
+template<typename It, typename VT, typename DT, typename RT>
 It operator +
-(std::iter_difference_t<It> n, const random_access_iterator<It, VT, DT>& it) {
+(std::iter_difference_t<It> n, const random_access_iterator<It, VT, DT, RT>& it) {
 	return static_cast<const It&>(it) + n;
 }
 
-template<typename It, class VT, class DT>
+template<typename It, typename VT, typename DT, typename RT>
 It operator -
-(const random_access_iterator<It, VT, DT>& it, std::iter_difference_t<It> n) {
+(const random_access_iterator<It, VT, DT, RT>& it, std::iter_difference_t<It> n) {
 	return static_cast<const It&>(it).operator - (n);
 }
 
-template<typename D, class RT>
+template<typename D, typename RT>
 struct member_pointer_from_dereference {
 	std::remove_reference_t<typename RT::type>* operator -> () {
 		return std::to_address(static_cast<D&>(*this));
@@ -206,23 +205,23 @@ struct contiguous_iterator
 	subscipt_from_add_and_dereference<It, RT>,
 	member_pointer_from_dereference<It, RT>
 {
-	static_assert(std::is_same_v<VT, u::value_type<typename VT::type>>);
-	static_assert(std::is_same_v<DT, u::difference_type<typename DT::type>>);
+	static_assert(std::is_same_v<VT, i::value_type<typename VT::type>>);
+	static_assert(std::is_same_v<DT, i::difference_type<typename DT::type>>);
 
 	using iterator_category = std::contiguous_iterator_tag;
 	using element_type = typename VT::type;
 	using difference_type = typename DT::type;
 };
 
-template<typename It, class VT, class DT>
+template<typename It, typename VT, typename DT, typename RT>
 It operator +
-(std::iter_difference_t<It> n, const contiguous_iterator<It, VT, DT>& it) {
+(std::iter_difference_t<It> n, const contiguous_iterator<It, VT, DT, RT>& it) {
 	return static_cast<const It&>(it) + n;
 }
 
-template<typename It, class VT, class DT>
+template<typename It, typename VT, typename DT, typename RT>
 It operator -
-(const contiguous_iterator<It, VT, DT>& it, std::iter_difference_t<It> n) {
+(const contiguous_iterator<It, VT, DT, RT>& it, std::iter_difference_t<It> n) {
 	return it.operator - (n);
 }
 
@@ -237,23 +236,23 @@ struct iterator;
 
 template<typename It, typename VT, typename DT>
 struct iterator<std::input_iterator_tag, It, VT, DT>
-	: u::input_iterator<It, VT, DT>{};
+	: i::input_iterator<It, VT, DT> {};
 
 template<typename It, typename VT, typename DT>
 struct iterator<std::forward_iterator_tag, It, VT, DT>
-	: u::forward_iterator<It, VT, DT>{};
+	: i::forward_iterator<It, VT, DT> {};
 
 template<typename It, typename VT, typename DT>
 struct iterator<std::bidirectional_iterator_tag, It, VT, DT>
-	: u::bidirectional_iterator<It, VT, DT>{};
+	: i::bidirectional_iterator<It, VT, DT> {};
 
 template<typename It, typename VT, typename DT, typename RT>
 struct iterator<std::random_access_iterator_tag, It, VT, DT, RT>
-	: u::random_access_iterator<It, VT, DT, RT>{};
+	: i::random_access_iterator<It, VT, DT, RT> {};
 
 template<typename It, typename VT, typename DT, typename RT>
 struct iterator<std::contiguous_iterator_tag, It, VT, DT, RT>
-	: u::contiguous_iterator<It, VT, DT, RT> {};
+	: i::contiguous_iterator<It, VT, DT, RT> {};
 
 
-}
+}}

@@ -42,8 +42,6 @@ struct c_iterator
 	bool operator == (const c_iterator&) const;
 };
 
-c_iterator operator + (std::ptrdiff_t n, c_iterator it);
-
 static_assert(std::random_access_iterator<c_iterator>);
 static_assert(std::contiguous_iterator<c_iterator>);
 

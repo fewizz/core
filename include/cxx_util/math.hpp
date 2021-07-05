@@ -13,12 +13,12 @@ namespace u {
 		constexpr div_t(T q, T r) : quot{q}, rem{r} {}
 	};
 
-	template<std::integral Int>
+	template<std::signed_integral Int>
 	constexpr div_t<Int> div(Int a, Int b) {
 		return { a / b, a % b };
 	}
 
-	template<std::integral Int>
+	template<std::signed_integral Int>
 	constexpr auto div_floor(Int a, Int b) {
 		auto div_res = u::div(a, b);
 

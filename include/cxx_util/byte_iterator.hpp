@@ -5,6 +5,7 @@
 #include <iterator>
 #include <memory>
 #include "byte.hpp"
+#include "iterator.hpp"
 #include "mem_address.hpp"
 #include "object.hpp"
 #include "math.hpp"
@@ -14,18 +15,18 @@ namespace u {
 
 template<class It, std::endian E = std::endian::native>
 class byte_iterator
-: public u::iterator<
-	typename std::__detail::__iter_concept<It>,
+: public u::i::iterator<
+	u::iter_concept_t<It>,
 	byte_iterator<It>,
-	u::value_type<std::byte>
+	u::i::value_type<std::byte>
 > {
 	It m_it;
 	std::size_t m_byte_index = 0;
 
-	using base_type = u::iterator<
-		typename std::__detail::__iter_concept<It>,
+	using base_type = u::i::iterator<
+		u::iter_concept_t<It>,
 		byte_iterator<It>,
-		u::value_type<std::byte>
+		u::i::value_type<std::byte>
 	>;
 
 public:
@@ -34,8 +35,7 @@ public:
 	static constexpr std::size_t
 		base_value_type_size = sizeof(base_value_type);
 
-	using base_iterator_category =
-		typename std::__detail::__iter_concept<It>;
+	using base_iterator_category = u::iter_concept_t<It>;
 
 	using typename base_type::difference_type;
 
@@ -84,13 +84,13 @@ public:
 		return base_type::operator -- (int());
 	}
 
-	byte_iterator& operator += (difference_type n) {
-		static_assert(std::random_access_iterator<It>);
-		auto full = n + m_byte_index;
+	byte_iterator& operator += (difference_type n)
+	requires(std::random_access_iterator<It>) {
+		difference_type full = n + m_byte_index;
 
 		auto df = u::div_floor(
 			full,
-			base_value_type_size
+			(difference_type)base_value_type_size
 		);
 
 		m_it += df.quot;
@@ -107,8 +107,8 @@ public:
 		;
 	}
 
-	auto& operator [] (difference_type n) const {
-		static_assert(std::random_access_iterator<It>);
+	auto& operator [] (difference_type n) const 
+	requires(std::random_access_iterator<It>) {
 		return *(*this + n);
 	}
 

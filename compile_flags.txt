@@ -2,5 +2,5 @@
 -Iinclude/cxx_util
 -Wall
 -pedantic
--fsanitize=undefined
--fsanitize=address
+#-fsanitize=undefined
+#-fsanitize=address

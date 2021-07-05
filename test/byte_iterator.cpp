@@ -1,5 +1,6 @@
 #include "byte_iterator.hpp"
 #include "iterator.hpp"
+#include <bits/iterator_concepts.h>
 #include <cassert>
 #include <iterator>
 #include <type_traits>
@@ -55,11 +56,11 @@ static_assert(not std::contiguous_iterator<BIfl>);
 int main() {
 	int arr[]{ 0x1, 0x2, 0x3, 0x4 };
 
-	auto it
-		= u::make_byte_iterator<std::endian::little>(arr);
+	auto it = u::make_byte_iterator<std::endian::little>(arr);
 
 	auto copy = it;
 	assert((++copy).byte_index() == 1);
+
 	assert((it + 4) - 4 == it);
 
 	assert(

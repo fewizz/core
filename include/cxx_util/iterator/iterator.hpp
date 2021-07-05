@@ -29,51 +29,22 @@ namespace internal {
 	struct iterator_concept<It> {
 		using type = typename std::iterator_traits<It>::iterator_concept;
 	};
-	/*template<class It>
-	struct iterator_has_iterator_concept : std::false_type {};
-
-	template<has_iterator_concept It>
-	struct iterator_has_iterator_concept<It> : std::true_type {};
-
-	template<class It>
-	struct iterator_traits_has_iterator_concept : std::false_type {};
-	
-	template<class It>
-	requires requires {
-		typename std::iterator_traits<It>::concept_type;
-	}
-	struct iterator_traits_has_iterator_concept<It> : std::true_type {};
-
-	template<
-		class It,
-		bool = iterator_has_iterator_concept<It>::value,
-		bool = iterator_traits_has_iterator_concept<It>::value
-	>
-	struct iterator_concept {
-		using type = typename std::iterator_traits<It>::iterator_category;
-	};
-
-	template<class It, bool b>
-	struct iterator_concept<It, true, b> {
-		using type = typename It::iterator_category;
-	};
-
-	template<class It>
-	struct iterator_concept<It, false, true> {
-		using type = typename std::iterator_traits<It>::iterator_concept;
-	};*/
 }
 
 template<class It>
 using iter_concept_t = typename internal::iterator_concept<It>::type;
 
+namespace c {
 
 template<class It>
-concept iterator_of_bytes
-	= std::input_or_output_iterator<It>
-	&& std::same_as<std::byte, std::iter_value_t<It>>;
+concept iterator_of_bytes =
+	std::same_as<
+		std::iter_value_t<std::remove_cvref_t<It>>,
+		std::byte
+	>;
+}
 
-enum class advance_direction : int {
+enum class advance_direction : signed char {
 	forward = 1, backward = -1
 };
 
