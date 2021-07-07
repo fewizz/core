@@ -4,7 +4,7 @@
 #include <type_traits>
 #include <iostream>
 
-consteval int f() {
+int main() { // TODO check in compile-stime
 	bool big = std::endian::native == std::endian::big;
 
 	auto check_front_and_back = [&](auto& c, int low) {
@@ -42,8 +42,4 @@ consteval int f() {
 	);
 
 	return 0;
-}
-
-int main() {
-	return f();
 }
