@@ -1,15 +1,15 @@
 #pragma once
 
-#include "concepts.hpp"
 #include <bit>
-#include <iterator>
+
+#include "concepts.hpp"
 #include "iterator/iterator.hpp"
-#include <array>
+#include "iterator/referencing_iterator.hpp"
 
 namespace u {
 
-template<u::c::trivial T, std::endian E = std::endian::native>
-constexpr T object_from_bytes(u::c::iterator_of_bytes auto it) {
+template<u::trivial T, std::endian E = std::endian::native>
+constexpr T object_from_bytes(u::atom_input_iterator auto it)  {
 	alignas(T) std::byte bytes[sizeof(T)];
 
 	auto out = [&]() {
@@ -19,13 +19,14 @@ constexpr T object_from_bytes(u::c::iterator_of_bytes auto it) {
 			return bytes;
 	} ();
 
-	std::copy_n(it, sizeof(T), out);
+	std::copy_n(u::referencing_iterator{ it }, sizeof(T), out);
+	++it;
 
 	return *((T*) bytes);//std::bit_cast<T>(bytes); // TODO
 }
 
-template<u::c::object T, std::endian E = std::endian::native>
-constexpr void object_to_bytes(const T& object, u::c::iterator_of_bytes auto it) {
+template<u::object T, std::endian E = std::endian::native>
+constexpr void object_to_bytes(const T& object, u::atom_output_iterator auto it) {
 	auto bytes = (std::byte*) &object; // TODO std::bit_cast
 
 	auto in = [&]() {

@@ -6,37 +6,19 @@
 #include <memory>
 #include <stdexcept>
 #include "iterator.hpp"
-#include "interface/iterator.hpp"
 
 namespace u {
 
 template<class It>
-struct checking_iterator
-: u::iterator<
-	typename std::__detail::__iter_concept<It>,
-	checking_iterator<It>,
-	u::value_type<std::iter_value_t<It>>,
-	u::difference_type<std::iter_difference_t<It>>
->
-{
-	using base_type = u::iterator<
-		typename std::__detail::__iter_concept<It>,
-		checking_iterator<It>,
-		u::value_type<std::iter_value_t<It>>,
-		u::difference_type<std::iter_difference_t<It>>
-	>;
-	
+struct checking_iterator {
 	using this_type = checking_iterator<It>;
-
-	using base_type::operator -;
 
 	using base_iterator_type = It;
 	using pointer = typename std::iterator_traits<It>::pointer;
-	using typename base_type::difference_type;
+	using difference_type = std::iter_difference_t<It>;
 	using reference = std::iter_reference_t<It>;
 
 private:
-
 	It m_begin;
 	It m_current;
 	It m_end;

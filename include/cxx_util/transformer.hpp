@@ -1,6 +1,5 @@
 #pragma once
 
-#include <bits/c++config.h>
 #include <string>
 #include <filesystem>
 #include <type_traits>
@@ -10,7 +9,7 @@
 
 namespace u {
 
-template<class C>
+template<typename C>
 concept transformer = requires(C& c) {
 	typename C::input_type;
 	typename C::output_type;
@@ -19,7 +18,7 @@ concept transformer = requires(C& c) {
 		-> std::same_as<typename C::output_type>;
 };
 
-template<class T>
+template<typename T>
 struct bytes_to_object_transformer {
 	using input_type = std::byte;
 	using output_type = T;

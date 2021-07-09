@@ -1,13 +1,14 @@
 #pragma once
 
-#include "concepts.hpp"
 #include <array>
 #include <span>
+
+#include "concepts.hpp"
 #include "operations.hpp"
 
 namespace u {
 
-template<u::c::object T>
+template<u::object T>
 struct object_representation_copy : std::array<std::byte, sizeof(T)> {
 	using base_type = std::array<std::byte, sizeof(T)>;
 
@@ -20,7 +21,7 @@ struct object_representation_copy : std::array<std::byte, sizeof(T)> {
 	}
 };
 
-template<u::c::object T>
+template<u::object T>
 struct object_representation_reference : std::span<std::byte, sizeof(T)> {
 	using base_type = std::span<std::byte, sizeof(T)>;
 
