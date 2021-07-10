@@ -4,6 +4,11 @@
 #include <type_traits>
 #include <iostream>
 
+static_assert(std::ranges::range<u::object_representation_reference<int>>);
+static_assert(std::ranges::sized_range<u::object_representation_reference<int>>);
+static_assert(std::ranges::random_access_range<u::object_representation_reference<int>>);
+static_assert(std::ranges::viewable_range<u::object_representation_reference<int>>);
+
 int main() { // TODO check in compile-stime
 	bool big = std::endian::native == std::endian::big;
 

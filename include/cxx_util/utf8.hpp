@@ -11,7 +11,7 @@
 #include "codepoint.hpp"
 #include "unicode.hpp"
 #include "byte_iterator.hpp"
-#include "iterator.hpp"
+#include "object/concepts.hpp"
 
 namespace u {
 
@@ -22,10 +22,7 @@ using character_set_type = unicode;
 struct decoder_type {
 	using size_type = std::size_t;
 	
-	template<class It> requires(
-		u::iterator_of_bytes<std::remove_reference_t<It>>
-	)
-	size_type size(It it) {
+	size_type size(u::atom_input_iterator auto it) {
 		if(u::equalsl<0>(*it)) return 1;
 		if(u::equalsl<1, 1, 0>(*it)) return 2;
 		if(u::equalsl<1, 1, 1, 0>(*it)) return 3;

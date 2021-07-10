@@ -5,7 +5,7 @@
 
 namespace u {
 
-	template<class T>
+	template<typename T>
 	struct div_t {
 		T quot;
 		T rem;

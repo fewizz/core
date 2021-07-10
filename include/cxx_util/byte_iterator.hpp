@@ -34,7 +34,14 @@ public:
 			std::byte
 		>;
 	
-	using iterator_concept = u::iter_concept<It>;
+	// can't be contiguous when iterating in reverse order
+	using iterator_concept = std::conditional_t<
+			std::is_same_v<u::iter_concept<It>, std::contiguous_iterator_tag>
+			&& E != std::endian::native,
+			std::random_access_iterator_tag,
+			u::iter_concept<It>
+		>;
+	
 	using iterator_category =
 		typename std::iterator_traits<It>::iterator_category;
 

@@ -21,6 +21,11 @@ template<typename T>
 concept atom = is_atom<T>;
 
 template<typename T>
+concept atom_input_or_output =
+	std::input_or_output_iterator<T>
+	&& is_atom<std::iter_value_t<T>>;
+
+template<typename T>
 concept atom_input_iterator =
 	std::input_iterator<T>
 	&& is_atom<std::iter_value_t<T>>;
