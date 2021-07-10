@@ -1,5 +1,5 @@
 #include "byte_iterator.hpp"
-#include "iterator.hpp"
+#include "iterator/iterator.hpp"
 #include <bits/iterator_concepts.h>
 #include <cassert>
 #include <iterator>
@@ -8,12 +8,11 @@
 
 using BIint = u::byte_iterator<int*>;
 
-static_assert(u::iterator_of_bytes<u::byte_iterator<BIint>>);
 static_assert(std::contiguous_iterator<int*>);
 
 static_assert(
 	std::is_same_v<
-		BIint::iterator_category,
+		BIint::iterator_concept,
 		std::contiguous_iterator_tag
 	>
 );
@@ -29,8 +28,6 @@ static_assert(std::contiguous_iterator<BIint>);
 
 using BIlist = u::byte_iterator<std::list<int>::iterator>;
 
-static_assert(u::iterator_of_bytes<BIlist>);
-
 static_assert(std::input_iterator<BIlist>);
 static_assert(std::output_iterator<BIlist, std::byte>);
 static_assert(std::forward_iterator<BIlist>);
@@ -41,8 +38,6 @@ static_assert(not std::contiguous_iterator<BIlist>);
 #include <forward_list>
 
 using BIfl = u::byte_iterator<std::forward_list<int>::iterator>;
-
-static_assert(u::iterator_of_bytes<BIfl>);
 
 static_assert(std::input_iterator<BIfl>);
 static_assert(std::output_iterator<BIfl, std::byte>);
@@ -56,7 +51,7 @@ static_assert(not std::contiguous_iterator<BIfl>);
 int main() {
 	int arr[]{ 0x1, 0x2, 0x3, 0x4 };
 
-	auto it = u::make_byte_iterator<std::endian::little>(arr);
+	auto it = u::byte_iterator<int*, std::endian::little>{ arr };
 
 	auto copy = it;
 	assert((++copy).byte_index() == 1);
@@ -66,7 +61,7 @@ int main() {
 	assert(
 		std::distance(
 			it,
-			u::make_byte_iterator<std::endian::little>(arr + 4)
+			u::byte_iterator<int*, std::endian::little>{ arr + 4 }
 		) == sizeof(int) * 4
 	);
 
@@ -76,8 +71,8 @@ int main() {
 	assert(*(it + 3*sizeof(int)) == std::byte{ 0x4 });
 
 	std::set<int> s{ 0x1, 0x2, 0x3, 0x4 };
-
-	auto it2 = u::make_byte_iterator<std::endian::big>(s.begin());
+	using set_it = typename std::set<int>::iterator;
+	auto it2 = u::byte_iterator<set_it, std::endian::big>{ s.begin() };
 
 	std::advance(it2, 3); // because of endian::big
 	assert(*it2 == std::byte{ 0x1 });

@@ -26,7 +26,7 @@ namespace internal {
 	};
 }
 
-template<class It>
-using iter_concept_t = typename internal::iterator_concept<It>::type;
+template<typename It>
+using iter_concept = typename internal::iterator_concept<It>::type;
 
 }
