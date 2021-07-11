@@ -21,17 +21,20 @@ public:
 	byte_iterator() = default;
 	byte_iterator(It it) : m_it{ it }, m_index{ 0 } {}
 	byte_iterator(const byte_iterator&) = default;
+	byte_iterator& operator = (const byte_iterator&) = default;
+	byte_iterator(byte_iterator&&) = default;
+	byte_iterator& operator = (byte_iterator&&) = default;
 
 	using base_value_type = std::iter_value_t<It>;
 
 	using difference_type = std::iter_difference_t<It>;
-	using element_type = std::byte;
+	using element_type = std::conditional_t<std::is_const_v<base_value_type>, const std::byte, std::byte>;
 
 	using reference =
 		std::conditional_t<
 			std::is_lvalue_reference_v<std::iter_reference_t<It>>,
-			std::byte&,
-			std::byte
+			element_type&,
+			element_type
 		>;
 	
 	// can't be contiguous when iterating in reverse order
@@ -89,10 +92,7 @@ public:
 
 	byte_iterator& operator += (difference_type n) {
 		auto d = m_index + n;
-		auto divisor = sizeof(base_value_type);
-		using common = std::make_signed_t<std::common_type_t<decltype(d), decltype(divisor)>>;
-
-		auto div_res = u::div_floor((common)d, (common)sizeof(base_value_type));
+		auto div_res = u::div_floor(d, sizeof(base_value_type));
 		m_it += div_res.quot;
 		m_index = div_res.rem;
 		return *this;
@@ -125,7 +125,7 @@ public:
 		return *(byte_iterator{ *this } += n);
 	}
 
-	std::byte* operator -> () const {
+	element_type* operator -> () const {
 		return ((std::byte*)std::to_address(m_it))
 		+
 		(

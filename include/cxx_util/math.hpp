@@ -8,26 +8,24 @@ namespace u {
 	template<typename T>
 	struct div_t {
 		T quot;
-		T rem;
+		std::make_unsigned_t<T> rem;
 
-		constexpr div_t(T q, T r) : quot{q}, rem{r} {}
+		constexpr div_t(T q, std::make_unsigned_t<T> r) : quot{ q }, rem{ r } {}
 	};
 
-	template<std::signed_integral Int>
-	constexpr div_t<Int> div(Int a, Int b) {
-		return { a / b, a % b };
+	constexpr auto div(std::integral auto a, std::integral auto b) {
+		return div_t{ a / b, a % b };
 	}
 
-	template<std::signed_integral Int>
-	constexpr auto div_floor(Int a, Int b) {
-		auto div_res = u::div(a, b);
-
-		if(a < 0 && div_res.rem != 0) {
-			--div_res.quot;
-			div_res.rem += b;
+	constexpr auto div_floor(std::integral auto a, std::unsigned_integral auto b) {
+		if(a < 0) {
+			auto div_res = u::div(-a, b);
+			
+			if(div_res.rem == 0) return div_t{ - div_res.quot, 0 };
+			return div_t{ - div_res.quot - 1, b - div_res.rem };
 		}
 
-		return div_res;
+		return u::div(a, b);
 	}
 
 }

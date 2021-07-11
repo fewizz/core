@@ -46,5 +46,12 @@ int main() { // TODO check in compile-stime
 		== 0x11
 	);
 
+	const int ci = 0;
+	u::object_representation_reference ci_bytes_ref{ ci };
+	static_assert(std::is_same_v<decltype(ci_bytes_ref)::value_type, const std::byte>);
+
+	u::object_representation_reference ci_bytes_copy{ ci };
+	static_assert(std::is_same_v<decltype(ci_bytes_copy)::value_type, const std::byte>);
+
 	return 0;
 }
