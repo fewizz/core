@@ -20,7 +20,6 @@ namespace u {
 	constexpr auto div_floor(std::integral auto a, std::unsigned_integral auto b) {
 		if(a < 0) {
 			auto div_res = u::div(-a, b);
-			
 			if(div_res.rem == 0) return div_t{ - div_res.quot, 0 };
 			return div_t{ - div_res.quot - 1, b - div_res.rem };
 		}

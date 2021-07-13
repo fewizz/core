@@ -8,114 +8,137 @@
 #include <stdint.h>
 #include <cstddef>
 #include <type_traits>
-#include "interface/iterator.hpp"
-#include "iterator.hpp"
+#include <bit>
+
+#include "object/concepts.hpp"
 
 namespace u {
 
-template<class O> requires(std::is_trivial_v<O>)
+template<u::trivial T>
 class bit_reference {
-	O& m_o;
-	unsigned m_index;
+	using byte_type = std::conditional_t<std::is_const_v<T>, const uint8_t, uint8_t>;
+
+	T& m_o;
+	std::size_t m_index;
+
+	auto byte_index() const {
+		return std::endian::native != std::endian::little ?
+			(sizeof(T) - 1 - (m_index >> 3))
+			:
+			(m_index >> 3);
+	}
+
+	byte_type& byte_ref() const {
+		byte_type* bytes = (byte_type*)&m_o;
+		return bytes[byte_index()];
+	}
 
 public:
-	constexpr bit_reference(O& o, unsigned index) : m_o{ o }, m_index{ index } {}
+	constexpr bit_reference(T& o, std::size_t index) : m_o{ o }, m_index{ index } {}
+
+	auto& operator = (bool b) const {
+		set(b);
+		return *this;
+	}
+
+	operator bool () const {
+		return get();
+	}
 
 	bool get() const {
-		uint8_t* bytes = (uint8_t*)&m_o;
-
 		return (
-			bytes[m_index >> 3] >> (m_index & 0b111)
+			byte_ref() >> (m_index & 0b111)
 		) & 1;
 	}
 
-	void set(bool value) {
-		uint8_t* bytes = (uint8_t*)&m_o;
-		bytes[m_index >> 3] |= uint8_t(value) << (m_index & 0b111);
+	void set(bool value = 1) const {
+		byte_ref() |= value << (m_index & 0b111);
 	}
+
+	auto operator <=> (const bit_reference&) const = default;
 };
 
-
-template<class It>
-class bit_iterator
-: u::iterator<
-	u::iter_concept_t<It>,
-	bit_iterator<It>,
-	u::value_type<bit_reference<std::iter_value_t<It>>>
-> {
-	It m_it;
+template<u::trivial T>
+struct bits_iterator {
+	T m_o;
 	std::size_t m_bit_index = 0;
 
-public:
-	using base_value_type = std::iter_value_t<It>;
+	using difference_type = ptrdiff_t;
+	using value_type = bit_reference<T>;
+	using reference = value_type;
 
-	using value_type = bit_reference<std::iter_value_t<It>>;
-
-	static constexpr std::size_t
-		base_value_type_size = sizeof(base_value_type);
-
-	value_type operator * () const {
-		return bit_reference{ *m_it, m_bit_index };
+	reference operator * () const {
+		return { m_o, m_bit_index };
 	}
 
-	value_type operator ++ () {
-		++m_byte_index;
-		if(m_byte_index == base_value_type_size) {
-			++m_it;
-			m_byte_index = 0;
-		}
+	auto& operator ++ () {
+		++m_bit_index;
 		return *this;
 	}
-	using base_type::operator ++ ;
 
-};
+	auto& operator -- () {
+		--m_bit_index;
+		return *this;
+	}
 
+	auto operator ++ (int) {
+		bits_iterator copy{*this};
+		++(*this);
+		return copy;
+	}
 
-template<uint8_t HeadBit, uint8_t... Bits>
-constexpr void check_bits() {
-	static_assert(HeadBit <= 1, "bit can't be greater than 1");
-	if constexpr(sizeof...(Bits) > 0) check_bits<Bits...>();
-}
+	auto operator -- (int) {
+		bits_iterator copy{*this};
+		--(*this);
+		return copy;
+	}
 
-template<class Int>
-constexpr bool equals(Int mask, uint8_t bits, Int val, uint8_t position) {
-	Int mask0 = ~(Int(-1) << bits);
-	mask0 <<= position;
-	return (val & mask0) == (mask << position);
-}
-
-template<uint8_t... Bits>
-constexpr bool equals(auto value, uint8_t position) {
-	check_bits<Bits...>();
-	using Int = decltype(value);
-
-	Int mask { 0 };
-	for(uint8_t bit : { Bits... }) {
-		mask <<= 1;
-		mask |= Int{ bit };
+	auto& operator += (std::size_t n) {
+		m_bit_index += n; return *this;
 	}
 	
-	return equals(mask, sizeof...(Bits), value, position);
-}
+	auto& operator += (difference_type n) {
+		return (*this) += std::size_t(n < 0 ? -n : n);
+	}
 
-template<class Int>
-constexpr bool equals_right(Int mask, uint8_t bits, Int value) {
-	return equals(mask, bits, value, 0);
-}
+	auto& operator -= (difference_type n) { return (*this) += -n; }
 
-template<class Int>
-constexpr bool equals_left(Int mask, uint8_t bits, Int value) {
-	return equals(mask, bits, value, sizeof(Int)*8 - bits);
-}
+	auto operator + (difference_type n) const { return bits_iterator{*this} += n; }
+	auto operator - (difference_type n) const { return bits_iterator{*this} -= n; }
 
-template<uint8_t... Bits>
-constexpr bool equals_right(auto value) {
-	return equals<Bits...>(value, 0);
-}
+	friend auto operator + (difference_type n, bits_iterator it) { return it + n; }
 
-template<uint8_t... Bits>
-constexpr bool equals_left(auto value) {
-	return equals<Bits...>(value, sizeof(decltype(value))*8 - sizeof...(Bits));
-}
+	auto operator - (const bits_iterator& other) const {
+		return difference_type(m_bit_index - other.m_bit_index);
+	}
+
+	reference operator [] (difference_type n) const {
+		return *(bits_iterator{ *this } += n);
+	}
+
+	auto operator <=> (const bits_iterator&) const = default;
+};
+
+template<u::trivial T>
+class bits_reference {
+	T& m_o;
+
+public:
+	using value_type = bit_reference<T>;
+
+	bits_reference(T& o) : m_o{ o } {}
+
+	bits_iterator<T> begin() { return { m_o, 0 }; }
+	bits_iterator<const T> begin() const { return { m_o, 0 }; }
+
+	bits_iterator<T> end() { return { m_o, sizeof(T) * 8 }; }
+	bits_iterator<const T> end() const { return { m_o, sizeof(T) * 8 }; }
+
+	bit_reference<T> operator [] (std::size_t n) { return { m_o, n }; }
+	bit_reference<const T> operator [] (std::size_t n) const { return { m_o, n }; }
+
+	constexpr auto size() const { return sizeof(T) * 8; }
+};
+
 
 }

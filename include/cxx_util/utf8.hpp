@@ -17,7 +17,7 @@ namespace u {
 
 struct utf8 {
 
-using character_set_type = unicode;
+using character_set = unicode;
 
 struct decoder_type {
 	using size_type = std::size_t;
