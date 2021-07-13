@@ -24,13 +24,8 @@ if [ ! -z $1 ]; then
 	exit
 fi
 
-test mem_address
-test obj_representation
+test iterator/referencing_iterator
+test object/operations
+test object/object_representation
+test bit
 test byte_iterator
-test byte_range
-test encoding/ascii
-test encoding/utf8
-test encoding/utf16
-test byte_range
-test encoded_string_iterator
-test string_view
