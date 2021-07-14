@@ -10,17 +10,17 @@ int main() {
 	auto it = std::begin(minus_one_int);
 	auto prev = it;
 
-	assert( u::object_from_bytes<int>(u::referencing_iterator{ it }) == -1 );
+	assert( u::obj::read<int>(u::referencing_iterator{ it }) == -1 );
 
 	auto dist = std::distance(prev, it);
 
 	assert( dist == sizeof(int) );
 
 	it = prev;
-	u::object_to_bytes(0xFF, u::referencing_iterator{ it });
+	u::obj::write(0xFF, u::referencing_iterator{ it });
 	dist = std::distance(prev, it);
 	assert( dist == sizeof(int) );
-	assert( u::object_from_bytes<int>(prev) == 0xFF );
+	assert( u::obj::read<int>(prev) == 0xFF );
 
 	return 0;
 }

@@ -26,6 +26,6 @@ fi
 
 test iterator/referencing_iterator
 test object/operations
-test object/object_representation
-test bit
+test object/bits
+test object/bytes
 test byte_iterator

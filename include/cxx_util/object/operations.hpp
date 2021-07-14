@@ -6,10 +6,10 @@
 #include "iterator/iterator.hpp"
 #include "iterator/referencing_iterator.hpp"
 
-namespace u {
+namespace u { namespace obj {
 
 template<u::trivial T, std::endian E = std::endian::native>
-constexpr T object_from_bytes(u::atom_input_iterator auto it)  {
+constexpr T read(u::atom_input_iterator auto it)  {
 	alignas(T) std::byte bytes[sizeof(T)];
 
 	auto out = [&]() {
@@ -26,7 +26,7 @@ constexpr T object_from_bytes(u::atom_input_iterator auto it)  {
 }
 
 template<u::object T, std::endian E = std::endian::native>
-constexpr void object_to_bytes(const T& object, u::atom_output_iterator auto it) {
+constexpr void write(const T& object, u::atom_output_iterator auto it) {
 	auto bytes = (std::byte*) &object; // TODO std::bit_cast
 
 	auto in = [&]() {
@@ -39,4 +39,4 @@ constexpr void object_to_bytes(const T& object, u::atom_output_iterator auto it)
 	std::copy_n(in, sizeof(T), it);
 }
 
-}
+}}

@@ -1,80 +1,55 @@
 #pragma once
 
 #include <bit>
-#include <bits/c++config.h>
-#include <iterator>
-#include <stdexcept>
-#include <utility>
-#include <codecvt>
-#include <tl/expected.hpp>
-#include "object.hpp"
+
 #include "unicode.hpp"
-#include "byte_iterator.hpp"
-#include "iterator.hpp"
 #include "codepoint.hpp"
+#include "object/concepts.hpp"
+#include "object/operations.hpp"
 
 namespace u {
 
 template<std::endian Endian = std::endian::native>
-struct utf16_base;
+struct utf16;
 
-using utf16be = utf16_base<std::endian::big>;
-using utf16le = utf16_base<std::endian::little>;
-using utf16 = utf16_base<std::endian::native>;
+using utf16be = utf16<std::endian::big>;
+using utf16le = utf16<std::endian::little>;
 
-template<std::endian Endian>
+template<std::endian E>
 struct utf16_base {
 
-using character_set_type = unicode;
+using character_set = unicode;
 
-struct decoder_type {
-	using size_type = std::size_t;
-
-	template<class It> requires(
-		u::iterator_of_bytes<std::remove_reference_t<It>>
-	)
-	size_type size(It&& it) {
-		auto first = u::read_object<uint16_t, Endian>(it);//u::read<uint16_t, Endian>(begin, end);
-		//if(!first_possible)
-		//	return tl::unexpected {
-		//		request_error::unexpected_src_end
-		//	};
-	
-		//auto first = first_possible.value();
+struct decoder {
+	std::size_t possible_size(u::atom_input_iterator auto it) {
+		auto first = u::obj::read<uint16_t, E>(it);
 	
 		if(((first >= 0x0) && (first <= 0xD800)) || ((first >= 0xE000) && (first <= 0xFFFF)))
 			return 1;
 		
-		auto second = u::read_object<uint16_t, Endian>(it);
-		//if(!second) return tl::unexpected{ request_error::unexpected_src_end };
+		return 2;
+		/*auto second = u::obj::read<uint16_t, E>(it);
 	
-		uint16_t hs = first, ls = second;//.value();
+		uint16_t hs = first, ls = second;
 	
 		if(hs >= 0xD800 && hs <= 0xDBFF && ls >= 0xDC00 && ls <= 0xDFFF)
 			return 2;
 		
-		//return tl::unexpected{ request_error::invalid_input };
+		return 0;*/
 	}
 
-	template<class It> requires(
-		u::iterator_of_bytes<std::remove_reference_t<It>>
-	)
-	u::codepoint<character_set_type> size(It&& it) {
-		auto size_read = size(it);
-		if(!size_read) return tl::unexpected{ size_read.error() };
+	u::codepoint<character_set> size(u::atom_input_iterator auto it) {
+		auto s = possible_size(it);
 
-		//codepoint_read_result<unicode> res;
-		//res.width = size_read.value();
+		auto hs = u::obj::read<uint32_t, E>(it);
+		//if(!hs) return tl::unexpected{ request_error::unexpected_src_end };
 
-		auto hs = u::read<uint64_t, Endian, 2>(begin, end);
-		if(!hs) return tl::unexpected{ request_error::unexpected_src_end };
-
-		if(size_read.value() == 1) {
-			res.codepoint = hs.value();
-			return res;
+		if(s == 1) {
+			//res.codepoint = hs.value();
+			return { hs };//res;
 		};
 
-		auto ls = u::read<uint64_t, Endian, 2>(begin, end);
+		auto ls = u::obj::read<uint32_t, E>(*it);
 		if(!ls) return tl::unexpected{ request_error::unexpected_src_end };
 
 		res.codepoint = (((hs.value() & 0x3FF) << 10) | (ls.value() & 0x3FF)) + 0x10000;

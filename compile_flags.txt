@@ -1,4 +1,4 @@
--std=c++2b
+-std=c++20
 -Iinclude/cxx_util
 -Wall
 -pedantic

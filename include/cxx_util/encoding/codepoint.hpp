@@ -29,10 +29,9 @@ public:
 	constexpr bool
 	operator == (const codepoint& cp) const = default;
 
-	constexpr std::strong_ordering
-	operator <=> (std::signed_integral auto cp) const {
-		if(cp < 0) return std::strong_ordering::greater;
-		return m_value <=> uintmax_t(cp);
+	constexpr auto
+	operator <=> (auto cp) const {
+		return m_value <=> cp;
 	};
 
 	constexpr bool

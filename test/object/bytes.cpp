@@ -1,15 +1,19 @@
-#include "object/object_representation.hpp"
+#include "object/bytes.hpp"
 #include <algorithm>
 #include <cassert>
 #include <type_traits>
 #include <iostream>
 
-static_assert(std::ranges::range<u::object_representation_reference<int>>);
-static_assert(std::ranges::sized_range<u::object_representation_reference<int>>);
-static_assert(std::ranges::random_access_range<u::object_representation_reference<int>>);
-static_assert(std::ranges::viewable_range<u::object_representation_reference<int>>);
+static_assert(std::ranges::range<u::obj::bytes<int>>);
+static_assert(std::ranges::sized_range<u::obj::bytes<int>>);
+static_assert(std::ranges::random_access_range<u::obj::bytes<int>>);
 
-int main() { // TODO check in compile-stime
+static_assert(std::ranges::range<u::obj::bytes_view<int>>);
+static_assert(std::ranges::sized_range<u::obj::bytes_view<int>>);
+static_assert(std::ranges::random_access_range<u::obj::bytes_view<int>>);
+static_assert(std::ranges::viewable_range<u::obj::bytes_view<int>>);
+
+int main() { // TODO check in compile-time
 	bool big = std::endian::native == std::endian::big;
 
 	auto check_front_and_back = [&](auto& c, int low) {
@@ -20,7 +24,7 @@ int main() { // TODO check in compile-stime
 	int num = 0x42;
 
 	// create by reference
-	u::object_representation_reference rep{ num };
+	u::obj::bytes_view rep{ num };
 	assert(rep.size() == sizeof(int));
 	// object copy creation from representation
 	assert( rep.create() == 0x42 );
@@ -29,7 +33,7 @@ int main() { // TODO check in compile-stime
 	num = 0xFF; // changes object representation
 	check_front_and_back(rep, 0xFF);
 
-	auto rep_copy = u::object_representation_copy{ num };
+	auto rep_copy = u::obj::bytes{ num };
 	check_front_and_back(rep_copy, 0xFF);
 	num = 0x01; // should not change copied object representation
 	check_front_and_back(rep_copy, 0xFF);
@@ -37,7 +41,7 @@ int main() { // TODO check in compile-stime
 	assert( rep_copy.create() == 0xFF );
 
 	// convert to array
-	auto int_bytes = u::object_representation_copy<int>{ 0x44 };
+	auto int_bytes = u::obj::bytes<int>{ 0x44 };
 	int_bytes[big ? sizeof(int) - 1 : 0] = std::byte{ 0x11 };
 
 	// create from iterator
@@ -47,10 +51,10 @@ int main() { // TODO check in compile-stime
 	);
 
 	const int ci = 0;
-	u::object_representation_reference ci_bytes_ref{ ci };
+	u::obj::bytes_view ci_bytes_ref{ ci };
 	static_assert(std::is_same_v<decltype(ci_bytes_ref)::value_type, const std::byte>);
 
-	u::object_representation_reference ci_bytes_copy{ ci };
+	u::obj::bytes_view ci_bytes_copy{ ci };
 	static_assert(std::is_same_v<decltype(ci_bytes_copy)::value_type, const std::byte>);
 
 	return 0;

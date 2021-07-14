@@ -8,34 +8,34 @@
 #include "concepts.hpp"
 #include "operations.hpp"
 
-namespace u {
+namespace u { namespace obj {
 
 template<u::trivial T, std::endian E = std::endian::native>
-struct object_representation_copy
+struct bytes
 : std::array<std::conditional_t<std::is_const_v<T>, const std::byte, std::byte>, sizeof(T)> {
 	using base_type
 		= std::array<std::conditional_t<std::is_const_v<T>, const std::byte, std::byte>, sizeof(T)>;
 
-	object_representation_copy(const T& obj) {
-		u::object_to_bytes<T, E>(obj, base_type::begin());
+	bytes(const T& obj) {
+		u::obj::write<T, E>(obj, base_type::begin());
 	}
 
 	T create() const {
-		return u::object_from_bytes<T, E>(base_type::begin());
+		return u::obj::read<T, E>(base_type::begin());
 	}
 };
 
 // TODO inherit from view_interface when libc++'s ranges done or clang fixed
 template<u::trivial T, std::endian E = std::endian::native>
-struct object_representation_reference : std::ranges::view_base {
+struct bytes_view : std::ranges::view_base {
 	using value_type = std::conditional_t<std::is_const_v<T>, const std::byte, std::byte>;
 
 	value_type* m_ptr;
 
-	object_representation_reference(T& obj)
+	bytes_view(T& obj)
 		: m_ptr{ (value_type*)&obj } {}
 
-	object_representation_reference(object_representation_reference&&) = default;
+	bytes_view(bytes_view&&) = default;
 
 	template<bool Const>
 	using iterator = std::conditional_t<
@@ -69,11 +69,11 @@ public:
 	auto size() const { return sizeof(T); }
 
 	T create() const {
-		return u::object_from_bytes<T>(begin());
+		return u::obj::read<T>(begin());
 	}
 };
 
-}
+}}
 
 template <u::trivial T, std::endian E>
-inline constexpr bool std::ranges::enable_borrowed_range<u::object_representation_reference<T, E>> = true;
+inline constexpr bool std::ranges::enable_borrowed_range<u::obj::bytes_view<T, E>> = true;
