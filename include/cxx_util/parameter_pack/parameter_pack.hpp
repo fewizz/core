@@ -4,8 +4,8 @@
 #include <limits>
 #include <pthread.h>
 #include <type_traits>
-#include "parameter_pack/at.hpp"
-#include "parameter_pack/index_of.hpp"
+#include "at.hpp"
+#include "index_of.hpp"
 
 namespace u {
 
@@ -48,6 +48,9 @@ struct parameter_pack<> {
 	template<std::size_t Index>
 	requires(Index == 0)
 	using until = parameter_pack<>;
+
+	template<typename T>
+	static constexpr std::size_t count = 0;
 };
 
 namespace internal {
@@ -95,6 +98,21 @@ namespace internal {
 			typename until<Index - 1, Ts...>::type
 		>::type;
 	};
+
+	// count
+	template<typename T, std::size_t Result, typename... Ts>
+	struct count; 
+
+	template<typename T, std::size_t Result>
+	struct count<T, Result> : std::integral_constant<std::size_t, Result> {};
+
+	template<typename T, std::size_t Result, typename T0, typename... Ts>
+	struct count<T, Result, T0, Ts...>
+		: std::integral_constant<
+			std::size_t,
+			count<T, std::is_same_v<T, T0> ? Result + 1 : Result, Ts...>::value
+		>
+	{};
 }
 
 template<typename... Ts>
@@ -129,6 +147,11 @@ struct parameter_pack {
 
 	template<std::size_t Index>
 	using until = typename internal::until<Index, Ts...>::type;
+
+	template<typename T>
+	static constexpr std::size_t count = internal::count<T, 0, Ts...>::value;
+
+	using pop_back = until<size - 1>;
 };
 
 }

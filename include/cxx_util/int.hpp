@@ -2,6 +2,7 @@
 
 #include <cinttypes>
 #include <type_traits>
+#include <concepts>
 
 namespace u {
 
@@ -22,5 +23,18 @@ using int_with_size = typename internal::int_with_size<Size>::type;
 
 template<unsigned size>
 using uint_with_size = std::make_unsigned_t<int_with_size<size>>;
+
+template<typename T>
+struct integral_like {
+	T value;
+
+	operator const T& () const {
+		return *this;
+	}
+
+	operator T& () {
+		return *this;
+	}
+};
 
 }

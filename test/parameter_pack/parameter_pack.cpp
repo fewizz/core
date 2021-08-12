@@ -41,4 +41,9 @@ int main() {
 	static_assert(is_same_v<IFB::until<1>, u::parameter_pack<int>>);
 	static_assert(is_same_v<IFB::until<2>, u::parameter_pack<int, float>>);
 	static_assert(is_same_v<IFB::until<3>, u::parameter_pack<int, float, bool>>);
+
+	static_assert(u::parameter_pack<int,int,float,bool,int>::template count<int> == 3);
+	static_assert(u::parameter_pack<>::template count<int> == 0);
+
+	static_assert(is_same_v<IFB::pop_back, u::parameter_pack<int, float>>);
 }

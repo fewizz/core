@@ -19,9 +19,9 @@ struct decoder {
 		if(u::ends_with(b, 0)) return 1;
 		if(u::ends_with(b, 0, 1, 1)) return 2;
 		if(u::ends_with(b, 0, 1, 1, 1)) return 3;
-		//if(u::ends_with(b, 0, 1, 1, 1, 1)) return 4;
+		if(u::ends_with(b, 0, 1, 1, 1, 1)) return 4;
 
-		return 4;
+		return 0;
 	}
 
 	void skip(u::atom_input_iterator auto& it) {
