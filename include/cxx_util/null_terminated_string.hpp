@@ -5,6 +5,18 @@
 
 namespace u {
 
+template<bool PrecomputedLength>
+struct null_terminated_string_view : std::string_view {
+	
+	
+	null_terminated_string_view(const null_terminated_string_view&) = default;
+	null_terminated_string_view(null_terminated_string_view&&) = default;
+
+	null_terminated_string_view(const char* str)
+		: std::string_view{ str }
+	{}
+};
+
 template<typename T>
 concept null_terminated_string =
 	std::is_same_v<std::decay_t<T>, const char*>

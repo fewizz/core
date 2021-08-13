@@ -12,4 +12,9 @@ module util {
 	module int {
 		header "int.hpp"
 	}
+
+	module null_terminated_string_view {
+		header "null_terminated_string_view.hpp"
+		export *
+	}
 }

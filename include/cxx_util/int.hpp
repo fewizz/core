@@ -29,11 +29,11 @@ struct integral_like {
 	T value;
 
 	operator const T& () const {
-		return *this;
+		return value;
 	}
 
 	operator T& () {
-		return *this;
+		return value;
 	}
 };
 
