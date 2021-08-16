@@ -11,7 +11,7 @@ constexpr std::size_t not_found = std::numeric_limits<std::size_t>::max();
 namespace internal {
 
 	template<typename T>
-	constexpr std::size_t index_of(std::size_t index = 0) {
+	constexpr std::size_t index_of() {
 		return not_found;
 	}
 

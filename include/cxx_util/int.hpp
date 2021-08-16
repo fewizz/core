@@ -28,11 +28,11 @@ template<typename T>
 struct integral_like {
 	T value;
 
-	operator const T& () const {
-		return value;
-	}
+	constexpr integral_like(T value)
+		: value{value}
+	{}
 
-	operator T& () {
+	constexpr operator const T& () const {
 		return value;
 	}
 };
