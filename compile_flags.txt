@@ -1,6 +1,5 @@
 -std=c++20
+-stdlib=libc++
 -Iinclude/cxx_util
 -Wall
 -pedantic
-#-fsanitize=undefined
-#-fsanitize=address

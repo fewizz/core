@@ -25,7 +25,7 @@ namespace internal {
 
 	template<typename... Ts>
 	requires(sizeof...(Ts) >= 2)
-	decltype(auto) for_each(auto&& a, Ts...values) {
+	decltype(auto) for_each(auto&& a, Ts&&...values) {
 		decltype(auto) f = for_each(std::forward<Ts>(values)...);
 		f(a);
 		return std::forward<decltype(f)>(f);

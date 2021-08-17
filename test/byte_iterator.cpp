@@ -1,6 +1,5 @@
 #include "byte_iterator.hpp"
 #include "iterator/iterator.hpp"
-#include <bits/iterator_concepts.h>
 #include <cassert>
 #include <iterator>
 #include <type_traits>

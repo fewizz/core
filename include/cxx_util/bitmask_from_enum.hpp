@@ -26,6 +26,7 @@ struct bitmask_from_enum {
 
 	bitmask_from_enum& set(E v) {
 		value |= (value_type)v;
+		return *this;
 	}
 
 	bool get(E v) const {
