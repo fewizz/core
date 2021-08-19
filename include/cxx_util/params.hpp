@@ -3,37 +3,10 @@
 #include <tuple>
 #include <optional>
 #include "tuple/for_each.hpp"
+#include "tuple/get.hpp"
+#include "parameter_pack/indices_of.hpp"
 
 namespace u {
-
-template<typename... Ps>
-struct params : std::tuple<std::optional<Ps>...> {
-	using std::tuple<std::optional<Ps>...>::tuple;
-
-	template<typename T, std::size_t... Indices>
-	constexpr auto get() {
-		if constexpr(sizeof...(Indices) != 0) {
-			std::tuple result{ std::get<Indices>(*this)... };
-			(std::get<Indices>(*this).reset() , ...);
-			return result;
-		}
-		else {
-			if constexpr(std::is_same_v<T, )
-			return get<T, Indices..., sizeof...(Indices)>();
-		}
-	}
-
-	constexpr std::size_t size() {
-		std::size_t result = 0;
-
-		u::for_each(
-			*this,
-			[&]<typename T>(std::optional<T>& o) { if(o.has_value()) ++result; }
-		);
-
-		return result;
-	}
-}; // params
 
 template<typename T>
 struct one {
@@ -82,16 +55,17 @@ concept params_requirement = requires{
 template<typename T>
 concept non_params_requirement = !params_requirement<T>;
 
-template<params_requirement... Infos>
-struct wrapper {
+template<params_requirement... Reqs>
+struct for_params_requirements {
+
 	template<non_params_requirement... Ps>
-	static constexpr bool check() {
+	static constexpr bool check_usage() {
 		int used = 0;
 
 		u::for_each(
-			Infos{}...,
+			Reqs{}...,
 			[&](auto v) {
-				used += u::do_one_of{ typename Infos::template checker<Ps...>{} ... } (v);
+				used += u::do_one_of{ typename Reqs::template checker<Ps...>{} ... } (v);
 			}
 		);
 
@@ -99,12 +73,5 @@ struct wrapper {
 		return true;
 	}
 };
-
-template<params_requirement... Infos>
-auto make_params(auto... ps) {
-	static_assert(wrapper<Infos...>::template check<decltype(ps)...>());
-	return params<decltype(ps)...>{ ps... };
-}
-
 
 } // u

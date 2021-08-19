@@ -14,6 +14,8 @@ struct do_one_of : Ts... {
 template<typename... Ts>
 do_one_of(Ts...) -> do_one_of<Ts...>;
 
+constexpr inline auto do_nothing = [](const auto&){};
+
 namespace internal {
 
 	template<typename Arg, typename F>
