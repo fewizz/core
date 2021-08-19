@@ -6,12 +6,12 @@
 
 namespace u {
 
-constexpr std::size_t not_found = std::numeric_limits<std::size_t>::max();
+constexpr inline std::size_t not_found = std::numeric_limits<std::size_t>::max();
 
 namespace internal {
 
 	template<typename T>
-	constexpr std::size_t index_of() {
+	constexpr std::size_t index_of(std::size_t) {
 		return not_found;
 	}
 
@@ -23,6 +23,6 @@ namespace internal {
 }
 
 template<typename T, typename... Ts>
-constexpr std::size_t index_of = internal::index_of<T, Ts...>();
+constexpr inline std::size_t index_of = internal::index_of<T, Ts...>();
 
 }

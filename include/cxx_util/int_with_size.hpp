@@ -21,20 +21,13 @@ template<> struct int_with_size<8> { using type = int64_t; };
 template<unsigned Size>
 using int_with_size = typename internal::int_with_size<Size>::type;
 
+template<typename T>
+using int_with_size_of = int_with_size<sizeof(T)>;
+
 template<unsigned size>
 using uint_with_size = std::make_unsigned_t<int_with_size<size>>;
 
 template<typename T>
-struct integral_like {
-	T value;
+using uint_with_size_of = uint_with_size<sizeof(T)>;
 
-	constexpr integral_like(T value)
-		: value{value}
-	{}
-
-	constexpr operator const T& () const {
-		return value;
-	}
-};
-
-}
+} // u

@@ -1,14 +1,13 @@
 #pragma once
 
 #include <utility>
-#include "parameter_pack.hpp"
+#include <tuple>
+#include "../parameter_pack/parameter_pack.hpp"
 
 namespace u {
 
-//struct do_one_of_mark {};
-
 template<typename... Ts>
-struct do_one_of : Ts... {//}, do_one_of_mark {
+struct do_one_of : Ts... {
 	using Ts::operator()...;
 };
 
@@ -35,6 +34,18 @@ namespace internal {
 template<typename... Args>
 void for_each(Args&&... args) {
 	internal::for_each(std::forward<Args>(args)...);
+}
+
+namespace internal {
+	template<typename... Args, typename F, std::size_t... Indices>
+	void for_each(std::tuple<Args...> t, F&& f, std::index_sequence<Indices...>) {
+		u::for_each(std::forward<Args>(get<Indices>(t)) ... , std::forward<F>(f));
+	}
+} // internal
+
+template<typename... Args, typename F>
+void for_each(std::tuple<Args...> t, F&& f) {
+	internal::for_each(std::forward<decltype(t)>(t), std::forward<F>(f), std::make_index_sequence<sizeof...(Args)>());
 }
 
 }

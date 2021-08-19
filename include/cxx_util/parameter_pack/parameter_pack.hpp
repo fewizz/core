@@ -6,6 +6,7 @@
 #include <type_traits>
 #include "at.hpp"
 #include "index_of.hpp"
+#include "count.hpp"
 
 namespace u {
 
@@ -98,21 +99,6 @@ namespace internal {
 			typename until<Index - 1, Ts...>::type
 		>::type;
 	};
-
-	// count
-	template<typename T, std::size_t Result, typename... Ts>
-	struct count; 
-
-	template<typename T, std::size_t Result>
-	struct count<T, Result> : std::integral_constant<std::size_t, Result> {};
-
-	template<typename T, std::size_t Result, typename T0, typename... Ts>
-	struct count<T, Result, T0, Ts...>
-		: std::integral_constant<
-			std::size_t,
-			count<T, std::is_same_v<T, T0> ? Result + 1 : Result, Ts...>::value
-		>
-	{};
 }
 
 template<typename... Ts>
@@ -149,7 +135,7 @@ struct parameter_pack {
 	using until = typename internal::until<Index, Ts...>::type;
 
 	template<typename T>
-	static constexpr std::size_t count = internal::count<T, 0, Ts...>::value;
+	static constexpr std::size_t count = u::count<T, Ts...>;
 
 	using pop_back = until<size - 1>;
 };

@@ -1,14 +1,14 @@
 #pragma once
 
 #include <type_traits>
-#include "int.hpp"
+#include "int_with_size.hpp"
 
 namespace u {
 
 template<typename E>
 requires(std::is_enum_v<E>)
 struct bitmask_from_enum {
-	using value_type = u::int_with_size<sizeof(E)>;
+	using value_type = u::int_with_size_of<E>;
 	value_type value;
 
 	bitmask_from_enum() = default;
