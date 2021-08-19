@@ -37,6 +37,6 @@ struct index_of_wrapper<T, T0, Ts...> {
 } // internal
 
 template<typename T, typename... Ts>
-using indexes_of = decltype(internal::template index_of_wrapper<T, Ts...>::create());
+using indices_of = decltype(internal::template index_of_wrapper<T, Ts...>::create());
 
 } // u

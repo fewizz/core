@@ -31,6 +31,6 @@ test object/bytes
 test tuple/for_each
 test parameter_pack/count
 test parameter_pack/index_of
-test parameter_pack/indexes_pack
+test parameter_pack/indices_pack
 test parameter_pack/parameter_pack
 test byte_iterator
