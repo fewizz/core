@@ -10,16 +10,16 @@ template<typename... Ps>
 struct params : std::tuple<std::optional<Ps>...> {
 	using std::tuple<std::optional<Ps>...>::tuple;
 
-	template<typename T, std::size_t... Indexes>
+	template<typename T, std::size_t... Indices>
 	constexpr auto get() {
-		if constexpr(sizeof...(Indexes) != 0) {
-			std::tuple result{ std::get<Indexes>(*this)... };
-			(std::get<Indexes>(*this).reset() , ...);
+		if constexpr(sizeof...(Indices) != 0) {
+			std::tuple result{ std::get<Indices>(*this)... };
+			(std::get<Indices>(*this).reset() , ...);
 			return result;
 		}
 		else {
 			if constexpr(std::is_same_v<T, )
-			return get<T, Indexes..., sizeof...(Indexes)>();
+			return get<T, Indices..., sizeof...(Indices)>();
 		}
 	}
 
