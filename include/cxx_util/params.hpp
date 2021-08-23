@@ -5,14 +5,18 @@
 #include "tuple/for_each.hpp"
 #include "tuple/get.hpp"
 #include "parameter_pack/indices_of.hpp"
+#include "parameter_pack/indices_of_invocable_with.hpp"
+#include "named.hpp"
 
 namespace u {
 
 template<typename T>
-struct one {
+struct required : u::named<T> {
+	struct param_requirement_mark{};
+
 	template<typename... Ts>
 	struct checker {
-		constexpr int operator () (one<T> v) {
+		constexpr int operator () (required<T> v) {
 			static_assert(count<T, Ts...>() == 1);
 			return 1;
 		}
@@ -21,7 +25,7 @@ struct one {
 
 template<typename T>
 struct multiple {
-	struct params_requirement_mark{};
+	struct param_requirement_mark{};
 
 	template<typename... Ts>
 	struct checker {
@@ -35,7 +39,7 @@ struct multiple {
 
 template<typename T>
 struct optional {
-	struct params_requirement_mark{};
+	struct param_requirement_mark{};
 
 	template<typename... Ts>
 	struct checker {
@@ -48,17 +52,17 @@ struct optional {
 };
 
 template<typename T>
-concept params_requirement = requires{
-	typename T::params_requirement_mark;
+concept param_requirement = requires{
+	typename T::param_requirement_mark;
 };
 
 template<typename T>
-concept non_params_requirement = !params_requirement<T>;
+concept non_param_requirement = !param_requirement<T>;
 
-template<params_requirement... Reqs>
-struct for_params_requirements {
+template<param_requirement... Reqs>
+struct for_param_requirements {
 
-	template<non_params_requirement... Ps>
+	template<non_param_requirement... Ps>
 	static constexpr bool check_usage() {
 		int used = 0;
 
@@ -73,5 +77,17 @@ struct for_params_requirements {
 		return true;
 	}
 };
+
+template<typename T, typename... Fs>
+bool check_param() {
+	constexpr auto idx = u::indices_of_invocable_with<T, Fs...>{};
+	static_assert(idx.size() <= 1);
+	return idx.size();
+}
+
+template<typename... Ps>
+auto parse(std::tuple<Ps&&...> params, auto&&... fs) {
+
+}
 
 } // u

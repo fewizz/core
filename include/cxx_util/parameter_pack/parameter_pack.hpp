@@ -4,8 +4,12 @@
 #include <limits>
 #include <pthread.h>
 #include <type_traits>
+#include <utility>
 #include "at.hpp"
 #include "index_of.hpp"
+#include "indices_of.hpp"
+#include "is.hpp"
+#include "are.hpp"
 #include "count.hpp"
 
 namespace u {
@@ -52,6 +56,12 @@ struct parameter_pack<> {
 
 	template<typename T>
 	static constexpr std::size_t count = 0;
+
+	template<typename T>
+	using indices_of_same_as = std::index_sequence<>;
+
+	template<typename... Args>
+	using indices_of_invocable_with = std::index_sequence<>;
 };
 
 namespace internal {
@@ -138,6 +148,12 @@ struct parameter_pack {
 	static constexpr std::size_t count = u::count<T, Ts...>;
 
 	using pop_back = until<size - 1>;
+
+	template<typename T>
+	using indices_of_same_as = indices_of<is<T>::template same_as, Ts...>;
+
+	template<typename... Args>
+	using indices_of_invocable_with = indices_of<are<Args...>::template args_for_invocable, Ts...>;
 };
 
 }

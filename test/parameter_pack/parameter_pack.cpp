@@ -1,5 +1,6 @@
 #include "parameter_pack/parameter_pack.hpp"
 #include <type_traits>
+#include <string>
 
 int main() {
 	using namespace std;
@@ -46,4 +47,21 @@ int main() {
 	static_assert(u::parameter_pack<>::template count<int> == 0);
 
 	static_assert(is_same_v<IFB::pop_back, u::parameter_pack<int, float>>);
+
+	auto i = [](int){};
+	auto f = [](std::string){};
+	auto d = [](std::tuple<int, int>){};
+	auto i2 = [](int){};
+
+	static_assert(
+		std::is_same_v<
+			u::parameter_pack<
+				decltype(i),
+				decltype(f),
+				decltype(d),
+				decltype(i2)
+			>::indices_of_invocable_with<int>,
+			std::index_sequence<0, 3>
+		>
+	);
 }
