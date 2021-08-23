@@ -1,6 +1,7 @@
 #include "parameter_pack/parameter_pack.hpp"
 #include <type_traits>
 #include <string>
+#include <utility>
 
 int main() {
 	using namespace std;
@@ -12,10 +13,6 @@ int main() {
 	static_assert(is_same_v<IFB::at<0>, int>);
 	static_assert(is_same_v<IFB::at<1>, float>);
 	static_assert(is_same_v<IFB::at<2>, bool>);
-
-	static_assert(IFB::index_of<int> == 0);
-	static_assert(IFB::index_of<float> == 1);
-	static_assert(IFB::index_of<bool> == 2);
 
 	static_assert(is_same_v<IFB::front, int>);
 	static_assert(is_same_v<IFB::back, bool>);
@@ -53,15 +50,41 @@ int main() {
 	auto d = [](std::tuple<int, int>){};
 	auto i2 = [](int){};
 
+	using Lambdas
+		= u::parameter_pack<
+			decltype(i),
+			decltype(f),
+			decltype(d),
+			decltype(i2)
+		>; 
+
 	static_assert(
 		std::is_same_v<
-			u::parameter_pack<
-				decltype(i),
-				decltype(f),
-				decltype(d),
-				decltype(i2)
-			>::indices_of_invocable_with<int>,
+			Lambdas::indices_of_invocable_with<int>,
 			std::index_sequence<0, 3>
+		>
+	);
+
+	static_assert(
+		std::is_same_v<
+			Lambdas::indices_of_not_invocable_with<int>,
+			std::index_sequence<1, 2>
+		>
+	);
+
+	using IFDI = u::parameter_pack<int, float, double, int>;
+
+	static_assert(
+		std::is_same_v<
+			IFDI::indices_of_same_as<int>,
+			std::index_sequence<0, 3>
+		>
+	);
+
+	static_assert(
+		std::is_same_v<
+			IFDI::indices_of_not_same_as<int>,
+			std::index_sequence<1, 2>
 		>
 	);
 }

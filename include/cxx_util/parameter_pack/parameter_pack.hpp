@@ -6,11 +6,11 @@
 #include <type_traits>
 #include <utility>
 #include "at.hpp"
-#include "index_of.hpp"
 #include "indices_of.hpp"
 #include "is.hpp"
 #include "are.hpp"
 #include "count.hpp"
+#include "../predicate.hpp"
 
 namespace u {
 
@@ -29,9 +29,6 @@ template<>
 struct parameter_pack<> {
 	static constexpr std::size_t size = 0;
 	static constexpr bool empty = true;
-
-	template<class T>
-	static constexpr std::size_t index_of = u::not_found;
 
 	template<class T>
 	static constexpr bool contains = false;
@@ -60,8 +57,14 @@ struct parameter_pack<> {
 	template<typename T>
 	using indices_of_same_as = std::index_sequence<>;
 
+	template<typename T>
+	using indices_of_not_same_as = std::index_sequence<>;
+
 	template<typename... Args>
 	using indices_of_invocable_with = std::index_sequence<>;
+
+	template<typename... Args>
+	using indices_of_not_invocable_with = std::index_sequence<>;
 };
 
 namespace internal {
@@ -122,12 +125,6 @@ struct parameter_pack {
 	using front = at<0>;
 	using back = at<size - 1>;
 
-	template<typename T>
-	static constexpr std::size_t index_of = u::index_of<T, Ts...>;
-
-	template<typename T>
-	static constexpr bool contains = index_of<T> != not_found;
-
 	template<typename... Ts0>
 	using append_back = parameter_pack<Ts..., Ts0...>;
 
@@ -152,8 +149,23 @@ struct parameter_pack {
 	template<typename T>
 	using indices_of_same_as = indices_of<is<T>::template same_as, Ts...>;
 
+	template<typename T>
+	using indices_of_not_same_as
+		= indices_of<
+			u::predicate<is<T>::template same_as>::template negate, Ts...
+		>;
+
 	template<typename... Args>
 	using indices_of_invocable_with = indices_of<are<Args...>::template args_for_invocable, Ts...>;
+
+	template<typename... Args>
+	using indices_of_not_invocable_with
+		= indices_of<
+			u::predicate<are<Args...>::template args_for_invocable>::template negate, Ts...
+		>;
+
+	template<typename T>
+	static constexpr bool contains = indices_of_same_as<T>::size() != 0;
 };
 
 }
