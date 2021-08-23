@@ -4,90 +4,73 @@
 #include <optional>
 #include "tuple/for_each.hpp"
 #include "tuple/get.hpp"
-#include "parameter_pack/indices_of.hpp"
-#include "parameter_pack/indices_of_invocable_with.hpp"
+#include "parameter_pack/parameter_pack.hpp"
 #include "named.hpp"
 
 namespace u {
 
 template<typename T>
-struct required : u::named<T> {
+struct required_single : u::named<T> {
+	using value_type = T;
 	struct param_requirement_mark{};
 
 	template<typename... Ts>
-	struct checker {
-		constexpr int operator () (required<T> v) {
-			static_assert(count<T, Ts...>() == 1);
-			return 1;
-		}
+	constexpr static void check() {
+		static_assert(u::count<T, Ts...> == 1);
 	};
 };
 
 template<typename T>
-struct multiple {
+struct required {
+	using value_type = T;
 	struct param_requirement_mark{};
 
 	template<typename... Ts>
-	struct checker {
-		constexpr int operator () (multiple<T> v) {
-			constexpr int c = count<T, Ts...>();
-			static_assert(c >= 1);
-			return c;
-		}
+	constexpr static void check() {
+		static_assert(u::count<T, Ts...> >= 1);
 	};
 };
 
 template<typename T>
 struct optional {
+	using value_type = T;
 	struct param_requirement_mark{};
 
 	template<typename... Ts>
-	struct checker {
-		constexpr int operator () (optional<T> v) {
-			constexpr int c = count<T, Ts...>();
-			static_assert(c <= 1);
-			return c;
-		}
+	constexpr static void check() {
+		static_assert(u::count<T, Ts...> <= 1);
 	};
 };
 
-template<typename T>
-concept param_requirement = requires{
-	typename T::param_requirement_mark;
-};
+template<typename... Ts>
+struct params : std::tuple<Ts...> {
 
-template<typename T>
-concept non_param_requirement = !param_requirement<T>;
+	using std::tuple<Ts...>::tuple;
+	params(const std::tuple<Ts...>& v) : std::tuple<Ts...>{ v } {}
 
-template<param_requirement... Reqs>
-struct for_param_requirements {
+	template<typename Req, typename F>
+	auto handle(F&& f) const {
+		Req::template check<Ts...>();
 
-	template<non_param_requirement... Ps>
-	static constexpr bool check_usage() {
-		int used = 0;
+		using T = typename Req::value_type;
+		using PP = u::parameter_pack<Ts...>;
+		using indices_of_same = typename PP::template indices_of_same_as<T>;
+		using indices_of_not_same = typename PP::template indices_of_not_same_as<T>;
 
 		u::for_each(
-			Reqs{}...,
-			[&](auto v) {
-				used += u::do_one_of{ typename Reqs::template checker<Ps...>{} ... } (v);
-			}
+			*((std::tuple<Ts...>*)this),
+			indices_of_same{},
+			std::forward<F>(f)
 		);
 
-		if(used != sizeof...(Ps)) return false;
-		return true;
+		return u::params{ u::get(*((std::tuple<Ts...>*)this), indices_of_not_same{}) };
 	}
 };
 
-template<typename T, typename... Fs>
-bool check_param() {
-	constexpr auto idx = u::indices_of_invocable_with<T, Fs...>{};
-	static_assert(idx.size() <= 1);
-	return idx.size();
-}
+template<typename... Ts>
+params(Ts...) -> params<Ts...>;
 
-template<typename... Ps>
-auto parse(std::tuple<Ps&&...> params, auto&&... fs) {
-
-}
+template<typename... Ts>
+params(std::tuple<Ts...>) -> params<Ts...>;
 
 } // u

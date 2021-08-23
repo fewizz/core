@@ -18,6 +18,11 @@ constexpr inline auto do_nothing = [](const auto&){};
 
 namespace internal {
 
+	template<typename F>
+	decltype(auto) for_each(F&& f) {
+		return std::forward<F>(f);
+	}
+
 	template<typename Arg, typename F>
 	decltype(auto) for_each(Arg&& a, F&& f) {
 		f(std::forward<Arg>(a));
@@ -38,16 +43,21 @@ void for_each(Args&&... args) {
 	internal::for_each(std::forward<Args>(args)...);
 }
 
-namespace internal {
-	template<typename... Args, typename F, std::size_t... Indices>
-	void for_each(std::tuple<Args...> t, F&& f, std::index_sequence<Indices...>) {
-		u::for_each(std::forward<Args>(get<Indices>(t)) ... , std::forward<F>(f));
-	}
-} // internal
+template<typename... Args, std::size_t... Indices, typename F>
+void for_each(std::tuple<Args...> t, std::index_sequence<Indices...>, F&& f) {
+	u::for_each(
+		get<Indices>(t) ... ,
+		std::forward<F>(f)
+	);
+}
 
 template<typename... Args, typename F>
 void for_each(std::tuple<Args...> t, F&& f) {
-	internal::for_each(std::forward<decltype(t)>(t), std::forward<F>(f), std::make_index_sequence<sizeof...(Args)>());
+	u::for_each(
+		std::forward<decltype(t)>(t),
+		std::make_index_sequence<sizeof...(Args)>(),
+		std::forward<F>(f)
+	);
 }
 
 }

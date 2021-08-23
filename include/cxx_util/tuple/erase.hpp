@@ -26,7 +26,11 @@ public:
 		return std::tuple_size_v<Erd>;
 	}
 
-	constexpr auto first() const {
+	constexpr bool has_value() const {
+		return size() > 0;
+	}
+
+	constexpr auto value() const {
 		return std::get<0>(erased());
 	}
 };
