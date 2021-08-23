@@ -65,6 +65,21 @@ struct params : std::tuple<Ts...> {
 
 		return u::params{ u::get(*((std::tuple<Ts...>*)this), indices_of_not_same{}) };
 	}
+
+	auto& check_for_emptiness() const {
+		static_assert(sizeof...(Ts) == 0);
+		return *this;
+	}
+
+	template<typename T>
+	std::size_t count() const {
+		return u::count<T, Ts...>;
+	}
+
+	template<typename T>
+	bool has() const {
+		return (this->template count<T>) > 0;
+	}
 };
 
 template<typename... Ts>
