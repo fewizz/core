@@ -32,6 +32,8 @@ template<>
 struct null_terminated_string_view<size_is::undefined> {
 	const char* m_ptr;
 
+	null_terminated_string_view() = default;
+
 	template<typename T> requires(std::is_same_v<std::remove_cv_t<T>, const char*>)
 	constexpr null_terminated_string_view(const T& p_ptr) : m_ptr{ p_ptr } {};
 

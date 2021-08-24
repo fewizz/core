@@ -8,7 +8,9 @@ namespace u {
 
 template<typename... Ts, std::size_t... Indices>
 constexpr auto get(std::tuple<Ts...> t, std::index_sequence<Indices...>) {
-	return std::tuple( std::move(std::get<Indices>(t))... );
+	return std::tuple<std::tuple_element_t<Indices, decltype(t)>...>{
+		std::get<Indices>(std::move(t))...
+	};
 }
 
 template<typename T, typename... Ts>
