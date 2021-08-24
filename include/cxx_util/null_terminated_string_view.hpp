@@ -40,7 +40,7 @@ struct null_terminated_string_view<size_is::undefined> {
 	constexpr const char* begin() const { return m_ptr; }
 	constexpr null_characted_sentinel end() const { return {}; }
 
-	constexpr const char* data() { return m_ptr; }
+	constexpr const char* data() const { return m_ptr; }
 };
 
 template<std::size_t N>

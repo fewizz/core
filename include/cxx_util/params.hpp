@@ -2,6 +2,7 @@
 
 #include <tuple>
 #include <optional>
+#include <type_traits>
 #include <utility>
 #include "tuple/for_each.hpp"
 #include "tuple/get.hpp"
@@ -10,42 +11,29 @@
 
 namespace u {
 
-template<typename T>
 struct required {
-	using value_type = T;
-
-	template<typename... Ts>
+	template<std::size_t Calls>
 	constexpr static void check() {
-		static_assert(u::count<T, Ts...> == 1);
+		static_assert(Calls == 1);
 	}
 };
 
-template<typename T>
 struct several {
-	using value_type = T;
-
-	template<typename... Ts>
+	template<std::size_t Calls>
 	constexpr static void check() {
-		static_assert(u::count<T, Ts...> >= 1);
+		static_assert(Calls >= 1);
 	}
 };
 
-template<typename T>
 struct optional {
-	using value_type = T;
-
-	template<typename... Ts>
+	template<std::size_t Calls>
 	constexpr static void check() {
-		static_assert(u::count<T, Ts...> <= 1);
+		static_assert(Calls <= 1);
 	}
 };
 
-template<typename T>
 struct any {
-	using value_type = T;
-	struct param_requirement_mark{};
-
-	template<typename... Ts>
+	template<std::size_t Calls>
 	constexpr static void check() {}
 };
 
@@ -59,51 +47,51 @@ struct params : std::tuple<Ts...> {
 	}
 
 	const std::tuple<Ts...>& tuple() const {
-		return (std::tuple<Ts...>&) *this;
+		return (const std::tuple<Ts...>&) *this;
 	}
 
 	params(Ts&&... ts) : std::tuple<Ts...>{ std::forward<Ts>(ts)... } {}
 	params(std::tuple<Ts...> t) : std::tuple<Ts...>{ std::move(t) } {}
 
-	template<typename Req, typename F>
-	auto handle(F&& f) const {
-		Req::template check<Ts...>();
+protected:
+	template<typename Req, typename F, std::size_t Index = 0, std::size_t... NotCalledIndices>
+	auto handle0(F&& f, std::index_sequence<NotCalledIndices...> nci = {}) {
+		if constexpr(Index == sizeof...(Ts)) {
+			Req::template check<sizeof...(Ts) - sizeof...(NotCalledIndices)>();
+			
+			return u::params {
+				u::get(std::move(tuple()), nci)
+			};
+		}
+		else {
+			using T = std::tuple_element_t<Index, std::tuple<Ts...>>;
 
-		using T = typename Req::value_type;
-		using PP = u::parameter_pack<Ts...>;
-		using indices_of_same = typename PP::template indices_of_same_as<T>;
-		using indices_of_not_same = typename PP::template indices_of_not_same_as<T>;
-
-		u::for_each(
-			tuple(),
-			indices_of_same{},
-			std::forward<F>(f)
-		);
-
-		return u::params {
-			u::get(std::move(tuple()), indices_of_not_same{})
-		};
+			if constexpr(std::is_invocable_v<F, T>) {
+				f(std::forward<T>(std::get<Index>(tuple())));
+				return handle0<Req, F, Index+1, NotCalledIndices...>(std::forward<F>(f));
+			}
+			else {
+				return handle0<Req, F, Index+1, NotCalledIndices..., Index>(std::forward<F>(f));
+			}
+		}
 	}
 
-	/*template<std::size_t... Indices>
-	auto move(std::index_sequence<Indices...>) {
-		return 
-	}*/
+public:
+	template<typename Req, typename F>
+	auto handle(F&& f) {
+		return handle0<Req, F, 0>(std::forward<F>(f));
+	}
 
-	auto& check_for_emptiness() const {
+	constexpr auto& check_for_emptiness() const {
 		static_assert(sizeof...(Ts) == 0);
 		return *this;
 	}
 
 	template<typename T>
-	std::size_t count() const {
-		return u::count<T, Ts...>;
-	}
+	static constexpr std::size_t count = u::count<T, Ts...>;
 
 	template<typename T>
-	bool has() const {
-		return (this->template count<T>) > 0;
-	}
+	static constexpr bool contains = count<T> > 0;
 };
 
 template<typename... Ts>

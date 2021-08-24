@@ -1,36 +1,30 @@
 #include "params.hpp"
-#include <iostream>
+#include <array>
+
+struct A {
+	A() = default;
+	A(A&&) = default;
+	A(const A&) = delete;
+};
+struct B {
+	B() = default;
+	B(B&&) = default;
+	B(const B&) = delete;
+};
 
 int main() {
 	int i = 1;
-	u::params p{ 0, 0.1F, 0.2, i };
+	float f = 0;
+	double d = 1;
+	std::array<int, 3> a{ 0, 1, 2 };
+	u::params p{ A{}, i, f, d, a, B{} };
 
-	/*u::params p1{
-		std::tuple<int&>(i)
-	};*/
-
-	static_assert(
-		std::is_same_v<
-			std::tuple_element_t<0, std::remove_reference_t<decltype(p.tuple())>>,
-			int
-		>
-	);
-
-	static_assert(
-		std::is_same_v<
-			std::tuple_element_t<3, std::remove_reference_t<decltype(p.tuple())>>,
-			int &
-		>
-	);
-
-	p.handle<u::optional<int>>([](auto v) {
-		std::cout << v << std::endl;
-	})
-	.handle<u::optional<float>>([](auto v) {
-		std::cout << v << std::endl;
-	})
-	.handle<u::optional<long>>([](auto){})
-	.handle<u::optional<double>>([](auto){})
-	.handle<u::optional<int&>>([](auto){})
+	p.handle<u::required>([](int& v) {})
+	.handle<u::required>([](float& v) {})
+	.handle<u::optional>([](long&){})
+	.handle<u::required>([](double&){})
+	.handle<u::required>([]<std::size_t S>(std::array<int, S>&){})
+	.handle<u::required>([](A){})
+	.handle<u::required>([](B){})
 	.check_for_emptiness();
 }
