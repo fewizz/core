@@ -4,11 +4,9 @@
 #include <type_traits>
 #include <concepts>
 
-namespace u {
-
 namespace internal {
 
-template<unsigned Size>
+template<std::size_t Size>
 struct int_with_size;
 
 template<> struct int_with_size<1> { using type = int8_t; };
@@ -30,4 +28,8 @@ using uint_with_size = std::make_unsigned_t<int_with_size<size>>;
 template<typename T>
 using uint_with_size_of = uint_with_size<sizeof(T)>;
 
-} // u
+template<typename T>
+concept integer = std::integral<T>;
+
+template<typename T>
+concept unsigned_integer = integer<T> && std::is_unsigned_v<T>;

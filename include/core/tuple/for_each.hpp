@@ -17,7 +17,6 @@ do_one_of(Ts...) -> do_one_of<Ts...>;
 constexpr inline auto do_nothing = [](const auto&){};
 
 namespace internal {
-
 	template<typename F>
 	decltype(auto) for_each(F&& f) {
 		return std::forward<F>(f);
