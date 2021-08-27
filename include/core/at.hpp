@@ -47,7 +47,7 @@ class at {
 
 public:
 	template<auto...Values>
-	using of_values = current_index_and_values_left<0, Values...>;
+	static constexpr auto of_values = current_index_and_values_left<0, Values...>::value;
 }; // at
 
 } // value

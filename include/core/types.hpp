@@ -3,7 +3,7 @@
 #include "is.hpp"
 #include "are.hpp"
 #include "at.hpp"
-#include "indices_of_types_that_satisfy.hpp"
+#include "indices_of.hpp"
 
 namespace types {
 
@@ -28,16 +28,16 @@ struct of<> {
 	static constexpr std::size_t count = 0;
 
 	template<typename T>
-	using indices_of_same_as = indices::of<>;
+	using indices_of_same_as = indices<>;
 
 	template<typename T>
-	using indices_of_not_same_as = indices::of<>;
+	using indices_of_not_same_as = indices<>;
 
 	template<typename... Args>
-	using indices_of_invocable_with = indices::of<>;
+	using indices_of_invocable_with = indices<>;
 
 	template<typename... Args>
-	using indices_of_not_invocable_with = indices::of<>;
+	using indices_of_not_invocable_with = indices<>;
 };
 
 template<typename... Ts>
@@ -62,13 +62,13 @@ struct of {
 
 	template<typename T>
 	using indices_of_same_as =
-		typename indices_of_types_that_satisfy<
+		typename indices_of::types_that_satisfy<
 			is::type<T>::template same_as_predicate
 		>::template for_types<Ts...>;
 	
 	template<typename T>
 	using indices_of_not_same_as =
-		typename indices_of_types_that_not_satisfy<
+		typename indices_of::types_that_not_satisfy<
 			is::type<T>::template same_as_predicate
 		>::template for_types<Ts...>;
 
@@ -77,13 +77,13 @@ struct of {
 
 	template<typename... Args>
 	using indices_of_invocable_with =
-		typename indices_of_types_that_satisfy<
+		typename indices_of::types_that_satisfy<
 			are::types<Args...>::template args_for_predicate
 		>::template for_types<Ts...>;
 
 	template<typename... Args>
 	using indices_of_not_invocable_with =
-		typename indices_of_types_that_not_satisfy<
+		typename indices_of::types_that_not_satisfy<
 			are::types<Args...>::template args_for_predicate
 		>::template for_types<Ts...>;
 };

@@ -36,7 +36,6 @@ struct null_terminated_string_view<size_is::undefined>
 
 	null_terminated_string_view() = default;
 
-	//template<typename T> requires(std::is_same_v<std::remove_cv_t<T>, const char*>)
 	constexpr null_terminated_string_view(const char* p_ptr) : m_ptr{ p_ptr } {};
 
 	constexpr const char* begin() const { return m_ptr; }
