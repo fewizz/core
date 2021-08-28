@@ -24,7 +24,7 @@ struct tuple : std::tuple<Ts...> {
 
 	template<std::size_t... Indices>
 	requires(sizeof...(Indices) > 0)
-	auto move_elements_at(indices<Indices...> = {}) {
+	auto move_elements_at(indices::of<Indices...> = {}) {
 		return ::tuple{ move_element_at<Indices>() ... };
 	}
 
@@ -34,20 +34,21 @@ struct tuple : std::tuple<Ts...> {
 	}
 
 	template<std::size_t... Indices>
-	auto elements_at(indices<Indices...> = {}) {
+	auto elements_at(indices::of<Indices...> = {}) {
 		return ::tuple{ element_at<Indices>() ... };
 	}
 
 	template<std::size_t Index>
 	auto erase_element_at() {
-		using Indices = typename from<0>::template to<size>;
+		using Indices = typename indices::from<0>::template to<size>;
 		return move_elements_at(typename Indices::template erase_at_index<Index>{});
 	}
 
 	template<std::size_t... Indices>
 	auto erase_elements_at() {
-		using CurrentIndices = typename from<0>::template to<size>;
-		using NagatedIndices = indices_of::values_that_not_satisfy<CurrentIndices::template contains_index>
+		using CurrentIndices = typename indices::template from<0>::template to<size>;
+		
+		//using NagatedIndices = indices::of_values_that_not_satisfy<CurrentIndices::template contains_index>
 		//return move_elements_at(typename Indices::template erase_at_index<Index>{});
 	}
 };

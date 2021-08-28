@@ -1,8 +1,16 @@
 #pragma once
 
 #include <cstddef>
-#include "values.hpp"
-#include "types.hpp"
+
+namespace values {
+	template<auto... Values>
+	struct of;
+}
+
+namespace types {
+	template<typename... Types>
+	struct of;
+}
 
 template <std::size_t Index>
 class erase_at {

@@ -1,8 +1,18 @@
 #pragma once
 
-#include "indices.hpp"
+#include <cstddef>
+
+namespace values {
+
+template<auto... Values>
+struct of;
+
+}
 
 namespace indices {
+
+template<std::size_t... Indices>
+using of = values::of<Indices...>;
 
 template<template<typename T> typename Predicate>
 class of_types_that_satisfy {
@@ -20,7 +30,7 @@ class of_types_that_satisfy {
 			using type = typename current_index_and_resulting_indices<
 				CurrentIndex + 1,
 				Indices..., CurrentIndex
-			>::type;
+			>::template types<Types...>::type;
 		};
 
 		template<typename T, typename... Types>
@@ -29,7 +39,7 @@ class of_types_that_satisfy {
 			using type = typename current_index_and_resulting_indices<
 				CurrentIndex + 1,
 				Indices...
-			>::type;
+			>::template types<Types...>::type;
 		};
 	};
 
@@ -70,7 +80,7 @@ class of_values_that_satisfy {
 			using type = typename current_index_and_resulting_indices<
 				CurrentIndex + 1,
 				Indices..., CurrentIndex
-			>::type;
+			>::template values<Values...>::type;
 		};
 
 		template<auto V, auto... Values>
@@ -79,13 +89,13 @@ class of_values_that_satisfy {
 			using type = typename current_index_and_resulting_indices<
 				CurrentIndex + 1,
 				Indices...
-			>::type;
+			>::template values<Values...>::type;
 		};
 	};
 
 public:
 
-	template<typename... Values>
+	template<auto... Values>
 	using of_values
 		= typename current_index_and_resulting_indices<0>::template values<Values...>::type;
 }; // of_values_that_satisfy
@@ -98,7 +108,7 @@ struct of_values_that_not_satisfy {
 		static constexpr bool value = !Predicate<V>::value;
 	};
 
-	template<typename... Value>
+	template<auto... Value>
 	using of_values
 		= typename of_values_that_satisfy<predicate_negation>::template of_types<Value...>;
 }; // of_values_that_not_satisfy
