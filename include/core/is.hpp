@@ -19,4 +19,10 @@ struct type {
 	static constexpr bool invocable_with = std::is_invocable_v<T, Args...>;
 };
 
+template<auto V>
+struct value {
+	template<auto V0>
+	using same_as_predicate = std::bool_constant<V == V0>;
+};
+
 }

@@ -1,34 +1,52 @@
 #pragma once
 
-#include "at.hpp"
+//#include "at.hpp"
 #include "values.hpp"
 
+namespace indices {
+
 template<std::size_t... Indices>
-struct indices;
+using of = values::of<Indices...>;
 
 template<std::size_t IndexFrom>
 class from {
 	
 	template<std::size_t IndexTo>
 	struct to_t {
-		template<std::size_t Index>
-		struct current;
+		static constexpr auto size = IndexTo - IndexFrom;
 
-		template<>
-		struct current<IndexTo> {
-			using type = indices<>;
+		template<std::size_t... Indices>
+		struct result;
+
+		template<std::size_t... Indices>
+		requires(sizeof...(Indices) == size)
+		struct result<Indices...> {
+			using type = of<Indices...>;
 		};
 
-		template<std::size_t Index>
-		struct current {
-			using type = typename indices<Index>::template append_back<typename current<Index + 1>::type>;
+		template<std::size_t... Indices>
+		requires(sizeof...(Indices) == 0 && size > 0)
+		struct result<Indices...> {
+			using type = typename result<IndexFrom>::type;
+		};
+
+		template<std::size_t... Indices>
+		requires(sizeof...(Indices) > 0 && sizeof...(Indices) != size)
+		struct result<Indices...> {
+			using type = typename result<Indices..., of<Indices...>::back + 1>::type;
 		};
 	};
 public:
 
 	template<std::size_t IndexTo>
-	using to = typename to_t<IndexTo>::template current<IndexFrom>::type;
+	using to = typename to_t<IndexTo>::template result<>::type;
 }; // from
+
+}
+
+
+/*template<std::size_t... Indices>
+struct indices;
 
 
 template<std::size_t... Indices>
@@ -49,6 +67,11 @@ private:
 	struct append_back_t<indices<Indices0...>> {
 		using type = indices<Indices..., Indices0...>;
 	};
+
+	template<std::size_t... Indices0>
+	struct append_back_t<values<Indices0...>> {
+		using type = indices<Indices..., Indices0...>;
+	};
 public:
 
 	template<typename T>
@@ -66,6 +89,11 @@ private:
 
 	template<std::size_t... Indices0>
 	struct append_front_t<indices<Indices0...>> {
+		using type = indices<Indices0..., Indices...>;
+	};
+
+	template<std::size_t... Indices0>
+	struct append_front_t<values<Indices0...>> {
 		using type = indices<Indices0..., Indices...>;
 	};
 public:
@@ -88,6 +116,11 @@ private:
 	struct at_t<indices<Indices0...>> {
 		using type = at_indices<Indices0...>;
 	};
+
+	template<std::size_t... Indices0>
+	struct at_t<values<Indices0...>> {
+		using type = at_indices<Indices0...>;
+	};
 public:
 
 	template<typename Of>
@@ -106,4 +139,10 @@ public:
 				::template to<size>
 			>
 		>;
-}; // of
+
+	// contains
+	template<std::size_t Index>
+	struct contains_index_t {
+		static constexpr bool value 
+	};
+}; */

@@ -2,8 +2,6 @@
 
 #include <cstddef>
 
-namespace type {
-
 template<std::size_t Index>
 class at {
 	template<std::size_t CurrentIndex, typename... Ts>
@@ -20,17 +18,6 @@ class at {
 			= typename current_index_and_types_left<CurrentIndex + 1, Types...>::type;
 	};
 
-public:
-	template<typename...Types>
-	using of_types = current_index_and_types_left<0, Types...>;
-}; // at
-
-} // type
-
-namespace value {
-
-template<std::size_t Index>
-class at {
 	template<std::size_t CurrentIndex, auto... Values>
 	struct current_index_and_values_left;
 
@@ -46,8 +33,9 @@ class at {
 	};
 
 public:
+	template<typename...Types>
+	using of_types = current_index_and_types_left<0, Types...>;
+
 	template<auto...Values>
 	static constexpr auto of_values = current_index_and_values_left<0, Values...>::value;
 }; // at
-
-} // value

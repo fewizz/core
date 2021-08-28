@@ -2,6 +2,7 @@
 
 #include <tuple>
 #include "at.hpp"
+#include "indices_of.hpp"
 #include "types.hpp"
 #include "indices.hpp"
 
@@ -41,6 +42,13 @@ struct tuple : std::tuple<Ts...> {
 	auto erase_element_at() {
 		using Indices = typename from<0>::template to<size>;
 		return move_elements_at(typename Indices::template erase_at_index<Index>{});
+	}
+
+	template<std::size_t... Indices>
+	auto erase_elements_at() {
+		using CurrentIndices = typename from<0>::template to<size>;
+		using NagatedIndices = indices_of::values_that_not_satisfy<CurrentIndices::template contains_index>
+		//return move_elements_at(typename Indices::template erase_at_index<Index>{});
 	}
 };
 
