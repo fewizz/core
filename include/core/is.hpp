@@ -12,6 +12,9 @@ struct type {
 	template<typename T0>
 	static constexpr bool same_as = std::is_same_v<T, T0>;
 
+	template<typename T0>
+	static constexpr bool not_same_as = ! std::is_same_v<T, T0>;
+
 	template<typename... Args>
 	using invocable_with_t = std::is_invocable<T, Args...>;
 

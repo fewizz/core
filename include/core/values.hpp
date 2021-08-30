@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef>
+#include <type_traits>
 #include "at.hpp"
 #include "is.hpp"
 #include "indices_of.hpp"
@@ -60,11 +61,21 @@ struct of<> {
 
 	// append back
 	template<auto... Values>
-	using append_back = of<Values...>;
+	using append_back_values = of<Values...>;
 
 	// append front
 	template<auto... Values>
-	using append_front = of<Values...>;
+	using append_front_values = of<Values...>;
+
+	template<auto Value>
+	static constexpr std::size_t count = 0;
+
+	// contains
+	template<auto Value>
+	using contains_value_predicate = std::false_type;
+
+	template<auto Value>
+	static constexpr bool contains_value = false;
 };
 
 template<auto... Values>
@@ -74,43 +85,45 @@ struct of {
 
 	// append back
 	template<auto... Values0>
-	using append_back = of<Values..., Values0...>;
+	using append_back_values = of<Values..., Values0...>;
 
 	// append front
 	template<auto... Values0>
-	using append_front = of<Values0..., Values...>;
+	using append_front_values = of<Values0..., Values...>;
 
 	// at
 	template<std::size_t Index>
-	static constexpr auto value_at = ::at<Index>::template of_values<Values...>;
+	static constexpr auto value_at_index = ::at<Index>::template of_values<Values...>;
 
 	template<std::size_t... Indices>
-	using values_at = of<value_at<Indices>...>;
+	using values_at_indices = of<value_at_index<Indices>...>;
 
 private:
 	template<typename T>
-	struct values_at_indices_t;
+	struct value_at_t;
 
 	template<std::size_t... Indices>
-	struct values_at_indices_t<of<Indices...>> {
-		using type = values_at<Indices...>;
+	struct value_at_t<of<Indices...>> {
+		using type = values_at_indices<Indices...>;
 	};
 public:
 
 	template<typename T>
-	using values_at_indices = typename values_at_indices_t<T>::type;
+	using value_at = typename value_at_t<T>::type;
 
 	// front
-	static constexpr auto front = value_at<0>;
+	static constexpr auto front_value = value_at_index<0>;
 
 	// back
-	static constexpr auto back = value_at<size - 1>;
+	static constexpr auto back_value = value_at_index<size - 1>;
 
+	// indices_of_values_that_satisfy
 	template<template<auto> typename P>
 	using indices_of_values_that_satisfy = typename
 		indices::of_values_that_satisfy<P>
 		::template of_values<Values...>;
 
+	// indices_of_values_that_not_satisfy
 	template<template<auto> typename P>
 	using indices_of_values_that_not_satisfy = typename
 		indices::of_values_that_not_satisfy<P>
@@ -118,34 +131,35 @@ public:
 
 	// indices_of_same_as
 	template<auto Value>
-	using indices_of_same_as =
+	using indices_of_values_same_as =
 		indices_of_values_that_satisfy<
 			is::value<Value>::template same_as_predicate
 		>;
 
 	// indices_of_not_same_as
 	template<auto Value>
-	using indices_of_not_same_as =
+	using indices_of_values_not_same_as =
 		indices_of_values_that_not_satisfy<
 			is::value<Value>::template same_as_predicate
 		>;
 
+	// count
 	template<auto Value>
-	static constexpr auto count = indices_of_same_as<Value>::size;
+	static constexpr std::size_t values_count = indices_of_values_same_as<Value>::size;
 
 	// contains
 	template<auto Value>
-	using contains_predicate = std::bool_constant< (count<Value> > 0) >;
+	using contains_predicate = std::bool_constant< (values_count<Value> > 0) >;
 
 	template<auto Value>
-	static constexpr bool contains = contains_predicate<Value>::value;
+	static constexpr bool contains_value = contains_predicate<Value>::value;
 
 	// erase_at
 	template<std::size_t Index>
-	using erase_value_at = typename erase_at<Index>::template of_values<Values...>;
+	using erase_value_at_index = typename erase_at<Index>::template of_values<Values...>;
 
 	template<std::size_t... Indices>
-	using erase_values_at = values_at_indices<
+	using erase_values_at_indices = value_at<
 			typename indieces_type::
 			template indices_of_values_that_not_satisfy<
 				indices::of<Indices...>::template contains_predicate
@@ -154,16 +168,16 @@ public:
 
 private:
 	template<typename T>
-	struct erase_values_at_indices_t;
+	struct erase_values_at_t;
 
 	template<std::size_t... Indices>
-	struct erase_values_at_indices_t<indices::of<Indices...>> {
-		using type = erase_values_at<Indices...>;
+	struct erase_values_at_t<indices::of<Indices...>> {
+		using type = erase_values_at_indices<Indices...>;
 	};
 public:
 
 	template<typename T>
-	using erase_values_at_indices = typename erase_values_at_indices_t<T>::type;
+	using erase_values_at = typename erase_values_at_t<T>::type;
 };
 
 } // values
