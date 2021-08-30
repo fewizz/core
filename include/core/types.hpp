@@ -11,42 +11,43 @@
 namespace types {
 
 /*
-std::size_t size
+size_t     size
 
-bool        empty
+bool       empty
 
-type        type_at_index<Index>
-types       types_at_indices<Indices...>
-types       types_at<indices::of<Indices...>>
+type       type_at_index<Index>
+types      types_at_indices<Indices...>
+types      types_at<indices::of<Indices...>>
 
-type        front
+type       front
 
-type        back
+type       back
 
-types       append_back_types<Types...>
+types      append_back_types<Types...>
 
-types       append_front_types<Types...>
+types      append_front_types<Types...>
 
-indices     indices_of_types_that_satisfy<Predicate>
-indices     indices_of_types_that_not_satisfy<Predicate>
+indices    indices_of_types_that_satisfy<Predicate>
+indices    indices_of_types_that_not_satisfy<Predicate>
 
-indices     indices_of_types_same_as<Type>
-indices     indices_of_types_not_same_as<Type>
+indices    indices_of_types_same_as<Type>
+indices    indices_of_types_not_same_as<Type>
 
-indices     indices_of_types_that_are_args_for_invocable_type<Type>
-indices     indices_of_types_that_are_not_args_for_invocable_type<Type>
+indices    indices_of_types_args_for_invocable_type<Type>
+indices    indices_of_types_not_args_for_invocable_type<Type>
 
-types       erase_at_indices<Indices...>
-types       erase_at<indices::of<Indices...>>
+types      erase_at_index<Index>
+types      erase_at_indices<Indices...>
+types      erase_at<indices::of<Indices...>>
 
-types       erase_types<Types...>
+types      erase_types<Types...>
 
-std::size_t count<Type>
+size_t     index_of_first_type<Type>
 
-std::size_t index_of_first_type<Type>
+size_t     count_of_type<Type>
 
-type        contains_type_predicate<Type>
-bool        contains_type<Type>
+type       contains_type_predicate<Type>
+bool       contains_type<Type>
 */
 
 template<typename... Ts> 
@@ -84,10 +85,10 @@ struct of<> {
 	using indices_of_types_not_same_as = indices::of<>;
 
 	template<typename F>
-	using indices_of_types_that_are_args_for_invocable_type = indices::of<>;
+	using indices_of_types_args_for_invocable_type = indices::of<>;
 
 	template<typename F>
-	using indices_of_types_that_are_not_args_for_invocable_type = indices::of<>;
+	using indices_of_types_not_args_for_invocable_type = indices::of<>;
 
 	template<std::size_t... Indices>
 	requires(sizeof...(Indices) == 0)
@@ -101,7 +102,7 @@ struct of<> {
 	using erase_types = of<>;
 
 	template<typename T>
-	static constexpr std::size_t count = 0;
+	static constexpr std::size_t count_of_type = 0;
 
 	template<typename T>
 	using contains_type_predicate = std::false_type;
@@ -167,13 +168,13 @@ public:
 		>;
 
 	template<typename F>
-	using indices_of_types_that_are_args_for_invocable_type =
+	using indices_of_types_args_for_invocable_type =
 		indices_of_types_that_satisfy<
 			is::type<F>::template invocable_with_arg_predicate
 		>;
 
 	template<typename F>
-	using indices_of_types_that_are_not_args_for_invocable_type =
+	using indices_of_types_are_not_args_for_invocable_type =
 		indices_of_types_that_not_satisfy<
 			is::type<F>::template invocable_with_arg_predicate
 		>;
@@ -213,14 +214,14 @@ public:
 		>;
 
 	template<typename Type>
-	static constexpr std::size_t index_of_first_type = indices_of_types_same_as<Type>::template value_at<0>;
+	static constexpr std::size_t index_of_first_type = indices_of_types_same_as<Type>::template value_at_index<0>;
 
 	template<typename Type>
-	static constexpr std::size_t count = indices_of_types_same_as<Type>::size;
+	static constexpr std::size_t count_of_type = indices_of_types_same_as<Type>::size;
 
 	// contains
 	template<typename Type>
-	using contains_type_predicate = std::bool_constant< (count<Type> > 0) >;
+	using contains_type_predicate = std::bool_constant< (count_of_type<Type> > 0) >;
 
 	template<typename Type>
 	static constexpr bool contains_type = contains_type_predicate<Type>::value;

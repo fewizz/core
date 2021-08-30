@@ -55,7 +55,7 @@ static_assert(
 using int_consumer = decltype([](int){});
 
 static_assert(
-	I3::indices_of_types_that_are_args_for_invocable_type<
+	I3::indices_of_types_args_for_invocable_type<
 		int_consumer
 	>::size == 3
 );
@@ -78,12 +78,17 @@ static_assert(
 	>
 );
 
+// index of first type
+static_assert(
+	IFB::index_of_first_type<float> == 1
+);
+
 // count
-static_assert(I3::count<int> == 3);
-static_assert(IFB::count<int> == 1);
-static_assert(IFB::count<float> == 1);
-static_assert(IFB::count<bool> == 1);
-static_assert(IFB::count<char> == 0);
+static_assert(I3::count_of_type<int> == 3);
+static_assert(IFB::count_of_type<int> == 1);
+static_assert(IFB::count_of_type<float> == 1);
+static_assert(IFB::count_of_type<bool> == 1);
+static_assert(IFB::count_of_type<char> == 0);
 
 // contains type
 static_assert(IFB::contains_type<bool>);
