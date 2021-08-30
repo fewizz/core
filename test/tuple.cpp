@@ -6,36 +6,60 @@
 
 int main() {
 	int i = 0;
+	float f = 10.0F;
 	
-	tuple t{ 0, i, 1};
+	tuple t{ 0, i, 1, 0.0F, f};
 
-	static_assert(is::type<decltype(t.move_element<int&>())>::template same_as<int&>);
+	// size
+	static_assert(t.size() == 5);
 
-	static_assert(is::type<decltype(t)>::template same_as<tuple<int, int&, int>>);
+	// contains
+	static_assert(t.contains<int>());
+	static_assert(t.contains<int&>());
+	static_assert(t.contains<float>());
+	static_assert(t.contains<float&>());
+	static_assert(! t.contains<char>());
 
-	auto t0 = t.template move_elements_at<0, 1>();
+	// count
+	static_assert(t.count<int>() == 2);
+	static_assert(t.count<int&>() == 1);
 
-	static_assert(is::type<decltype(t0)>::template same_as<tuple<int, int&>>);
+	// get element at
+	auto& el = t.get_element_at<0>();
+	assert(el == 0);
+	el = 1;
+	assert(t.get_element_at<0>() == 1);
+
+	// get elements at
+	auto floats = t.get_elements_at<3, 4>();
+	assert(t.get_element_at<3>() == 0.0F);
+	assert(t.get_element_at<4>() == 10.0F);
 	
-	auto t1 = t0.erase_element_at<1>();
+	++floats.get_element_at<0>();
+	++floats.get_element_at<1>();
+	
+	assert(t.get_element_at<3>() == 1.0F);
+	assert(t.get_element_at<4>() == 11.0F);
 
-	static_assert(is::type<decltype(t1)>::template same_as<tuple<int>>);
+	// get
+	int calls = 0;
 
-	tuple t2{ 0, 0.0F, 0, 0.0F, 0, 0.0F };
-	auto t3 = t2.erase_elements_at<1, 3, 5>();
-	static_assert(is::type<decltype(t3)>::template same_as<tuple<int, int, int>>);
-
-	auto t4 = t3.move_elements_same_as<int>();
-	static_assert(is::type<decltype(t4)>::template same_as<tuple<int, int, int>>);
-
-	auto t5 = t3.erase_elements_same_as<int>();
-	static_assert(is::type<decltype(t5)>::template same_as<tuple<>>);
-
-	i = 3;
-	tuple t6{ 0, i, 1, 0.0F};
-	t6.get([&](int&) {
-		--i;
+	t.get([&](int&) {
+		++calls;
 	});
 
-	assert(i == 0);
+	assert(calls == 3);
+
+	// move
+	calls = 0;
+
+	t.move(
+		[&]<typename T>
+		requires(is::type<T>::template same_as<int>)
+		(T&&) {
+			++calls;
+		}
+	);
+
+	assert(calls == 3);
 }
