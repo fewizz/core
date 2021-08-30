@@ -76,6 +76,10 @@ struct of<> {
 
 	template<auto Value>
 	static constexpr bool contains_value = false;
+
+	template<std::size_t... Indices>
+	requires(sizeof...(Indices) == 0)
+	using erase_values_at_indices = of<>;
 };
 
 template<auto... Values>
@@ -149,10 +153,10 @@ public:
 
 	// contains
 	template<auto Value>
-	using contains_predicate = std::bool_constant< (values_count<Value> > 0) >;
+	using contains_value_predicate = std::bool_constant< (values_count<Value> > 0) >;
 
 	template<auto Value>
-	static constexpr bool contains_value = contains_predicate<Value>::value;
+	static constexpr bool contains_value = contains_value_predicate<Value>::value;
 
 	// erase_at
 	template<std::size_t Index>
@@ -162,7 +166,7 @@ public:
 	using erase_values_at_indices = value_at<
 			typename indieces_type::
 			template indices_of_values_that_not_satisfy<
-				indices::of<Indices...>::template contains_predicate
+				indices::of<Indices...>::template contains_value_predicate
 			>
 		>;
 

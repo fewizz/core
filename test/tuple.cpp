@@ -1,6 +1,8 @@
 #include "tuple.hpp"
 #include "is.hpp"
 #include <utility>
+#include <cassert>
+#include <iostream>
 
 int main() {
 	int i = 0;
@@ -28,4 +30,12 @@ int main() {
 
 	auto t5 = t3.erase_elements_same_as<int>();
 	static_assert(is::type<decltype(t5)>::template same_as<tuple<>>);
+
+	i = 3;
+	tuple t6{ 0, i, 1, 0.0F};
+	t6.get([&](int&) {
+		--i;
+	});
+
+	assert(i == 0);
 }

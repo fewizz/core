@@ -30,6 +30,11 @@ struct tuple : std::tuple<Ts...> {
 		return std::get<Index>(std::move(*this));
 	}
 
+	template<std::size_t Index>
+	decltype(auto) get_element_at() {
+		return std::get<Index>(*this);
+	}
+
 	template<std::size_t... Indices>
 	decltype(auto) move_elements_at(indices::of<Indices...> = {}) {
 		return ::tuple{ move_element_at<Indices>() ... };
@@ -43,8 +48,17 @@ struct tuple : std::tuple<Ts...> {
 	}
 
 	template<typename F>
+	auto& get(F&& f) {
+		using Indices = typename types_type::template indices_of_types_that_are_args_for_invocable_type<F>;
+		[&]<std::size_t... Indices0>(indices::of<Indices0...>) {
+			( f(get_element_at<Indices0>()), ... );
+		}(Indices{});
+		return *this;
+	}
+
+	template<typename F>
 	decltype(auto) consume(F&& f) {
-		using Indices = typename types_type::template indices_of_invocable_with<F>;
+		using Indices = typename types_type::template indices_of_types_invocable_with<F>;
 
 		[&]<std::size_t... Indices0>(indices::of<Indices0...>) {
 			( f(move_element_at<Indices0>()), ... );

@@ -15,7 +15,10 @@ class at {
 	template<std::size_t CurrentIndex, typename Type, typename... Types>
 	struct current_index_and_types_left<CurrentIndex, Type, Types...> {
 		using type
-			= typename current_index_and_types_left<CurrentIndex + 1, Types...>::type;
+			= typename current_index_and_types_left<
+				CurrentIndex + 1,
+				Types...
+			>::type;
 	};
 
 	template<std::size_t CurrentIndex, auto... Values>
@@ -29,12 +32,15 @@ class at {
 	template<std::size_t CurrentIndex, auto Value, auto... Values>
 	struct current_index_and_values_left<CurrentIndex, Value, Values...> {
 		static constexpr auto value
-			= current_index_and_values_left<CurrentIndex + 1, Values...>::value;
+			= current_index_and_values_left<
+				CurrentIndex + 1,
+				Values...
+			>::value;
 	};
 
 public:
 	template<typename...Types>
-	using of_types = current_index_and_types_left<0, Types...>;
+	using of_types = typename current_index_and_types_left<0, Types...>::type;
 
 	template<auto...Values>
 	static constexpr auto of_values = current_index_and_values_left<0, Values...>::value;
