@@ -110,7 +110,7 @@ struct of_values_that_not_satisfy {
 
 	template<auto... Value>
 	using of_values
-		= typename of_values_that_satisfy<predicate_negation>::template of_types<Value...>;
+		= typename of_values_that_satisfy<predicate_negation>::template of_values<Value...>;
 }; // of_values_that_not_satisfy
 
 } // indices_of

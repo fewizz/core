@@ -1,6 +1,5 @@
 #pragma once
 
-#include <__ranges/view_interface.h>
 #include <span>
 #include <type_traits>
 #include <ranges>

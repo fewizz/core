@@ -1,30 +1,28 @@
 #pragma once
 
 #include <type_traits>
-#include "int_with_size.hpp"
-
-namespace u {
+#include "integer.hpp"
 
 template<typename E>
 requires(std::is_enum_v<E>)
-struct bitmask_from_enum {
-	using value_type = u::int_with_size_of<E>;
+struct flag_enum {
+	using value_type = int_with_size_of<E>;
 	value_type value;
 
-	bitmask_from_enum() = default;
-	bitmask_from_enum(const bitmask_from_enum&) = default;
-	bitmask_from_enum(bitmask_from_enum&) = default;
+	flag_enum() = default;
+	flag_enum(const flag_enum&) = default;
+	flag_enum(flag_enum&) = default;
 
 	template<typename... Args>
 	requires(
 		sizeof...(Args) > 0
 		&& (std::is_same_v<Args, E> && ...)
 	)
-	bitmask_from_enum(Args... args) {
+	flag_enum(Args... args) {
 		value = (value_type)(args | ...);
 	}
 
-	bitmask_from_enum& set(E v) {
+	flag_enum& set(E v) {
 		value |= (value_type)v;
 		return *this;
 	}
@@ -33,5 +31,3 @@ struct bitmask_from_enum {
 		return (value | (value_type)v) == value;
 	}
 };
-
-}

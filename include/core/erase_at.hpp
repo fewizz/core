@@ -25,7 +25,8 @@ class erase_at {
 				using type = typename
 					left_types<LeftTypes..., CurrentType>::
 					template current_type_index<CurrentIndex + 1>::
-					template right_types<RightTypes...>;
+					template right_types<RightTypes...>
+					::type;
 			};
 		};
 
@@ -47,8 +48,9 @@ class erase_at {
 			struct right_values {
 				using type = typename
 					left_values<LeftValues..., CurrentValue>::
-					template current_values_index<CurrentIndex + 1>::
-					template right_values<RightValues...>;
+					template current_value_index<CurrentIndex + 1>::
+					template right_values<RightValues...>
+					::type;
 			};
 		};
 

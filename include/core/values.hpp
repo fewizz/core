@@ -40,7 +40,7 @@ class from {
 		template<std::size_t... Indices>
 		requires(sizeof...(Indices) > 0 && sizeof...(Indices) != size)
 		struct result<Indices...> {
-			using type = typename result<Indices..., of<Indices...>::back + 1>::type;
+			using type = typename result<Indices..., IndexFrom + sizeof...(Indices)>::type;
 		};
 	};
 public:
@@ -70,6 +70,7 @@ struct of<> {
 template<auto... Values>
 struct of {
 	static constexpr std::size_t size = sizeof...(Values);
+	using indieces_type = typename indices::from<0>::to<size>;
 
 	// append back
 	template<auto... Values0>
@@ -81,66 +82,88 @@ struct of {
 
 	// at
 	template<std::size_t Index>
-	static constexpr auto at = ::at<Index>::template of_values<Values...>;
+	static constexpr auto value_at = ::at<Index>::template of_values<Values...>;
+
+	template<std::size_t... Indices>
+	using values_at = of<value_at<Indices>...>;
 
 private:
 	template<typename T>
-	struct at_indices_t;
+	struct values_at_indices_t;
 
-	template<std::size_t... Is>
-	struct at_indices_t<of<Is...>> {
-		using type = of<at<Is>...>;
+	template<std::size_t... Indices>
+	struct values_at_indices_t<of<Indices...>> {
+		using type = values_at<Indices...>;
 	};
 public:
 
 	template<typename T>
-	using at_indices = typename at_indices_t<T>::type;
+	using values_at_indices = typename values_at_indices_t<T>::type;
 
 	// front
-	static constexpr auto front = at<0>;
+	static constexpr auto front = value_at<0>;
 
 	// back
-	static constexpr auto back = at<size - 1>;
+	static constexpr auto back = value_at<size - 1>;
+
+	template<template<auto> typename P>
+	using indices_of_values_that_satisfy = typename
+		indices::of_values_that_satisfy<P>
+		::template of_values<Values...>;
+
+	template<template<auto> typename P>
+	using indices_of_values_that_not_satisfy = typename
+		indices::of_values_that_not_satisfy<P>
+		::template of_values<Values...>;
 
 	// indices_of_same_as
 	template<auto Value>
-	using indices_of_same_as = typename
-		indices::of_values_that_satisfy<
+	using indices_of_same_as =
+		indices_of_values_that_satisfy<
 			is::value<Value>::template same_as_predicate
-		>
-		::template of_values<Values...>;
+		>;
 
 	// indices_of_not_same_as
 	template<auto Value>
-	using indices_of_not_same_as = typename
-		indices::of_values_that_not_satisfy<
+	using indices_of_not_same_as =
+		indices_of_values_that_not_satisfy<
 			is::value<Value>::template same_as_predicate
-		>
-		::template of_values<Values...>;
+		>;
+
+	template<auto Value>
+	static constexpr auto count = indices_of_same_as<Value>::size;
 
 	// contains
 	template<auto Value>
-	using contains_predicate = std::bool_constant< (indices_of_same_as<Value>::size > 0) >;
+	using contains_predicate = std::bool_constant< (count<Value> > 0) >;
 
 	template<auto Value>
 	static constexpr bool contains = contains_predicate<Value>::value;
 
 	// erase_at
 	template<std::size_t Index>
-	using erase_at = typename erase_at<Index>::template of_values<Values...>;
-
-/*private:
-	template<typename T>
-	struct erase_at_indices;
+	using erase_value_at = typename erase_at<Index>::template of_values<Values...>;
 
 	template<std::size_t... Indices>
-	struct erase_at_indices<indices::of<Indices...>> {
-		using type = 
-	}
+	using erase_values_at = values_at_indices<
+			typename indieces_type::
+			template indices_of_values_that_not_satisfy<
+				indices::of<Indices...>::template contains_predicate
+			>
+		>;
 
+private:
+	template<typename T>
+	struct erase_values_at_indices_t;
 
-	template< Index>
-	using erase_at_indices = typename erase_at<Index>::template of_values<Values...>;*/
+	template<std::size_t... Indices>
+	struct erase_values_at_indices_t<indices::of<Indices...>> {
+		using type = erase_values_at<Indices...>;
+	};
+public:
+
+	template<typename T>
+	using erase_values_at_indices = typename erase_values_at_indices_t<T>::type;
 };
 
 } // values

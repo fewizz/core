@@ -4,11 +4,19 @@
 #include "at.hpp"
 #include "indices_of.hpp"
 #include "types.hpp"
-#include "indices.hpp"
+#include "values.hpp"
 
 template<typename... Ts>
 struct tuple : std::tuple<Ts...> {
 	static constexpr std::size_t size = sizeof...(Ts);
+	using indices_type = typename indices::from<0>::to<size>;
+	using types_type = types::of<Ts...>;
+
+	template<typename T>
+	static constexpr bool contains = types_type::template contains<T>;
+
+	template<typename T>
+	static constexpr auto count = types_type::template count<T>;
 
 	tuple(Ts&&... ts)
 		: std::tuple<Ts...> { std::forward<Ts>(ts) ... }
@@ -23,9 +31,48 @@ struct tuple : std::tuple<Ts...> {
 	}
 
 	template<std::size_t... Indices>
-	requires(sizeof...(Indices) > 0)
-	auto move_elements_at(indices::of<Indices...> = {}) {
+	decltype(auto) move_elements_at(indices::of<Indices...> = {}) {
 		return ::tuple{ move_element_at<Indices>() ... };
+	}
+
+	template<typename T>
+	decltype(auto) move_element() {
+		using IndicesOfSameAsT = typename types_type::template indices_of_same_as<T>;
+		static_assert(IndicesOfSameAsT::size == 1);
+		return move_element_at<IndicesOfSameAsT::template value_at<0>>();
+	}
+
+	template<typename T>
+	decltype(auto) consume_element(auto&& f) {
+		using IndicesOfSameAsT = typename types_type::template indices_of_same_as<T>;
+		static_assert(IndicesOfSameAsT::size == 1);
+		constexpr std::size_t I = IndicesOfSameAsT::template value_at<0>;
+
+		f(move_element_at<I>());
+		return erase_element_at<I>();
+	}
+
+	template<typename T, typename F>
+	decltype(auto) consume_element_if_present(F&& f) {
+		if constexpr(types_type::template contains<T>) {
+			return consume_element<T>(std::forward<F>(f));
+		}
+		else {
+			return std::move(*this);
+		}
+	}
+
+	template<typename T>
+	using indices_of_same_as = typename types_type::template indices_of_same_as<T>;
+
+	template<typename T>
+	auto move_elements_same_as() {
+		return move_elements_at(indices_of_same_as<T>{});
+	}
+
+	template<typename T>
+	auto erase_elements_same_as() {
+		return erase_elements_at(indices_of_same_as<T>{});
 	}
 
 	template<std::size_t Index>
@@ -40,17 +87,16 @@ struct tuple : std::tuple<Ts...> {
 
 	template<std::size_t Index>
 	auto erase_element_at() {
-		using Indices = typename indices::from<0>::template to<size>;
-		return move_elements_at(typename Indices::template erase_at_index<Index>{});
+		return move_elements_at(typename indices_type::template erase_value_at<Index>{});
 	}
 
 	template<std::size_t... Indices>
-	auto erase_elements_at() {
-		using CurrentIndices = typename indices::template from<0>::template to<size>;
-		
-		//using NagatedIndices = indices::of_values_that_not_satisfy<CurrentIndices::template contains_index>
-		//return move_elements_at(typename Indices::template erase_at_index<Index>{});
+	auto erase_elements_at(indices::of<Indices...> = {}) {
+		using Indices0 = typename indices_type::template erase_values_at<Indices...>;
+		return move_elements_at(Indices0{});
 	}
+
+
 };
 
 template<typename... Ts>
