@@ -14,9 +14,9 @@ size_t     size
 
 bool       empty
 
-value      value_at_index<Index>
-values     values_at_indices<Indices...>
-values     values_at<indices::of<Indices...>>
+value      at_index<Index>
+values     at_indices<Indices...>
+values     at<indices::of<Indices...>>
 
 value      front
 
@@ -26,24 +26,22 @@ values     append_back_values<Values...>
 
 values     append_front_values<Values...>
 
-indices    indices_of_values_that_satisfy<Predicate>
-indices    indices_of_values_that_not_satisfy<Predicate>
+indices    indices_of_satisfying<Predicate>
+indices    indices_of_not_satisfying<Predicate>
 
-indices    indices_of_values_same_as<Value>
-indices    indices_of_values_not_same_as<Value>
+indices    indices_of_equal_to<Value>
+indices    indices_of_not_equal_to<Value>
 
 values     erase_at_index<Index>
 values     erase_at_indices<Indices...>
 values     erase_at<indices::of<Indices...>>
 
-values     erase_values<Values...>
+values     erase_equal_to_one_of_values<Values...>
 
-size_t     index_of_first_value<Value>
+size_t     count_of_equal_to<Value>
 
-size_t     count_of_value<Value>
-
-value      contains_value_predicate<Value>
-bool       contains_value<Value>
+value      contains_equal_to_predicate<Predicate>
+bool       contains_equal_to<Value>
 */
 
 template<auto... Values>
@@ -99,11 +97,11 @@ struct of<> {
 
 	template<std::size_t... Indices>
 	requires(sizeof...(Indices) == 0)
-	using values_at_indices = of<>;
+	using at_indices = of<>;
 
 	template<typename T>
 	requires(is::type<T>::template same_as<indices::of<>>)
-	using values_at = of<>;
+	using at = of<>;
 
 	template<auto... Values>
 	using append_back_values = of<Values...>;
@@ -115,13 +113,13 @@ struct of<> {
 	using indices_of_values_that_satisfy = of<>;
 
 	template<typename Predicate>
-	using indices_of_values_that_not_satisfy = of<>;
+	using indices_of_not_satisfying = of<>;
 
 	template<auto Value>
-	using indices_of_values_same_as = of<>;
+	using indices_of_equal_to = of<>;
 
 	template<auto Value>
-	using indices_of_values_not_same_as = of<>;
+	using indices_of_not_equal_to = of<>;
 
 	template<std::size_t... Indices>
 	requires(sizeof...(Indices) == 0)
@@ -133,16 +131,16 @@ struct of<> {
 
 	template<auto... Values>
 	requires(sizeof...(Values) == 0)
-	using erase_values = of<>;
+	using erase_equal_to_one_of_values = of<>;
 
 	template<auto Value>
-	static constexpr std::size_t count_of_value = 0;
+	static constexpr std::size_t count_of_equal_to = 0;
 
 	template<auto Value>
-	using contains_value_predicate = std::false_type;
+	using contains_equal_to_predicate = std::false_type;
 
 	template<auto Value>
-	static constexpr bool contains_value = false;
+	static constexpr bool contains_equal_to = false;
 };
 
 template<auto... Values>
@@ -153,23 +151,23 @@ struct of {
 	using indieces_type = typename indices::from<0>::to<size>;
 
 	template<std::size_t Index>
-	static constexpr auto value_at_index = ::at<Index>::template of_values<Values...>;
+	static constexpr auto at_index = ::at<Index>::template of_values<Values...>;
 
 	template<std::size_t... Indices>
-	using values_at_indices = of<value_at_index<Indices>...>;
+	using at_indices = of<at_index<Indices>...>;
 
 private:
 	template<typename T>
-	struct values_at_t;
+	struct at_t;
 
 	template<std::size_t... Indices>
-	struct values_at_t<of<Indices...>> {
-		using type = values_at_indices<Indices...>;
+	struct at_t<of<Indices...>> {
+		using type = at_indices<Indices...>;
 	};
 public:
 
 	template<typename T>
-	using values_at = typename values_at_t<T>::type;
+	using at = typename at_t<T>::type;
 
 	template<auto... Values0>
 	using append_back_values = of<Values..., Values0...>;
@@ -177,29 +175,29 @@ public:
 	template<auto... Values0>
 	using append_front_values = of<Values0..., Values...>;
 
-	static constexpr auto front = value_at_index<0>;
+	static constexpr auto front = at_index<0>;
 
-	static constexpr auto back = value_at_index<size - 1>;
+	static constexpr auto back = at_index<size - 1>;
 
 	template<template<auto> typename P>
-	using indices_of_values_that_satisfy = typename
+	using indices_of_satisfying = typename
 		indices::of_values_that_satisfy<P>
 		::template of_values<Values...>;
 
 	template<template<auto> typename P>
-	using indices_of_values_that_not_satisfy = typename
+	using indices_of_not_satisfying = typename
 		indices::of_values_that_not_satisfy<P>
 		::template of_values<Values...>;
 
 	template<auto Value>
-	using indices_of_values_same_as =
-		indices_of_values_that_satisfy<
+	using indices_of_equal_to =
+		indices_of_satisfying<
 			is::value<Value>::template same_as_predicate
 		>;
 
 	template<auto Value>
-	using indices_of_values_not_same_as =
-		indices_of_values_that_not_satisfy<
+	using indices_of_not_equal_to =
+		indices_of_not_satisfying<
 			is::value<Value>::template same_as_predicate
 		>;
 
@@ -207,10 +205,10 @@ public:
 	using erase_at_index = typename erase_at<Index>::template of_values<Values...>;
 
 	template<std::size_t... Indices>
-	using erase_at_indices = values_at<
+	using erase_at_indices = at<
 			typename indieces_type::
-			template indices_of_values_that_not_satisfy<
-				indices::of<Indices...>::template contains_value_predicate
+			template indices_of_not_satisfying<
+				indices::of<Indices...>::template contains_equal_to_predicate
 			>
 		>;
 
@@ -228,21 +226,18 @@ public:
 	using erase_at = typename erase_at_t<T>::type;
 
 	template<auto... Values0>
-	using erase_values = values_at<
-		indices_of_values_that_not_satisfy<values::of<Values0...>::template contains_value_predicate>
+	using erase_equal_to_one_of_values = at<
+		indices_of_not_satisfying<values::of<Values0...>::template contains_equal_to_predicate>
 	>;
-
-	template<auto Value>
-	static constexpr std::size_t index_of_first_value = indices_of_values_same_as<Value>::template value_at_index<0>;
 	
 	template<auto Value>
-	static constexpr std::size_t count_of_value = indices_of_values_same_as<Value>::size;
+	static constexpr std::size_t count_of_equal_to = indices_of_equal_to<Value>::size;
 
 	template<auto Value>
-	using contains_value_predicate = std::bool_constant< (count_of_value<Value> > 0) >;
+	using contains_equal_to_predicate = std::bool_constant< (count_of_equal_to<Value> > 0) >;
 
 	template<auto Value>
-	static constexpr bool contains_value = contains_value_predicate<Value>::value;
+	static constexpr bool contains_equal_to = contains_equal_to_predicate<Value>::value;
 };
 
 } // values

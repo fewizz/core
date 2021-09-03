@@ -15,9 +15,9 @@ size_t     size
 
 bool       empty
 
-type       type_at_index<Index>
-types      types_at_indices<Indices...>
-types      types_at<indices::of<Indices...>>
+type       at_index<Index>
+types      at_indices<Indices...>
+types      at<indices::of<Indices...>>
 
 type       front
 
@@ -27,14 +27,14 @@ types      append_back_types<Types...>
 
 types      append_front_types<Types...>
 
-indices    indices_of_types_that_satisfy<Predicate>
-indices    indices_of_types_that_not_satisfy<Predicate>
+indices    indices_of_satisfying<Predicate>
+indices    indices_of_not_satisfying<Predicate>
 
-indices    indices_of_types_same_as<Type>
-indices    indices_of_types_not_same_as<Type>
+indices    indices_of_same_as<Type>
+indices    indices_of_not_same_as<Type>
 
-indices    indices_of_types_args_for_invocable_type<Type>
-indices    indices_of_types_not_args_for_invocable_type<Type>
+indices    indices_of_args_for_invocable_type<Type>
+indices    indices_of_not_args_for_invocable_type<Type>
 
 types      erase_at_index<Index>
 types      erase_at_indices<Indices...>
@@ -42,12 +42,10 @@ types      erase_at<indices::of<Indices...>>
 
 types      erase_types<Types...>
 
-size_t     index_of_first_type<Type>
+size_t     count_of_same_as<Type>
 
-size_t     count_of_type<Type>
-
-type       contains_type_predicate<Type>
-bool       contains_type<Type>
+type       contains_same_as_predicate<Type>
+bool       contains_same_as<Type>
 */
 
 template<typename... Ts> 
@@ -60,11 +58,11 @@ struct of<> {
 
 	template<std::size_t... Indices>
 	requires(sizeof...(Indices) == 0)
-	using types_at_indices = of<>;
+	using at_indices = of<>;
 
 	template<typename T>
 	requires(is::type<T>::template same_as<indices::of<>>)
-	using types_at = of<>;
+	using at = of<>;
 
 	template<typename... Types>
 	using append_back_types = of<Types...>;
@@ -73,22 +71,22 @@ struct of<> {
 	using append_front_types = of<Types...>;
 
 	template<typename... Types>
-	using indices_of_types_that_satisfy = indices::of<>;
+	using indices_of_satisfying = indices::of<>;
 
 	template<typename... Types>
-	using indices_of_types_that_not_satisfy = indices::of<>;
+	using indices_of_not_satisfying = indices::of<>;
 
 	template<typename T>
-	using indices_of_types_same_as = indices::of<>;
+	using indices_of_same_as = indices::of<>;
 
 	template<typename T>
-	using indices_of_types_not_same_as = indices::of<>;
+	using indices_of_not_same_as = indices::of<>;
 
 	template<typename F>
-	using indices_of_types_args_for_invocable_type = indices::of<>;
+	using indices_of_args_for_invocable_type = indices::of<>;
 
 	template<typename F>
-	using indices_of_types_not_args_for_invocable_type = indices::of<>;
+	using indices_of_not_args_for_invocable_type = indices::of<>;
 
 	template<std::size_t... Indices>
 	requires(sizeof...(Indices) == 0)
@@ -102,13 +100,13 @@ struct of<> {
 	using erase_types = of<>;
 
 	template<typename T>
-	static constexpr std::size_t count_of_type = 0;
+	static constexpr std::size_t count_of_same_as = 0;
 
 	template<typename T>
-	using contains_type_predicate = std::false_type;
+	using contains_same_as_predicate = std::false_type;
 
 	template<typename T>
-	static constexpr bool contains_type = false;
+	static constexpr bool contains_same_as = false;
 };
 
 template<typename... Types>
@@ -118,26 +116,26 @@ struct of {
 	static constexpr bool empty = false;
 
 	template<std::size_t Index>
-	using type_at_index = typename ::at<Index>::template of_types<Types...>;
+	using at_index = typename ::at<Index>::template of_types<Types...>;
 
 	template<std::size_t... Indices>
-	using types_at_indices = of<type_at_index<Indices>...>;
+	using at_indices = of<at_index<Indices>...>;
 
 private:
 
 	template<typename T>
-	struct types_at_t;
+	struct at_t;
 
 	template<std::size_t... Indices>
-	struct types_at_t<indices::of<Indices...>> {
-		using type = types_at_indices<Indices...>;
+	struct at_t<indices::of<Indices...>> {
+		using type = at_indices<Indices...>;
 	};
 public:
 	template<typename T>
-	using types_at = typename types_at_t<T>::type;
+	using at = typename at_t<T>::type;
 
-	using front = type_at_index<0>;
-	using back = type_at_index<size - 1>;
+	using front = at_index<0>;
+	using back = at_index<size - 1>;
 
 	template<typename... Types0>
 	using append_back_types = of<Types..., Types0...>;
@@ -146,36 +144,36 @@ public:
 	using append_front_types = of<Types0..., Types...>;
 
 	template<template<typename> typename P>
-	using indices_of_types_that_satisfy =
+	using indices_of_satisfying =
 		typename indices::of_types_that_satisfy<P>
 		::template of_types<Types...>;
 
 	template<template<typename> typename P>
-	using indices_of_types_that_not_satisfy =
+	using indices_of_not_satisfying =
 		typename indices::of_types_that_not_satisfy<P>
 		::template of_types<Types...>;
 
 	template<typename T>
-	using indices_of_types_same_as =
-		indices_of_types_that_satisfy<
+	using indices_of_same_as =
+		indices_of_satisfying<
 			is::type<T>::template same_as_predicate
 		>;
 	
 	template<typename T>
-	using indices_of_types_not_same_as =
-		indices_of_types_that_not_satisfy<
+	using indices_of_not_same_as =
+		indices_of_not_satisfying<
 			is::type<T>::template same_as_predicate
 		>;
 
 	template<typename F>
-	using indices_of_types_args_for_invocable_type =
-		indices_of_types_that_satisfy<
+	using indices_of_args_for_invocable_type =
+		indices_of_satisfying<
 			is::type<F>::template invocable_with_arg_predicate
 		>;
 
 	template<typename F>
-	using indices_of_types_are_not_args_for_invocable_type =
-		indices_of_types_that_not_satisfy<
+	using indices_of_are_not_args_for_invocable_type =
+		indices_of_not_satisfying<
 			is::type<F>::template invocable_with_arg_predicate
 		>;
 
@@ -187,10 +185,10 @@ public:
 
 	template<std::size_t... Indices>
 	using erase_at_indices =
-		types_at<
+		at<
 			typename indieces_type::
-			template indices_of_values_that_not_satisfy<
-				indices::of<Indices...>::template contains_value_predicate
+			template indices_of_not_satisfying<
+				indices::of<Indices...>::template contains_equal_to_predicate
 			>
 		>;
 
@@ -209,22 +207,19 @@ public:
 
 	template<typename... Types0>
 	using erase_types =
-		types_at<
-			indices_of_types_that_not_satisfy<types::of<Types0...>::template contains_type_predicate>
+		at<
+			indices_of_not_satisfying<types::of<Types0...>::template contains_type_predicate>
 		>;
 
 	template<typename Type>
-	static constexpr std::size_t index_of_first_type = indices_of_types_same_as<Type>::template value_at_index<0>;
-
-	template<typename Type>
-	static constexpr std::size_t count_of_type = indices_of_types_same_as<Type>::size;
+	static constexpr std::size_t count_of_same_as = indices_of_same_as<Type>::size;
 
 	// contains
 	template<typename Type>
-	using contains_type_predicate = std::bool_constant< (count_of_type<Type> > 0) >;
+	using contains_same_as_predicate = std::bool_constant< (count_of_same_as<Type> > 0) >;
 
 	template<typename Type>
-	static constexpr bool contains_type = contains_type_predicate<Type>::value;
+	static constexpr bool contains_same_as = contains_same_as_predicate<Type>::value;
 };
 
 }
