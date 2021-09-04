@@ -29,8 +29,8 @@ values     append_front_values<Values...>
 indices    indices_of_satisfying<Predicate>
 indices    indices_of_not_satisfying<Predicate>
 
-indices    indices_of_equal_to<Value>
-indices    indices_of_not_equal_to<Value>
+indices    indices_of_equal_to_value<Value>
+indices    indices_of_not_equal_to_value<Value>
 
 values     erase_at_index<Index>
 values     erase_at_indices<Indices...>
@@ -38,10 +38,10 @@ values     erase_at<indices::of<Indices...>>
 
 values     erase_equal_to_one_of_values<Values...>
 
-size_t     count_of_equal_to<Value>
+size_t     count_of_equal_to_value<Value>
 
-value      contains_equal_to_predicate<Predicate>
-bool       contains_equal_to<Value>
+value      contains_equal_to_value_predicate<Predicate>
+bool       contains_equal_to_value<Value>
 */
 
 template<auto... Values>
@@ -116,10 +116,10 @@ struct of<> {
 	using indices_of_not_satisfying = of<>;
 
 	template<auto Value>
-	using indices_of_equal_to = of<>;
+	using indices_of_equal_to_value = of<>;
 
 	template<auto Value>
-	using indices_of_not_equal_to = of<>;
+	using indices_of_not_equal_to_value = of<>;
 
 	template<std::size_t... Indices>
 	requires(sizeof...(Indices) == 0)
@@ -137,10 +137,10 @@ struct of<> {
 	static constexpr std::size_t count_of_equal_to = 0;
 
 	template<auto Value>
-	using contains_equal_to_predicate = std::false_type;
+	using contains_equal_to_value_predicate = std::false_type;
 
 	template<auto Value>
-	static constexpr bool contains_equal_to = false;
+	static constexpr bool contains_equal_to_value = false;
 };
 
 template<auto... Values>
@@ -190,13 +190,13 @@ public:
 		::template of_values<Values...>;
 
 	template<auto Value>
-	using indices_of_equal_to =
+	using indices_of_equal_to_value =
 		indices_of_satisfying<
 			is::value<Value>::template same_as_predicate
 		>;
 
 	template<auto Value>
-	using indices_of_not_equal_to =
+	using indices_of_not_equal_to_value =
 		indices_of_not_satisfying<
 			is::value<Value>::template same_as_predicate
 		>;
@@ -208,7 +208,7 @@ public:
 	using erase_at_indices = at<
 			typename indieces_type::
 			template indices_of_not_satisfying<
-				indices::of<Indices...>::template contains_equal_to_predicate
+				indices::of<Indices...>::template contains_equal_to_value_predicate
 			>
 		>;
 
@@ -227,17 +227,17 @@ public:
 
 	template<auto... Values0>
 	using erase_equal_to_one_of_values = at<
-		indices_of_not_satisfying<values::of<Values0...>::template contains_equal_to_predicate>
+		indices_of_not_satisfying<values::of<Values0...>::template contains_equal_to_value_predicate>
 	>;
 	
 	template<auto Value>
-	static constexpr std::size_t count_of_equal_to = indices_of_equal_to<Value>::size;
+	static constexpr std::size_t count_of_equal_to_value = indices_of_equal_to_value<Value>::size;
 
 	template<auto Value>
-	using contains_equal_to_predicate = std::bool_constant< (count_of_equal_to<Value> > 0) >;
+	using contains_equal_to_value_predicate = std::bool_constant< (count_of_equal_to_value<Value> > 0) >;
 
 	template<auto Value>
-	static constexpr bool contains_equal_to = contains_equal_to_predicate<Value>::value;
+	static constexpr bool contains_equal_to_value = contains_equal_to_value_predicate<Value>::value;
 };
 
 } // values

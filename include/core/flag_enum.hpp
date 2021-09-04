@@ -1,13 +1,13 @@
 #pragma once
 
-#include <type_traits>
 #include "integer.hpp"
+#include "is.hpp"
 
 template<typename E>
-requires(std::is_enum_v<E>)
+requires(is::type<E>::enum_type)
 struct flag_enum {
 	using value_type = int_with_size_of<E>;
-	value_type value;
+	value_type value{};
 
 	flag_enum() = default;
 	flag_enum(const flag_enum&) = default;

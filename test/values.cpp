@@ -49,10 +49,10 @@ static_assert(I3::front == 3);
 static_assert(BIC::back == char(2));
 static_assert(I3::back == 9);
 
-// indices of equal to
+// indices of equal to value
 static_assert(
 	is::type<
-		BIC::indices_of_equal_to<int(1)>
+		BIC::indices_of_equal_to_value<int(1)>
 	>::template same_as<
 		indices::of<1>
 	>
@@ -60,7 +60,7 @@ static_assert(
 
 static_assert(
 	is::type<
-		I3::indices_of_equal_to<int(9)>
+		I3::indices_of_equal_to_value<int(9)>
 	>::template same_as<
 		indices::of<2>
 	>
@@ -98,9 +98,9 @@ static_assert(
 //	BIC::index_of_first_value<(char)2> == 2
 //);
 
-// count of equal to
+// count of equal to value
 static_assert(
-	values::of<0,1,2,2,2,1,0>::count_of_equal_to<2> == 3
+	values::of<0,1,2,2,2,1,0>::count_of_equal_to_value<2> == 3
 );
 
 int main() {}

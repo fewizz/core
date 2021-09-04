@@ -39,12 +39,12 @@ struct tuple : std::tuple<Ts...> {
 
 	template<typename T>
 	constexpr bool contains() const {
-		return types_type::template contains_same_as<T>;
+		return types_type::template contains_same_as_type<T>;
 	}
 
 	template<typename T>
 	constexpr std::size_t count() {
-		return types_type::template count_of_same_as<T>;
+		return types_type::template count_of_same_as_type<T>;
 	}
 
 	tuple(Ts&&... ts)

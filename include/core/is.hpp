@@ -6,15 +6,31 @@ namespace is {
 
 template<typename T>
 struct type {
-	template<typename T0>
-	using same_as_predicate = std::is_same<T, T0>;
 
 	// same_as
 	template<typename T0>
-	static constexpr bool same_as = std::is_same_v<T, T0>;
+	using same_as_predicate = std::is_same<T, T0>;
 
 	template<typename T0>
-	static constexpr bool not_same_as = ! std::is_same_v<T, T0>;
+	static constexpr bool same_as = same_as_predicate<T0>::value;
+
+	template<typename T0>
+	static constexpr bool not_same_as = ! same_as<T>;
+
+	template<typename T0>
+	using same_as_remove_cv_ref_predicate = std::is_same<T, std::remove_cvref_t<T0>>;
+
+	template<typename T0>
+	static constexpr bool same_as_remove_cv_ref = same_as_remove_cv_ref_predicate<T0>::value;
+
+	// enum // I don't like this _type postfix
+	using enum_type_predicate = std::is_enum<T>;
+
+	// same_as
+	static constexpr bool enum_type = enum_type_predicate::value;
+
+	template<typename T0>
+	static constexpr bool not_enum_type = ! enum_type;
 
 	// invocable_with
 	template<typename... Args>

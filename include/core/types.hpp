@@ -30,8 +30,10 @@ types      append_front_types<Types...>
 indices    indices_of_satisfying<Predicate>
 indices    indices_of_not_satisfying<Predicate>
 
-indices    indices_of_same_as<Type>
-indices    indices_of_not_same_as<Type>
+indices    indices_of_same_as_type<Type>
+indices    indices_of_not_same_as_type<Type>
+
+indices    indices_of_remove_cvref_same_as_type<Type>
 
 indices    indices_of_args_for_invocable_type<Type>
 indices    indices_of_not_args_for_invocable_type<Type>
@@ -42,10 +44,15 @@ types      erase_at<indices::of<Indices...>>
 
 types      erase_types<Types...>
 
-size_t     count_of_same_as<Type>
+size_t     count_of_same_as_type<Type>
+size_t     count_of_remove_cvref_same_as_type<Type>
 
 type       contains_same_as_predicate<Type>
-bool       contains_same_as<Type>
+type       contains_remove_cvref_same_as_predicate<Type>
+
+bool       contains_same_as_type<Type>
+bool       contains_remove_cvref_same_as_type<Type>
+
 */
 
 template<typename... Ts> 
@@ -77,10 +84,13 @@ struct of<> {
 	using indices_of_not_satisfying = indices::of<>;
 
 	template<typename T>
-	using indices_of_same_as = indices::of<>;
+	using indices_of_same_as_type = indices::of<>;
 
 	template<typename T>
-	using indices_of_not_same_as = indices::of<>;
+	using indices_of_not_same_as_type = indices::of<>;
+
+	template<typename T>
+	using indices_of_remove_cvref_same_as_type = indices::of<>;
 
 	template<typename F>
 	using indices_of_args_for_invocable_type = indices::of<>;
@@ -97,16 +107,28 @@ struct of<> {
 	using erase_at = of<>;
 
 	template<typename... Types>
-	using erase_types = of<>;
+	using erase_same_as_one_of_types = of<>;
+
+	template<typename... Types>
+	using erase_remove_cvref_same_as_one_of_types = of<>;
 
 	template<typename T>
-	static constexpr std::size_t count_of_same_as = 0;
+	static constexpr std::size_t count_of_same_as_type = 0;
 
 	template<typename T>
-	using contains_same_as_predicate = std::false_type;
+	static constexpr std::size_t count_of_remove_cvref_same_as_type = 0;
 
 	template<typename T>
-	static constexpr bool contains_same_as = false;
+	using contains_same_as_type_predicate = std::false_type;
+
+	template<typename T>
+	using contains_remove_cvref_same_as_type_predicate = std::false_type;
+
+	template<typename T>
+	static constexpr bool contains_same_as_type = false;
+
+	template<typename T>
+	static constexpr bool contains_remove_cvref_same_as_type = false;
 };
 
 template<typename... Types>
@@ -154,16 +176,34 @@ public:
 		::template of_types<Types...>;
 
 	template<typename T>
-	using indices_of_same_as =
+	using indices_of_same_as_type =
 		indices_of_satisfying<
 			is::type<T>::template same_as_predicate
 		>;
 	
 	template<typename T>
-	using indices_of_not_same_as =
+	using indices_of_not_same_as_type =
 		indices_of_not_satisfying<
 			is::type<T>::template same_as_predicate
 		>;
+
+	template<typename T>
+	using indices_of_remove_cvref_same_as_type =
+		indices_of_satisfying<
+			is::type<T>::template same_as_remove_cv_ref_predicate
+		>;
+
+	template<typename T>
+	using indices_of_not_remove_cvref_same_as_type =
+		indices_of_not_satisfying<
+			is::type<T>::template same_as_remove_cv_ref_predicate
+		>;
+
+	template<typename T>
+	using indices_of_same_as_remove_cvref_type = indices_of_same_as_type<std::remove_cvref_t<T>>;
+
+	template<typename T>
+	using indices_of_not_same_as_remove_cvref_type = indices_of_not_same_as_type<std::remove_cvref_t<T>>;
 
 	template<typename F>
 	using indices_of_args_for_invocable_type =
@@ -172,7 +212,7 @@ public:
 		>;
 
 	template<typename F>
-	using indices_of_are_not_args_for_invocable_type =
+	using indices_of_not_args_for_invocable_type =
 		indices_of_not_satisfying<
 			is::type<F>::template invocable_with_arg_predicate
 		>;
@@ -188,7 +228,7 @@ public:
 		at<
 			typename indieces_type::
 			template indices_of_not_satisfying<
-				indices::of<Indices...>::template contains_equal_to_predicate
+				indices::of<Indices...>::template contains_equal_to_value_predicate
 			>
 		>;
 
@@ -206,20 +246,45 @@ public:
 	using erase_at = typename erase_at_t<T>::type;
 
 	template<typename... Types0>
-	using erase_types =
-		at<
-			indices_of_not_satisfying<types::of<Types0...>::template contains_type_predicate>
-		>;
+	using erase_same_as_one_of_types =
+	at<
+		indices_of_not_satisfying<types::of<Types0...>::template contains_same_as_type_predicate>
+	>;
+
+	template<typename... Types0>
+	using erase_remove_cvref_same_as_one_of_types =
+	at<
+		indices_of_not_satisfying<
+			types::of<Types0...>::template contains_same_as_remove_cvref_type_predicate
+		>
+	>;
 
 	template<typename Type>
-	static constexpr std::size_t count_of_same_as = indices_of_same_as<Type>::size;
-
-	// contains
-	template<typename Type>
-	using contains_same_as_predicate = std::bool_constant< (count_of_same_as<Type> > 0) >;
+	static constexpr std::size_t count_of_same_as_type = indices_of_same_as_type<Type>::size;
 
 	template<typename Type>
-	static constexpr bool contains_same_as = contains_same_as_predicate<Type>::value;
+	static constexpr std::size_t count_of_remove_cvref_same_as_type = indices_of_remove_cvref_same_as_type<Type>::size;
+
+	template<typename Type>
+	static constexpr std::size_t count_of_same_as_remove_cvref_type = indices_of_same_as_remove_cvref_type<Type>::size;
+
+	template<typename Type>
+	using contains_same_as_type_predicate = std::bool_constant< (count_of_same_as_type<Type> > 0) >;
+
+	template<typename Type>
+	using contains_remove_cvref_same_as_type_predicate = std::bool_constant< (count_of_remove_cvref_same_as_type<Type> > 0) >;
+
+	template<typename Type>
+	using contains_same_as_remove_cvref_type_predicate = std::bool_constant< (count_of_same_as_remove_cvref_type<Type> > 0) >;
+
+	template<typename Type>
+	static constexpr bool contains_same_as_type = contains_same_as_type_predicate<Type>::value;
+
+	template<typename Type>
+	static constexpr bool contains_remove_cvref_same_as_type = contains_remove_cvref_same_as_type_predicate<Type>::value;
+
+	template<typename Type>
+	static constexpr bool contains_same_as_remove_cvref_type = contains_same_as_remove_cvref_type_predicate<Type>::value;
 };
 
 }
