@@ -1,6 +1,7 @@
 #pragma once
 
 #include <type_traits>
+#include "are_types_same.hpp"
 
 namespace is {
 
@@ -9,10 +10,10 @@ struct type {
 
 	// same_as
 	template<typename T0>
-	using same_as_predicate = std::is_same<T, T0>;
+	using same_as_predicate = are_types_same_predicate<T, T0>;
 
 	template<typename T0>
-	static constexpr bool same_as = same_as_predicate<T0>::value;
+	static constexpr bool same_as = are_types_same<T, T0>;
 
 	template<typename T0>
 	static constexpr bool not_same_as = ! same_as<T>;

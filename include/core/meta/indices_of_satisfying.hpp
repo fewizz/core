@@ -1,21 +1,12 @@
 #pragma once
 
 #include <cstddef>
-
-namespace values {
-
-template<auto... Values>
-struct of;
-
-}
-
-namespace indices {
-
-template<std::size_t... Indices>
-using of = values::of<Indices...>;
+#include "indices.hpp"
+#include "types.hpp"
 
 template<template<typename T> typename Predicate>
-class of_types_that_satisfy {
+class indices_of_satisfying {
+
 	template<std::size_t CurrentIndex, std::size_t... Indices>
 	struct current_index_and_resulting_indices {
 
@@ -48,7 +39,7 @@ public:
 	template<typename... Types>
 	using of_types
 		= typename current_index_and_resulting_indices<0>::template types<Types...>::type;
-}; // of_types_that_satisfy
+}; // indices_of_satisfying
 
 template<template<typename T> typename Predicate>
 struct of_types_that_not_satisfy {
@@ -60,7 +51,7 @@ struct of_types_that_not_satisfy {
 
 	template<typename... Types>
 	using of_types
-		= typename of_types_that_satisfy<predicate_negation>::template of_types<Types...>;
+		= typename indices_of_satisfying<predicate_negation>::template of_types<Types...>;
 }; // of_types_that_not_satisfy
 
 template<template<auto T> typename Predicate>
@@ -112,5 +103,3 @@ struct of_values_that_not_satisfy {
 	using of_values
 		= typename of_values_that_satisfy<predicate_negation>::template of_values<Value...>;
 }; // of_values_that_not_satisfy
-
-} // indices_of
