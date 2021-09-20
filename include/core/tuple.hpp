@@ -1,35 +1,10 @@
 #pragma once
 
-#include <tuple>
-#include "at.hpp"
-#include "indices_of.hpp"
-#include "is.hpp"
-#include "types.hpp"
-#include "values.hpp"
-
-/*
-size_t     size_value
-size_t     size()
-
-bool       contains()
-
-size_t     count()
-
-element    move_element_at<Index>()
-tuple      move_elements_at<Indices...>(indices::of<Indices...>)
-
-element    get_element_at<Index>()
-tuple      get_elements_at<Indices...>(indices::of<Indices...>)
-
-tuple      move_elements_of_type<Type>()
-tuple      get_elements_of_type<Type>()
-
-tuple&     for_each<F>(F&&)
-*/
+#include "integer.hpp"
 
 template<typename... Ts>
-struct tuple : std::tuple<Ts...> {
-	static constexpr std::size_t size_value = sizeof...(Ts);
+struct tuple {
+	static constexpr primitive::uint_native size_value = sizeof...(Ts);
 	using indices_type = typename indices::from<0>::to<size_value>;
 	using types_type = types::of<Ts...>;
 
@@ -48,11 +23,7 @@ struct tuple : std::tuple<Ts...> {
 	}
 
 	tuple(Ts&&... ts)
-		: std::tuple<Ts...> { std::forward<Ts>(ts) ... }
 	{}
-
-	operator std::tuple<Ts...>& () { return *this; }
-	operator const std::tuple<Ts...>& () const { return *this; }
 
 	template<std::size_t Index>
 	decltype(auto) move_element_at() {

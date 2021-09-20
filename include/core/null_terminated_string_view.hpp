@@ -31,7 +31,7 @@ template<>
 struct null_terminated_string_view<size_is::undefined>
 	: std::ranges::view_interface<null_terminated_string_view<size_is::undefined>>
 {
-	const char* m_ptr;
+	const char* m_ptr = nullptr;
 
 	null_terminated_string_view() = default;
 

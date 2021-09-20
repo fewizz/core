@@ -2,7 +2,7 @@
 
 #include <cstddef>
 
-template<std::size_t Size>
+template<unsigned Size>
 struct storage {
 	char _[Size];
 };
