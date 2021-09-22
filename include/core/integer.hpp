@@ -1,8 +1,7 @@
 #pragma once
 
 #include "primitive_integer.hpp"
-#include "meta/same/same_as.hpp"
-#include "meta/conditional/if_satisfying.hpp"
+#include "meta/if_satisfying.hpp"
 
 enum class is_signed {};
 
@@ -41,26 +40,26 @@ struct integer_of_bits {
 	// +
 	template<primitive::uint Bits0>
 	requires(Bits0 <= Bits)
-	integer_of_bits operator + (integer_of_bits<Bits0, Signed> v) const {
+	constexpr integer_of_bits operator + (integer_of_bits<Bits0, Signed> v) const {
 		return { value + v.value };
 	}
 
 	template<primitive::integral I>
 	requires(is_signed == primitive::is_signed<I> && sizeof(I) <= bytes)
-	integer_of_bits operator + (I v) const {
+	constexpr integer_of_bits operator + (I v) const {
 		return { value + v};
 	}
 
 	// -
 	template<primitive::uint Bits0>
 	requires(Bits0 <= Bits)
-	integer_of_bits operator - (integer_of_bits<Bits0, Signed> v) const {
+	constexpr integer_of_bits operator - (integer_of_bits<Bits0, Signed> v) const {
 		return { value - v.value };
 	}
 
 	template<primitive::integral I>
 	requires(is_signed == primitive::is_signed<I> && sizeof(I) <= bytes)
-	integer_of_bits operator - (I v) const {
+	constexpr integer_of_bits operator - (I v) const {
 		return { value - v};
 	}
 

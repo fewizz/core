@@ -1,9 +1,10 @@
 #pragma once
 
 #include "integer.hpp"
-#include "meta/same.hpp"
+#include "meta/enum_type.hpp"
+#include "meta/are_types_same.hpp"
 
-template<typename E>
+template<enum_type E>
 struct flag_enum {
 	using value_type = unsigned_integer_of_size_of<E>;
 	value_type value{};

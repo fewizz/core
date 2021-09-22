@@ -1,7 +1,7 @@
 #pragma once
 
 #include "meta/type.hpp"
-#include "meta/same/are_same.hpp"
+#include "meta/are_types_same.hpp"
 
 namespace primitive {
 
