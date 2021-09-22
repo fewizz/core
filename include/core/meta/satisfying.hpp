@@ -1,13 +1,13 @@
 #pragma once
 
-#include <cstddef>
 #include "indices.hpp"
+#include "integer.hpp"
 #include "types.hpp"
 
 template<template<typename T> typename Predicate>
 class indices_of_satisfying {
 
-	template<std::size_t CurrentIndex, std::size_t... Indices>
+	template<uint CurrentIndex, uint... Indices>
 	struct current_index_and_resulting_indices {
 
 		template<typename... Types>
@@ -19,7 +19,7 @@ class indices_of_satisfying {
 		requires(Predicate<T>::value)
 		struct types<T, Types...> {
 			using type = typename current_index_and_resulting_indices<
-				CurrentIndex + 1,
+				CurrentIndex + 1u,
 				Indices..., CurrentIndex
 			>::template types<Types...>::type;
 		};
@@ -28,7 +28,7 @@ class indices_of_satisfying {
 		requires(!Predicate<T>::value)
 		struct types<T, Types...> {
 			using type = typename current_index_and_resulting_indices<
-				CurrentIndex + 1,
+				CurrentIndex + 1u,
 				Indices...
 			>::template types<Types...>::type;
 		};
@@ -38,7 +38,7 @@ public:
 
 	template<typename... Types>
 	using of_types
-		= typename current_index_and_resulting_indices<0>::template types<Types...>::type;
+		= typename current_index_and_resulting_indices<0u>::template types<Types...>::type;
 }; // indices_of_satisfying
 
 template<template<typename T> typename Predicate>
@@ -57,7 +57,7 @@ struct of_types_that_not_satisfy {
 template<template<auto T> typename Predicate>
 class of_values_that_satisfy {
 
-	template<std::size_t CurrentIndex, std::size_t... Indices>
+	template<uint CurrentIndex, uint... Indices>
 	struct current_index_and_resulting_indices {
 
 		template<auto... Values>
@@ -69,7 +69,7 @@ class of_values_that_satisfy {
 		requires(Predicate<V>::value)
 		struct values<V, Values...> {
 			using type = typename current_index_and_resulting_indices<
-				CurrentIndex + 1,
+				CurrentIndex + 1u,
 				Indices..., CurrentIndex
 			>::template values<Values...>::type;
 		};
@@ -78,7 +78,7 @@ class of_values_that_satisfy {
 		requires(!Predicate<V>::value)
 		struct values<V, Values...> {
 			using type = typename current_index_and_resulting_indices<
-				CurrentIndex + 1,
+				CurrentIndex + 1u,
 				Indices...
 			>::template values<Values...>::type;
 		};
@@ -88,7 +88,7 @@ public:
 
 	template<auto... Values>
 	using of_values
-		= typename current_index_and_resulting_indices<0>::template values<Values...>::type;
+		= typename current_index_and_resulting_indices<0u>::template values<Values...>::type;
 }; // of_values_that_satisfy
 
 template<template<auto> typename Predicate>

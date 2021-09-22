@@ -1,12 +1,12 @@
 #pragma once
 
-#include <cstddef>
+#include "integer.hpp"
 
 namespace values {
 
 template<auto... Values>
 struct of {
-	std::size_t size = sizeof...(Values);
+	uint size = sizeof...(Values);
 };
 
 } // values

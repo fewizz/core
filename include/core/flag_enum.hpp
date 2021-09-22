@@ -1,6 +1,6 @@
 #pragma once
 
-#include "integral.hpp"
+#include "integer.hpp"
 #include "meta/same.hpp"
 
 template<typename E>

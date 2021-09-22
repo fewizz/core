@@ -1,8 +1,8 @@
 #pragma once
 
-#include <cstddef>
+#include "integer.hpp"
 
-template<unsigned Size>
+template<uint Size>
 struct storage {
 	char _[Size];
 };

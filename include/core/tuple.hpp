@@ -1,48 +1,81 @@
 #pragma once
 
 #include "integer.hpp"
+#include "forward.hpp"
+#include "move.hpp"
+#include "primitive_integer.hpp"
 
-template<typename... Ts>
-struct tuple {
-	static constexpr primitive::uint_native size_value = sizeof...(Ts);
-	using indices_type = typename indices::from<0>::to<size_value>;
-	using types_type = types::of<Ts...>;
+template<typename... Types>
+struct tuple_base;
 
-	constexpr std::size_t size() const {
-		return size_value;
+template<>
+struct tuple_base<> {};
+
+template<typename Head, typename... Tail>
+struct tuple_base<Head, Tail...> : tuple_base<Tail...> {
+	Head value;
+
+	tuple_base(Head&& h, Tail&&... tail)
+		: value{ forward<Head>(h) }, tuple_base<Tail...>{ forward<Tail>(tail)... }
+	{}
+
+	template<uint_native Index>
+	auto& get() const & {
+		if constexpr(Index == 0lu) return value;
+		else {
+			static_assert(Index > 0);
+			return tuple_base<Tail...>::template get<Index - 1>();
+		}
+	}
+
+	template<primitive::uint_native Index>
+	auto&& get() const && {
+		if constexpr(Index == 0) return move(value);
+		else {
+			static_assert(Index > 0);
+			return move(
+				tuple_base<Tail...>::template get<Index - 1>()
+			);
+		}
+	}
+};
+
+template<typename... Types>
+struct tuple : private tuple_base<Types...> {
+	static constexpr uint_native size = sizeof...(Types);
+	using indices_type = typename indices::from<0>::to<size>;
+	using types_type = types::of<Types...>;
+
+	template<typename T>
+	static constexpr bool contains = types_type::template contains_same_as_type<T>;
+
+	template<primitive::uint_native Index>
+	decltype(auto) get_element_at() const {
+		return tuple_base<Types...>::template get<Index>();
+	}
+
+	template<primitive::uint_native... Indices>
+	auto get_elements_at(indices::of<Indices...> = {}) {
+		return ::tuple{ get_element_at<Indices>() ... };
 	}
 
 	template<typename T>
-	constexpr bool contains() const {
-		return types_type::template contains_same_as_type<T>;
-	}
-
-	template<typename T>
-	constexpr std::size_t count() {
+	constexpr primitive::uint_native count() {
 		return types_type::template count_of_same_as_type<T>;
 	}
 
-	tuple(Ts&&... ts)
+	tuple(Types&&... values)
+		: tuple_base<Types...>{ forward<Types>(values)... }
 	{}
 
-	template<std::size_t Index>
+	template<primitive::uint_native Index>
 	decltype(auto) move_element_at() {
-		return std::get<Index>(std::move(*this));
+		return get_element_at<Index>();
 	}
 
-	template<std::size_t... Indices>
+	template<primitive::uint_native... Indices>
 	auto move_elements_at(indices::of<Indices...> = {}) {
 		return ::tuple{ move_element_at<Indices>() ... };
-	}
-
-	template<std::size_t Index>
-	decltype(auto) get_element_at() {
-		return std::get<Index>(*this);
-	}
-
-	template<std::size_t... Indices>
-	auto get_elements_at(indices::of<Indices...> = {}) {
-		return ::tuple{ get_element_at<Indices>() ... };
 	}
 
 	template<typename T>
@@ -83,7 +116,7 @@ struct tuple {
 				f(std::move(v));
 			}
 		});
-	}
+	}*/
 };
 
 template<typename... Ts>
