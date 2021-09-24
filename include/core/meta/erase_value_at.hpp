@@ -26,7 +26,7 @@ class erase_value_at {
 		struct current_value_index<Index> {
 			template<auto CurrentValue, auto... RightValues>
 			struct right_values {
-				using type = values::of<LeftValues..., RightValues...>;
+				using type = values_of<LeftValues..., RightValues...>;
 			};
 		};
 	};

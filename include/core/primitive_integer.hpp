@@ -18,8 +18,8 @@ static_assert(sizeof(int8) == 1);
 using uint8 = unsigned char;
 static_assert(sizeof(uint8) == 1);
 
-template<> struct int_of_bits_type<8> : type::of<int8> {};
-template<> struct uint_of_bits_type<8> : type::of<uint8> {};
+template<> struct int_of_bits_type<8> : type_of<int8> {};
+template<> struct uint_of_bits_type<8> : type_of<uint8> {};
 
 // 16
 using int16 = signed short;
@@ -28,8 +28,8 @@ static_assert(sizeof(int16) == 2);
 using uint16 = unsigned short;
 static_assert(sizeof(uint16) == 2);
 
-template<> struct int_of_bits_type<16> : type::of<int16> {};
-template<> struct uint_of_bits_type<16> : type::of<uint16> {};
+template<> struct int_of_bits_type<16> : type_of<int16> {};
+template<> struct uint_of_bits_type<16> : type_of<uint16> {};
 
 // 32
 using int32 = signed int;
@@ -38,8 +38,8 @@ static_assert(sizeof(int32) == 4);
 using uint32 = unsigned int;
 static_assert(sizeof(uint32) == 4);
 
-template<> struct int_of_bits_type<32> : type::of<int32> {};
-template<> struct uint_of_bits_type<32> : type::of<uint32> {};
+template<> struct int_of_bits_type<32> : type_of<int32> {};
+template<> struct uint_of_bits_type<32> : type_of<uint32> {};
 
 // 64
 using int64 = signed long;
@@ -48,8 +48,8 @@ static_assert(sizeof(int64) == 8);
 using uint64 = unsigned long;
 static_assert(sizeof(uint64) == 8);
 
-template<> struct int_of_bits_type<64> : type::of<int64> {};
-template<> struct uint_of_bits_type<64> : type::of<uint64> {};
+template<> struct int_of_bits_type<64> : type_of<int64> {};
+template<> struct uint_of_bits_type<64> : type_of<uint64> {};
 
 using uint = typename uint_of_bits_type<sizeof(void*) * 8>::type;
 

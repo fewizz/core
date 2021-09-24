@@ -25,7 +25,7 @@ class erase_type_at {
 		struct current_type_index<Index> {
 			template<typename CurrentType, typename... RightTypes>
 			struct right_types {
-				using type = types::of<LeftTypes..., RightTypes...>;
+				using type = types_of<LeftTypes..., RightTypes...>;
 			};
 		};
 	};

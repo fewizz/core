@@ -11,7 +11,7 @@ class indices_of_values_satisfying_predicate {
 
 		template<auto... Values>
 		struct values {
-			using type = indices::of<Indices...>;
+			using type = indices_of<Indices...>;
 		};
 
 		template<auto V, auto... Values>

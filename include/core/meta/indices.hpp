@@ -3,13 +3,11 @@
 #include "integer.hpp"
 #include "values.hpp"
 
-namespace indices {
-
 template<uint... Values>
-using of = typename values::of<Values...>;
+using indices_of = values_of<Values...>;
 
 template<uint IndexFrom>
-class from {
+class indices_from {
 	
 	template<uint IndexTo>
 	struct to_t {
@@ -21,7 +19,7 @@ class from {
 		template<uint... Indices>
 		requires(sizeof...(Indices) == size)
 		struct result<Indices...> {
-			using type = of<Indices...>;
+			using type = indices_of<Indices...>;
 		};
 
 		template<uint... Indices>
@@ -41,5 +39,3 @@ public:
 	template<uint IndexTo>
 	using to = typename to_t<IndexTo>::template result<>::type;
 }; // from
-
-} // indices

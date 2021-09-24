@@ -12,7 +12,7 @@ class indices_of_types_satisfying_predicate {
 
 		template<typename... Types>
 		struct types {
-			using type = indices::of<Indices...>;
+			using type = indices_of<Indices...>;
 		};
 
 		template<typename T, typename... Types>
@@ -37,6 +37,8 @@ class indices_of_types_satisfying_predicate {
 public:
 
 	template<typename... Types>
-	using of
-		= typename current_index_and_resulting_indices<0u>::template types<Types...>::type;
+	using of = typename
+		current_index_and_resulting_indices<0u>
+		::template types<Types...>
+		::type;
 };

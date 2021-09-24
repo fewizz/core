@@ -96,7 +96,7 @@ struct integer_of_bits {
 	template<primitive::integral I>
 	requires(is_signed == primitive::is_signed<I> && sizeof(I) <= bytes)
 	constexpr bool operator > (I v) const {
-		return value > v.value;
+		return value > v;
 	}
 };
 

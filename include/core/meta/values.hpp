@@ -2,11 +2,7 @@
 
 #include "integer.hpp"
 
-namespace values {
-
 template<auto... Values>
-struct of {
+struct values_of {
 	uint size = sizeof...(Values);
 };
-
-} // values

@@ -1,10 +1,6 @@
 #pragma once
 
-namespace type {
-
 template<typename T>
-struct of {
+struct type_of {
 	using type = T;
 };
-
-}
