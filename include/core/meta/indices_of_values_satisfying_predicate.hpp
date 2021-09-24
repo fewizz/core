@@ -36,6 +36,6 @@ class indices_of_values_satisfying_predicate {
 public:
 
 	template<auto... Values>
-	using of_values
+	using for_values_of
 		= typename current_index_and_resulting_indices<0u>::template values<Values...>::type;
 };

@@ -34,5 +34,5 @@ class erase_value_at {
 public:
 	
 	template<auto... Values>
-	using of = typename left_values<>::template current_value_index<0u>::template right_values<Values...>::type;
+	using for_values_of = typename left_values<>::template current_value_index<0u>::template right_values<Values...>::type;
 };

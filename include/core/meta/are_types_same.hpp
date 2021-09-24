@@ -15,7 +15,4 @@ constexpr inline bool are_types_same<Head, Head, Tail...>
 ;
 
 template<typename... Types>
-constexpr inline bool are_same = are_types_same<Types...>;
-
-template<typename... Types>
-using are_types_same_predicate = value_of<are_types_same<Types...>>;
+using are_types_same_t = value_of<are_types_same<Types...>>;

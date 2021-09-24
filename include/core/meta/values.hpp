@@ -4,5 +4,5 @@
 
 template<auto... Values>
 struct values_of {
-	uint size = sizeof...(Values);
+	static constexpr uint size = sizeof...(Values);
 };

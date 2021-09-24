@@ -3,21 +3,20 @@
 #include "value.hpp"
 
 template<template<typename...> typename... Predicates>
-struct are_predicates_satisfied_for_types;
+struct predicates_satisfy;
 
 template<template<typename...> typename Predicate>
-struct are_predicates_satisfied_for_types<Predicate> {
-
+struct predicates_satisfy<Predicate> {
 	template<typename... Types>
-	static constexpr bool of = Predicate<Types...>::value;
+	static constexpr bool for_types_of = Predicate<Types...>::value;
 };
 
 template<template<typename...> typename PredicateHead, template<typename...> typename... PredicateTail>
-struct are_predicates_satisfied_for_types<PredicateHead, PredicateTail...> {
+struct predicates_satisfy<PredicateHead, PredicateTail...> {
 
 	template<typename... Types>
-	static constexpr bool of =
+	static constexpr bool for_types_of =
 		PredicateHead<Types...>::value
-		&& are_predicates_satisfied_for_types<PredicateTail...>::template of<Types...>::value
+		&& predicates_satisfy<PredicateTail...>::template of<Types...>::value
 	;
 };

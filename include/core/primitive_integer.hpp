@@ -60,21 +60,15 @@ template<uint Bits>
 using uint_of_bits = typename uint_of_bits_type<Bits>::type;
 
 template<typename T>
-concept signed_integer = are_same<typename int_of_bits_type<sizeof(T)*8>::type, T>;
+concept signed_integer = are_types_same<typename int_of_bits_type<sizeof(T)*8>::type, T>;
 
 template<typename T>
-concept unsigned_integer = are_same<typename uint_of_bits_type<sizeof(T)*8>::type, T>;
+concept unsigned_integer = are_types_same<typename uint_of_bits_type<sizeof(T)*8>::type, T>;
 
 template<typename T>
 concept integral = signed_integer<T> || unsigned_integer<T>;
 
 template<integral T>
 constexpr inline bool is_signed = signed_integer<T> ? true : false;
-
-//template<typename T>
-//using make_unsigned = make_unsigned_type<T>;
-
-//template<typename T>
-//concept signed_integral = not_same_as<int_of_bits<sizeof(T)*8>, void>;
 
 }

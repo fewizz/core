@@ -9,5 +9,5 @@ struct is_type_same {
 	static constexpr bool as = are_types_same<Type0, Type1>;
 
 	template<typename Type1>
-	using as_predicate = value_of<is_type_same<Type0>::as<Type1>>;
+	using as_t = value_of<is_type_same<Type0>::as<Type1>>;
 };

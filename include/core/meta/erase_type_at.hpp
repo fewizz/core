@@ -33,5 +33,5 @@ class erase_type_at {
 public:
 
 	template<typename... Types>
-	using of = typename left_types<>::template current_type_index<0>::template right_types<Types...>::type;
+	using for_types_of = typename left_types<>::template current_type_index<0>::template right_types<Types...>::type;
 };

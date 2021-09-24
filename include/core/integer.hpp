@@ -123,10 +123,10 @@ using uint64 = unsigned_integer_of_bits<64>;
 using uint = unsigned_integer_of_bits<sizeof(void*)*8>;
 
 template<typename T>
-concept signed_integer = are_same<T, signed_integer_of_bits<T::bits>>;
+concept signed_integer = are_types_same<T, signed_integer_of_bits<T::bits>>;
 
 template<typename T>
-concept unsigned_integer = are_same<T, unsigned_integer_of_bits<T::bits>>;
+concept unsigned_integer = are_types_same<T, unsigned_integer_of_bits<T::bits>>;
 
 template<typename T>
 concept integer = signed_integer<T> || unsigned_integer<T>;

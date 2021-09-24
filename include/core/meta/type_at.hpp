@@ -23,5 +23,5 @@ class type_at {
 
 public:
 	template<typename...Types>
-	using of = typename current_index_and_types_left<0u, Types...>::type;
+	using for_types_of = typename current_index_and_types_left<0u, Types...>::type;
 }; // at

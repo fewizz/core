@@ -37,7 +37,7 @@ class indices_of_types_satisfying_predicate {
 public:
 
 	template<typename... Types>
-	using of = typename
+	using for_types_of = typename
 		current_index_and_resulting_indices<0u>
 		::template types<Types...>
 		::type;

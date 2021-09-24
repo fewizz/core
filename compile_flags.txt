@@ -1,6 +1,5 @@
 -std=c++20
 -nostdlib++
--nolibc
 -Iinclude/core
 -Wall
 -pedantic
