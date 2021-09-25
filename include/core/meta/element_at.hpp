@@ -13,7 +13,7 @@ struct element_at {
 		}
 		else {
 			static_assert(sizeof...(TailTypes) > 0);
-			return of(forward<TailTypes>(tail_elements)...);
+			return element_at<Index - 1u>::for_elements_of(forward<TailTypes>(tail_elements)...);
 		}
 	}
 

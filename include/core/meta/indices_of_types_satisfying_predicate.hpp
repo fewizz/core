@@ -1,10 +1,10 @@
 #pragma once
 
-#include "indices.hpp"
-#include "integer.hpp"
+#include "../integer.hpp"
 #include "types.hpp"
+#include "values.hpp"
 
-template<template<typename T> typename Predicate>
+template<typename Predicate>
 class indices_of_types_satisfying_predicate {
 
 	template<uint CurrentIndex, uint... Indices>
@@ -16,7 +16,7 @@ class indices_of_types_satisfying_predicate {
 		};
 
 		template<typename T, typename... Types>
-		requires(Predicate<T>::value)
+		requires(Predicate::template for_type_of<T>)
 		struct types<T, Types...> {
 			using type = typename current_index_and_resulting_indices<
 				CurrentIndex + 1u,
@@ -25,7 +25,7 @@ class indices_of_types_satisfying_predicate {
 		};
 
 		template<typename T, typename... Types>
-		requires(!Predicate<T>::value)
+		requires(!Predicate::template for_type_of<T>)
 		struct types<T, Types...> {
 			using type = typename current_index_and_resulting_indices<
 				CurrentIndex + 1u,

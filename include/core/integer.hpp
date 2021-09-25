@@ -1,7 +1,7 @@
 #pragma once
 
 #include "primitive_integer.hpp"
-#include "meta/if_satisfying.hpp"
+#include "meta/if_satisfy.hpp"
 
 enum class is_signed {};
 
@@ -12,7 +12,7 @@ struct integer_of_bits {
 	static constexpr primitive::uint bytes = bits * 8;
 
 	using type =
-		typename if_satisfying<is_signed>
+		typename if_satisfy<is_signed>
 		::template then<primitive::int_of_bits<Bits>>
 		::template otherwise<primitive::uint_of_bits<Bits>>;
 	
@@ -97,6 +97,13 @@ struct integer_of_bits {
 	requires(is_signed == primitive::is_signed<I> && sizeof(I) <= bytes)
 	constexpr bool operator > (I v) const {
 		return value > v;
+	}
+
+	// <=
+	template<primitive::uint Bits0>
+	requires(Bits0 <= Bits)
+	constexpr bool operator <= (integer_of_bits<Bits0, Signed> v) const {
+		return value <= v.value;
 	}
 };
 

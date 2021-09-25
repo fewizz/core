@@ -5,7 +5,6 @@
 #include "../move.hpp"
 #include "indices.hpp"
 #include "types.hpp"
-#include "first_type.hpp"
 
 template<typename... Types>
 struct recursive_elements_storage{};

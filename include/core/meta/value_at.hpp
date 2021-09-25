@@ -23,5 +23,5 @@ class value_at {
 
 public:
 	template<auto...Values>
-	static constexpr auto of = current_index_and_values_left<0u, Values...>::value;
+	static constexpr auto for_values_of = current_index_and_values_left<0u, Values...>::value;
 };
