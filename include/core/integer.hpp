@@ -16,24 +16,39 @@ struct integer_of_bits {
 		::template then<primitive::int_of_bits<Bits>>
 		::template otherwise<primitive::uint_of_bits<Bits>>;
 	
-	type value{};
+	type m_value{};
 
 	constexpr integer_of_bits() = default;
 
 	template<primitive::integral I>
 	requires(is_signed == primitive::is_signed<I> && sizeof(I) <= bytes)
 	constexpr integer_of_bits(I v)
-		: value{ v } {}
-
-	constexpr integer_of_bits(const integer_of_bits&) = default;
-
-	constexpr explicit operator type& () { return value; }
-	constexpr explicit operator const type& () const { return value; }
+		: m_value{ v }
+	{}
 
 	template<primitive::uint Bits0>
 	requires(Bits0 <= Bits)
+	constexpr integer_of_bits(const integer_of_bits<Bits0, Signed>& v)
+		: m_value{ v.m_value }
+	{}
+
+	constexpr explicit operator type& () { return m_value; }
+	constexpr explicit operator const type& () const { return m_value; }
+
+	// assignment
+	// =
+	template<primitive::uint Bits0>
+	requires(Bits0 <= Bits)
 	constexpr auto& operator = (const integer_of_bits<Bits0, Signed>& v) {
-		value = v.value;
+		m_value = v.m_value;
+		return *this;
+	}
+
+	// +=
+	template<primitive::uint Bits0>
+	requires(Bits0 <= Bits)
+	constexpr auto& operator += (const integer_of_bits<Bits0, Signed>& v) {
+		m_value += v.m_value;
 		return *this;
 	}
 
@@ -41,69 +56,69 @@ struct integer_of_bits {
 	template<primitive::uint Bits0>
 	requires(Bits0 <= Bits)
 	constexpr integer_of_bits operator + (integer_of_bits<Bits0, Signed> v) const {
-		return { value + v.value };
+		return { m_value + v.m_value };
 	}
 
 	template<primitive::integral I>
 	requires(is_signed == primitive::is_signed<I> && sizeof(I) <= bytes)
 	constexpr integer_of_bits operator + (I v) const {
-		return { value + v};
+		return { m_value + v};
 	}
 
 	// -
 	template<primitive::uint Bits0>
 	requires(Bits0 <= Bits)
 	constexpr integer_of_bits operator - (integer_of_bits<Bits0, Signed> v) const {
-		return { value - v.value };
+		return { m_value - v.m_value };
 	}
 
 	template<primitive::integral I>
 	requires(is_signed == primitive::is_signed<I> && sizeof(I) <= bytes)
 	constexpr integer_of_bits operator - (I v) const {
-		return { value - v};
+		return { m_value - v};
 	}
 
 	// >>
 	constexpr integer_of_bits operator >> (type v) const {
-		return { value >> v };
+		return { m_value >> v };
 	}
 
 	// <<
 	constexpr integer_of_bits operator << (type v) const {
-		return { value >> v };
+		return { m_value >> v };
 	}
 
 	// &
 	constexpr integer_of_bits operator & (type v) const {
-		return { value & v };
+		return { m_value & v };
 	}
 
 	// |
 	constexpr integer_of_bits operator | (type v) const {
-		return { value | v };
+		return { m_value | v };
 	}
 
 	constexpr integer_of_bits operator | (integer_of_bits v) const {
-		return { value | v.value };
+		return { m_value | v.m_value };
 	}
 
 	// ==
 	constexpr bool operator == (integer_of_bits v) const {
-		return value == v.value;
+		return m_value == v.m_value;
 	}
 
 	// >
 	template<primitive::integral I>
 	requires(is_signed == primitive::is_signed<I> && sizeof(I) <= bytes)
 	constexpr bool operator > (I v) const {
-		return value > v;
+		return m_value > v;
 	}
 
 	// <=
 	template<primitive::uint Bits0>
 	requires(Bits0 <= Bits)
 	constexpr bool operator <= (integer_of_bits<Bits0, Signed> v) const {
-		return value <= v.value;
+		return m_value <= v.m_value;
 	}
 };
 

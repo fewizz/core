@@ -13,7 +13,7 @@ struct count_of_type {
 		::size;
 
 	template<uint N>
-	struct less_than_equals {
+	struct less_or_equals {
 		template<typename... Types>
 		static constexpr bool for_types_of = count_of_type::for_types_of<Types...> <= N;
 	};

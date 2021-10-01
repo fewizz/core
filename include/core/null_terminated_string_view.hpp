@@ -29,7 +29,7 @@ struct null_terminated_string_view<size_is::defined> {
 	}
 
 	constexpr const char* end() const {
-		return m_ptr + m_size.value; // TODO
+		return m_ptr + (primitive::uint)m_size; // TODO
 	}
 
 	constexpr uint size() const {
