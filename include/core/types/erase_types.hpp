@@ -1,18 +1,34 @@
 #pragma once
 
-#include "indices_of_satisfying_predicate.hpp"
-#include "../type/is_same_as.hpp"
-#include "are_contain_type.hpp"
+#include "erase_type.hpp"
 
 namespace types {
 
 	template<typename... TypesToErase>
 	class erase_types {
 
-		template<
+		template<typename ResultingTypes>
+		struct resulting_types {
 
+			template<typename... TypesToEraseRemaining>
+			struct types_to_erase_remaining;
+
+			template<typename TypeToErase>
+			struct types_to_erase_remaining<TypeToErase> {
+				using result = typename ResultingTypes::template pass_to<types::erase_type<TypeToErase>::template for_types_of>;
+			};
+
+			template<typename TypeToErase, typename... TypesToEraseTail>
+			struct types_to_erase_remaining<TypeToErase, TypesToEraseTail...> {
+
+				using erased = typename ResultingTypes::template pass_to<types::erase_type<TypeToErase>::template for_types_of>;
+
+				using result = typename resulting_types<erased>::template types_to_erase_remaining<TypesToEraseTail...>::result;
+			};
+		};
+	public:
 		template<typename... Types>
-		using for_types_of = ;
+		using for_types_of = typename resulting_types<types::of<Types...>>::template types_to_erase_remaining<TypesToErase...>::result;
 	};
 
 }

@@ -25,13 +25,13 @@ namespace types {
 		template<typename HeadType, typename... TailTypes>
 		struct types_to_check<HeadType, TailTypes...> {
 			template<typename... ResultTytpes>
-			using remaining_types = typename types_to_check<TailTypes...>::template remaining_types<ResultTytpes..., HeadType>;
+			using remaining_types = typename types_to_check<TailTypes...>::template remaining_types<HeadType, ResultTytpes...>;
 		};
 
 		template<typename... TailTypes>
 		struct types_to_check<TypeToErase, TailTypes...> {
 			template<typename... ResultTytpes>
-			using remaining_types = typename types_to_check<TailTypes...>::template remainig_types<ResultTytpes...>;
+			using remaining_types = typename types_to_check<TailTypes...>::template remaining_types<ResultTytpes...>;
 		};
 	public:
 
