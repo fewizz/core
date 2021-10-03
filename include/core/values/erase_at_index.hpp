@@ -1,8 +1,7 @@
 #pragma once
 
 #include "integer.hpp"
-
-#include "values.hpp"
+#include "../values/of.hpp"
 
 template <uint Index>
 class erase_value_at {

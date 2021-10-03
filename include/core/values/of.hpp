@@ -45,7 +45,7 @@ public:
 template<auto... Values>
 struct values_of {
 	static constexpr uint size = sizeof...(Values);
-	static constexpr bool empty = size == 0u;
+	static constexpr bool is_empty = size == 0u;
 
 	using indices = indices_from<0u>::to<size>;
 

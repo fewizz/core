@@ -1,10 +1,10 @@
 #pragma once
 
 #include "../integer.hpp"
-#include "types.hpp"
+#include "of.hpp"
 
 template <uint Index>
-class erase_type_at {
+class erase_at_index {
 	
 	template<typename... LeftTypes>
 	struct left_types {
@@ -25,7 +25,7 @@ class erase_type_at {
 		struct current_type_index<Index> {
 			template<typename CurrentType, typename... RightTypes>
 			struct right_types {
-				using type = types_of<LeftTypes..., RightTypes...>;
+				using type = types::of<LeftTypes..., RightTypes...>;
 			};
 		};
 	};
