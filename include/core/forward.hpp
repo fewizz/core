@@ -1,13 +1,13 @@
 #pragma once
 
-#include "meta/remove_reference.hpp"
+#include "type/remove_reference.hpp"
 
 template<typename T>
-constexpr T&& forward(remove_reference<T>& t) {
+constexpr T&& forward(type::remove_reference::for_type_of<T>& t) {
 	return (T&&)t;
 }
 
 template<typename T>
-constexpr T&& forward(remove_reference<T>&& t) {
+constexpr T&& forward(type::remove_reference::for_type_of<T>&& t) {
 	return (T&&)t;
 }

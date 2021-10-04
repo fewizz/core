@@ -2,7 +2,7 @@
 
 #include "../integer.hpp"
 
-namespace value {
+namespace values {
 
 	template<uint Index>
 	class at_index {

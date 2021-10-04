@@ -15,13 +15,13 @@ namespace types {
 
 			template<typename TypeToErase>
 			struct types_to_erase_remaining<TypeToErase> {
-				using result = typename ResultingTypes::template pass_to<types::erase_type<TypeToErase>::template for_types_of>;
+				using result = typename ResultingTypes::template pass_for_type<types::erase_type<TypeToErase>>;
 			};
 
 			template<typename TypeToErase, typename... TypesToEraseTail>
 			struct types_to_erase_remaining<TypeToErase, TypesToEraseTail...> {
 
-				using erased = typename ResultingTypes::template pass_to<types::erase_type<TypeToErase>::template for_types_of>;
+				using erased = typename ResultingTypes::template pass_for_type<types::erase_type<TypeToErase>>;
 
 				using result = typename resulting_types<erased>::template types_to_erase_remaining<TypesToEraseTail...>::result;
 			};

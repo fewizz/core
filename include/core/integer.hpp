@@ -107,6 +107,12 @@ struct integer_of_bits {
 		return m_value == v.m_value;
 	}
 
+	template<primitive::integral I>
+	requires(is_signed == primitive::is_signed<I> && sizeof(I) <= bytes)
+	constexpr bool operator == (I v) const {
+		return m_value == v;
+	}
+
 	// >
 	template<primitive::integral I>
 	requires(is_signed == primitive::is_signed<I> && sizeof(I) <= bytes)
@@ -119,6 +125,12 @@ struct integer_of_bits {
 	requires(Bits0 <= Bits)
 	constexpr bool operator <= (integer_of_bits<Bits0, Signed> v) const {
 		return m_value <= v.m_value;
+	}
+
+	template<primitive::integral I>
+	requires(is_signed == primitive::is_signed<I> && sizeof(I) <= bytes)
+	constexpr bool operator <= (I v) const {
+		return m_value <= v;
 	}
 };
 

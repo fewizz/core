@@ -3,8 +3,8 @@
 #include "../integer.hpp"
 #include "../forward.hpp"
 #include "../move.hpp"
-#include "indices.hpp"
-#include "types.hpp"
+#include "../types/of.hpp"
+#include "../values/of.hpp"
 
 template<typename... Types>
 struct recursive_elements_storage{};
@@ -44,28 +44,32 @@ struct recursive_elements_storage<HeadType, TailTypes...> : recursive_elements_s
 	}
 };
 
-template<typename... Types>
-struct elements_of : private recursive_elements_storage<Types...> {
-	static constexpr uint size = sizeof...(Types);
-	using indices = typename indices_from<0u>::to<size>;
-	using types = types_of<Types...>;
+namespace elements {
 
-	constexpr elements_of(Types&&... values)
-		: recursive_elements_storage<Types...>{
-			forward<Types>(values)...
+	template<typename... Types>
+	struct of : private recursive_elements_storage<Types...> {
+		static constexpr uint size = sizeof...(Types);
+		using indices = typename indices_from<0u>::to<size>;
+		using types = types::of<Types...>;
+	
+		constexpr of(Types&&... values)
+			: recursive_elements_storage<Types...>{
+				forward<Types>(values)...
+			}
+		{}
+	
+		template<uint Index>
+		constexpr decltype(auto) at() const {
+			return recursive_elements_storage<Types...>::template at<Index>();
 		}
-	{}
+	
+		template<uint... Indices>
+		constexpr auto pass_to(auto&& func, indices_of<Indices...> = indices{}) {
+			return func(at<Indices>() ... );
+		}
+	};
+	
+	template<typename... Types>
+	of(Types&&... ts) -> of<Types...>;
 
-	template<uint Index>
-	constexpr decltype(auto) at() const {
-		return recursive_elements_storage<Types...>::template at<Index>();
-	}
-
-	template<uint... Indices>
-	constexpr auto pass_to(auto&& func, indices_of<Indices...> = indices{}) {
-		return func(at<Indices>() ... );
-	}
-};
-
-template<typename... Ts>
-elements_of(Ts&&... ts) -> elements_of<Ts...>;
+}

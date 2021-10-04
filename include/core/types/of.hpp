@@ -7,9 +7,10 @@ namespace types {
 template<typename... Types> 
 struct of {
 	static constexpr uint size = sizeof...(Types);
+	static constexpr bool is_empty = size == 0u;
 
-	template<template<typename... Types0> typename Func>
-	using pass_to = Func<Types...>;
+	template<typename Func>
+	using pass_for_type = typename Func::template for_types_of<Types...>;
 };
 
 }

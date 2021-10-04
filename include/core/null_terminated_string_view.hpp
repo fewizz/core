@@ -1,8 +1,8 @@
 #pragma once
 
 #include "integer.hpp"
-#include "meta/remove_const.hpp"
-#include "meta/are_types_same.hpp"
+#include "type/remove_const.hpp"
+#include "types/are_same.hpp"
 
 enum class size_is {
 	defined, undefined
@@ -67,5 +67,5 @@ null_terminated_string_view(const char(&arr)[N])
 null_terminated_string_view(const char*, uint size)
 	-> null_terminated_string_view<size_is::defined>;
 
-template<typename T> requires(are_types_same<remove_const<T>, const char*>)
+template<typename T> requires(types::are_same::for_types_of<type::remove_const::for_type_of<T>, const char*>)
 null_terminated_string_view(const T&) -> null_terminated_string_view<size_is::undefined>;

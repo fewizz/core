@@ -24,6 +24,7 @@ namespace types {
 		};
 	
 	public:
+
 		template<typename...Types>
 		using for_types_of = typename current_index_and_types_left<0u, Types...>::type;
 	};
