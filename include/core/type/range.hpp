@@ -16,7 +16,11 @@ namespace type {
 		static constexpr bool is_type_predicate = true;
 
 		template<typename RangeType>
-		static constexpr bool for_type_of = types::are_same::for_types_of<ValueType, typename RangeType::value_type>;
+		static constexpr bool for_type_of = false;
+
+		template<typename RangeType>
+		requires(range<RangeType>)
+		static constexpr bool for_type_of<RangeType> = types::are_same::for_types_of<ValueType, typename RangeType::value_type>;
 	};
 
 }

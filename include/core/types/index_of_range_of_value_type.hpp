@@ -1,7 +1,7 @@
 #pragma once
 
 #include "indices_of_ranges_of_value_type.hpp"
-#include "values/at_index.hpp"
+#include "../values/at_index.hpp"
 #include "at_index.hpp"
 
 namespace types {
@@ -22,7 +22,7 @@ namespace types {
 	public:
 
 		template<typename... Types>
-		static constexpr uint for_types_of = typename for_types<Types...>::result;
+		static constexpr uint for_types_of = for_types<Types...>::result;
 
 	};
 

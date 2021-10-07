@@ -19,19 +19,19 @@ class indices_from {
 		struct result;
 
 		template<uint... Indices>
-		requires(sizeof...(Indices) == size)
+		requires(size == sizeof...(Indices))
 		struct result<Indices...> {
 			using type = indices_of<Indices...>;
 		};
 
 		template<uint... Indices>
-		requires(sizeof...(Indices) == 0 && size > 0u)
+		requires(size != sizeof...(Indices) && sizeof...(Indices) == 0 && size > 0u)
 		struct result<Indices...> {
 			using type = typename result<IndexFrom>::type;
 		};
 
 		template<uint... Indices>
-		requires(sizeof...(Indices) > 0 && sizeof...(Indices) != size)
+		requires(size != sizeof...(Indices) && sizeof...(Indices) > 0)
 		struct result<Indices...> {
 			using type = typename result<Indices..., IndexFrom + sizeof...(Indices)>::type;
 		};

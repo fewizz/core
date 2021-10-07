@@ -9,7 +9,7 @@ template<primitive::uint Bits, is_signed Signed>
 struct integer_of_bits {
 	static constexpr primitive::uint bits = Bits;
 	static constexpr bool is_signed = (bool)Signed;
-	static constexpr primitive::uint bytes = bits * 8;
+	//static constexpr primitive::uint bytes = bits / 8;
 
 	using type =
 		typename if_satisfy<is_signed>
@@ -21,7 +21,7 @@ struct integer_of_bits {
 	constexpr integer_of_bits() = default;
 
 	template<primitive::integral I>
-	requires(is_signed == primitive::is_signed<I> && sizeof(I) <= bytes)
+	requires(is_signed == primitive::is_signed<I> && sizeof(I) * 8 <= bits)
 	constexpr integer_of_bits(I v)
 		: m_value{ v }
 	{}
@@ -60,7 +60,7 @@ struct integer_of_bits {
 	}
 
 	template<primitive::integral I>
-	requires(is_signed == primitive::is_signed<I> && sizeof(I) <= bytes)
+	requires(is_signed == primitive::is_signed<I> && sizeof(I) * 8 <= bits)
 	constexpr integer_of_bits operator + (I v) const {
 		return { m_value + v};
 	}
@@ -73,7 +73,7 @@ struct integer_of_bits {
 	}
 
 	template<primitive::integral I>
-	requires(is_signed == primitive::is_signed<I> && sizeof(I) <= bytes)
+	requires(is_signed == primitive::is_signed<I> && sizeof(I) * 8 <= bits)
 	constexpr integer_of_bits operator - (I v) const {
 		return { m_value - v};
 	}
@@ -108,14 +108,14 @@ struct integer_of_bits {
 	}
 
 	template<primitive::integral I>
-	requires(is_signed == primitive::is_signed<I> && sizeof(I) <= bytes)
+	requires(is_signed == primitive::is_signed<I> && sizeof(I) * 8 <= bits)
 	constexpr bool operator == (I v) const {
 		return m_value == v;
 	}
 
 	// >
 	template<primitive::integral I>
-	requires(is_signed == primitive::is_signed<I> && sizeof(I) <= bytes)
+	requires(is_signed == primitive::is_signed<I> && sizeof(I) * 8 <= bits)
 	constexpr bool operator > (I v) const {
 		return m_value > v;
 	}
@@ -128,7 +128,7 @@ struct integer_of_bits {
 	}
 
 	template<primitive::integral I>
-	requires(is_signed == primitive::is_signed<I> && sizeof(I) <= bytes)
+	requires(is_signed == primitive::is_signed<I> && sizeof(I) * 8 <= bits)
 	constexpr bool operator <= (I v) const {
 		return m_value <= v;
 	}

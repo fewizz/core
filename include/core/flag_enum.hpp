@@ -1,8 +1,8 @@
 #pragma once
 
 #include "integer.hpp"
-#include "meta/enum_type.hpp"
-#include "meta/are_types_same.hpp"
+#include "type/is_enum.hpp"
+#include "types/are_same.hpp"
 
 template<enum_type E>
 struct flag_enum {
@@ -16,7 +16,7 @@ struct flag_enum {
 	template<typename... Args>
 	requires(
 		sizeof...(Args) > 0
-		&& are_same<Args..., E>
+		&& types::are_same::for_types_of<Args..., E>
 	)
 	flag_enum(Args... args) {
 		value = (value_type)(args | ...);
