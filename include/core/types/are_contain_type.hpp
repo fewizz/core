@@ -1,6 +1,7 @@
 #pragma once
 
 #include "indices_of_type.hpp"
+#include "at_indices.hpp"
 
 namespace types {
 
@@ -9,7 +10,10 @@ namespace types {
 		static constexpr bool is_types_predicate = true;
 
 		template<typename... Types>
-		static constexpr bool for_types_of = ! indices_of_type<Type>::template for_types_of<Types...>::empty;
+		using indices_of_affected_types_of = typename indices_of_type<Type>::template for_types_of<Types...>;
+
+		template<typename... Types>
+		static constexpr bool for_types_of = ! indices_of_affected_types_of<Types...>::is_empty;
 	};
 
 }

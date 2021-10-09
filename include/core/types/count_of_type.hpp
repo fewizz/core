@@ -2,6 +2,7 @@
 
 #include "../integer.hpp"
 #include "indices_of_type.hpp"
+#include "at.hpp"
 
 namespace types {
 
@@ -13,10 +14,13 @@ namespace types {
 			indices_of_type<Type>
 			::template for_types_of<Types...>
 			::size;
-	
+
 		template<uint N>
 		struct less_or_equals {
 			static constexpr bool is_types_predicate = true;
+
+			template<typename... Types>
+			using indices_of_affected_types_of = typename indices_of_type<Type>::template for_types_of<Types...>;
 
 			template<typename... Types>
 			static constexpr bool for_types_of = count_of_type::for_types_of<Types...> <= N;
@@ -26,6 +30,9 @@ namespace types {
 		struct equals {
 			static constexpr bool is_types_predicate = true;
 			
+			template<typename... Types>
+			using indices_of_affected_types_of = typename indices_of_type<Type>::template for_types_of<Types...>;
+
 			template<typename... Types>
 			static constexpr bool for_types_of = count_of_type::for_types_of<Types...> == N;
 		};

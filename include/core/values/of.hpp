@@ -2,14 +2,18 @@
 
 #include "../integer.hpp"
 
-template<auto... Values>
-struct values_of;
+namespace values {
 
-template<uint... Values>
-using indices_of = values_of<Values...>;
+	template<auto... Values>
+	struct of;
+}
 
-template<uint IndexFrom>
-class indices_from {
+namespace indices {
+	template<uint... Values>
+	using of = values::of<Values...>;
+
+	template<uint IndexFrom>
+	class from {
 	
 	template<uint IndexTo>
 	struct to_t {
@@ -21,7 +25,7 @@ class indices_from {
 		template<uint... Indices>
 		requires(size == sizeof...(Indices))
 		struct result<Indices...> {
-			using type = indices_of<Indices...>;
+			using type = indices::of<Indices...>;
 		};
 
 		template<uint... Indices>
@@ -42,13 +46,25 @@ public:
 	using to = typename to_t<IndexTo>::template result<>::type;
 }; // from
 
-template<auto... Values>
-struct values_of {
-	static constexpr uint size = sizeof...(Values);
-	static constexpr bool is_empty = size == 0u;
+}
 
-	using indices = indices_from<0u>::to<size>;
+namespace values {
+	
+	template<auto... Values>
+	struct of {
+		static constexpr uint size = sizeof...(Values);
+		static constexpr bool is_empty = size == 0u;
 
-	template<typename T>
-	static constexpr auto pass_for_value = T::template for_values_of<Values...>;
-};
+		using indices = indices::from<0u>::to<size>;
+
+		template<typename T>
+		static constexpr auto pass_for_value = T::template for_values_of<Values...>;
+
+		template<typename T>
+		using pass_for_type = typename T::template for_values_of<Values...>;
+
+		template<template<auto...> typename Type>
+		using pass_for_type_directly = Type<Values...>;
+
+	};
+}

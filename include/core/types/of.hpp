@@ -11,6 +11,9 @@ struct of {
 
 	template<typename Func>
 	using pass_for_type = typename Func::template for_types_of<Types...>;
+
+	template<template<typename...> typename Type>
+	using pass_for_type_directly = Type<Types...>;
 };
 
 }
