@@ -52,6 +52,77 @@ struct integer_of_bits {
 		return *this;
 	}
 
+	template<primitive::integral I>
+	requires(is_signed == primitive::is_signed<I> && sizeof(I) * 8 <= bits)
+	constexpr auto& operator += (I v) const {
+		m_value += v;
+		return *this;
+	}
+
+	// -=
+	template<primitive::uint Bits0>
+	requires(Bits0 <= Bits)
+	constexpr auto& operator -= (const integer_of_bits<Bits0, Signed>& v) {
+		m_value -= v.m_value;
+		return *this;
+	}
+
+	template<primitive::integral I>
+	requires(is_signed == primitive::is_signed<I> && sizeof(I) * 8 <= bits)
+	constexpr auto& operator -= (I v) {
+		m_value -= v;
+		return *this;
+	}
+
+	// *=
+	template<primitive::uint Bits0>
+	requires(Bits0 <= Bits)
+	constexpr auto& operator *= (const integer_of_bits<Bits0, Signed>& v) {
+		m_value *= v.m_value;
+		return *this;
+	}
+
+	template<primitive::integral I>
+	requires(is_signed == primitive::is_signed<I> && sizeof(I) * 8 <= bits)
+	constexpr auto& operator *= (I v) {
+		m_value *= v;
+		return *this;
+	}
+
+	// /=
+	template<primitive::uint Bits0>
+	requires(Bits0 <= Bits)
+	constexpr auto& operator /= (const integer_of_bits<Bits0, Signed>& v) {
+		m_value /= v.m_value;
+		return *this;
+	}
+
+	template<primitive::integral I>
+	requires(is_signed == primitive::is_signed<I> && sizeof(I) * 8 <= bits)
+	constexpr auto& operator /= (I v) {
+		m_value /= v;
+		return *this;
+	}
+
+	// increment/decrement
+	constexpr auto& operator ++ () {
+		++m_value;
+		return *this;
+	}
+
+	constexpr auto& operator -- () {
+		--m_value;
+		return *this;
+	}
+
+	constexpr integer_of_bits operator ++ (int) const {
+		return { m_value++ };
+	}
+
+	constexpr integer_of_bits operator -- (int) const {
+		return { m_value-- };
+	}
+
 	// +
 	template<primitive::uint Bits0>
 	requires(Bits0 <= Bits)
@@ -76,6 +147,32 @@ struct integer_of_bits {
 	requires(is_signed == primitive::is_signed<I> && sizeof(I) * 8 <= bits)
 	constexpr integer_of_bits operator - (I v) const {
 		return { m_value - v};
+	}
+
+	// /
+	template<primitive::uint Bits0>
+	requires(Bits0 <= Bits)
+	constexpr integer_of_bits operator / (integer_of_bits<Bits0, Signed> v) const {
+		return { m_value / v.m_value };
+	}
+
+	template<primitive::integral I>
+	requires(is_signed == primitive::is_signed<I> && sizeof(I) * 8 <= bits)
+	constexpr integer_of_bits operator / (I v) const {
+		return { m_value / v};
+	}
+
+	// %
+	template<primitive::uint Bits0>
+	requires(Bits0 <= Bits)
+	constexpr integer_of_bits operator % (integer_of_bits<Bits0, Signed> v) const {
+		return { m_value % v.m_value };
+	}
+
+	template<primitive::integral I>
+	requires(is_signed == primitive::is_signed<I> && sizeof(I) * 8 <= bits)
+	constexpr integer_of_bits operator % (I v) const {
+		return { m_value % v};
 	}
 
 	// >>
@@ -150,7 +247,7 @@ using int8 = signed_integer_of_bits<8>;
 using uint8 = unsigned_integer_of_bits<8>;
 using int16 = signed_integer_of_bits<16>;
 using uint16 = unsigned_integer_of_bits<16>;
-using sint32 = signed_integer_of_bits<32>;
+using int32 = signed_integer_of_bits<32>;
 using uint32 = unsigned_integer_of_bits<32>;
 using int64 = signed_integer_of_bits<64>;
 using uint64 = unsigned_integer_of_bits<64>;

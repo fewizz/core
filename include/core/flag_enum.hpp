@@ -28,6 +28,6 @@ struct flag_enum {
 	}
 
 	bool get(E v) const {
-		return (value | (value_type)v) == value;
+		return (value | (typename value_type::type)v) == value;
 	}
 };

@@ -1,41 +1,11 @@
 #pragma once
 
-#include "../integer.hpp"
-#include "indices_of_type.hpp"
-#include "at.hpp"
+#include "count_of_satisfying_predicate.hpp"
+#include "../type/is_same_as.hpp"
 
 namespace types {
 
 	template<typename Type>
-	struct count_of_type {
-
-		template<typename... Types>
-		static constexpr uint for_types_of =
-			indices_of_type<Type>
-			::template for_types_of<Types...>
-			::size;
-
-		template<uint N>
-		struct less_or_equals {
-			static constexpr bool is_types_predicate = true;
-
-			template<typename... Types>
-			using indices_of_affected_types_of = typename indices_of_type<Type>::template for_types_of<Types...>;
-
-			template<typename... Types>
-			static constexpr bool for_types_of = count_of_type::for_types_of<Types...> <= N;
-		};
-	
-		template<uint N>
-		struct equals {
-			static constexpr bool is_types_predicate = true;
-			
-			template<typename... Types>
-			using indices_of_affected_types_of = typename indices_of_type<Type>::template for_types_of<Types...>;
-
-			template<typename... Types>
-			static constexpr bool for_types_of = count_of_type::for_types_of<Types...> == N;
-		};
-	};
+	using count_of_type = types::count_of_satisfying_predicate<type::is_same_as<Type>>;
 
 }

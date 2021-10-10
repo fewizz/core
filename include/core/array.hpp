@@ -20,6 +20,14 @@ struct array {
 		return m_array + (primitive::uint)Size;
 	}
 
+	constexpr auto& operator [] (uint index) {
+		return data()[(primitive::uint)index];
+	}
+
+	constexpr const auto& operator [] (uint index) const {
+		return data()[(primitive::uint)index];
+	}
+
 	constexpr value_type* data() {
 		return m_array;
 	}
