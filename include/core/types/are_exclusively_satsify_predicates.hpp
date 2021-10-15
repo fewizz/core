@@ -8,7 +8,6 @@ namespace types {
 	template<types::predicate... Predicates>
 	class are_exclusively_satsify_predicates {
 
-
 		template<typename... Types>
 		struct remaining_types {
 
@@ -22,6 +21,7 @@ namespace types {
 			struct remaining_predicates<HeadPredicate, TailPredicates...> {
 		 
 				static constexpr bool satisfy = HeadPredicate::template for_types_of<Types...>;
+				
 				using indices_of_affected_types = typename HeadPredicate::template indices_of_affected_types_of<Types...>;
 
 				using after_erasing =

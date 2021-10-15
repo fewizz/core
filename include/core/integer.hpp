@@ -229,6 +229,19 @@ struct integer_of_bits {
 	constexpr bool operator <= (I v) const {
 		return m_value <= v;
 	}
+
+	// >=
+	template<primitive::uint Bits0>
+	requires(Bits0 <= Bits)
+	constexpr bool operator >= (integer_of_bits<Bits0, Signed> v) const {
+		return m_value >= v.m_value;
+	}
+
+	template<primitive::integral I>
+	requires(is_signed == primitive::is_signed<I> && sizeof(I) * 8 <= bits)
+	constexpr bool operator >= (I v) const {
+		return m_value >= v;
+	}
 };
 
 template<unsigned Bits>

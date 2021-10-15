@@ -16,7 +16,7 @@ namespace types {
 				type::is_range_of_value_type<ValueType>
 			>
 			::template for_types_of<Types...>
-			::empty;
+			::is_empty;
 	};
 
 }
