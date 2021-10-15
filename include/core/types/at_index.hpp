@@ -16,6 +16,8 @@ namespace types {
 	
 		template<uint CurrentIndex, typename Type, typename... Types>
 		struct current_index_and_types_left<CurrentIndex, Type, Types...> {
+			static_assert(sizeof...(Types) > 0, "out of bounds");
+
 			using type
 				= typename current_index_and_types_left<
 					CurrentIndex + 1u,

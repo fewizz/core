@@ -6,6 +6,10 @@
 namespace types {
 
 	template<typename Type>
-	using count_of_type = types::count_of_satisfying_predicate<type::is_same_as<Type>>;
+	struct count_of_type : types::count_of_satisfying_predicate<type::is_same_as<Type>> {
+
+		struct remove_reference : types::count_of_satisfying_predicate<typename type::is_same_as<Type>::remove_reference> {};
+
+	};
 
 }

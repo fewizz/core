@@ -6,7 +6,7 @@
 namespace elements {
 
 	template<typename Type>
-	struct array_of_copy_of_elements_of_type {
+	struct array_of_type {
 
 		template<typename... Elements>
 		auto for_elements_of(Elements&&... elements) {

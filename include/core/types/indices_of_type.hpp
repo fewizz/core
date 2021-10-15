@@ -6,12 +6,9 @@
 namespace types {
 
 	template<typename Type>
-	struct indices_of_type {
+	struct indices_of_type : types::indices_of_satisfying_predicate<type::is_same_as<Type>> {
 
-		template<typename... Types>
-		using for_types_of = typename types::indices_of_satisfying_predicate<
-			type::is_same_as<Type>
-		>::template for_types_of<Types...>;
+		using remove_reference = types::indices_of_satisfying_predicate<typename type::is_same_as<Type>::remove_reference>;
 
 	};
 
