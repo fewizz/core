@@ -1,6 +1,7 @@
 #pragma once
 
 #include "integer.hpp"
+#include "type/remove_reference.hpp"
 #include "types/are_same.hpp"
 
 template<typename Type, uint Size>
@@ -39,4 +40,4 @@ struct array {
 
 template<typename HeadType, typename... TailTypes>
 requires(sizeof...(TailTypes) == 0u || types::are_same::for_types_of<HeadType, TailTypes...>)
-array(HeadType&&, TailTypes&&...) -> array<HeadType, sizeof...(TailTypes) + 1u>;
+array(HeadType&&, TailTypes&&...) -> array<type::remove_reference::for_type_of<HeadType>, sizeof...(TailTypes) + 1u>;

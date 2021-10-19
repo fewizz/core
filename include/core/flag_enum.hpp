@@ -19,11 +19,11 @@ struct flag_enum {
 		&& types::are_same::for_types_of<Args..., E>
 	)
 	flag_enum(Args... args) {
-		value = (value_type)(args | ...);
+		value = ((typename value_type::type)args | ...);
 	}
 
 	flag_enum& set(E v) {
-		value |= (value_type)v;
+		value |= (typename value_type::type) v;
 		return *this;
 	}
 

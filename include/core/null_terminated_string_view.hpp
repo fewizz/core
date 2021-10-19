@@ -19,7 +19,11 @@ struct null_terminated_string_view<size_is::defined> {
 	const char* m_ptr;
 	uint m_size;
 
-	template<primitive::uint N>
+	constexpr null_terminated_string_view(const char* arr, uint size)
+		: m_ptr{ arr }, m_size{ size }
+	{}
+
+	template<uint N>
 	constexpr null_terminated_string_view(const char(&arr)[N])
 		: m_ptr{ arr }, m_size{ N - 1 }
 	{}
@@ -29,7 +33,7 @@ struct null_terminated_string_view<size_is::defined> {
 	}
 
 	constexpr const char* end() const {
-		return m_ptr + (primitive::uint)m_size; // TODO
+		return m_ptr + m_size; // TODO
 	}
 
 	constexpr uint size() const {
@@ -60,7 +64,7 @@ struct null_terminated_string_view<size_is::undefined> {
 	constexpr null_characted_sentinel end() const { return {}; }
 };
 
-template<primitive::uint N>
+template<uint N>
 null_terminated_string_view(const char(&arr)[N])
 	-> null_terminated_string_view<size_is::defined>;
 
