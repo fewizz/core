@@ -5,8 +5,8 @@
 
 namespace wrapper {
 
-	template<integral I>
-	using of_integer = wrapper::of<I>;
+	template<integer I, typename S = void>
+	using of_integer = wrapper::of<I, S>;
 }
 
 /*enum class is_signed {};

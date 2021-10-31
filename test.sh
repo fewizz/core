@@ -7,6 +7,7 @@ test() {
 		--config ./compile_flags.txt \
 		-g \
 		-o build/$1 \
+		-fno-exceptions \
 		test/$1.cpp
 	then
 		echo "compilation error"

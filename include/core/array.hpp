@@ -7,7 +7,7 @@
 template<typename Type, uint Size>
 struct array {
 	using value_type = Type;
-	value_type m_array[(primitive::uint)Size];
+	value_type m_array[Size];
 
 	constexpr uint size() const {
 		return Size;
@@ -18,15 +18,15 @@ struct array {
 	}
 
 	constexpr auto end() const {
-		return m_array + (primitive::uint)Size;
+		return m_array + Size;
 	}
 
 	constexpr auto& operator [] (uint index) {
-		return data()[(primitive::uint)index];
+		return data()[index];
 	}
 
 	constexpr const auto& operator [] (uint index) const {
-		return data()[(primitive::uint)index];
+		return data()[index];
 	}
 
 	constexpr value_type* data() {

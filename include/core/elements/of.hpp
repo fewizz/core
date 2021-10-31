@@ -24,22 +24,11 @@ struct recursive_elements_storage<HeadType, TailTypes...> : recursive_elements_s
 	{}
 
 	template<uint Index>
-	constexpr auto& at() const & {
+	constexpr auto& at() const {
 		if constexpr(Index == 0u) return element;
 		else {
 			static_assert(Index > 0u);
 			return recursive_elements_storage<TailTypes...>::template at<Index - 1u>();
-		}
-	}
-
-	template<uint Index>
-	constexpr auto&& at() const && {
-		if constexpr(Index == 0u) return move(element);
-		else {
-			static_assert(Index > 0u);
-			return move(
-				recursive_elements_storage<TailTypes...>::template at<Index - 1u>()
-			);
 		}
 	}
 };

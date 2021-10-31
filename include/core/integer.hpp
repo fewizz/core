@@ -67,14 +67,28 @@ using int_of_bits = typename int_of_bits_type<Bits>::type;
 template<uint Bits>
 using uint_of_bits = typename uint_of_bits_type<Bits>::type;
 
-template<typename T>
-concept signed_integer = types::are_same::for_types_of<typename int_of_bits_type<sizeof(T)*8>::type, T>;
+template<typename Type>
+using uint_of_size_of = uint_of_bits<sizeof(Type) * 8>;
 
-template<typename T>
-concept unsigned_integer = types::are_same::for_types_of<typename uint_of_bits_type<sizeof(T)*8>::type, T>;
+template<typename Type>
+concept signed_integer = types::are_same::for_types_of<typename int_of_bits_type<sizeof(Type)*8>::type, Type>;
 
-template<typename T>
-concept integral = signed_integer<T> || unsigned_integer<T>;
+template<typename Type>
+concept unsigned_integer = types::are_same::for_types_of<typename uint_of_bits_type<sizeof(Type)*8>::type, Type>;
 
-template<integral T>
-constexpr inline bool is_signed = signed_integer<T> ? true : false;
+template<typename Type>
+concept integer = signed_integer<Type> || unsigned_integer<Type>;
+
+struct is_signed_integer {
+	static constexpr bool is_type_predicate = true;
+
+	template<typename Type>
+	static constexpr bool for_type_of = signed_integer<Type>;
+};
+
+struct is_unsigned_integer {
+	static constexpr bool is_type_predicate = true;
+
+	template<typename Type>
+	static constexpr bool for_type_of = unsigned_integer<Type>;
+};

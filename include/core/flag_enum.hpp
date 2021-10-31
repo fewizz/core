@@ -6,7 +6,7 @@
 
 template<enum_type E>
 struct flag_enum {
-	using value_type = unsigned_integer_of_size_of<E>;
+	using value_type = uint_of_size_of<E>;
 	value_type value{};
 
 	flag_enum() = default;
@@ -19,15 +19,15 @@ struct flag_enum {
 		&& types::are_same::for_types_of<Args..., E>
 	)
 	flag_enum(Args... args) {
-		value = ((typename value_type::type)args | ...);
+		value = ((value_type) args | ...);
 	}
 
 	flag_enum& set(E v) {
-		value |= (typename value_type::type) v;
+		value |= (value_type) v;
 		return *this;
 	}
 
 	bool get(E v) const {
-		return (value | (typename value_type::type)v) == value;
+		return (value | (value_type) v) == value;
 	}
 };

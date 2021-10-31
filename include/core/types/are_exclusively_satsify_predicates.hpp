@@ -35,7 +35,8 @@ namespace types {
 				template<typename...Ts>
 				requires(satisfy)
 				static constexpr bool result<Ts...> =
-					after_erasing::template pass_for_type_directly<remaining_types>::template remaining_predicates<TailPredicates...>::template result<>;
+					after_erasing::template pass_for_type_directly<remaining_types>
+					::template remaining_predicates<TailPredicates...>::template result<>;
 			};
 		};
 
@@ -44,7 +45,12 @@ namespace types {
 		static constexpr bool is_types_predicate = true;
 
 		template<typename... Types>
-		static constexpr bool for_types_of = remaining_types<Types...>::template remaining_predicates<Predicates...>::template result<>;
+		static constexpr bool for_types_of =
+			remaining_types<Types...>
+			::template remaining_predicates<Predicates...>
+			::template result<>
+		;
+
 	};
 
 }
