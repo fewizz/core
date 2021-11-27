@@ -30,11 +30,11 @@ struct span {
 		return m_size;
 	}
 
-	constexpr auto begin() const {
+	constexpr value_type* begin() const {
 		return m_values;
 	}
 
-	constexpr auto end() const {
+	constexpr value_type* end() const {
 		return m_values + m_size;
 	}
 

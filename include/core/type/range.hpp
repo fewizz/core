@@ -1,6 +1,7 @@
 #pragma once
 
 #include "is_same_as.hpp"
+#include "remove_reference.hpp"
 
 namespace type {
 
@@ -8,12 +9,12 @@ namespace type {
 	concept range = requires(T t) {
 		t.begin();
 		t.end();
-		typename T::value_type;
+		typename remove_reference::for_type_of<T>::value_type;
 	};
 
 	template<typename RangeType, typename ValueType>
 	concept range_of_value_type =
-		range<RangeType> && type::is_same_as<typename RangeType::value_type>::template for_type_of<ValueType>;
+		range<RangeType> && type::is_same_as<typename remove_reference::for_type_of<RangeType>::value_type>::template for_type_of<ValueType>;
 
 	template<typename ValueType>
 	struct is_range_of_value_type {

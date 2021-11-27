@@ -1,10 +1,12 @@
 #pragma once
 
+#include "../forward.hpp"
+
 namespace type {
 
-	template<typename Type, typename... Types>
-	concept constructible_from = requires(Types&&... args) {
-		Type{ args... };
+	template<typename Type, typename... Args>
+	concept constructible_from = requires(Args&&... args) {
+		Type{ forward<Args>(args)... };
 	};
 
 	template<typename... Types>

@@ -14,6 +14,8 @@ namespace type {
 
 		template<typename Type>
 		using for_type_of = typename remove_const_t<Type>::type;
+
+		static constexpr bool is_type_modifier = true;
 	};
 
 }

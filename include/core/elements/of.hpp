@@ -11,11 +11,13 @@ struct recursive_elements_storage{};
 
 template<typename HeadType, typename... TailTypes>
 struct recursive_elements_storage<HeadType, TailTypes...> : recursive_elements_storage<TailTypes...> {
+	using next = recursive_elements_storage<TailTypes...>;
+
 	HeadType element;
 
 	recursive_elements_storage(HeadType&& head_element, TailTypes&&... tail_elements)
 	:
-		recursive_elements_storage<TailTypes...> {
+		next {
 			forward<TailTypes>(tail_elements)...
 		},
 		element {
@@ -25,10 +27,10 @@ struct recursive_elements_storage<HeadType, TailTypes...> : recursive_elements_s
 
 	template<uint Index>
 	constexpr auto& at() const {
-		if constexpr(Index == 0u) return element;
+		if constexpr(Index == 0) return element;
 		else {
-			static_assert(Index > 0u);
-			return recursive_elements_storage<TailTypes...>::template at<Index - 1u>();
+			static_assert(Index > 0);
+			return next::template at<Index - 1>();
 		}
 	}
 };
@@ -38,7 +40,7 @@ namespace elements {
 	template<typename... Types>
 	struct of {
 		static constexpr uint size = sizeof...(Types);
-		using indices = typename indices::from<0u>::to<size>;
+		using indices = typename indices::from<0>::to<size>;
 		using types = types::of<Types...>;
 
 	private:
@@ -53,19 +55,29 @@ namespace elements {
 		{}
 	
 		template<uint Index>
-		constexpr decltype(auto) at_index() const {
+		constexpr auto& refer_at_index() const {
 			return m_storage.template at<Index>();
 		}
-	
-		template<uint... Indices>
-		constexpr auto pass_to(auto&& func, ::indices::of<Indices...> = indices{}) {
-			return func(at<Indices>() ... );
+
+		template<uint Index>
+		constexpr auto&& move_at_index() const {
+			return move(m_storage.template at<Index>());
 		}
 
-		//template<typename Type>
-		//constexpr auto append_back(Type&& t) const {
-		//	return of<Types..., Type>{ at<>()..., t }
-		//}
+		
+	
+		/*template<uint... Indices>
+		constexpr auto pass_to(auto&& func, ::indices::of<Indices...> = indices{}) {
+			return func(at_index<Indices>() ... );
+		}
+
+		template<typename... OtherTypes, uint... Indices>
+		constexpr auto append_back(OtherTypes&&... values, ::indices::of<Indices...> = indices{}) const {
+			return elements::of<Types..., OtherTypes...>{
+				move(at_index<Indices>())...,
+				forward<OtherTypes>(values)...
+			};
+		}*/
 	};
 	
 	template<typename... Types>
