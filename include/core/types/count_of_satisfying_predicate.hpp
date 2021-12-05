@@ -9,12 +9,12 @@ namespace types {
 	struct count_of_satisfying_predicate {
 
 		template<typename... Types>
-		static constexpr uint for_types_of =
+		static constexpr nuint for_types_of =
 			indices_of_satisfying_predicate<Predicate>
 			::template for_types_of<Types...>
 			::size;
 
-		template<uint N>
+		template<nuint N>
 		struct less_or_equals {
 			static constexpr bool is_types_predicate = true;
 
@@ -25,7 +25,7 @@ namespace types {
 			static constexpr bool for_types_of = count_of_satisfying_predicate<Predicate>::for_types_of<Types...> <= N;
 		};
 
-		template<uint N>
+		template<nuint N>
 		struct greater_or_equals {
 			static constexpr bool is_types_predicate = true;
 
@@ -36,7 +36,7 @@ namespace types {
 			static constexpr bool for_types_of = count_of_satisfying_predicate<Predicate>::for_types_of<Types...> >= N;
 		};
 	
-		template<uint N>
+		template<nuint N>
 		struct equals {
 			static constexpr bool is_types_predicate = true;
 			

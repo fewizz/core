@@ -9,32 +9,32 @@ namespace values {
 }
 
 namespace indices {
-	template<uint... Values>
+	template<nuint... Values>
 	using of = values::of<Values...>;
 
-	template<uint IndexFrom>
+	template<nuint IndexFrom>
 	class from {
 	
-	template<uint IndexTo>
+	template<nuint IndexTo>
 	struct to_t {
-		static constexpr uint size = IndexTo - IndexFrom;
+		static constexpr nuint size = IndexTo - IndexFrom;
 
-		template<uint... Indices>
+		template<nuint... Indices>
 		struct result;
 
-		template<uint... Indices>
+		template<nuint... Indices>
 		requires(size == sizeof...(Indices))
 		struct result<Indices...> {
 			using type = indices::of<Indices...>;
 		};
 
-		template<uint... Indices>
+		template<nuint... Indices>
 		requires(size != sizeof...(Indices) && sizeof...(Indices) == 0 && size > 0u)
 		struct result<Indices...> {
 			using type = typename result<IndexFrom>::type;
 		};
 
-		template<uint... Indices>
+		template<nuint... Indices>
 		requires(size != sizeof...(Indices) && sizeof...(Indices) > 0)
 		struct result<Indices...> {
 			using type = typename result<Indices..., IndexFrom + sizeof...(Indices)>::type;
@@ -42,7 +42,7 @@ namespace indices {
 	};
 public:
 
-	template<uint IndexTo>
+	template<nuint IndexTo>
 	using to = typename to_t<IndexTo>::template result<>::type;
 }; // from
 
@@ -52,7 +52,7 @@ namespace values {
 	
 	template<auto... Values>
 	struct of {
-		static constexpr uint size = sizeof...(Values);
+		static constexpr nuint size = sizeof...(Values);
 		static constexpr bool is_empty = size == 0u;
 
 		using indices = indices::from<0u>::to<size>;

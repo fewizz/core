@@ -5,7 +5,7 @@
 
 namespace elements {
 
-	template<uint... Indices>
+	template<nuint... Indices>
 	struct pass_at_indices {
 
 		template<typename... Types>
@@ -17,6 +17,6 @@ namespace elements {
 	template<typename Indices>
 	struct pass_at;
 
-	template<uint... Indices>
+	template<nuint... Indices>
 	struct pass_at<indices::of<Indices...>> : pass_at_indices<Indices...> {};
 }

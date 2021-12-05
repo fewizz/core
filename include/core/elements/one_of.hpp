@@ -37,7 +37,7 @@ namespace elements {
 
 		~recursive_one_of_elements_storage() {}
 
-		void destruct(uint index) {
+		void destruct(nuint index) {
 			if(index == 0) {
 				element.~HeadType();
 			}
@@ -49,7 +49,7 @@ namespace elements {
 			}
 		}
 
-		template<uint Index>
+		template<nuint Index>
 		constexpr const auto& at() const {
 			if constexpr(Index == 0u) return element;
 			else {
@@ -58,7 +58,7 @@ namespace elements {
 			}
 		}
 
-		template<uint Index>
+		template<nuint Index>
 		constexpr auto& at() {
 			if constexpr(Index == 0u) return element;
 			else {
@@ -81,7 +81,7 @@ namespace elements {
 
 		~recursive_one_of_elements_storage() {}
 
-		void destruct(uint index) {
+		void destruct(nuint index) {
 			if(index == 0) {
 				element = nullptr;
 			}
@@ -99,7 +99,7 @@ namespace elements {
 			: next{ forward<Args>(args)... }
 		{}
 
-		template<uint Index>
+		template<nuint Index>
 		constexpr const auto& at() const {
 			if constexpr(Index == 0u) return *element;
 			else {
@@ -108,7 +108,7 @@ namespace elements {
 			}
 		}
 
-		template<uint Index>
+		template<nuint Index>
 		constexpr auto& at() {
 			if constexpr(Index == 0u) return *element;
 			else {
@@ -121,18 +121,18 @@ namespace elements {
 	template<typename... Types>
 	struct one_of {
 		recursive_one_of_elements_storage<Types...> m_storage;
-		uint m_current;
-		static constexpr uint no_value = -1;
+		nuint m_current;
+		static constexpr nuint no_value = -1;
 
 		template<typename Type>
 		static constexpr bool only_one_such_type =
 			types::count_of_type<Type>::template for_types_of<Types...> == 1;
 
-		template<uint Index>
+		template<nuint Index>
 		using type_at = typename types::at_index<Index>::template for_types_of<Types...>;
 
 		template<typename Type>
-		static constexpr uint type_index = types::index_of_type<Type>::template for_types_of<Types...>;
+		static constexpr nuint type_index = types::index_of_type<Type>::template for_types_of<Types...>;
 
 		template<typename... Args>
 		requires(types::count_of_satisfying_predicate<type::is_constructible_from<Args&&...>>::template for_types_of<Types...> == 1)
@@ -153,13 +153,15 @@ namespace elements {
 			return m_current == type_index<Type>;
 		}
 
-		template<uint Index>
+		template<nuint Index>
 		const type_at<Index>& at_index() const {
+			if(m_current != Index) throw;
 			return m_storage.template at<Index>(); 
 		}
 
-		template<uint Index>
+		template<nuint Index>
 		type_at<Index>& at_index() {
+			if(m_current != Index) throw;
 			return m_storage.template at<Index>(); 
 		}
 

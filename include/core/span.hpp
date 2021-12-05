@@ -16,17 +16,17 @@ struct span {
 	using value_type = ValueType;
 
 	ValueType* m_values;
-	uint m_size;
+	nuint m_size;
 
-	span(ValueType* values, uint size)
+	span(ValueType* values, nuint size)
 		: m_values{ values }, m_size{ size }
 	{}
 
-	span(uint size, ValueType* values)
+	span(nuint size, ValueType* values)
 		: m_values{ values }, m_size{ size }
 	{}
 
-	constexpr uint size() const {
+	constexpr nuint size() const {
 		return m_size;
 	}
 
@@ -38,11 +38,11 @@ struct span {
 		return m_values + m_size;
 	}
 
-	constexpr auto& operator [] (uint index) {
+	constexpr auto& operator [] (nuint index) {
 		return data()[index];
 	}
 
-	constexpr const auto& operator [] (uint index) const {
+	constexpr const auto& operator [] (nuint index) const {
 		return data()[index];
 	}
 
@@ -63,7 +63,7 @@ struct span<ValueType> {
 	using value_type = clear_value_type&;
 
 	clear_value_type** m_values;
-	uint m_size;
+	nuint m_size;
 	
 	struct iterator {
 		clear_value_type** ptr;
@@ -79,12 +79,12 @@ struct span<ValueType> {
 			return *this;
 		}
 
-		auto& operator += (uint n) {
+		auto& operator += (nuint n) {
 			ptr += n;
 			return *this;
 		}
 	
-		auto operator + (uint n) const {
+		auto operator + (nuint n) const {
 			return iterator{ *this } += n;
 		}
 	
@@ -93,15 +93,15 @@ struct span<ValueType> {
 		}
 	};
 
-	span(clear_value_type** values, uint size)
+	span(clear_value_type** values, nuint size)
 		: m_values{ values }, m_size{ size }
 	{}
 
-	span(uint size, clear_value_type** values)
+	span(nuint size, clear_value_type** values)
 		: m_values{ values }, m_size{ size }
 	{}
 
-	constexpr uint size() const {
+	constexpr nuint size() const {
 		return m_size;
 	}
 
@@ -121,12 +121,12 @@ struct span<ValueType> {
 	//	return m_values;
 	//}
 
-	constexpr clear_value_type& operator [] (uint index) {
+	constexpr clear_value_type& operator [] (nuint index) {
 		return *(begin() + index);
 		//return *it;
 	}
 
-	constexpr const clear_value_type& operator [] (uint index) const {
+	constexpr const clear_value_type& operator [] (nuint index) const {
 		return *(begin() + index);
 	}
 };

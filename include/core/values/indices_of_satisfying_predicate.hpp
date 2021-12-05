@@ -8,7 +8,7 @@ namespace values {
 	template<value::predicate Predicate>
 	class indices_of_satisfying_predicate {
 	
-		template<uint CurrentIndex, uint... Indices>
+		template<nuint CurrentIndex, nuint... Indices>
 		struct current_index_and_resulting_indices {
 		
 			template<auto... Values>

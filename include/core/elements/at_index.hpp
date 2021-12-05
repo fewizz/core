@@ -5,7 +5,7 @@
 
 namespace elements {
 
-	template<uint Index>
+	template<nuint Index>
 	struct at_index {
 
 		template<typename HeadType, typename... TailTypes>

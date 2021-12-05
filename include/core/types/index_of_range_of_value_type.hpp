@@ -16,13 +16,13 @@ namespace types {
 
 			static_assert(indices::size == 1u);
 
-			static constexpr uint result = indices::template pass_for_value<values::at_index<0u>>;
+			static constexpr nuint result = indices::template pass_for_value<values::at_index<0u>>;
 		};
 		
 	public:
 
 		template<typename... Types>
-		static constexpr uint for_types_of = for_types<Types...>::result;
+		static constexpr nuint for_types_of = for_types<Types...>::result;
 
 	};
 

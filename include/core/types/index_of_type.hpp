@@ -11,7 +11,7 @@ namespace types {
 
 		template<typename... Types>
 		requires(types::count_of_type<Type>::template for_types_of<Types...> == 1)
-		static constexpr uint for_types_of =
+		static constexpr nuint for_types_of =
 			types::indices_of_type<Type>::template for_types_of<Types...>::template pass_for_value<values::at_index<0>>;
 	};
 }

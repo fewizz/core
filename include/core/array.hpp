@@ -4,12 +4,12 @@
 #include "type/remove_reference.hpp"
 #include "types/are_same.hpp"
 
-template<typename Type, uint Size>
+template<typename Type, nuint Size>
 struct array {
 	using value_type = Type;
 	value_type m_array[Size];
 
-	constexpr uint size() const {
+	constexpr nuint size() const {
 		return Size;
 	}
 
@@ -21,11 +21,11 @@ struct array {
 		return m_array + Size;
 	}
 
-	constexpr auto& operator [] (uint index) {
+	constexpr auto& operator [] (nuint index) {
 		return data()[index];
 	}
 
-	constexpr const auto& operator [] (uint index) const {
+	constexpr const auto& operator [] (nuint index) const {
 		return data()[index];
 	}
 
@@ -40,4 +40,4 @@ struct array {
 
 template<typename HeadType, typename... TailTypes>
 requires(sizeof...(TailTypes) == 0u || types::are_same::for_types_of<HeadType, TailTypes...>)
-array(HeadType&&, TailTypes&&...) -> array<type::remove_reference::for_type_of<HeadType>, sizeof...(TailTypes) + 1u>;
+array(HeadType&&, TailTypes&&...) -> array<type::remove_reference::for_type_of<HeadType>, sizeof...(TailTypes) + 1>;

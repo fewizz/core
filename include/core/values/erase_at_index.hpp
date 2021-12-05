@@ -4,12 +4,12 @@
 #include "../values/of.hpp"
 
 namespace values {
-	template <uint Index>
+	template <nuint Index>
 	class erase_at_index {
 	
 		template<auto... LeftValues>
 		struct left_values {
-			template<uint CurrentIndex>
+			template<nuint CurrentIndex>
 			struct current_value_index {
 			
 				template<auto CurrentValue, auto... RightValues>

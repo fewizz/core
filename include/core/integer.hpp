@@ -3,10 +3,6 @@
 #include "type/of.hpp"
 #include "types/are_same.hpp"
 
-#ifndef MAX_INT_BITS
-	#define MAX_INT_BITS 64
-#endif
-
 template<unsigned Bits>
 struct int_of_bits_type;
 
@@ -33,7 +29,6 @@ static_assert(sizeof(uint16) == 2);
 template<> struct int_of_bits_type<16> : type::of<int16> {};
 template<> struct uint_of_bits_type<16> : type::of<uint16> {};
 
-#if MAX_INT_BITS >= 32
 // 32
 using int32 = signed int;
 static_assert(sizeof(int32) == 4);
@@ -44,9 +39,6 @@ static_assert(sizeof(uint32) == 4);
 template<> struct int_of_bits_type<32> : type::of<int32> {};
 template<> struct uint_of_bits_type<32> : type::of<uint32> {};
 
-#endif
-
-#if MAX_INT_BITS >= 64
 // 64
 using int64 = signed long;
 static_assert(sizeof(int64) == 8);
@@ -57,14 +49,12 @@ static_assert(sizeof(uint64) == 8);
 template<> struct int_of_bits_type<64> : type::of<int64> {};
 template<> struct uint_of_bits_type<64> : type::of<uint64> {};
 
-#endif
+using nuint = typename uint_of_bits_type<sizeof(void*)*8>::type;
 
-using uint = typename uint_of_bits_type<MAX_INT_BITS>::type;
-
-template<uint Bits>
+template<nuint Bits>
 using int_of_bits = typename int_of_bits_type<Bits>::type;
 
-template<uint Bits>
+template<nuint Bits>
 using uint_of_bits = typename uint_of_bits_type<Bits>::type;
 
 template<typename Type>

@@ -8,8 +8,8 @@ namespace type {
 		template<typename Type>
 		struct remove_const_t : type::of<Type>{};
 
-		template<typename T>
-		struct remove_const_t<const T> : type::of<T>{};
+		template<typename Type>
+		struct remove_const_t<const Type> : type::of<Type>{};
 	public:
 
 		template<typename Type>

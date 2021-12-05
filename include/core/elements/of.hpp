@@ -25,7 +25,7 @@ struct recursive_elements_storage<HeadType, TailTypes...> : recursive_elements_s
 		}
 	{}
 
-	template<uint Index>
+	template<nuint Index>
 	constexpr auto& at() const {
 		if constexpr(Index == 0) return element;
 		else {
@@ -39,7 +39,7 @@ namespace elements {
 
 	template<typename... Types>
 	struct of {
-		static constexpr uint size = sizeof...(Types);
+		static constexpr nuint size = sizeof...(Types);
 		using indices = typename indices::from<0>::to<size>;
 		using types = types::of<Types...>;
 
@@ -54,12 +54,12 @@ namespace elements {
 			}
 		{}
 	
-		template<uint Index>
+		template<nuint Index>
 		constexpr auto& refer_at_index() const {
 			return m_storage.template at<Index>();
 		}
 
-		template<uint Index>
+		template<nuint Index>
 		constexpr auto&& move_at_index() const {
 			return move(m_storage.template at<Index>());
 		}

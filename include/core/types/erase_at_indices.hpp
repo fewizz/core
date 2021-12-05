@@ -6,12 +6,12 @@
 
 namespace types {
 
-	template<uint... Indices>
+	template<nuint... Indices>
 	class erase_at_indices {
-		template<uint Index, typename...Types>
+		template<nuint Index, typename...Types>
 		struct index_and_types;
 
-		template<uint Index> // No types
+		template<nuint Index> // No types
 		struct index_and_types<Index> {
 			template<typename... ResultingTypes>
 			struct resulting {
@@ -19,7 +19,7 @@ namespace types {
 			};
 		};
 
-		template<uint Index, typename HeadType, typename... TailTypes>
+		template<nuint Index, typename HeadType, typename... TailTypes>
 		struct index_and_types<Index, HeadType, TailTypes...> {
 
 			template<typename... ResultingTypes>

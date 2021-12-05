@@ -11,6 +11,9 @@ namespace type {
 
 		template<typename Type>
 		static constexpr bool for_type_of = Predicate::template for_type_of<typename Modifier::template for_type_of<Type>>;
+
+		template<type::modifier OtherModifier>
+		using after_applying = modified_predicate<modified_predicate<Predicate, Modifier>, OtherModifier>;
 	};
 
 }

@@ -13,9 +13,9 @@ namespace elements {
 		template<typename... Types>
 		static constexpr decltype(auto) for_elements_of(Types&&... elements) {
 			using indices = typename types::indices_of_satisfying_predicate<Predicate>::template for_types_of<Types...>;
-			static_assert(indices::size == 1u);
+			static_assert(indices::size == 1);
 
-			constexpr auto index = indices::template pass_for_value<values::at_index<0u>>;
+			constexpr auto index = indices::template pass_for_value<values::at_index<0>>;
 			
 			return elements::at_index<index>::template for_elements_of<Types...>(forward<Types>(elements)...);
 		}

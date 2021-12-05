@@ -6,7 +6,7 @@
 
 namespace types {
 
-	template<uint... Indices>
+	template<nuint... Indices>
 	struct at_indices {
 
 		template<typename... Types>

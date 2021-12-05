@@ -4,9 +4,9 @@
 
 namespace types {
 
-	template<uint Index>
+	template<nuint Index>
 	class at_index {
-		template<uint CurrentIndex, typename... Ts>
+		template<nuint CurrentIndex, typename... Ts>
 		struct current_index_and_types_left;
 	
 		template<typename Type, typename... Types>
@@ -14,7 +14,7 @@ namespace types {
 			using type = Type;
 		};
 	
-		template<uint CurrentIndex, typename Type, typename... Types>
+		template<nuint CurrentIndex, typename Type, typename... Types>
 		struct current_index_and_types_left<CurrentIndex, Type, Types...> {
 			static_assert(sizeof...(Types) > 0, "out of bounds");
 
