@@ -12,7 +12,7 @@ namespace type {
 		static constexpr bool is_type_predicate = true;
 
 		template<typename Type>
-		static constexpr bool for_type_of = invocable_with<Type, Args...>;
+		static constexpr bool for_type = invocable_with<Type, Args...>;
 	};
 
 }

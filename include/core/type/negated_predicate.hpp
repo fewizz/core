@@ -9,6 +9,6 @@ namespace type {
 		static constexpr bool is_type_predicate = true;
 
 		template<typename Type>
-		static constexpr bool for_type_of = ! Predicate::template for_type_of<Type>;
+		static constexpr bool for_type = ! Predicate::template for_type<Type>;
 	};
 }

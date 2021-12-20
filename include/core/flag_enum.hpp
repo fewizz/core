@@ -9,9 +9,11 @@ struct flag_enum {
 	using value_type = uint_of_size_of<E>;
 	value_type value{};
 
-	flag_enum() = default;
-	flag_enum(const flag_enum&) = default;
-	flag_enum(flag_enum&) = default;
+	template<typename... Args>
+	requires(
+		sizeof...(Args) == 0
+	)
+	flag_enum(Args... args) {}
 
 	template<typename... Args>
 	requires(

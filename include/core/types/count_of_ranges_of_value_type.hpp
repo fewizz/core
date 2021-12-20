@@ -3,7 +3,7 @@
 #include "indices_of_ranges_of_value_type.hpp"
 #include "count_of_satisfying_predicate.hpp"
 #include "count_of_satisfying_predicate.hpp"
-#include "../type/range.hpp"
+#include "../range/of_value_type.hpp"
 
 namespace types {
 

@@ -6,12 +6,12 @@ namespace type {
 		static constexpr bool is_type_predicate = true;
 
 		template<typename Type>
-		static constexpr bool for_type_of = false;
+		static constexpr bool for_type = false;
 
 		template<typename Type>
-		static constexpr bool for_type_of<Type&> = true;
+		static constexpr bool for_type<Type&> = true;
 
 		template<typename Type>
-		static constexpr bool for_type_of<Type&&> = true;
+		static constexpr bool for_type<Type&&> = true;
 	};
 }

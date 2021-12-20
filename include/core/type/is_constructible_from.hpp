@@ -14,6 +14,6 @@ namespace type {
 		static constexpr bool is_type_predicate = true;
 
 		template<typename Type>
-		static constexpr bool for_type_of = type::constructible_from<Type, Types...>;
+		static constexpr bool for_type = type::constructible_from<Type, Types...>;
 	};
 }

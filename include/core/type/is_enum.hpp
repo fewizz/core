@@ -8,6 +8,6 @@ namespace type {
 		static constexpr bool is_types_predicate = true;
 
 		template<typename Type>
-		static constexpr bool for_type_of = enum_type<Type>;
+		static constexpr bool for_type = enum_type<Type>;
 	};
 }

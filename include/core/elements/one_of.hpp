@@ -30,7 +30,7 @@ namespace elements {
 		{}
 
 		template<typename... Args>
-		requires(! type::is_constructible_from<Args&&...>::template for_type_of<HeadType> && sizeof...(TailTypes) != 0)
+		requires(! type::is_constructible_from<Args&&...>::template for_type<HeadType> && sizeof...(TailTypes) != 0)
 		recursive_one_of_elements_storage(Args&&... args)
 			: next{ forward<Args>(args)... }
 		{}

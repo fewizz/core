@@ -19,7 +19,7 @@ namespace types {
 			};
 	
 			template<typename T, typename... Types>
-			requires(Predicate::template for_type_of<T>)
+			requires(Predicate::template for_type<T>)
 			struct resulting<T, Types...> {
 				using indices_type = typename current_index_and_resulting_indices<
 					CurrentIndex + 1u,
@@ -28,7 +28,7 @@ namespace types {
 			};
 	
 			template<typename T, typename... Types>
-			requires(!Predicate::template for_type_of<T>)
+			requires(!Predicate::template for_type<T>)
 			struct resulting<T, Types...> {
 				using indices_type = typename current_index_and_resulting_indices<
 					CurrentIndex + 1u,

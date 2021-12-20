@@ -57,9 +57,9 @@ struct span {
 };
 
 template<typename ValueType>
-requires(type::is_reference::for_type_of<ValueType>)
+requires(type::is_reference::for_type<ValueType>)
 struct span<ValueType> {
-	using clear_value_type = type::remove_reference::for_type_of<ValueType>;
+	using clear_value_type = type::remove_reference::for_type<ValueType>;
 	using value_type = clear_value_type&;
 
 	clear_value_type** m_values;

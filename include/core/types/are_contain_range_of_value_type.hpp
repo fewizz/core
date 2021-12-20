@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../type/range.hpp"
+#include "../range/of_value_type.hpp"
 #include "indices_of_satisfying_predicate.hpp"
 
 namespace types {

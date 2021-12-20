@@ -16,7 +16,7 @@ namespace types {
 		template<typename... Types>
 		static constexpr bool for_types_of = ! indices_of_affected_types_of<Types...>::is_empty;
 
-		using remove_reference = are_contain_type<type::remove_reference::for_type_of<Type>>;
+		using remove_reference = are_contain_type<type::remove_reference::for_type<Type>>;
 	};
 
 }

@@ -6,7 +6,7 @@ namespace elements {
 
 	template<type::predicate Predicate,  typename F, typename Head, typename... Types>
 	void for_each_satisfying_type_predicate(F&& f, Head&& head_element, Types&&... elements) {
-		if constexpr(Predicate::template for_type_of<Head>) {
+		if constexpr(Predicate::template for_type<Head>) {
 			f(head_element);
 		}
 

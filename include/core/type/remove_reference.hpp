@@ -17,7 +17,7 @@ namespace type {
 	public:
 
 		template<typename Type>
-		using for_type_of = typename remove_reference_t<Type>::type;
+		using for_type = typename remove_reference_t<Type>::type;
 
 		static constexpr bool is_type_modifier = true;
 
