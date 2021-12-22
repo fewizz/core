@@ -4,7 +4,7 @@
 
 namespace wrapper {
 
-	template<typename T, typename=void>
+	template<typename T, typename = void>
 	struct of {
 		T m_t;
 

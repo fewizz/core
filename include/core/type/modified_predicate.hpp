@@ -2,6 +2,8 @@
 
 #include "predicate.hpp"
 #include "modifier.hpp"
+#include "remove_reference.hpp"
+#include "remove_const.hpp"
 
 namespace type {
 
@@ -13,7 +15,10 @@ namespace type {
 		static constexpr bool for_type = Predicate::template for_type<typename Modifier::template for_type<Type>>;
 
 		template<type::modifier OtherModifier>
-		using after_applying = modified_predicate<modified_predicate<Predicate, Modifier>, OtherModifier>;
+		using mod = modified_predicate<modified_predicate<Predicate, Modifier>, OtherModifier>;
+
+		using ignore_reference = modified_predicate<modified_predicate<Predicate, Modifier>, type::remove_reference>;
+		using ignore_const = modified_predicate<modified_predicate<Predicate, Modifier>, type::remove_const>;
 	};
 
 }

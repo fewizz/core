@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../integer.hpp"
+#include "of.hpp"
 
 namespace types {
 
@@ -20,7 +21,7 @@ namespace types {
 
 			using type
 				= typename current_index_and_types_left<
-					CurrentIndex + 1u,
+					CurrentIndex + 1,
 					Types...
 				>::type;
 		};
@@ -28,7 +29,18 @@ namespace types {
 	public:
 
 		template<typename...Types>
-		using for_types_of = typename current_index_and_types_left<0u, Types...>::type;
+		using for_types_of = typename current_index_and_types_left<0, Types...>::type;
+
+		template<typename>
+		struct for_types_t;
+
+		template<typename... Types>
+		struct for_types_t<types::of<Types...>> {
+			using type = for_types_of<Types...>;
+		};
+
+		template<typename TypesOf>
+		using for_types = typename for_types_t<TypesOf>::type;
 	};
 
 }

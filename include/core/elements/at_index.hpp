@@ -2,6 +2,7 @@
 
 #include "../integer.hpp"
 #include "../forward.hpp"
+#include "of.hpp"
 
 namespace elements {
 
@@ -18,7 +19,6 @@ namespace elements {
 				return at_index<Index - 1>::for_elements_of(forward<TailTypes>(tail_elements)...);
 			}
 		}
-
 	};
 
 }

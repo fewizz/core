@@ -2,6 +2,7 @@
 
 #include "../types/are_same.hpp"
 #include "remove_reference.hpp"
+#include "remove_const.hpp"
 #include "modified_predicate.hpp"
 
 namespace type {
@@ -14,7 +15,10 @@ namespace type {
 		static constexpr bool for_type = types::are_same::for_types_of<Type0, Type1>;
 
 		template<type::modifier Modifier>
-		using after_applying = type::modified_predicate<is_same_as<Type0>, Modifier>;
+		using mod = type::modified_predicate<is_same_as<Type0>, Modifier>;
+
+		using ignore_reference = type::modified_predicate<is_same_as<Type0>, type::remove_reference>;
+		using ignore_const = type::modified_predicate<is_same_as<Type0>, type::remove_const>;
 	};
 
 }

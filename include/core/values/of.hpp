@@ -53,9 +53,9 @@ namespace values {
 	template<auto... Values>
 	struct of {
 		static constexpr nuint size = sizeof...(Values);
-		static constexpr bool is_empty = size == 0u;
+		static constexpr bool is_empty = size == 0;
 
-		using indices = indices::from<0u>::to<size>;
+		using indices = indices::from<0>::to<size>;
 
 		template<typename T>
 		static constexpr auto pass_for_value = T::template for_values_of<Values...>;

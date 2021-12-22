@@ -3,7 +3,7 @@
 #include "at_index.hpp"
 #include "../types/indices_of_type.hpp"
 #include "../values/at_index.hpp"
-#include "../types/indices_of_satisfying_predicate.hpp"
+#include "../types/index_of_satisfying_predicate.hpp"
 
 namespace elements {
 
@@ -12,12 +12,9 @@ namespace elements {
 	
 		template<typename... Types>
 		static constexpr decltype(auto) for_elements_of(Types&&... elements) {
-			using indices = typename types::indices_of_satisfying_predicate<Predicate>::template for_types_of<Types...>;
-			static_assert(indices::size == 1);
-
-			constexpr auto index = indices::template pass_for_value<values::at_index<0>>;
-			
-			return elements::at_index<index>::template for_elements_of<Types...>(forward<Types>(elements)...);
+			return elements::at_index<
+				types::index_of_satisfying_predicate<Predicate>::template for_types_of<Types...>
+			>::template for_elements_of<Types...>(forward<Types>(elements)...);
 		}
 	};
 }

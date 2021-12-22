@@ -9,7 +9,7 @@ namespace types {
 	template<typename Type>
 	struct at;
 
-	template<uint... Indices>
+	template<nuint... Indices>
 	struct at<indices::of<Indices...>> {
 
 		template<typename... Types>
