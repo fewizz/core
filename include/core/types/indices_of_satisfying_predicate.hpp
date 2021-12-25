@@ -22,7 +22,7 @@ namespace types {
 			requires(Predicate::template for_type<T>)
 			struct resulting<T, Types...> {
 				using indices_type = typename current_index_and_resulting_indices<
-					CurrentIndex + 1u,
+					CurrentIndex + 1,
 					Indices..., CurrentIndex
 				>::template resulting<Types...>::indices_type;
 			};
@@ -31,7 +31,7 @@ namespace types {
 			requires(!Predicate::template for_type<T>)
 			struct resulting<T, Types...> {
 				using indices_type = typename current_index_and_resulting_indices<
-					CurrentIndex + 1u,
+					CurrentIndex + 1,
 					Indices...
 				>::template resulting<Types...>::indices_type;
 			};

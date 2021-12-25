@@ -14,7 +14,7 @@ namespace types {
 			template<types::predicate... RemainingPredicates>
 			struct remaining_predicates {
 				template<typename...>
-				static constexpr bool result = sizeof...(Types) == 0u;
+				static constexpr bool result = sizeof...(Types) == 0;
 			};
 
 			template<types::predicate HeadPredicate, types::predicate... TailPredicates>

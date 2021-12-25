@@ -5,7 +5,7 @@
 
 namespace elements {
 
-	template<typename Type, typename F, typename... Types>
+	/*template<typename Type, typename F, typename... Types>
 	void for_each_of_type(F&& f, Types&&... elements) {
 		return for_each_satisfying_type_predicate<type::is_same_as<Type>>(
 			forward<F>(f),
@@ -19,5 +19,8 @@ namespace elements {
 			forward<F>(f),
 			forward<Types>(elements)...
 		);
-	}
+	}*/
+
+	template<typename Type>
+	struct for_each_of_type : elements::for_each_satisfying_type_predicate<type::is_same_as<Type>> {};
 }

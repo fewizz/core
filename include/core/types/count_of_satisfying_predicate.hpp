@@ -25,6 +25,7 @@ namespace types {
 			using mod = types::modified_predicate<less_or_equals<N>, Modifier>;
 
 			using ignore_reference = types::modified_predicate<less_or_equals<N>, type::remove_reference>;
+			using ignore_const = types::modified_predicate<less_or_equals<N>, type::remove_const>;
 
 			template<typename... Types>
 			using indices_of_affected_types_of = typename indices_of_satisfying_predicate<Predicate>::template for_types_of<Types...>;
@@ -41,6 +42,7 @@ namespace types {
 			using mod = types::modified_predicate<greater_or_equals<N>, Modifier>;
 
 			using ignore_reference = types::modified_predicate<greater_or_equals<N>, type::remove_reference>;
+			using ignore_const = types::modified_predicate<greater_or_equals<N>, type::remove_const>;
 
 			template<typename... Types>
 			using indices_of_affected_types_of = typename indices_of_satisfying_predicate<Predicate>::template for_types_of<Types...>;
@@ -57,6 +59,7 @@ namespace types {
 			using mod = types::modified_predicate<equals<N>, Modifier>;
 
 			using ignore_reference = types::modified_predicate<equals<N>, type::remove_reference>;
+			using ignore_const = types::modified_predicate<equals<N>, type::remove_const>;
 
 			template<typename... Types>
 			using indices_of_affected_types_of = typename indices_of_satisfying_predicate<Predicate>::template for_types_of<Types...>;
