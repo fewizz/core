@@ -14,9 +14,9 @@ namespace types {
 
 			using indices = typename types::indices_of_ranges_of_value_type<ValueType>::template for_types_of<Types...>;
 
-			static_assert(indices::size == 1u);
+			static_assert(indices::size == 1);
 
-			static constexpr nuint result = indices::template pass_for_value<values::at_index<0u>>;
+			static constexpr nuint result = indices::template pass_for_value<values::at_index<0>>;
 		};
 		
 	public:

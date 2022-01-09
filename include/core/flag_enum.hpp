@@ -32,4 +32,8 @@ struct flag_enum {
 	bool get(E v) const {
 		return (value | (value_type) v) == value;
 	}
+
+	bool at(value_type index) const {
+		return (value >> index) & 1;
+	}
 };

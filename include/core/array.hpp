@@ -17,7 +17,15 @@ struct array {
 		return m_array;
 	}
 
+	constexpr auto begin() {
+		return m_array;
+	}
+
 	constexpr auto end() const {
+		return m_array + Size;
+	}
+
+	constexpr auto end() {
 		return m_array + Size;
 	}
 

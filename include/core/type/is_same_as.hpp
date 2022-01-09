@@ -4,6 +4,7 @@
 #include "remove_reference.hpp"
 #include "remove_const.hpp"
 #include "modified_predicate.hpp"
+#include "negated_predicate.hpp"
 
 namespace type {
 
@@ -19,6 +20,7 @@ namespace type {
 
 		using ignore_reference = type::modified_predicate<is_same_as<Type0>, type::remove_reference>;
 		using ignore_const = type::modified_predicate<is_same_as<Type0>, type::remove_const>;
+		using negate = type::negated_predicate<is_same_as<Type0>>;
 	};
 
 }

@@ -3,7 +3,7 @@ test() {
 
 	mkdir --parents $(dirname build/$1)
 
-	if ! $CXX \
+	if ! clang++ \
 		--config ./compile_flags.txt \
 		-g \
 		-o build/$1 \
