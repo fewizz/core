@@ -1,9 +1,10 @@
 #pragma once
 
+#include "predicate.hpp"
+
 namespace type {
 
-	struct is_reference {
-		static constexpr bool is_type_predicate = true;
+	struct is_reference : type::predicate_marker {
 
 		template<typename Type>
 		static constexpr bool for_type = false;

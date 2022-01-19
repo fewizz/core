@@ -1,17 +1,18 @@
 #pragma once
 
+#include "../forward.hpp"
 #include "../integer.hpp"
 #include "../move.hpp"
 #include "../types/of.hpp"
 #include "../values/of.hpp"
-#include "../forward.hpp"
 
-namespace internal {
+namespace elements {
+
 	template<typename... Types>
 	struct recursive_elements_storage{};
 
 	template<typename HeadType, typename... TailTypes>
-	struct recursive_elements_storage<HeadType, TailTypes...> : recursive_elements_storage<TailTypes...> {
+	struct recursive_elements_storage<HeadType, TailTypes...> : elements::recursive_elements_storage<TailTypes...> {
 		using next = recursive_elements_storage<TailTypes...>;
 
 		HeadType element;
@@ -26,45 +27,18 @@ namespace internal {
 			}
 		{}
 
-		template<nuint Index>
-		constexpr auto& at() const & {
-			if constexpr(Index == 0) return element;
-			else {
-				static_assert(Index > 0);
-				return next::template at<Index - 1>();
-			}
-		}
+		template<nuint Index> requires(Index == 0)
+		constexpr auto& at() { return element; }
 
-		template<nuint Index>
-		constexpr auto&& at() const && {
-			if constexpr(Index == 0) return element;
-			else {
-				static_assert(Index > 0);
-				return next::template at<Index - 1>();
-			}
-		}
+		template<nuint Index> requires(Index > 0)
+		constexpr auto& at() { return next::template at<Index - 1>(); }
 
-		template<nuint Index>
-		constexpr auto& at() & {
-			if constexpr(Index == 0) return element;
-			else {
-				static_assert(Index > 0);
-				return next::template at<Index - 1>();
-			}
-		}
+		template<nuint Index> requires(Index == 0)
+		constexpr auto& at() const { return element; }
 
-		template<nuint Index>
-		constexpr auto&& at() && {
-			if constexpr(Index == 0) return element;
-			else {
-				static_assert(Index > 0);
-				return next::template at<Index - 1>();
-			}
-		}
+		template<nuint Index> requires(Index > 0)
+		constexpr auto& at() const { return next::template at<Index - 1>(); }
 	};
-}
-
-namespace elements {
 
 	template<typename... Types>
 	struct of {
@@ -73,7 +47,7 @@ namespace elements {
 		using types = types::of<Types...>;
 
 	private:
-		internal::recursive_elements_storage<Types...> m_storage;
+		elements::recursive_elements_storage<Types...> m_storage;
 
 	public:
 	
@@ -84,13 +58,18 @@ namespace elements {
 		{}
 	
 		template<nuint Index>
-		constexpr decltype(auto) at_index() const {
+		constexpr auto& at() const {
 			return m_storage.template at<Index>();
 		}
 
 		template<nuint Index>
-		constexpr decltype(auto) at_index() {
+		constexpr auto& at() {
 			return m_storage.template at<Index>();
+		}
+
+		template<nuint... Indices>
+		void for_each(auto&& f, values::of<Indices...> = indices{}) const {
+			(f(at<Indices>()) , ...);
 		}
 	};
 	

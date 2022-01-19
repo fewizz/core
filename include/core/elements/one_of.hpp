@@ -83,8 +83,8 @@ namespace elements {
 		template<typename... Args>
 		requires(
 			there_is_next && (
-				(sizeof...(Args) > 1 || sizeof...(Args) == 0) ||
-				! type::is_same_as<Type&>::template for_type<types::first::for_types_of<Args...>>
+				sizeof...(Args) != 1 ||
+				!type::is_same_as<Type&>::template for_type<types::first::for_types_of<Args...>>
 			)
 		)
 		constexpr recursive_one_of_elements_storage(Args&&... args)
@@ -159,6 +159,8 @@ namespace elements {
 			m_storage { forward<Args>(args)... },
 			m_current { index_of_constructible_from_args<Args&&...> }
 		{}
+
+		//one_of(one_of&& other) = default; TODO
 
 		template<typename Type>
 		constexpr one_of& operator = (Type& value) {

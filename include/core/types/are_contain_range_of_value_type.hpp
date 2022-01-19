@@ -1,13 +1,13 @@
 #pragma once
 
+#include "predicate.hpp"
 #include "../range/of_value_type.hpp"
 #include "indices_of_satisfying_predicate.hpp"
 
 namespace types {
 
 	template<typename ValueType>
-	struct are_contain_range_of_value_type {
-		static constexpr bool is_types_predicate = true;
+	struct are_contain_range_of_value_type : types::predicate_marker {
 		
 		template<typename... Types>
 		static constexpr bool for_types_of =

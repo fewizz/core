@@ -21,9 +21,9 @@ requires(
 	>::for_types_of<Args...>
 )
 void for_each_digit_in_number(Args... args) {
-	nuint b = (nuint) elements::of_type<base&>::for_elements_of(args...);
-	nuint n = (nuint) elements::of_type<number&>::for_elements_of(args...);
-	auto f = elements::satisfying_predicate<type::is_invokable_with<nuint>>::for_elements_of(args...);
+	nuint b = (nuint) elements::of_type<base>(args...);
+	nuint n = (nuint) elements::of_type<number>(args...);
+	auto f = elements::satisfying_predicate<type::is_invokable_with<nuint>>(args...);
 
 	nuint to_divide = 1;
 	nuint n_copy = n;

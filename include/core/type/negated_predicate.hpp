@@ -5,10 +5,10 @@
 namespace type {
 
 	template<type::predicate Predicate>
-	struct negated_predicate {
-		static constexpr bool is_type_predicate = true;
+	struct negated_predicate : type::predicate_marker {
 
 		template<typename Type>
 		static constexpr bool for_type = ! Predicate::template for_type<Type>;
+
 	};
 }

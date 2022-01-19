@@ -1,5 +1,7 @@
 #pragma once
 
+#include "predicate.hpp"
+
 namespace type {
 
 	template<typename Type, typename... Args>
@@ -8,11 +10,11 @@ namespace type {
 	};
 
 	template<typename... Args>
-	struct is_invokable_with {
-		static constexpr bool is_type_predicate = true;
+	struct is_invokable_with : type::predicate_marker {
 
 		template<typename Type>
 		static constexpr bool for_type = invocable_with<Type, Args...>;
+
 	};
 
 }

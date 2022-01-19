@@ -12,36 +12,22 @@ namespace elements {
 	struct pass_at_indices {
 
 		template<typename F>
-		struct to_function {
+		struct function {
 			F&& f;
 
 			template<typename... Types>
-			decltype(auto) for_elements_of(Types&&... elements) const {
-				return f(
-					forward<
-						typename types::at_index<Indices>::template for_types_of<Types...>
-					>
-					(
-						elements::at_index<Indices>::for_elements_of(elements...)
-					)...
-				);
+			decltype(auto) for_elements_of(const Types&... elements) const {
+				return f(elements::at_index<Indices>.for_elements_of(elements...)...);
 			}
 
 			template<typename... Types>
-			decltype(auto) for_elements(elements::of<Types...>&& elements) const {
-				return f(
-					forward<
-						typename types::at_index<Indices>::template for_types_of<Types...>
-					>
-					(
-						elements.at_index<Indices>()
-					)...
-				);
+			decltype(auto) for_elements(const elements::of<Types...>& elements) const {
+				return f(elements.at_index<Indices>()...);
 			}
 		};
 
 		template<typename F>
-		to_function(F&&) -> to_function<F>;
+		function(F&&) -> function<F>;
 	};
 
 	template<typename Indices>

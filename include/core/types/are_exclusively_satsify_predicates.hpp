@@ -6,7 +6,7 @@
 namespace types {
 
 	template<types::predicate... Predicates>
-	class are_exclusively_satsify_predicates {
+	class are_exclusively_satsify_predicates : public types::predicate_marker {
 
 		template<typename... Types>
 		struct remaining_types {
@@ -41,8 +41,6 @@ namespace types {
 		};
 
 	public:
-
-		static constexpr bool is_types_predicate = true;
 
 		template<typename... Types>
 		static constexpr bool for_types_of =

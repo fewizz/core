@@ -52,7 +52,7 @@ namespace range {
 		transform(R&& r) : range{ forward<R>(r) } {}
 
 		template<typename F>
-		auto elements(F&& f) const {
+		auto operator () (F&& f) const {
 			return transformed<R, F>(forward<R>(range), forward<F>(f));
 		}
 	};

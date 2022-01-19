@@ -9,17 +9,22 @@
 namespace elements {
 
 	template<type::predicate Predicate>
-	struct satisfying_predicate {
+	struct satisfying_predicate_t {
 	
 		template<typename... Types>
 		requires(types::count_of_satisfying_predicate<Predicate>::template for_types_of<Types...> == 1)
-		static constexpr decltype(auto) for_elements_of(Types&&... elements) {
+		constexpr auto& for_elements_of(const Types&... elements) const {
 			return elements::at_index<
 				types::index_of_satisfying_predicate<Predicate>::template for_types_of<Types...>
-			>::template for_elements_of<Types...>(forward<Types>(elements)...);
+			>.template for_elements_of<Types...>(elements...);
 		}
 
-		using ignore_reference = elements::satisfying_predicate<type::modified_predicate<Predicate, type::remove_reference>>;
-		using ignore_const = elements::satisfying_predicate<type::modified_predicate<Predicate, type::remove_const>>;
+		template<typename... Types>
+		constexpr auto& operator () (const Types&... elements) const {
+			return for_elements_of<Types...>(elements...);
+		}
 	};
+
+	template<type::predicate Predicate>
+	inline constexpr auto satisfying_predicate = elements::satisfying_predicate_t<Predicate>{};
 }

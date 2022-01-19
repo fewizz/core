@@ -18,3 +18,6 @@ namespace types {
 	};
 
 }
+
+template<typename... Types>
+inline constexpr bool types_are_same = types::are_same::for_types_of<Types...>;

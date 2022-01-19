@@ -33,11 +33,11 @@ int main() {
 
 	int b = false;
 
-	elements::pass_at_indices<3, 2, 0>::to_function{
+	elements::pass_at_indices<3, 2, 0>(0, 1, 2, 3, 4)(
 		[&](auto... val) {
 			b = (val + ...);
 		}
-	}.for_elements_of(0, 1, 2, 3, 4);
+	);
 
 		elements::pass_at_indices<3, 2, 0>::to_function{
 		[&](auto... val) {

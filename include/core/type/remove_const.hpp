@@ -1,10 +1,11 @@
 #pragma once
 
 #include "of.hpp"
+#include "modifier.hpp"
 
 namespace type {
 
-	class remove_const {
+	class remove_const : type::modifier_marker {
 		template<typename Type>
 		struct remove_const_t : type::of<Type>{};
 
@@ -14,8 +15,9 @@ namespace type {
 
 		template<typename Type>
 		using for_type = typename remove_const_t<Type>::type;
-
-		static constexpr bool is_type_modifier = true;
 	};
 
 }
+
+template<typename Type>
+using remove_const = type::remove_const::for_type<Type>;

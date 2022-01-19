@@ -8,7 +8,6 @@
 namespace elements {
 
 	template<typename Type>
-	struct of_type : elements::satisfying_predicate<type::is_same_as<Type>> {
-	};
+	inline constexpr auto of_type = elements::satisfying_predicate<type::is_same_as<Type>>;
 
-}
+} // elements

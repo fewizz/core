@@ -4,12 +4,12 @@
 #include "of.hpp"
 
 namespace types {
-	template <uint Index>
+	template <nuint Index>
 	class erase_at_index {
 		
 		template<typename... LeftTypes>
 		struct left_types {
-			template<uint CurrentIndex>
+			template<nuint CurrentIndex>
 			struct current_type_index {
 			
 				template<typename CurrentType, typename... RightTypes>

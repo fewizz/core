@@ -13,10 +13,10 @@ namespace range {
 namespace type {
 
 	template<typename ValueType>
-	struct is_range_of_value_type {
-		static constexpr bool is_type_predicate = true;
+	struct is_range_of_value_type : type::predicate_marker {
 
 		template<typename RangeType>
 		static constexpr bool for_type = range::of_value_type<RangeType, ValueType>;
+
 	};
 }

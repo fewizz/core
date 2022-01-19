@@ -2,11 +2,13 @@
 
 #include "elements/one_of.hpp"
 
-extern "C" void abort();
+[[noreturn]] inline void default_unexpected_handler() {
+	__builtin_trap();
+}
 
 constexpr void default_unexpected_handler(auto) {
-	abort();
-} 
+	default_unexpected_handler();
+}
 
 template<typename Type, typename UnexpectedType, void(Handler)(UnexpectedType) = default_unexpected_handler>
 class expected {
@@ -16,7 +18,16 @@ class expected {
 public:
 
 	template<typename... Args>
+	requires(
+		sizeof...(Args) != 1 ||
+		!type::is_same_as<expected>::template for_type<types::first::for_types_of<Args...>>
+	)
 	constexpr expected(Args&&... expected) : one_of{ forward<Args>(expected)... } {}
+
+	/*constexpr expected(expected&& other) :
+		one_of{ move(other.one_of) },
+		handled{ exchange(other.handled, true) }
+	{}*/ // TODO
 
 	constexpr ~expected() {
 		handle_if_unexpected();
@@ -46,7 +57,7 @@ public:
 		return get_expected();
 	}
 
-	void set_handled(bool value) {
+	void set_handled(bool value = true) {
 		handled = value;
 	}
 
