@@ -9,28 +9,38 @@
 namespace elements {
 
 	template<type::predicate Predicate>
-	struct pass_satisfying_type_predicate {
+	struct pass_satisfying_type_predicate_t {
 
-		template<typename F>
-		struct function {
-			F&& f;
+		template<typename... Types>
+		struct acceptor {
+			elements::of<Types...> elements;
 
-			template<typename... Types>
-			decltype(auto) for_elements_of(const Types&... elements) const {
-				using indices = typename types::indices_of_satisfying_predicate<Predicate>::template for_types_of<Types...>;
-
-				using to_f = typename elements::pass_at<indices>::template function<F>;
-				
-				return to_f{ forward<F>(f) }.template for_elements_of<Types...>(elements...);
+			template<typename F>
+			decltype(auto) operator () (F&& f) const {
+				return elements.forward(forward<F>(f));
 			}
 
-			template<typename... Types>
-			decltype(auto) operator () (const Types&... elements) const {
-				return for_elements_of<Types...>(elements...);
+			template<typename F>
+			decltype(auto) operator () (F&& f) {
+				return elements.forward(forward<F>(f));
 			}
 		};
 
-		template<typename F>
-		function(F&&) -> function<F>;
+		template<typename... Types>
+		auto operator () (Types&&...elements) const {
+			using indices_t = typename types::indices_of_satisfying_predicate<Predicate>::template for_types_of<decay<Types>...>;
+			using types_t = typename types::at<indices_t>::template for_types_of<Types...>;
+
+			return [&]<nuint... Indices, typename... Types0>(indices::of<Indices...>, types::of<Types0...>) {
+				return acceptor<Types0...> {
+					.elements {
+						forward<Types0>(elements::at_index<Indices>(elements...))...
+					}
+				};
+			}(indices_t{}, types_t{});
+		}
 	};
+
+	template<type::predicate Predicate>
+	inline constexpr auto pass_satisfying_type_predicate = elements::pass_satisfying_type_predicate_t<Predicate>{};
 }

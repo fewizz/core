@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../types/at_index.hpp"
 #include "../forward.hpp"
 #include "../integer.hpp"
 #include "../move.hpp"
@@ -17,7 +18,7 @@ namespace elements {
 
 		HeadType element;
 
-		recursive_elements_storage(HeadType&& head_element, TailTypes&&... tail_elements)
+		constexpr recursive_elements_storage(HeadType&& head_element, TailTypes&&... tail_elements)
 		:
 			next {
 				forward<TailTypes>(tail_elements)...
@@ -26,6 +27,8 @@ namespace elements {
 				forward<HeadType>(head_element)
 			}
 		{}
+
+		constexpr recursive_elements_storage(recursive_elements_storage&&) = default;
 
 		template<nuint Index> requires(Index == 0)
 		constexpr auto& at() { return element; }
@@ -53,9 +56,11 @@ namespace elements {
 	
 		constexpr of(Types&&... values)
 			: m_storage {
-				forward<Types>(values)...
+				::forward<Types>(values)...
 			}
 		{}
+
+		constexpr of(of&&) = default;
 	
 		template<nuint Index>
 		constexpr auto& at() const {
@@ -67,9 +72,52 @@ namespace elements {
 			return m_storage.template at<Index>();
 		}
 
-		template<nuint... Indices>
-		void for_each(auto&& f, values::of<Indices...> = indices{}) const {
+		template<typename F, nuint... Indices>
+		void for_each(F&& f, ::indices::of<Indices...>) const {
 			(f(at<Indices>()) , ...);
+		}
+		
+		template<typename F, nuint... Indices>
+		void for_each(F&& f, ::indices::of<Indices...>) {
+			(f(at<Indices>()) , ...);
+		}
+
+		template<typename F>
+		void for_each(F&& f) const {
+			[&]<nuint... Indices>(::indices::of<Indices...>) {
+				(f(at<Indices>()) , ...);
+			}(indices{});
+		}
+		
+		template<typename F>
+		void for_each(F&& f) {
+			[&]<nuint... Indices>(::indices::of<Indices...>) {
+				(f(at<Indices>()) , ...);
+			}(indices{});
+		}
+
+		decltype(auto) pass(auto&& f) const {
+			return [&]<nuint... Indices>(::indices::of<Indices...>) {
+				return f(at<Indices>()...);
+			}(indices{});
+		}
+
+		decltype(auto) pass(auto&& f) {
+			return [&]<nuint... Indices>(::indices::of<Indices...>) {
+				return f(at<Indices>()...);
+			}(indices{});
+		}
+
+		decltype(auto) forward(auto&& f) const {
+			return [&]<nuint... Indices, typename... Types0>(::indices::of<Indices...>, ::types::of<Types0...>) {
+				return f(::forward<Types0>(at<Indices>())...);
+			}(indices{}, types{});
+		}
+
+		decltype(auto) forward(auto&& f) {
+			return [&]<nuint... Indices, typename... Types0>(::indices::of<Indices...>, ::types::of<Types0...>) {
+				return f(::forward<Types0>(at<Indices>())...);
+			}(indices{}, types{});
 		}
 	};
 	

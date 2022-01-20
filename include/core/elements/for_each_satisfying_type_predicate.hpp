@@ -13,26 +13,22 @@ namespace elements {
 
 		template<typename... Types>
 		struct acceptor {
-			elements::of<const Types&...> elements;
+			elements::of<Types...> elements;
 
-			auto operator () (auto&& f) {
+			template<typename F>
+			void operator () (F&& f) {
 				elements.for_each(
-					f,
-					typename types::indices_of_satisfying_predicate<Predicate>::template for_types_of<Types...>{}
+					forward<F>(f),
+					typename types::indices_of_satisfying_predicate<Predicate>::template for_types_of<decay<Types>...>{}
 				);
 			}
 		};
 
 		template<typename Head, typename... Types>
-		auto for_elements_of(const Head& head_element, const Types&... elements) const {
+		auto operator () (Head&& head_element, Types&&... elements) const {
 			return acceptor<Head, Types...> {
-				.elements { head_element, elements... } 
+				.elements { forward<Head>(head_element), forward<Types>(elements)... } 
 			};
-		}
-
-		template<typename Head, typename... Types>
-		auto operator () (const Head& head_element, const Types&... elements) const {
-			return for_elements_of<Head, Types...>(head_element, elements...);
 		}
 
 	};

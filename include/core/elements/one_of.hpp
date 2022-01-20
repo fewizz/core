@@ -58,14 +58,14 @@ namespace elements {
 		}
 
 		template<nuint Index> requires (Index == 0)
-		constexpr const auto& get_at() const { return element; }
+		constexpr const auto& at() const { return element; }
 		template<nuint Index> requires (Index > 0 && there_is_next)
-		constexpr const auto& get_at() const { return next.template get_at<Index - 1>(); }
+		constexpr const auto& at() const { return next.template at<Index - 1>(); }
 
 		template<nuint Index> requires (Index == 0)
-		constexpr auto& get_at() { return element; }
+		constexpr auto& at() { return element; }
 		template<nuint Index> requires (Index > 0 && there_is_next)
-		constexpr auto& get_at() { return next.template get_at<Index - 1>(); }
+		constexpr auto& at() { return next.template at<Index - 1>(); }
 	};
 
 	template<typename Type, typename... TailTypes>
@@ -115,14 +115,14 @@ namespace elements {
 		}
 
 		template<nuint Index> requires (Index == 0)
-		constexpr const auto& get_at() const { return *element; }
+		constexpr const auto& at() const { return *element; }
 		template<nuint Index> requires (Index > 0 && there_is_next)
-		constexpr const auto& get_at() const { return next.template at<Index - 1>(); }
+		constexpr const auto& at() const { return next.template at<Index - 1>(); }
 
 		template<nuint Index> requires (Index == 0)
-		constexpr auto& get_at() { return *element; }
+		constexpr auto& at() { return *element; }
 		template<nuint Index> requires (Index > 0 && there_is_next)
-		constexpr auto& get_at() { return next.template at<Index - 1>(); }
+		constexpr auto& at() { return next.template at<Index - 1>(); }
 	};
 
 	template<typename... Types>
@@ -178,25 +178,25 @@ namespace elements {
 		}
 
 		template<nuint Index>
-		constexpr type_at<Index>& get_at() {
-			return m_storage.template get_at<Index>();
+		constexpr type_at<Index>& at() {
+			return m_storage.template at<Index>();
 		}
 
 		template<nuint Index>
-		constexpr const type_at<Index>& get_at() const {
-			return m_storage.template get_at<Index>();
+		constexpr const type_at<Index>& at() const {
+			return m_storage.template at<Index>();
 		}
 
 		template<typename Type>
 		requires(only_one_such_type<Type>)
 		constexpr const Type& get() const {
-			return get_at<type_index<Type>>();
+			return at<type_index<Type>>();
 		}
 
 		template<typename Type>
 		requires(only_one_such_type<Type>)
 		constexpr Type& get() {
-			return get_at<type_index<Type>>();
+			return at<type_index<Type>>();
 		}
 	};
 
