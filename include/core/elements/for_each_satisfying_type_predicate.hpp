@@ -19,15 +19,15 @@ namespace elements {
 			void operator () (F&& f) {
 				elements.for_each(
 					forward<F>(f),
-					typename types::indices_of_satisfying_predicate<Predicate>::template for_types_of<decay<Types>...>{}
+					typename types::indices_of_satisfying_predicate<Predicate>::template for_types_of<Types...>{}
 				);
 			}
 		};
 
-		template<typename Head, typename... Types>
-		auto operator () (Head&& head_element, Types&&... elements) const {
-			return acceptor<Head, Types...> {
-				.elements { forward<Head>(head_element), forward<Types>(elements)... } 
+		template<typename... Types>
+		auto operator () (Types&&... elements) const {
+			return acceptor<Types...> {
+				{ forward<Types>(elements)... }
 			};
 		}
 

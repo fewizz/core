@@ -4,6 +4,7 @@
 #include "of.hpp"
 
 namespace types {
+
 	template <nuint Index>
 	class erase_at_index {
 		
@@ -21,7 +22,7 @@ namespace types {
 						::type;
 				};
 			};
-	
+
 			template<>
 			struct current_type_index<Index> {
 				template<typename CurrentType, typename... RightTypes>
@@ -30,11 +31,12 @@ namespace types {
 				};
 			};
 		};
-	
+
 	public:
 	
 		template<typename... Types>
 		using for_types_of = typename left_types<>::template current_type_index<0>::template right_types<Types...>::type;
+
 	};
 
 }

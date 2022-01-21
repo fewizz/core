@@ -6,6 +6,7 @@
 namespace type {
 
 	class remove_reference : type::modifier_marker {
+
 		template<typename Type>
 		struct remove_reference_t : type::of<Type> {};
 
@@ -14,10 +15,12 @@ namespace type {
 
 		template<typename Type>
 		struct remove_reference_t<Type&&> : type::of<Type> {};
+
 	public:
 
 		template<typename Type>
 		using for_type = typename remove_reference_t<Type>::type;
+
 	};
 
 }

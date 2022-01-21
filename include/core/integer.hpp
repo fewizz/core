@@ -1,8 +1,9 @@
 #pragma once
 
+#include "type/predicate.hpp"
 #include "type/of.hpp"
 #include "types/are_same.hpp"
-#include "meta/if_satisfy.hpp"
+#include "if_satisfy.hpp"
 
 template<unsigned Bits>
 struct int_of_bits_type;
@@ -71,16 +72,19 @@ concept unsigned_integer = types::are_same::for_types_of<typename uint_of_bits_t
 template<typename Type>
 concept integer = signed_integer<Type> || unsigned_integer<Type>;
 
-struct is_signed_integer {
-	static constexpr bool is_type_predicate = true;
-
+struct is_signed_integer : type::predicate_marker {
 	template<typename Type>
-	static constexpr bool for_type_of = signed_integer<Type>;
+	static constexpr bool for_type = signed_integer<Type>;
 };
 
-struct is_unsigned_integer {
-	static constexpr bool is_type_predicate = true;
+struct is_unsigned_integer : type::predicate_marker {
 
 	template<typename Type>
-	static constexpr bool for_type_of = unsigned_integer<Type>;
+	static constexpr bool for_type = unsigned_integer<Type>;
+};
+
+struct is_integer : type::predicate_marker {
+
+	template<typename Type>
+	static constexpr bool for_type = integer<Type>;
 };

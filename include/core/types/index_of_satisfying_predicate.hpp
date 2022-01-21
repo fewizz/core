@@ -15,5 +15,6 @@ namespace types {
 			types::indices_of_satisfying_predicate<Predicate>
 			::template for_types_of<Types...>
 			::template pass_for_value<values::first>;
+
 	};
 }

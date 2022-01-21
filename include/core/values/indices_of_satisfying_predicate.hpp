@@ -5,6 +5,7 @@
 #include "../value/predicate.hpp"
 
 namespace values {
+
 	template<value::predicate Predicate>
 	class indices_of_satisfying_predicate {
 	
@@ -20,7 +21,7 @@ namespace values {
 			requires(Predicate::template for_value_of<Value>)
 			struct resulting<Value, Values...> {
 				using indices_type = typename current_index_and_resulting_indices<
-					CurrentIndex + 1u,
+					CurrentIndex + 1,
 					Indices..., CurrentIndex
 				>::template resulting<Values...>::indices_type;
 			};
@@ -29,7 +30,7 @@ namespace values {
 			requires(!Predicate::template for_value_of<Value>)
 			struct resulting<Value, Values...> {
 				using indices_type = typename current_index_and_resulting_indices<
-					CurrentIndex + 1u,
+					CurrentIndex + 1,
 					Indices...
 				>::template resulting<Values...>::indices_type;
 			};
@@ -39,8 +40,9 @@ namespace values {
 	
 		template<auto... Values>
 		using for_values_of = typename
-			current_index_and_resulting_indices<0u>
+			current_index_and_resulting_indices<0>
 			::template resulting<Values...>
 			::indices_type;
 	};
+
 }

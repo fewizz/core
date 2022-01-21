@@ -12,7 +12,9 @@ namespace type {
 
 	template<typename... Types>
 	struct is_constructible_from : type::predicate_marker {
+
 		template<typename Type>
 		static constexpr bool for_type = type::constructible_from<Type, Types...>;
+
 	};
 }

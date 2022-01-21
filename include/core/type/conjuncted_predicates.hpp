@@ -8,5 +8,6 @@ namespace type {
 
 		template<typename Type>
 		static constexpr bool for_type = (Predicates::template for_type<Type> && ...);
+
 	};
 }

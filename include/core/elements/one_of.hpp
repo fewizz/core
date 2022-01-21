@@ -1,11 +1,10 @@
 #pragma once
 
 #include "../types/are_same.hpp"
-#include "../types/count_of_type.hpp"
-#include "../types/index_of_type.hpp"
 #include "../type/is_constructible_from.hpp"
 #include "../types/index_of_satisfying_predicate.hpp"
 #include "../types/first.hpp"
+#include "../type/is_same_as.hpp"
 #include "../forward.hpp"
 #include "../types/at_index.hpp"
 
@@ -139,7 +138,7 @@ namespace elements {
 
 		template<typename Type>
 		static constexpr bool only_one_such_type =
-			types::count_of_type<Type>::template for_types_of<Types...> == 1;
+			types::count_of_satisfying_predicate<type::is_same_as<Type>>::template for_types_of<Types...> == 1;
 
 		template<typename... Args>
 		static constexpr nuint index_of_constructible_from_args =
@@ -151,7 +150,7 @@ namespace elements {
 		using type_at = typename types::at_index<Index>::template for_types_of<Types...>;
 
 		template<typename Type>
-		static constexpr nuint type_index = types::index_of_type<Type>::template for_types_of<Types...>;
+		static constexpr nuint type_index = types::index_of_satisfying_predicate<type::is_same_as<Type>>::template for_types_of<Types...>;
 
 		template<typename... Args>
 		requires(types::count_of_satisfying_predicate<type::is_constructible_from<Args&&...>>::template for_types_of<Types...> == 1)
@@ -166,7 +165,7 @@ namespace elements {
 		constexpr one_of& operator = (Type& value) {
 			m_storage.destruct(m_current);
 			m_storage(forward<Type>(value));
-			m_current = types::index_of_type<Type>::template for_types_of<Types...>;
+			m_current = types::index_of_satisfying_predicate<type::is_same_as<Type>>::template for_types_of<Types...>;
 			return *this;
 		}
 

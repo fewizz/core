@@ -3,6 +3,7 @@
 #include "of.hpp"
 
 namespace values {
+
 	struct first {
 		template<auto FirstValue, auto... TailValues>
 		static constexpr auto for_values_of = FirstValue;
@@ -18,4 +19,5 @@ namespace values {
 		template<typename Type>
 		static constexpr auto for_values = __for<Type>::value;
 	};
+
 }

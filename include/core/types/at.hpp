@@ -5,7 +5,6 @@
 
 namespace types {
 
-
 	template<typename Type>
 	struct at;
 
@@ -14,5 +13,7 @@ namespace types {
 
 		template<typename... Types>
 		using for_types_of = typename types::at_indices<Indices...>::template for_types_of<Types...>;
+
 	};
+
 }

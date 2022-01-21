@@ -3,7 +3,7 @@
 #include "../type/predicate.hpp"
 #include "../types/indices_of_satisfying_predicate.hpp"
 #include "../types/at.hpp"
-#include "pass_at_indices.hpp"
+#include "at_index.hpp"
 #include "of.hpp"
 
 namespace elements {
@@ -28,14 +28,12 @@ namespace elements {
 
 		template<typename... Types>
 		auto operator () (Types&&...elements) const {
-			using indices_t = typename types::indices_of_satisfying_predicate<Predicate>::template for_types_of<decay<Types>...>;
+			using indices_t = typename types::indices_of_satisfying_predicate<Predicate>::template for_types_of<Types...>;
 			using types_t = typename types::at<indices_t>::template for_types_of<Types...>;
 
 			return [&]<nuint... Indices, typename... Types0>(indices::of<Indices...>, types::of<Types0...>) {
 				return acceptor<Types0...> {
-					.elements {
-						forward<Types0>(elements::at_index<Indices>(elements...))...
-					}
+					{ 	forward<Types0>(elements::at_index<Indices>(elements...))... }
 				};
 			}(indices_t{}, types_t{});
 		}

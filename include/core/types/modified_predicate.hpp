@@ -7,7 +7,6 @@ namespace types {
 
 	template<types::predicate Predicate, type::modifier Modifier>
 	struct modified_predicate : types::predicate_marker {
-		static constexpr bool is_types_predicate = true;
 
 		template<typename... Types>
 		static constexpr bool for_types_of =
@@ -20,5 +19,7 @@ namespace types {
 			typename Predicate::template indices_of_affected_types_of<
 				typename Modifier::template for_type<Types>...
 			>;
+
 	};
+
 }

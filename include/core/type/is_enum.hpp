@@ -10,7 +10,7 @@ namespace type {
 	struct is_enum : type::predicate_marker {
 
 		template<typename Type>
-		static constexpr bool for_type = enum_type<Type>;
+		static constexpr bool for_type = __is_enum(Type);
 
 	};
 

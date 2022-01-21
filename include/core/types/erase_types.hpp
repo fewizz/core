@@ -26,9 +26,12 @@ namespace types {
 				using result = typename resulting_types<erased>::template types_to_erase_remaining<TypesToEraseTail...>::result;
 			};
 		};
+
 	public:
+
 		template<typename... Types>
 		using for_types_of = typename resulting_types<types::of<Types...>>::template types_to_erase_remaining<TypesToErase...>::result;
+
 	};
 
 }

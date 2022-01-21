@@ -18,7 +18,7 @@ namespace values {
 		struct current_index_and_values_left<CurrentIndex, Value, Values...> {
 			static constexpr auto value
 				= current_index_and_values_left<
-					CurrentIndex + 1u,
+					CurrentIndex + 1,
 					Values...
 				>::value;
 		};
@@ -26,7 +26,7 @@ namespace values {
 	public:
 
 		template<auto...Values>
-		static constexpr auto for_values_of = current_index_and_values_left<0u, Values...>::value;
+		static constexpr auto for_values_of = current_index_and_values_left<0, Values...>::value;
 	};
 
 }

@@ -14,4 +14,5 @@ namespace values {
 		>::template for_values_of<Values...>;
 
 	};
+
 }

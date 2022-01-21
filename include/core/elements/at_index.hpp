@@ -10,19 +10,17 @@ namespace elements {
 	template<nuint Index>
 	struct at_index_t {
 
+		template<typename HeadType>
+		requires(Index == 0)
+		constexpr decltype(auto) operator () (HeadType&& head_element, auto&&...) const {
+			return forward<HeadType>(head_element);
+		}
+
 		template<typename HeadType, typename... TailTypes>
+		requires(Index > 0)
 		constexpr decltype(auto) operator () (HeadType&& head_element, TailTypes&&... tail_elements) const {
-			if constexpr(Index == 0) {
-				return forward<HeadType>(head_element);
-			}
-			else {
-				static_assert(sizeof...(TailTypes) > 0);
-				return forward<
-					typename types::at_index<Index>::template for_types_of<HeadType, TailTypes...>
-				>(
-					at_index_t<Index - 1>{}.template operator () <TailTypes...> (forward<TailTypes>(tail_elements)...)
-				);
-			}
+			static_assert(sizeof...(TailTypes) > 0);
+			return at_index_t<Index - 1>{}(forward<TailTypes>(tail_elements)...);
 		}
 	};
 

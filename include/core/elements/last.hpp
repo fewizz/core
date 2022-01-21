@@ -4,13 +4,14 @@
 
 namespace elements {
 
-	struct last {
+	struct last_t {
+
 		template<typename... Types>
-		static decltype(auto) for_elements_of(Types&&... elements) {
-			return elements::at_index<sizeof...(Types) - 1>
-				.for_elements_of(
-					forward<Types>(elements)...
-				);
+		decltype(auto) operator () (Types&&... elements) const {
+			return elements::at_index<sizeof...(Types) - 1>(forward<Types>(elements)...);
 		}
+
 	};
+
+	inline constexpr auto last = last_t{};
 }

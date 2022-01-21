@@ -5,7 +5,7 @@
 
 namespace type {
 
-	struct remove_extent : type::modifier_marker {
+	class remove_extent : type::modifier_marker {
 
 		template<typename Type>
 		struct remove_extent_t : type::of<Type> {};
@@ -13,8 +13,11 @@ namespace type {
 		template<typename Type, nuint N>
 		struct remove_extent_t<Type[N]> : type::of<Type> {};
 
+	public:
+
 		template<typename Type>
 		using for_type = typename remove_extent_t<Type>::type;
+
 	};
 
 }

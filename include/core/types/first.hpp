@@ -5,6 +5,7 @@
 namespace types {
 
 	struct first {
+
 		template<typename... Types>
 		struct for_types_of_t;
 
@@ -13,6 +14,7 @@ namespace types {
 
 		template<typename... Types>
 		using for_types_of = typename for_types_of_t<Types...>::type;
+
 	};
 
 }

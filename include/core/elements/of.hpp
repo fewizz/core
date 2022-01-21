@@ -84,16 +84,12 @@ namespace elements {
 
 		template<typename F>
 		void for_each(F&& f) const {
-			[&]<nuint... Indices>(::indices::of<Indices...>) {
-				(f(at<Indices>()) , ...);
-			}(indices{});
+			for_each(forward<F>(f), indices{});
 		}
 		
 		template<typename F>
 		void for_each(F&& f) {
-			[&]<nuint... Indices>(::indices::of<Indices...>) {
-				(f(at<Indices>()) , ...);
-			}(indices{});
+			for_each(forward<F>(f), indices{});
 		}
 
 		decltype(auto) pass(auto&& f) const {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../meta/if_satisfy.hpp"
+#include "../if_satisfy.hpp"
 #include "remove_reference.hpp"
 #include "remove_extent.hpp"
 #include "remove_volatile.hpp"
