@@ -18,7 +18,7 @@ struct flag_enum {
 	template<typename... Args>
 	requires(
 		sizeof...(Args) > 0
-		&& types::are_same::for_types_of<Args..., E>
+		&& types::are_same::for_types<Args..., E>
 	)
 	flag_enum(Args... args) {
 		value = ((value_type) args | ...);

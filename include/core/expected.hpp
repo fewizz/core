@@ -20,7 +20,7 @@ public:
 	template<typename... Args>
 	requires(
 		sizeof...(Args) != 1 ||
-		!type::is_same_as<expected>::template for_type<types::first::for_types_of<Args...>>
+		!type::is_same_as<expected>::template for_type<types::first::for_types<Args...>>
 	)
 	constexpr expected(Args&&... expected) : one_of{ forward<Args>(expected)... } {}
 

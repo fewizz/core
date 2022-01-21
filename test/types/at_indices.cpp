@@ -2,8 +2,8 @@
 #include "types/are_same.hpp"
 
 static_assert(
-	types::are_same::for_types_of<
-		types::at_indices<1u, 4u>::template for_types_of<char, int, double, long, bool>,
+	types::are_same::for_types<
+		types::at_indices<1, 4>::template for_types<char, int, double, long, bool>,
 		types::of<int, bool>
 	>
 );

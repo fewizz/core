@@ -1,9 +1,9 @@
 #pragma once
 
-#include "type/predicate.hpp"
-#include "type/of.hpp"
-#include "types/are_same.hpp"
-#include "if_satisfy.hpp"
+#include "meta/if_satisfy.hpp"
+#include "meta/type/predicate.hpp"
+#include "meta/type/of.hpp"
+#include "meta/types/are_same.hpp"
 
 template<unsigned Bits>
 struct int_of_bits_type;
@@ -64,10 +64,10 @@ template<typename Type>
 using uint_of_size_of = uint_of_bits<sizeof(Type) * 8>;
 
 template<typename Type>
-concept signed_integer = types::are_same::for_types_of<typename int_of_bits_type<sizeof(Type)*8>::type, Type>;
+concept signed_integer = types::are_same::for_types<typename int_of_bits_type<sizeof(Type)*8>::type, Type>;
 
 template<typename Type>
-concept unsigned_integer = types::are_same::for_types_of<typename uint_of_bits_type<sizeof(Type)*8>::type, Type>;
+concept unsigned_integer = types::are_same::for_types<typename uint_of_bits_type<sizeof(Type)*8>::type, Type>;
 
 template<typename Type>
 concept integer = signed_integer<Type> || unsigned_integer<Type>;

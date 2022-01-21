@@ -18,7 +18,7 @@ requires(
 		types::are_contain_one_decayed_same_as<base>,
 		types::are_contain_one_decayed_same_as<number>,
 		types::count_of_satisfying_predicate<type::is_invokable_with<nuint>>::equals<1>
-	>::for_types_of<Args...>
+	>::for_types<Args...>
 )
 void for_each_digit_in_number(Args... args) {
 	nuint b = (nuint) elements::decayed_same_as<base>(args...);

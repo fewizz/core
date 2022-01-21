@@ -46,6 +46,7 @@ struct array {
 	}
 };
 
-template<typename HeadType, typename... TailTypes>
-requires(sizeof...(TailTypes) == 0u || types::are_same::for_types_of<HeadType, TailTypes...>)
-array(HeadType&&, TailTypes&&...) -> array<type::remove_reference::for_type<HeadType>, sizeof...(TailTypes) + 1>;
+ // TODO
+//template<typename HeadType, typename... TailTypes>
+//requires(sizeof...(TailTypes) == 0u || types::are_same::for_types<HeadType, TailTypes...>)
+//array(HeadType&&, TailTypes&&...) -> array<type::remove_reference::for_type<HeadType>, sizeof...(TailTypes) + 1>;

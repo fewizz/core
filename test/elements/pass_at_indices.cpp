@@ -6,7 +6,7 @@ static_assert(
 	type::is_same_as<
 		int
 	>::for_type<
-		types::at_index<1>::template for_types_of<int, int, int, int, int>
+		types::at_index<1>::template for_types<int, int, int, int, int>
 	>
 );
 
@@ -20,7 +20,7 @@ struct a {
 		f1(
 			((
 				type::remove_reference::for_type<
-					typename types::at_index<Indices>::template for_types_of<Types...>>&&
+					typename types::at_index<Indices>::template for_types<Types...>>&&
 			) elements::at_index<Indices>::for_elements_of(values...) ) ...
 		);
 	}

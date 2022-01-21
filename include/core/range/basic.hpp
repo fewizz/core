@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../type/is_same_as.hpp"
-#include "../type/remove_reference.hpp"
+#include "../meta/type/is_same_as.hpp"
+#include "../meta/type/remove_reference.hpp"
 
 namespace range {
 
