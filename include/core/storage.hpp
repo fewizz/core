@@ -2,7 +2,7 @@
 
 #include "integer.hpp"
 
-template<uint Size>
+template<nuint Size>
 struct storage {
 	char _[Size];
 };

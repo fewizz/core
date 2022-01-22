@@ -1,8 +1,7 @@
 #pragma once
 
-#include "../integer.hpp"
-#include "value/of.hpp"
 #include "../values/of.hpp"
+#include "../../integer.hpp"
 
 namespace values {
 

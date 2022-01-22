@@ -6,7 +6,7 @@
 namespace type {
 
 	template<typename BaseType>
-	struct is_decayed_same_as_type : type::predicate_marker {
+	struct is_decayed_same_as : type::predicate_marker {
 
 		template<typename TypeToDecay>
 		static constexpr bool for_type = type::is_same_as<BaseType>::template for_type<::decay<TypeToDecay>>;

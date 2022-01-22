@@ -25,8 +25,8 @@ namespace types {
 			struct resulting_types<ResultingTypes...>
 				: type::of<
 					typename index_and_remaining_types<CurrentIndex + 1, RemainingTypes...>::
-					template resulting<ResultingTypes...>::
-					types
+					template resulting_types<ResultingTypes...>::
+					type
 				>{};
 
 			template<typename... ResultingTypes>
@@ -34,8 +34,8 @@ namespace types {
 			struct resulting_types<ResultingTypes...>
 				: type::of<
 					typename index_and_remaining_types<CurrentIndex + 1, RemainingTypes...>::
-					template resulting<ResultingTypes..., CurrentType>::
-					types
+					template resulting_types<ResultingTypes..., CurrentType>::
+					type
 				>{};
 
 		};

@@ -2,4 +2,4 @@
 
 #include "wrapper/of_integer.hpp"
 
-struct count : wrapper::of_integer<uint> {};
+struct count : wrapper::of_integer<nuint> {};

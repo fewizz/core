@@ -13,8 +13,7 @@ namespace types {
 		struct current_index_and_resulting_indices {
 		
 			template<typename... Types>
-			struct remaining_types
-				: type::of<indices::of<Indices...>> {};
+			struct remaining_types;
 
 			template<typename CurrentType, typename... RemainingTypes>
 			requires(Predicate::template for_type<CurrentType>)
@@ -31,6 +30,10 @@ namespace types {
 					typename current_index_and_resulting_indices<CurrentIndex + 1, Indices...>
 					::template remaining_types<RemainingTypes...>::type
 				>{};
+
+			template<>
+			struct remaining_types<>
+				: type::of<indices::of<Indices...>> {};
 
 		};
 	

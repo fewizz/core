@@ -1,15 +1,8 @@
 #pragma once
 
 #include "integer.hpp"
-#include "type/is_reference.hpp"
-#include "type/remove_reference.hpp"
-//#include "wrapper/of_integer.hpp"
-//#include "wrapper/of_pointer_to.hpp"
-
-//struct size : wrapper::of_integer<uint> {};
-
-//template<typename T>
-//struct beginning : wrapper::of_pointer_to<T> {};
+#include "meta/type/is_reference.hpp"
+#include "meta/type/remove_reference.hpp"
 
 template<typename ValueType>
 struct span {
@@ -59,7 +52,7 @@ struct span {
 template<typename ValueType>
 requires(type::is_reference::for_type<ValueType>)
 struct span<ValueType> {
-	using clear_value_type = type::remove_reference::for_type<ValueType>;
+	using clear_value_type = remove_reference<ValueType>;
 	using value_type = clear_value_type&;
 
 	clear_value_type** m_values;
@@ -117,16 +110,12 @@ struct span<ValueType> {
 		return m_values;
 	}
 
-	//constexpr const clear_value_type** data() const {
-	//	return m_values;
-	//}
-
 	constexpr clear_value_type& operator [] (nuint index) {
 		return *(begin() + index);
-		//return *it;
 	}
 
 	constexpr const clear_value_type& operator [] (nuint index) const {
 		return *(begin() + index);
 	}
+
 };

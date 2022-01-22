@@ -6,44 +6,52 @@ namespace values {
 
 	template<auto... Values>
 	struct of;
+
 }
 
 namespace indices {
+
 	template<nuint... Values>
 	using of = values::of<Values...>;
 
-		template<nuint IndexFrom>
-		class from {
-		
-			template<nuint IndexTo>
-			struct to_t {
-				static constexpr nuint size = IndexTo - IndexFrom;
+	template<nuint FromIndex>
+	class from {
+	
+		template<nuint ToIndex>
+		struct to_index {
+			static constexpr nuint size = ToIndex - FromIndex;
 
-				template<nuint... Indices>
-				struct result;
+			template<nuint... ResultingIndices>
+			struct resulting_indices;
 
-				template<nuint... Indices>
-				requires(size == sizeof...(Indices))
-				struct result<Indices...> {
-					using type = indices::of<Indices...>;
-				};
+			template<nuint... ResultingIndices>
+			requires(size != sizeof...(ResultingIndices))
+			struct resulting_indices<ResultingIndices...>
+				: type::of<
+					typename resulting_indices<ResultingIndices..., FromIndex + sizeof...(ResultingIndices)>::type
+				>{};
 
-				template<nuint... Indices>
-				requires(size != sizeof...(Indices) && sizeof...(Indices) == 0 && size > 0)
-				struct result<Indices...> {
-					using type = typename result<IndexFrom>::type;
-				};
+			template<nuint... ResultingIndices>
+			requires(size == sizeof...(ResultingIndices))
+			struct resulting_indices<ResultingIndices...>
+				: type::of<
+					indices::of<ResultingIndices...>
+				>{};
 
-				template<nuint... Indices>
-				requires(size != sizeof...(Indices) && sizeof...(Indices) > 0)
-				struct result<Indices...> {
-					using type = typename result<Indices..., IndexFrom + sizeof...(Indices)>::type;
-				};
-			};
+		};
+
+		template<>
+		struct to_index<FromIndex> {
+
+			template<nuint...>
+			using resulting_indices = type::of<indices::of<>>;
+
+		};
+
 	public:
 
-		template<nuint IndexTo>
-		using to = typename to_t<IndexTo>::template result<>::type;
+		template<nuint ToIndex>
+		using to = typename to_index<ToIndex>::template resulting_indices<>::type;
 
 	}; // from
 

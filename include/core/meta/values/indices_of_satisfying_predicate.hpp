@@ -16,7 +16,7 @@ namespace values {
 			struct remaining_values;
 
 			template<auto CurrentValue, auto... RemainingValues>
-			requires(Predicate::template for_value_of<CurrentValue>)
+			requires(Predicate::template for_value<CurrentValue>)
 			struct remaining_values<CurrentValue, RemainingValues...>
 				: type::of<
 					typename current_index_and_resulting_indices<CurrentIndex + 1, ResultingIndices..., CurrentIndex>::
@@ -25,11 +25,11 @@ namespace values {
 				>{};
 
 			template<auto CurrentValue, auto... RemainingValues>
-			requires(!Predicate::template for_value_of<CurrentValue>)
+			requires(!Predicate::template for_value<CurrentValue>)
 			struct remaining_values<CurrentValue, RemainingValues...>
 				: type::of<
 					typename current_index_and_resulting_indices<CurrentIndex + 1, ResultingIndices...>::
-					template remaining_value<RemainingValues...>::
+					template remaining_values<RemainingValues...>::
 					type
 				>{};
 

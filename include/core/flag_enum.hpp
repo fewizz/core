@@ -1,8 +1,8 @@
 #pragma once
 
 #include "integer.hpp"
-#include "type/is_enum.hpp"
-#include "types/are_same.hpp"
+#include "meta/type/is_enum.hpp"
+#include "meta/types/are_same.hpp"
 
 template<enum_type E>
 struct flag_enum {

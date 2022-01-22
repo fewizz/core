@@ -14,6 +14,7 @@ namespace types {
 			struct current_type_index {
 
 				template<typename CurrentValue, typename... TypesAfter>
+				requires(sizeof...(TypesAfter) > 0)
 				struct current_type_and_types_after
 					: type::of<
 						typename types_before<TypesBefore..., CurrentValue>::

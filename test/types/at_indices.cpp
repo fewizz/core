@@ -1,5 +1,5 @@
-#include "types/at_indices.hpp"
-#include "types/are_same.hpp"
+#include "meta/types/at_indices.hpp"
+#include "meta/types/are_same.hpp"
 
 static_assert(
 	types::are_same::for_types<
