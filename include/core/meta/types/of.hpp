@@ -15,6 +15,9 @@ namespace types {
 
 		template<template<typename...> typename Type>
 		using pass_for_type_directly = Type<Types...>;
+
+		template<typename Transformer>
+		using transform = types::of<typename Transformer::template for_type<Types>...>;
 	};
 
 }

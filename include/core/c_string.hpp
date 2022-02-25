@@ -4,11 +4,11 @@
 
 struct null_characted_sentinel {};
 
-constexpr bool operator == (null_characted_sentinel s, const char* ptr) {
+constexpr bool operator == (null_characted_sentinel, const char* ptr) {
 	return *ptr == 0;
 }
 
-constexpr bool operator == (const char* ptr, null_characted_sentinel s) {
+constexpr bool operator == (const char* ptr, null_characted_sentinel) {
 	return *ptr == 0;
 }
 

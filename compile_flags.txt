@@ -2,4 +2,4 @@
 -nostdlib++
 -Iinclude/core
 -Wall
--pedantic
+-Wextra

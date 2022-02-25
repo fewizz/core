@@ -1,6 +1,7 @@
 #pragma once
 
 #include "basic.hpp"
+#include "../forward.hpp"
 
 namespace range {
 

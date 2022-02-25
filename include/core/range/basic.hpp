@@ -9,6 +9,6 @@ namespace range {
 	concept basic = requires(T t) {
 		t.begin();
 		t.end();
-		typename type::remove_reference::for_type<T>::value_type;
+		typename remove_reference<remove_const<T>>::value_type;
 	};
 }

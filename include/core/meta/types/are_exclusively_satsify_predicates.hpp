@@ -2,6 +2,7 @@
 
 #include "predicate.hpp"
 #include "erase_at_indices.hpp"
+
 #include "../value/of.hpp"
 
 namespace types {

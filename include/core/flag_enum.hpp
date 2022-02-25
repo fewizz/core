@@ -10,10 +10,8 @@ struct flag_enum {
 	value_type value{};
 
 	template<typename... Args>
-	requires(
-		sizeof...(Args) == 0
-	)
-	flag_enum(Args... args) {}
+	requires(sizeof...(Args) == 0)
+	flag_enum(Args...) {}
 
 	template<typename... Args>
 	requires(

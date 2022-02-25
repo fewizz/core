@@ -21,4 +21,5 @@ namespace elements {
 
 	template<type::predicate Predicate>
 	inline constexpr auto satisfying_predicate = elements::satisfying_predicate_t<Predicate>{};
+
 }

@@ -72,8 +72,19 @@ namespace values {
 		template<typename To>
 		using pass_for_type = typename To::template for_values<Values...>;
 
+		template<typename Type>
+		constexpr auto pass() const {
+			return typename Type::template for_values<Values...>{};
+		}
+
 		template<template<auto...> typename Type>
 		using pass_for_type_directly = Type<Values...>;
+
+		//template<template<auto> typename Transformer>
+		//using transform = values::of<Transformer<Values>::for_value ...>;
+
+		template<typename Transformer>
+		using transform = values::of<Transformer::template for_value<Values>...>;
 
 	};
 }
