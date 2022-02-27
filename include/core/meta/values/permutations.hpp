@@ -11,11 +11,22 @@ namespace values {
 
 	class permutations {
 
+		template<nuint Index>
+		struct push_index_to_front {
+
+			template<typename Type>
+			using for_type = typename
+				Type::template pass_for_type<
+					values::push_front<Index>
+				>;
+
+		};
+
 		template<auto... Values>
 		struct vs {
 
 			template<nuint CurrentIndex, typename Result>
-			struct current_index_and_result {
+			class current_index_and_result {
 
 				using without_value_at_index = typename
 					values::erase_at_index<CurrentIndex>::template
@@ -29,19 +40,9 @@ namespace values {
 					values::at_index<CurrentIndex>::template
 					for_values<Values...>;
 
-				struct transformer {
-
-					template<typename Type>
-					using for_type =
-						typename Type::template pass_for_type<
-							values::push_front<value_at_current_index>
-						>;
-
-				};
-
 				using transformed = typename
 					inner_permutations::template
-					transform<transformer>;
+					transform<push_index_to_front<value_at_current_index>>;
 
 				using combine_with_transformed = typename
 					transformed::template
@@ -52,6 +53,7 @@ namespace values {
 				using combined_result = typename
 					Result::template
 					pass_for_type<combine_with_transformed>;
+			public:
 
 				using result = typename
 					current_index_and_result<
