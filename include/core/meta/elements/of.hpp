@@ -1,6 +1,9 @@
 #pragma once
 
 #include "../types/of.hpp"
+#include "../types/count_of_satisfying_predicate.hpp"
+#include "../types/index_of_satisfying_predicate.hpp"
+#include "../type/is_same_as.hpp"
 #include "../values/of.hpp"
 #include "../../forward.hpp"
 #include "../../move.hpp"
@@ -29,16 +32,16 @@ namespace elements {
 		constexpr recursive_elements_storage(recursive_elements_storage&&) = default;
 
 		template<nuint Index> requires(Index == 0)
-		constexpr auto& at() { return element; }
+		constexpr HeadType& at() { return element; }
 
 		template<nuint Index> requires(Index > 0)
 		constexpr auto& at() { return next::template at<Index - 1>(); }
 
 		template<nuint Index> requires(Index == 0)
-		constexpr auto& at() const { return element; }
+		constexpr const HeadType& at() const { return element; }
 
 		template<nuint Index> requires(Index > 0)
-		constexpr auto& at() const { return next::template at<Index - 1>(); }
+		constexpr const auto& at() const { return next::template at<Index - 1>(); }
 	};
 
 	template<typename... Types>
@@ -47,12 +50,19 @@ namespace elements {
 		using indices = typename indices::from<0>::to<size>;
 		using types = types::of<Types...>;
 
+		template<typename Type>
+		static constexpr bool only_one_such_type =
+			::types::count_of_satisfying_predicate<type::is_same_as<Type>>::template for_types<Types...> == 1;
+
 	private:
 		elements::recursive_elements_storage<Types...> m_storage;
 
 	public:
+
+		template<typename Type>
+		static constexpr nuint type_index = ::types::index_of_satisfying_predicate<type::is_same_as<Type>>::template for_types<Types...>;
 	
-		constexpr of(Types&&... values)
+		constexpr of(Types... values)
 			: m_storage {
 				::forward<Types>(values)...
 			}
@@ -68,6 +78,18 @@ namespace elements {
 		template<nuint Index>
 		constexpr auto& at() {
 			return m_storage.template at<Index>();
+		}
+
+		template<typename Type>
+		requires(only_one_such_type<Type>)
+		constexpr const Type& get() const {
+			return at<type_index<Type>>();
+		}
+
+		template<typename Type>
+		requires(only_one_such_type<Type>)
+		constexpr Type& get() {
+			return at<type_index<Type>>();
 		}
 
 		template<typename F, nuint... Indices>

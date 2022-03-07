@@ -1,5 +1,6 @@
 -std=c++20
 -nostdlib++
+-nostdinc++
 -Iinclude/core
 -Wall
 -Wextra

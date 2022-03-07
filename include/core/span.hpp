@@ -11,11 +11,11 @@ struct span {
 	ValueType* m_values;
 	nuint m_size;
 
-	span(ValueType* values, nuint size)
+	constexpr span(ValueType* values, nuint size)
 		: m_values{ values }, m_size{ size }
 	{}
 
-	span(nuint size, ValueType* values)
+	constexpr span(nuint size, ValueType* values)
 		: m_values{ values }, m_size{ size }
 	{}
 
@@ -23,11 +23,11 @@ struct span {
 		return m_size;
 	}
 
-	constexpr value_type* begin() const {
+	constexpr const value_type* begin() const {
 		return m_values;
 	}
 
-	constexpr value_type* end() const {
+	constexpr const value_type* end() const {
 		return m_values + m_size;
 	}
 
@@ -86,11 +86,11 @@ struct span<ValueType> {
 		}
 	};
 
-	span(clear_value_type** values, nuint size)
+	constexpr span(clear_value_type** values, nuint size)
 		: m_values{ values }, m_size{ size }
 	{}
 
-	span(nuint size, clear_value_type** values)
+	constexpr span(nuint size, clear_value_type** values)
 		: m_values{ values }, m_size{ size }
 	{}
 
