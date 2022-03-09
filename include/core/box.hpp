@@ -2,7 +2,7 @@
 
 #include "span.hpp"
 
-#include "range/of_value_type.hpp"
+#include "range/of_value_type_same_as.hpp"
 
 template<typename T>
 struct box {
@@ -32,7 +32,7 @@ struct box {
 	}
 
 	constexpr void push_back(T value) {
-		m_storage[size()] = move(value);
+		m_storage[size()] = value;
 		m_size++;
 	}
 

@@ -34,4 +34,11 @@ struct flag_enum {
 	bool at(value_type index) const {
 		return (value >> index) & 1;
 	}
+
+	flag_enum operator & (flag_enum other) {
+		flag_enum r{};
+		r.value = value & other.value;
+		return r;
+	}
+
 };
