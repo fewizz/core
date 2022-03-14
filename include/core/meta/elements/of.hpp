@@ -140,4 +140,24 @@ namespace elements {
 	template<typename... Types>
 	of(Types&&... ts) -> of<Types...>;
 
+	template<nuint Index, typename... Types>
+	constexpr auto get(elements::of<Types...> elems) {
+		return elems.template at<Index>();
+	}
+
 }
+
+#include "core/std/tuple_size.hpp"
+
+template<typename... Types>
+struct std::tuple_size<elements::of<Types...>> {
+	static constexpr nuint value = sizeof...(Types);
+};
+
+#include "core/std/tuple_element.hpp"
+#include "core/meta/types/at_index.hpp"
+
+template<nuint Index, typename... Types>
+struct std::tuple_element<Index, elements::of<Types...>> {
+	using type = typename types::at_index<Index>::template for_types<Types...>;
+};
