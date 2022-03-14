@@ -141,7 +141,22 @@ namespace elements {
 	of(Types&&... ts) -> of<Types...>;
 
 	template<nuint Index, typename... Types>
-	constexpr auto get(elements::of<Types...> elems) {
+	constexpr auto&& get(elements::of<Types...>&& elems) {
+		return elems.template at<Index>();
+	}
+
+	template<nuint Index, typename... Types>
+	constexpr auto&& get(const elements::of<Types...>&& elems) {
+		return elems.template at<Index>();
+	}
+
+	template<nuint Index, typename... Types>
+	constexpr auto& get(elements::of<Types...>& elems) {
+		return elems.template at<Index>();
+	}
+
+	template<nuint Index, typename... Types>
+	constexpr auto&& get(const elements::of<Types...>& elems) {
 		return elems.template at<Index>();
 	}
 
