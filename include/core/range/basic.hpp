@@ -11,4 +11,5 @@ namespace range {
 		t.end();
 		typename remove_reference<remove_const<T>>::value_type;
 	};
-}
+
+} // range

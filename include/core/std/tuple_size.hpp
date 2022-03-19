@@ -5,4 +5,4 @@ namespace std {
 	template<typename>
 	struct tuple_size;
 
-}
+} // std
