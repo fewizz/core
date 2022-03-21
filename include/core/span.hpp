@@ -11,6 +11,8 @@ struct span {
 	ValueType* m_values;
 	nuint m_size;
 
+	constexpr span() = default;
+
 	constexpr span(ValueType* values, nuint size)
 		: m_values{ values }, m_size{ size }
 	{}
@@ -27,7 +29,15 @@ struct span {
 		return m_values;
 	}
 
+	constexpr value_type* begin() {
+		return m_values;
+	}
+
 	constexpr const value_type* end() const {
+		return m_values + m_size;
+	}
+
+	constexpr value_type* end() {
 		return m_values + m_size;
 	}
 
@@ -45,6 +55,11 @@ struct span {
 
 	constexpr const value_type* data() const {
 		return m_values;
+	}
+
+	template<typename Type>
+	constexpr span<Type> cast() {
+		return span<Type>{ (Type*) data(), size() };
 	}
 
 };

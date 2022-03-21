@@ -2,12 +2,12 @@
 
 #include "predicate.hpp"
 
-namespace type {
+template<typename Type, typename... Args>
+concept invocable_with = requires(Type&& t, Args&&... args) {
+	t(args...);
+};
 
-	template<typename Type, typename... Args>
-	concept invocable_with = requires(Type&& t, Args&&... args) {
-		t(args...);
-	};
+namespace type {
 
 	template<typename... Args>
 	struct is_invokable_with : type::predicate_marker {

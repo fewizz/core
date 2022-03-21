@@ -4,18 +4,23 @@
 
 namespace range {
 
-	template<typename Type>
+	template<typename ValueType>
 	struct contains {
-		Type&& t;
+		ValueType& value;
 
-		contains(Type&& t) : t{ forward<Type>(t) } {}
+		constexpr contains(ValueType& value) : value{ value } {}
 
 		template<range::basic R>
 		constexpr bool operator () (R&& r) const {
 			for(auto&& v : forward<R>(r)) {
-				if(v == t) return true;
+				if(v == value) return true;
 			}
 			return false;
+		}
+
+		template<range::basic R>
+		constexpr bool in(R&& r) const {
+			return (*this)(forward<R>(r));
 		}
 	};
 

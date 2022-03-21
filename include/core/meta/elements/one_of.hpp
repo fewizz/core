@@ -22,13 +22,13 @@ namespace elements {
 		next_type next;
 
 		template<typename... Args>
-		requires(type::constructible_from<Type, Args&&...>)
+		requires(constructible_from<Type, Args&&...>)
 		constexpr recursive_one_of_elements_storage(Args&&... args)
 			: element{ forward<Args>(args)... }
 		{}
 
 		template<typename... Args>
-		requires(! type::is_constructible_from<Args&&...>::template for_type<Type> && there_is_next)
+		requires(! constructible_from<Type, Args&&...> && there_is_next)
 		constexpr recursive_one_of_elements_storage(Args&&... args)
 			: next{ forward<Args>(args)... }
 		{}

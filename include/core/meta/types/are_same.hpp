@@ -1,25 +1,20 @@
 #pragma once
 
 #include "predicate.hpp"
+#include "../type/is_same_as.hpp"
 
 namespace types {
 
 	struct are_same : types::predicate_marker {
 
-		template<typename... Types>
-		requires(sizeof...(Types) >= 2)
-		static constexpr bool for_types = false;
-
-		template<typename Type>
-		static constexpr bool for_types<Type, Type> = true;
-
 		template<typename HeadType, typename... RemainingTypes>
-		static constexpr bool for_types<HeadType, HeadType, RemainingTypes...>
-			= for_types<HeadType, RemainingTypes...>;
+		static constexpr bool for_types
+			= (__is_same_as(HeadType, RemainingTypes) && ...);
 
 	};
 
-}
+} // types
 
-template<typename... Types>
-inline constexpr bool types_are_same = types::are_same::for_types<Types...>;
+template<typename HeadType, typename... RemainingTypes>
+inline constexpr bool types_are_same =
+	(__is_same_as(HeadType, RemainingTypes) && ...);

@@ -4,7 +4,9 @@
 #include "some_guarded.hpp"
 
 template<typename Type>
-concept some_possibly_guarded_handle = some_handle<Type> || some_guarded_handle<Type>;
+concept some_possibly_guarded_handle =
+	some_handle<Type> ||
+	some_guarded_handle<Type>;
 
 namespace type {
 

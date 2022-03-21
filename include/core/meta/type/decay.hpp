@@ -15,8 +15,10 @@ namespace type {
 	struct decay : type::modifier_marker {
 
 		template<typename Type>
-		using for_type = typename if_satisfy<::is_array<::remove_reference<Type>>>
-			::template then<
+		using for_type =
+			typename if_satisfy<
+				::is_array<::remove_reference<Type>>
+			>::template then<
 				::remove_extent<::remove_reference<Type>>
 			>
 			::template otherwise<
@@ -29,11 +31,11 @@ namespace type {
 				::template otherwise<
 					::remove_volatile<::remove_const<::remove_reference<Type>>>
 				>
-			>
-		;
+			>;
+
 	};
 
-}
+} // type
 
 template<typename Type>
 using decay = type::decay::for_type<Type>;

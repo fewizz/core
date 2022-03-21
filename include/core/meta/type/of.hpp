@@ -7,4 +7,4 @@ namespace type {
 		using type = Type;
 	};
 
-}
+} // type

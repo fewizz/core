@@ -11,7 +11,7 @@ namespace type {
 
 	};
 
-}
+} // type
 
 template<typename Type>
-inline constexpr bool is_array = type::is_array::for_type<Type>;
+inline constexpr bool is_array = __is_array(Type);

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../handle.hpp"
+#include "../handle/of.hpp"
 
 #include "type/predicate.hpp"
 #include "type/is_same_as.hpp"

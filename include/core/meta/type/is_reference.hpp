@@ -7,14 +7,8 @@ namespace type {
 	struct is_reference : type::predicate_marker {
 
 		template<typename Type>
-		static constexpr bool for_type = false;
-
-		template<typename Type>
-		static constexpr bool for_type<Type&> = true;
-
-		template<typename Type>
-		static constexpr bool for_type<Type&&> = true;
+		static constexpr bool for_type = __is_reference(Type);
 
 	};
 
-}
+} // type

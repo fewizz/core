@@ -2,6 +2,8 @@
 
 #include "basic.hpp"
 #include "../forward.hpp"
+#include "../meta/type/decay.hpp"
+#include "value_type.hpp"
 
 namespace range {
 
@@ -12,9 +14,16 @@ namespace range {
 		It base_iterator;
 		F& tansform_function;
 
-		constexpr transformed_iterator(It it, F& f) : base_iterator{ it }, tansform_function{ f } {}
+		constexpr transformed_iterator(It it, F& f) :
+			base_iterator{ it },
+			tansform_function{ f }
+		{}
 
 		constexpr decltype(auto) operator * () const {
+			return tansform_function(*base_iterator);
+		}
+
+		constexpr decltype(auto) operator * () {
 			return tansform_function(*base_iterator);
 		}
 
@@ -23,42 +32,67 @@ namespace range {
 			return *this;
 		}
 
-		constexpr bool operator == (transformed_iterator other) const {
+		constexpr bool operator == (const transformed_iterator& other) const {
 			return base_iterator == other.base_iterator;
 		}
+
 	};
 
 	template<range::basic R, typename F>
 	struct transformed {
-		R&& base_range;
+		R& base_range;
 		F&& tansform_function;
 
-		using value_type = type::remove_reference::for_type<decltype(tansform_function(*base_range.begin()))>;
+		using value_type = range::value_type<R>;
 
-		transformed(R&& r, F&& f) : base_range{ forward<R>(r) }, tansform_function{ forward<F>(f) } {}
+		transformed(R& r, F&& f) :
+			base_range{ r },
+			tansform_function{ forward<F>(f) }
+		{}
+
+		auto begin() {
+			return transformed_iterator {
+				base_range.begin(),
+				tansform_function
+			};
+		}
 
 		auto begin() const {
-			return transformed_iterator{ base_range.begin(), tansform_function };
+			return transformed_iterator {
+				base_range.begin(),
+				tansform_function
+			};
+		}
+
+		auto end() {
+			return transformed_iterator {
+				base_range.end(),
+				tansform_function
+			};
 		}
 
 		auto end() const {
-			return transformed_iterator{ base_range.end(), tansform_function };
+			return transformed_iterator {
+				base_range.end(),
+				tansform_function
+			};
 		}
 	};
 
 	template<range::basic R>
 	struct transform {
-		R&& range;
+		R& range;
 
-		transform(R&& r) : range{ forward<R>(r) } {}
+		transform(R& r) : range{ r } {}
 
 		template<typename F>
-		auto operator () (F&& f) const {
-			return transformed<R, F>(forward<R>(range), forward<F>(f));
+		transformed<R, F> operator () (F&& f) const {
+			return { range, forward<F>(f) };
 		}
+
 	};
 
 	template<range::basic R>
 	transform(R&&) -> transform<R>;
 
-}
+} // range

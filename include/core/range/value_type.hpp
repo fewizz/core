@@ -9,4 +9,4 @@ namespace range {
 	requires range::basic<decay<Type>>
 	using value_type = typename decay<Type>::value_type;
 
-}
+} // range

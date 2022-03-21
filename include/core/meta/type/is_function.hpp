@@ -11,7 +11,7 @@ namespace type {
 
 	};
 
-}
+} // type
 
 template<typename Type>
-inline constexpr bool is_function = type::is_function::for_type<Type>;
+inline constexpr bool is_function = __is_function(Type);

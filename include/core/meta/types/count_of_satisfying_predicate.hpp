@@ -64,4 +64,4 @@ namespace types {
 
 	};
 
-}
+} // types
