@@ -3,14 +3,14 @@
 #include "wrapper/of_integer.hpp"
 #include "meta/decayed_same_as.hpp"
 #include "meta/type/is_invokable_with.hpp"
-#include "meta/types/are_exclusively_satsify_predicates.hpp"
+#include "meta/types/are_exclusively_satisfying_predicates.hpp"
 
 struct base : wrapper::of_integer<nuint>{};
 struct number : wrapper::of_integer<nuint>{};
 
 template<typename... Args>
 requires(
-	types::are_exclusively_satsify_predicates<
+	types::are_exclusively_satisfying_predicates<
 		types::are_contain_one_decayed_same_as<base>,
 		types::are_contain_one_decayed_same_as<number>,
 		types::are_contain_one_satisfying_predicate<type::is_invokable_with<nuint>>

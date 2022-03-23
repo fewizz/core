@@ -20,6 +20,14 @@ struct null_terminated_string {
 
 	constexpr const value_type* begin() const { return m_ptr; }
 	constexpr null_character_sentinel end() const { return {}; }
+
+	const Type& operator [] (nuint index) const { return m_ptr[index]; }
+
+	constexpr nuint size() const {
+		nuint result = 0;
+		for(;m_ptr[result] != 0; ++result);
+		return result;
+	}
 };
 
 template<typename Type>

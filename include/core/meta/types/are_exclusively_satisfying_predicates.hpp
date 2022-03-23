@@ -8,7 +8,7 @@
 namespace types {
 
 	template<types::predicate... Predicates>
-	class are_exclusively_satsify_predicates : public types::predicate_marker {
+	class are_exclusively_satisfying_predicates : public types::predicate_marker {
 
 		template<typename... RemainingTypes>
 		struct remaining_types {

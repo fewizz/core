@@ -54,6 +54,20 @@ namespace types {
 	{};
 
 	template<typename Value>
+	struct are_contain_ranges_of_value_type_same_as :
+		types::are_contain_ranges_of_value_type_satisfying_predicate<
+			type::is_same_as<Value>
+		>
+	{};
+
+	template<typename Value>
+	struct are_may_contain_ranges_of_value_type_same_as :
+		types::are_may_contain_ranges_of_value_type_satisfying_predicate<
+			type::is_same_as<Value>
+		>
+	{};
+
+	template<typename Value>
 	struct are_contain_range_of_value_type_same_as :
 		types::are_contain_range_of_value_type_satisfying_predicate<
 			type::is_same_as<Value>
@@ -67,25 +81,21 @@ namespace types {
 		>
 	{};
 
-	template<typename Value>
-	struct are_contain_one_range_of_value_type_same_as :
-		types::are_contain_one_range_of_value_type_satisfying_predicate<
-			type::is_same_as<Value>
-		>
-	{};
-
-	template<typename Value>
-	struct are_may_contain_one_range_of_value_type_same_as :
-		types::are_may_contain_one_range_of_value_type_satisfying_predicate<
-			type::is_same_as<Value>
-		>
-	{};
-
 	// aliases
 	
 	template<typename Value>
 	struct count_of_ranges_of_value_type :
 		types::count_of_ranges_of_value_type_same_as<Value>
+	{};
+
+	template<typename Value>
+	struct are_contain_ranges_of_value_type :
+		types::are_contain_ranges_of_value_type_same_as<Value>
+	{};
+
+	template<typename Value>
+	struct are_may_contain_ranges_of_value_type :
+		types::are_may_contain_ranges_of_value_type_same_as<Value>
 	{};
 
 	template<typename Value>
@@ -99,18 +109,18 @@ namespace types {
 	{};
 
 	template<typename Value>
-	struct are_contain_one_range_of_value_type :
-		types::are_contain_one_range_of_value_type_same_as<Value>
-	{};
-
-	template<typename Value>
-	struct are_may_contain_one_range_of_value_type :
-		types::are_may_contain_one_range_of_value_type_same_as<Value>
-	{};
-
-	template<typename Value>
 	struct count_of_ranges_of :
 		types::count_of_ranges_of_value_type_same_as<Value>
+	{};
+
+	template<typename Value>
+	struct are_contain_ranges_of :
+		types::are_contain_ranges_of_value_type_same_as<Value>
+	{};
+
+	template<typename Value>
+	struct are_may_contain_ranges_of :
+		types::are_may_contain_ranges_of_value_type_same_as<Value>
 	{};
 
 	template<typename Value>
@@ -123,17 +133,7 @@ namespace types {
 		types::are_may_contain_range_of_value_type_same_as<Value>
 	{};
 
-	template<typename Value>
-	struct are_contain_one_range_of :
-		types::are_contain_one_range_of_value_type_same_as<Value>
-	{};
-
-	template<typename Value>
-	struct are_may_contain_one_range_of :
-		types::are_may_contain_one_range_of_value_type_same_as<Value>
-	{};
-
-}
+} // types
 
 namespace elements {
 
@@ -153,4 +153,4 @@ namespace elements {
 	inline constexpr auto range_of =
 		elements::range_of_value_type_same_as<Value>;
 
-}
+} // elements

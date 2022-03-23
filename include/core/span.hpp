@@ -49,11 +49,11 @@ struct span {
 		return data()[index];
 	}
 
-	constexpr value_type* data() {
+	constexpr auto& data() {
 		return m_values;
 	}
 
-	constexpr const value_type* data() const {
+	constexpr auto& data() const {
 		return m_values;
 	}
 

@@ -22,4 +22,4 @@ namespace range {
 		);
 	}
 
-}
+} // range

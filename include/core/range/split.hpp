@@ -5,6 +5,7 @@
 #include "default_sentinel.hpp"
 #include "sub.hpp"
 #include "contains.hpp"
+#include "../array.hpp"
 
 namespace range {
 
@@ -116,6 +117,12 @@ namespace range {
 		template<range::of<range::value_type<Range>> SplitRange>
 		constexpr auto with(SplitRange split_range) {
 			return splitted{ range, move(split_range) };
+		}
+
+		template<typename... Args>
+		requires types_are_same<range::value_type<Range>, Args...>
+		constexpr auto with(Args... splitters) {
+			return with(array{ splitters... });
 		}
 	};
 
