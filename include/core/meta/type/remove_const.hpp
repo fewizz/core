@@ -20,7 +20,7 @@ namespace type {
 
 	};
 
-}
+} // type
 
 template<typename Type>
 using remove_const = type::remove_const::for_type<Type>;

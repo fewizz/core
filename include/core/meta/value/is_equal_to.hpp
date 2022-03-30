@@ -12,4 +12,4 @@ namespace value {
 
 	};
 
-}
+} // value

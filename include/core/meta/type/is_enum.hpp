@@ -2,9 +2,6 @@
 
 #include "predicate.hpp"
 
-template<typename Type>
-concept enum_type = __is_enum(Type);
-
 namespace type {
 
 	struct is_enum : type::predicate_marker {
@@ -14,4 +11,4 @@ namespace type {
 
 	};
 
-}
+} // type

@@ -12,10 +12,20 @@ namespace types {
 		template<nuint CurrentIndex, typename...Types>
 		struct index_and_remaining_types;
 
-		template<nuint CurrentIndex, typename CurrentType, typename... RemainingTypes>
-		struct index_and_remaining_types<CurrentIndex, CurrentType, RemainingTypes...> {
+		template<
+			nuint CurrentIndex,
+			typename CurrentType,
+			typename... RemainingTypes
+		>
+		struct index_and_remaining_types<
+			CurrentIndex,
+			CurrentType,
+			RemainingTypes...
+		> {
 
-			static constexpr bool erase = values::are_contain_value<CurrentIndex>::template for_values<Indices...>;
+			static constexpr bool erase =
+				values::are_contain_value<CurrentIndex>::template
+				for_values<Indices...>;
 
 			template<typename... ResultingTypes>
 			struct resulting_types;
@@ -24,18 +34,22 @@ namespace types {
 			requires(erase)
 			struct resulting_types<ResultingTypes...>
 				: type::of<
-					typename index_and_remaining_types<CurrentIndex + 1, RemainingTypes...>::
-					template resulting_types<ResultingTypes...>::
-					type
+					typename index_and_remaining_types<
+						CurrentIndex + 1,
+						RemainingTypes...
+					>::template
+					resulting_types<ResultingTypes...>::type
 				>{};
 
 			template<typename... ResultingTypes>
 			requires(!erase)
 			struct resulting_types<ResultingTypes...>
 				: type::of<
-					typename index_and_remaining_types<CurrentIndex + 1, RemainingTypes...>::
-					template resulting_types<ResultingTypes..., CurrentType>::
-					type
+					typename index_and_remaining_types<
+						CurrentIndex + 1,
+						RemainingTypes...
+					>:: template
+					resulting_types<ResultingTypes..., CurrentType>::type
 				>{};
 
 		};
@@ -51,7 +65,10 @@ namespace types {
 	public:
 
 		template<typename... Types>
-		using for_types = typename index_and_remaining_types<0, Types...>::template resulting_types<>::type;
+		using for_types =
+			typename index_and_remaining_types<0, Types...>::template
+			resulting_types<>::type;
 
 	};
-}
+
+} // types

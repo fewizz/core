@@ -20,7 +20,7 @@ namespace type {
 
 	};
 
-}
+} // type
 
 template<typename Type>
 using remove_volatile = type::remove_volatile::for_type<Type>;

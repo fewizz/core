@@ -7,4 +7,4 @@ namespace value {
 	template<typename Type>
 	concept predicate = __is_base_of(value::predicate_marker, Type);
 
-}
+} // vluae

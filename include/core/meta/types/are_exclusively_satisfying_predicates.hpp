@@ -8,53 +8,23 @@
 namespace types {
 
 	template<types::predicate... Predicates>
-	class are_exclusively_satisfying_predicates : public types::predicate_marker {
+	class are_exclusively_satisfying_predicates :
+		public types::predicate_marker
+	{
 
-		template<typename... RemainingTypes>
-		struct remaining_types {
-
-			template<types::predicate... RemainingPredicates>
-			struct remaining_predicates;
-
-			template<types::predicate HeadPredicate, types::predicate... RemainingPredicates>
-			requires(! HeadPredicate::template for_types<RemainingTypes...>)
-			struct remaining_predicates<HeadPredicate, RemainingPredicates...> : value::of<false> {};
-
-			template<types::predicate HeadPredicate, types::predicate... RemainingPredicates>
-			requires(HeadPredicate::template for_types<RemainingTypes...> && sizeof...(RemainingPredicates) > 0)
-			struct remaining_predicates<HeadPredicate, RemainingPredicates...>
-				: value::of<
-					HeadPredicate::
-					template indices_of_affected_types<RemainingTypes...>::
-					template pass_for_type_directly<types::erase_at_indices>::
-					template for_types<RemainingTypes...>::
-					template pass_for_type_directly<remaining_types>::
-					template remaining_predicates<RemainingPredicates...>::
-					value
-				>{};
-
-			template<types::predicate HeadPredicate>
-			requires(HeadPredicate::template for_types<RemainingTypes...>)
-			struct remaining_predicates<HeadPredicate>
-				: value::of<
-					HeadPredicate::
-					template indices_of_affected_types<RemainingTypes...>::
-					template pass_for_type_directly<types::erase_at_indices>::
-					template for_types<RemainingTypes...>::
-					is_empty
-				>{};
-
-		};
+		template<typename Type>
+		static constexpr bool is_affected_by_one_predicate =
+			(nuint{
+				Predicates::affecting_predicate::template for_type<Type>
+			} + ...) == 1;
 
 	public:
 
 		template<typename... Types>
 		static constexpr bool for_types =
-			remaining_types<Types...>::template
-			remaining_predicates<Predicates...>::
-			value
-		;
+			(Predicates::template for_types<Types...> && ...) &&
+			(is_affected_by_one_predicate<Types> && ...);
 
 	};
 
-}
+} // types

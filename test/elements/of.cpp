@@ -11,13 +11,14 @@ consteval elements::of<int, float, bool> some_elements() {
 	return { 1, 0.0F, false };
 }
 
-consteval void f() {
+consteval int f() {
 	elements::of elems{ 0, 1.0F, a{} };
 	auto elems1 = move(elems);
 
 	auto [ i, f, b ] = some_elements();
+	return 0;
 }
 
 int main() {
-	f();
+	static_assert(f() == 0);
 }

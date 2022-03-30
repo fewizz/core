@@ -7,4 +7,4 @@ namespace type {
 	template<typename Type>
 	concept predicate = __is_base_of(type::predicate_marker, Type);
 
-};
+}; // type

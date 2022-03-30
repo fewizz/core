@@ -17,4 +17,5 @@ namespace type {
 		static constexpr bool for_type = constructible_from<Type, Types...>;
 
 	};
-}
+
+} // type

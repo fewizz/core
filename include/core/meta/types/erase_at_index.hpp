@@ -29,7 +29,9 @@ namespace types {
 			struct current_type_index<Index> {
 
 				template<typename CurrentValue, typename... TypesAfter>
-				struct current_type_and_types_after : type::of<types::of<TypesBefore..., TypesAfter...>> {};
+				struct current_type_and_types_after :
+					type::of<types::of<TypesBefore..., TypesAfter...>>
+				{};
 
 			};
 
@@ -46,4 +48,4 @@ namespace types {
 
 	};
 
-}
+} // types

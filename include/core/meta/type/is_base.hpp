@@ -12,4 +12,4 @@ namespace type {
 
 	};
 
-}
+} // type

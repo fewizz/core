@@ -28,4 +28,4 @@ namespace values {
 		static constexpr nuint for_indices = index<0, Indices...>::result;
 	};
 
-}
+} // values

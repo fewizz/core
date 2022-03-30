@@ -15,16 +15,29 @@ namespace types {
 		struct current_index_and_types_left<Index, HeadType, RemainingTypes...>
 			: type::of<HeadType> {};
 	
-		template<nuint CurrentIndex, typename HeadType, typename... RemainingTypes>
+		template<
+			nuint CurrentIndex,
+			typename HeadType,
+			typename... RemainingTypes
+		>
 		requires(sizeof...(RemainingTypes) > 0)
-		struct current_index_and_types_left<CurrentIndex, HeadType, RemainingTypes...>
-			: type::of<typename current_index_and_types_left<CurrentIndex + 1, RemainingTypes...>::type>{};
+		struct current_index_and_types_left<
+			CurrentIndex,
+			HeadType,
+			RemainingTypes...
+		> :
+			type::of<typename current_index_and_types_left<
+				CurrentIndex + 1,
+				RemainingTypes...
+			>::type>
+		{};
 	
 	public:
 
 		template<typename...Types>
-		using for_types = typename current_index_and_types_left<0, Types...>::type;
+		using for_types =
+			typename current_index_and_types_left<0, Types...>::type;
 
 	};
 
-}
+} // types

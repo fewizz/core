@@ -23,7 +23,7 @@ namespace type {
 
 	};
 
-}
+} // type
 
 template<typename Type>
 using remove_reference = type::remove_reference::for_type<Type>;

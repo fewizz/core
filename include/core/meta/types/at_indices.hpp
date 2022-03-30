@@ -12,8 +12,10 @@ namespace types {
 		template<typename... Types>
 		using for_types =
 			types::of<
-				typename types::at_index<Indices>::template for_types<Types...> ...
+				typename types::at_index<Indices>::template
+				for_types<Types...> ...
 			>;
 
 	};
-}
+
+} // types

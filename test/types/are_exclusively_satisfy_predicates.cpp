@@ -1,6 +1,6 @@
-#include "meta/types/are_exclusively_satisfying_predicates.hpp"
+#include "core/meta/types/are_exclusively_satisfying_predicates.hpp"
 
-#include "meta/types/count_of_decayed_same_as.hpp"
+#include "core/meta/decayed_same_as.hpp"
 
 static_assert(
 	types::are_exclusively_satisfying_predicates<

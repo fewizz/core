@@ -20,7 +20,7 @@ namespace type {
 
 	};
 
-}
+} // type
 
 template<typename Type>
 using remove_extent = type::remove_extent::for_type<Type>;

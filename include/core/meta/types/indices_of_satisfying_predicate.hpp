@@ -19,7 +19,10 @@ namespace types {
 			requires(Predicate::template for_type<CurrentType>)
 			struct remaining_types<CurrentType, RemainingTypes...>
 				: type::of<
-					typename current_index_and_resulting_indices<CurrentIndex + 1, Indices..., CurrentIndex>
+					typename current_index_and_resulting_indices<
+						CurrentIndex + 1,
+						Indices..., CurrentIndex
+					>
 					::template remaining_types<RemainingTypes...>::type
 				>{};
 
@@ -27,13 +30,17 @@ namespace types {
 			requires(!Predicate::template for_type<CurrentType>)
 			struct remaining_types<CurrentType, RemainingTypes...>
 				: type::of<
-					typename current_index_and_resulting_indices<CurrentIndex + 1, Indices...>
+					typename current_index_and_resulting_indices<
+						CurrentIndex + 1,
+						Indices...
+					>
 					::template remaining_types<RemainingTypes...>::type
 				>{};
 
 			template<>
 			struct remaining_types<>
-				: type::of<indices::of<Indices...>> {};
+				: type::of<indices::of<Indices...>>
+			{};
 
 		};
 	
@@ -47,4 +54,4 @@ namespace types {
 
 	};
 
-}
+} // types

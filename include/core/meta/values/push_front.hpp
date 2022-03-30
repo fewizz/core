@@ -12,4 +12,4 @@ namespace values {
 
 	};
 
-}
+} // types

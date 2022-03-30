@@ -10,130 +10,129 @@
 
 namespace elements {
 
-	template<typename... Types>
-	struct recursive_elements_storage{};
+	template<nuint Index, typename Type>
+	struct element_storage {
+		Type element;
 
-	template<typename HeadType, typename... TailTypes>
-	struct recursive_elements_storage<HeadType, TailTypes...> : elements::recursive_elements_storage<TailTypes...> {
-		using next = recursive_elements_storage<TailTypes...>;
-
-		HeadType element;
-
-		constexpr recursive_elements_storage(HeadType&& head_element, TailTypes&&... tail_elements)
-		:
-			next {
-				forward<TailTypes>(tail_elements)...
-			},
-			element {
-				forward<HeadType>(head_element)
-			}
+		constexpr element_storage(Type&& element) :
+			element{ forward<Type>(element) }
 		{}
 
-		constexpr recursive_elements_storage(recursive_elements_storage&&) = default;
-
-		template<nuint Index> requires(Index == 0)
-		constexpr HeadType& at() { return element; }
-
-		template<nuint Index> requires(Index > 0)
-		constexpr auto& at() { return next::template at<Index - 1>(); }
-
-		template<nuint Index> requires(Index == 0)
-		constexpr const HeadType& at() const { return element; }
-
-		template<nuint Index> requires(Index > 0)
-		constexpr const auto& at() const { return next::template at<Index - 1>(); }
 	};
 
+	// Inspired by https://youtu.be/TyiiNVA1syk
 	template<typename... Types>
-	struct of {
+	struct of;
+
+	template<typename... Types>
+	struct of : of<indices::from<0>::to<sizeof...(Types)>, Types...> {
+		using base_type = of<indices::from<0>::to<sizeof...(Types)>, Types...>;
+		//using base_type::base_type; // TODO crashes clangd
+
+		constexpr of(Types... elements) :
+			base_type(forward<Types>(elements)...)
+		{}
+
+	};
+
+	template<nuint... Indices, typename... Types>
+	struct of<indices::of<Indices...>, Types...> :
+		element_storage<Indices, Types>...
+	{
 		static constexpr nuint size = sizeof...(Types);
-		using indices = typename indices::from<0>::to<size>;
+		using indices = indices::from<0>::to<size>;
 		using types = types::of<Types...>;
 
 		template<typename Type>
 		static constexpr bool only_one_such_type =
-			::types::count_of_satisfying_predicate<type::is_same_as<Type>>::template for_types<Types...> == 1;
-
-	private:
-		elements::recursive_elements_storage<Types...> m_storage;
-
-	public:
+			::types::count_of_satisfying_predicate<
+				type::is_same_as<Type>
+			>::template
+			for_types<Types...> == 1;
 
 		template<typename Type>
-		static constexpr nuint type_index = ::types::index_of_satisfying_predicate<type::is_same_as<Type>>::template for_types<Types...>;
+		static constexpr nuint type_index =
+			::types::index_of_satisfying_predicate<
+				type::is_same_as<Type>
+			>::template
+			for_types<Types...>;
+
+	private:
+
+		template<nuint Index, typename Type>
+		constexpr auto& get_storage(element_storage<Index, Type>* ptr) {
+			return ptr->element;
+		}
+
+		template<nuint Index, typename Type>
+		constexpr auto& get_storage(element_storage<Index, Type>* ptr) const {
+			return ptr->element;
+		}
+
+	public:
 	
-		constexpr of(Types... values)
-			: m_storage {
-				::forward<Types>(values)...
-			}
+		constexpr of(Types&&... values) : 
+			element_storage<Indices, Types>(::forward<Types>(values))...
 		{}
 
 		constexpr of(of&&) = default;
 	
 		template<nuint Index>
-		constexpr auto& at() const {
-			return m_storage.template at<Index>();
+		constexpr decltype(auto) at() const {
+			return get_storage<Index>(this);
 		}
 
 		template<nuint Index>
-		constexpr auto& at() {
-			return m_storage.template at<Index>();
+		constexpr decltype(auto) at() {
+			return get_storage<Index>(this);
 		}
 
 		template<typename Type>
-		requires(only_one_such_type<Type>)
+		requires only_one_such_type<Type>
 		constexpr const Type& get() const {
 			return at<type_index<Type>>();
 		}
 
 		template<typename Type>
-		requires(only_one_such_type<Type>)
+		requires only_one_such_type<Type>
 		constexpr Type& get() {
 			return at<type_index<Type>>();
 		}
 
-		template<typename F, nuint... Indices>
-		void for_each(F&& f, ::indices::of<Indices...>) const {
-			(f(at<Indices>()) , ...);
-		}
-		
-		template<typename F, nuint... Indices>
-		void for_each(F&& f, ::indices::of<Indices...>) {
-			(f(at<Indices>()) , ...);
-		}
-
 		template<typename F>
 		void for_each(F&& f) const {
-			for_each(forward<F>(f), indices{});
+			(f(at<Indices>()) , ...);
 		}
 		
 		template<typename F>
 		void for_each(F&& f) {
-			for_each(forward<F>(f), indices{});
+			(f(at<Indices>()) , ...);
+		}
+
+		template<typename F, nuint... OtherIndices>
+		void for_each(F&& f, ::indices::of<OtherIndices...>) const {
+			(f(at<OtherIndices>()) , ...);
+		}
+		
+		template<typename F, nuint... OtherIndices>
+		void for_each(F&& f, ::indices::of<OtherIndices...>) {
+			(f(at<OtherIndices>()) , ...);
 		}
 
 		decltype(auto) pass(auto&& f) const {
-			return [&]<nuint... Indices>(::indices::of<Indices...>) {
-				return f(at<Indices>()...);
-			}(indices{});
+			return f(at<Indices>()...);
 		}
 
 		decltype(auto) pass(auto&& f) {
-			return [&]<nuint... Indices>(::indices::of<Indices...>) {
-				return f(at<Indices>()...);
-			}(indices{});
+			return f(at<Indices>()...);
 		}
 
 		decltype(auto) forward(auto&& f) const {
-			return [&]<nuint... Indices, typename... Types0>(::indices::of<Indices...>, ::types::of<Types0...>) {
-				return f(::forward<Types0>(at<Indices>())...);
-			}(indices{}, types{});
+			return f(::forward<Types>(at<Indices>())...);
 		}
 
 		decltype(auto) forward(auto&& f) {
-			return [&]<nuint... Indices, typename... Types0>(::indices::of<Indices...>, ::types::of<Types0...>) {
-				return f(::forward<Types0>(at<Indices>())...);
-			}(indices{}, types{});
+			return f(::forward<Types>(at<Indices>())...);
 		}
 	};
 	
@@ -160,7 +159,7 @@ namespace elements {
 		return elems.template at<Index>();
 	}
 
-}
+} // elements
 
 #include "core/std/tuple_size.hpp"
 

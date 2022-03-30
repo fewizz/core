@@ -15,13 +15,16 @@ namespace values {
 			struct current_value_index {
 
 				template<auto CurrentValue, auto... ValuesAfter>
-				struct current_value_and_values_after
-					: type::of<
-						typename values_before<ValuesBefore..., CurrentValue>::
-						template current_value_index<CurrentIndex + 1>::
-						template current_value_and_values_after<ValuesAfter...>
-						::type
-					>{};
+				struct current_value_and_values_after :
+					type::of<
+						typename values_before<
+							ValuesBefore...,
+							CurrentValue
+						>::template
+						current_value_index<CurrentIndex + 1>::template
+						current_value_and_values_after<ValuesAfter...>::type
+					>
+				{};
 
 			};
 	
@@ -29,7 +32,9 @@ namespace values {
 			struct current_value_index<Index> {
 
 				template<auto CurrentValue, auto... ValuesAfter>
-				struct current_value_and_values_after : type::of<values::of<ValuesBefore..., ValuesAfter...>> {};
+				struct current_value_and_values_after :
+					type::of<values::of<ValuesBefore..., ValuesAfter...>>
+				{};
 
 			};
 
@@ -44,6 +49,6 @@ namespace values {
 			template current_value_and_values_after<Values...>
 			::type;
 
-	};
+	}; // erase_at_index
 
-}
+} // values

@@ -11,8 +11,11 @@ namespace type {
 	struct modified_predicate : type::predicate_marker {
 
 		template<typename Type>
-		static constexpr bool for_type = Predicate::template for_type<typename Modifier::template for_type<Type>>;
+		static constexpr bool for_type =
+			Predicate::template for_type<
+				typename Modifier::template for_type<Type>
+			>;
 
 	};
 
-}
+} // type

@@ -27,17 +27,32 @@ namespace elements {
 
 		template<typename... Types>
 		auto operator () (Types&&...elements) const {
-			using indices = typename types::indices_of_satisfying_predicate<Predicate>::template for_types<Types...>;
-			using types = typename indices::template pass_for_type_directly<types::at_indices>::template for_types<Types...>;
+			using indices = typename
+				types::indices_of_satisfying_predicate<Predicate>::template
+				for_types<Types...>;
 
-			return [&]<nuint... Indices, typename... Types0>(::indices::of<Indices...>, ::types::of<Types0...>) {
+			using types = typename
+				indices::template
+				pass_for_type_directly<types::at_indices>::template
+				for_types<Types...>;
+
+			return
+				[&]<nuint... Indices, typename... Types0>
+				(::indices::of<Indices...>, ::types::of<Types0...>) {
 				return acceptor<Types0...> {
-					{ 	forward<Types0>(elements::at_index<Indices>(elements...))... }
+					{
+						forward<Types0>(
+							elements::at_index<Indices>(elements...)
+						)...
+					}
 				};
 			}(indices{}, types{});
 		}
 	};
 
 	template<type::predicate Predicate>
-	inline constexpr auto pass_satisfying_type_predicate = elements::pass_satisfying_type_predicate_t<Predicate>{};
-}
+	inline constexpr auto pass_satisfying_type_predicate =
+		elements::pass_satisfying_type_predicate_t<Predicate>
+	{};
+
+} // elements
