@@ -32,25 +32,27 @@ namespace types {
 
 			template<typename... ResultingTypes>
 			requires(erase)
-			struct resulting_types<ResultingTypes...>
-				: type::of<
+			struct resulting_types<ResultingTypes...> :
+				type::of<
 					typename index_and_remaining_types<
 						CurrentIndex + 1,
 						RemainingTypes...
 					>::template
 					resulting_types<ResultingTypes...>::type
-				>{};
+				>
+			{};
 
 			template<typename... ResultingTypes>
 			requires(!erase)
-			struct resulting_types<ResultingTypes...>
-				: type::of<
+			struct resulting_types<ResultingTypes...> :
+				type::of<
 					typename index_and_remaining_types<
 						CurrentIndex + 1,
 						RemainingTypes...
 					>:: template
 					resulting_types<ResultingTypes..., CurrentType>::type
-				>{};
+				>
+			{};
 
 		};
 
@@ -65,8 +67,8 @@ namespace types {
 	public:
 
 		template<typename... Types>
-		using for_types =
-			typename index_and_remaining_types<0, Types...>::template
+		using for_types = typename
+			index_and_remaining_types<0, Types...>::template
 			resulting_types<>::type;
 
 	};

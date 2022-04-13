@@ -65,7 +65,7 @@ namespace elements {
 		}
 
 		template<nuint Index, typename Type>
-		constexpr auto& get_storage(element_storage<Index, Type>* ptr) const {
+		constexpr auto& get_storage(const element_storage<Index, Type>* ptr) const {
 			return ptr->element;
 		}
 
@@ -128,11 +128,19 @@ namespace elements {
 		}
 
 		decltype(auto) forward(auto&& f) const {
-			return f(::forward<Types>(at<Indices>())...);
+			return f(
+				::forward<Types>(
+					((const element_storage<Indices, Types>*)this)->element
+				)...
+			);
 		}
 
 		decltype(auto) forward(auto&& f) {
-			return f(::forward<Types>(at<Indices>())...);
+			return f(
+				::forward<Types>(
+					((element_storage<Indices, Types>*)this)->element
+				)...
+			);
 		}
 	};
 	

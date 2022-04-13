@@ -13,9 +13,10 @@ namespace types {
 
 		template<typename... Types>
 		static constexpr nuint for_types =
-			types::indices_of_satisfying_predicate<Predicate>
+			/*types::indices_of_satisfying_predicate<Predicate>
 			::template for_types<Types...>
-			::size;
+			::size;*/
+			(nuint(Predicate::template for_type<Types>) + ... + 0);
 
 		template<nuint N>
 		struct less : types::predicate_marker {

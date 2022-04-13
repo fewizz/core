@@ -12,45 +12,48 @@ namespace types {
 		template<nuint CurrentIndex, nuint... Indices>
 		struct current_index_and_resulting_indices {
 		
-			template<typename... Types>
-			struct remaining_types;
+			template<bool... Types>
+			struct remaining;
 
-			template<typename CurrentType, typename... RemainingTypes>
-			requires(Predicate::template for_type<CurrentType>)
-			struct remaining_types<CurrentType, RemainingTypes...>
-				: type::of<
+			template<bool Current, bool... Remaining>
+			requires(Current)
+			struct remaining<Current, Remaining...> :
+				type::of<
 					typename current_index_and_resulting_indices<
 						CurrentIndex + 1,
 						Indices..., CurrentIndex
 					>
-					::template remaining_types<RemainingTypes...>::type
-				>{};
+					::template remaining<Remaining...>::type
+				>
+			{};
 
-			template<typename CurrentType, typename... RemainingTypes>
-			requires(!Predicate::template for_type<CurrentType>)
-			struct remaining_types<CurrentType, RemainingTypes...>
-				: type::of<
+			template<bool Current, bool... Remaining>
+			requires(!Current)
+			struct remaining<Current, Remaining...> :
+				type::of<
 					typename current_index_and_resulting_indices<
 						CurrentIndex + 1,
 						Indices...
 					>
-					::template remaining_types<RemainingTypes...>::type
-				>{};
+					::template remaining<Remaining...>::type
+				>
+			{};
 
 			template<>
-			struct remaining_types<>
-				: type::of<indices::of<Indices...>>
+			struct remaining<> :
+				type::of<indices::of<Indices...>>
 			{};
 
 		};
-	
+
 	public:
 	
 		template<typename... Types>
 		using for_types = typename
-			current_index_and_resulting_indices<0>
-			::template remaining_types<Types...>
-			::type;
+			current_index_and_resulting_indices<0>::template
+			remaining<
+				Predicate::template for_type<Types>...
+			>::type;
 
 	};
 
