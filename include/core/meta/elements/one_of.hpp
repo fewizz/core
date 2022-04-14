@@ -33,14 +33,16 @@ namespace elements {
 			: next{ forward<Args>(args)... }
 		{}
 
-		constexpr recursive_one_of_elements_storage& operator = (Type&& value) {
+		constexpr recursive_one_of_elements_storage&
+		operator = (Type&& value) {
 			element = move(value);
 			return *this;
 		}
 
 		template<typename Other>
 		requires(there_is_next)
-		constexpr recursive_one_of_elements_storage& operator = (Other&& other) {
+		constexpr recursive_one_of_elements_storage&
+		operator = (Other&& other) {
 			next = move(other);
 			return *this;
 		}
@@ -57,14 +59,25 @@ namespace elements {
 		}
 
 		template<nuint Index> requires (Index == 0)
-		constexpr const auto& at() const { return element; }
+		constexpr const auto& at() const {
+			return element;
+		}
+	
 		template<nuint Index> requires (Index > 0 && there_is_next)
-		constexpr const auto& at() const { return next.template at<Index - 1>(); }
+		constexpr const auto& at() const {
+			return next.template at<Index - 1>();
+		}
 
 		template<nuint Index> requires (Index == 0)
-		constexpr auto& at() { return element; }
+		constexpr auto& at() {
+			return element;
+		}
+
 		template<nuint Index> requires (Index > 0 && there_is_next)
-		constexpr auto& at() { return next.template at<Index - 1>(); }
+		constexpr auto& at() {
+			return next.template at<Index - 1>();
+		}
+
 	};
 
 	template<typename Type, typename... TailTypes>
@@ -83,21 +96,23 @@ namespace elements {
 		requires(
 			there_is_next && (
 				sizeof...(Args) != 1 ||
-				!type::is_same_as<Type&>::template for_type<types::first::for_types<Args...>>
+				!types_are_same<Type&, types::first::for_types<Args...>>
 			)
 		)
 		constexpr recursive_one_of_elements_storage(Args&&... args)
 			: next{ forward<Args>(args)... }
 		{}
 
-		constexpr recursive_one_of_elements_storage& operator = (Type& value) {
+		constexpr recursive_one_of_elements_storage&
+		operator = (Type& value) {
 			element = &value;
 			return *this;
 		}
 
 		template<typename Other>
 		requires(there_is_next)
-		constexpr recursive_one_of_elements_storage& operator = (Other&& other) {
+		constexpr recursive_one_of_elements_storage&
+		operator = (Other&& other) {
 			next = forward<Other>(other);
 			return *this;
 		}
@@ -114,14 +129,24 @@ namespace elements {
 		}
 
 		template<nuint Index> requires (Index == 0)
-		constexpr const auto& at() const { return *element; }
+		constexpr const auto& at() const {
+			return *element;
+		}
+
 		template<nuint Index> requires (Index > 0 && there_is_next)
-		constexpr const auto& at() const { return next.template at<Index - 1>(); }
+		constexpr const auto& at() const {
+			return next.template at<Index - 1>();
+		}
 
 		template<nuint Index> requires (Index == 0)
-		constexpr auto& at() { return *element; }
+		constexpr auto& at() {
+			return *element;
+		}
+
 		template<nuint Index> requires (Index > 0 && there_is_next)
-		constexpr auto& at() { return next.template at<Index - 1>(); }
+		constexpr auto& at() {
+			return next.template at<Index - 1>();
+		}
 	};
 
 	template<typename... Types>
@@ -131,29 +156,44 @@ namespace elements {
 
 		template<typename... Ts>
 		requires(sizeof...(Types) == 1)
-		static constexpr nuint max_size<Ts...> = sizeof(types::first::for_types<Types...>);
+		static constexpr nuint max_size<Ts...> =
+			sizeof(types::first::for_types<Types...>);
 
 		recursive_one_of_elements_storage<Types...> m_storage;
 		nuint m_current;
 
 		template<typename Type>
 		static constexpr bool only_one_such_type =
-			types::count_of_satisfying_predicate<type::is_same_as<Type>>::template for_types<Types...> == 1;
+			types::count_of_satisfying_predicate<
+				type::is_same_as<Type>
+			>::template for_types<Types...> == 1;
 
 		template<typename... Args>
 		static constexpr nuint index_of_constructible_from_args =
-			types::index_of_satisfying_predicate<type::is_constructible_from<Args...>>::template for_types<Types...>;
+			types::index_of_satisfying_predicate<
+				type::is_constructible_from<Args...>
+			>::template for_types<Types...>;
 
 	public:
 
 		template<nuint Index>
-		using type_at = typename types::at_index<Index>::template for_types<Types...>;
+		using type_at = typename
+			types::at_index<
+				Index
+			>::template for_types<Types...>;
 
 		template<typename Type>
-		static constexpr nuint type_index = types::index_of_satisfying_predicate<type::is_same_as<Type>>::template for_types<Types...>;
+		static constexpr nuint type_index =
+			types::index_of_satisfying_predicate<
+				type::is_same_as<Type>
+			>::template for_types<Types...>;
 
 		template<typename... Args>
-		requires(types::count_of_satisfying_predicate<type::is_constructible_from<Args&&...>>::template for_types<Types...> == 1)
+		requires(
+			types::count_of_satisfying_predicate<
+				type::is_constructible_from<Args&&...>
+			>::template for_types<Types...> == 1
+		)
 		constexpr one_of(Args&&... args) :
 			m_storage { forward<Args>(args)... },
 			m_current { index_of_constructible_from_args<Args&&...> }
@@ -165,7 +205,7 @@ namespace elements {
 		constexpr one_of& operator = (Type& value) {
 			m_storage.destruct(m_current);
 			m_storage(forward<Type>(value));
-			m_current = types::index_of_satisfying_predicate<type::is_same_as<Type>>::template for_types<Types...>;
+			m_current = type_index<Type>;
 			return *this;
 		}
 
@@ -197,6 +237,7 @@ namespace elements {
 		constexpr Type& get() {
 			return at<type_index<Type>>();
 		}
-	};
 
-}
+	}; // one_of
+
+} // elements

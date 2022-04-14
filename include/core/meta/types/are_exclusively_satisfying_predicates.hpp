@@ -14,9 +14,11 @@ namespace types {
 
 		template<typename Type>
 		static constexpr bool is_affected_by_one_predicate =
-			(nuint{
-				Predicates::affecting_predicate::template for_type<Type>
-			} + ...) == 1;
+			(
+				nuint {
+					Predicates::affecting_predicate::template for_type<Type>
+				} + ...
+			) == 1;
 
 	public:
 

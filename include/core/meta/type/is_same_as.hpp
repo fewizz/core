@@ -13,3 +13,6 @@ namespace type {
 	};
 
 } // type
+
+template<typename Type, typename BaseType>
+concept same_as = __is_same_as(Type, BaseType);

@@ -1,5 +1,5 @@
-#include "meta/type/is_same_as.hpp"
-#include "meta/types/indices_of_satisfying_predicate.hpp"
+#include <core/meta/type/is_same_as.hpp>
+#include <core/meta/types/indices_of_satisfying_predicate.hpp>
 
 static_assert(
 	types::are_same::for_types<

@@ -43,10 +43,18 @@ template<> struct uint_of_bits_type<32> : type::of<uint32> {};
 
 // 64
 
-using int64 = if_satisfy<sizeof(long) == 8>::then<long>::otherwise<long long>;
+using int64 =
+	if_satisfy<sizeof(long) == 8>::
+	then<long>::
+	otherwise<long long>;
+
 static_assert(sizeof(int64) == 8);
 
-using uint64 = if_satisfy<sizeof(unsigned long) == 8>::then<unsigned long>::otherwise<unsigned long long>;
+using uint64 =
+	if_satisfy<sizeof(unsigned long) == 8>::
+	then<unsigned long>::
+	otherwise<unsigned long long>;
+
 static_assert(sizeof(uint64) == 8);
 
 template<> struct int_of_bits_type<64> : type::of<int64> {};
@@ -64,27 +72,41 @@ template<typename Type>
 using uint_of_size_of = uint_of_bits<sizeof(Type) * 8>;
 
 template<typename Type>
-concept signed_integer = types::are_same::for_types<typename int_of_bits_type<sizeof(Type)*8>::type, Type>;
+concept signed_integer = types_are_same<
+	typename int_of_bits_type<sizeof(Type)*8>::type,
+	Type
+>;
 
 template<typename Type>
-concept unsigned_integer = types::are_same::for_types<typename uint_of_bits_type<sizeof(Type)*8>::type, Type>;
+concept unsigned_integer = types_are_same<
+	typename uint_of_bits_type<sizeof(Type)*8>::type,
+	Type
+>;
 
 template<typename Type>
 concept integer = signed_integer<Type> || unsigned_integer<Type>;
 
-struct is_signed_integer : type::predicate_marker {
-	template<typename Type>
-	static constexpr bool for_type = signed_integer<Type>;
-};
+namespace type {
 
-struct is_unsigned_integer : type::predicate_marker {
+	struct is_signed_integer : type::predicate_marker {
+	
+		template<typename Type>
+		static constexpr bool for_type = signed_integer<Type>;
+	
+	};
+	
+	struct is_unsigned_integer : type::predicate_marker {
+	
+		template<typename Type>
+		static constexpr bool for_type = unsigned_integer<Type>;
+	
+	};
+	
+	struct is_integer : type::predicate_marker {
+	
+		template<typename Type>
+		static constexpr bool for_type = integer<Type>;
+	
+	};
 
-	template<typename Type>
-	static constexpr bool for_type = unsigned_integer<Type>;
-};
-
-struct is_integer : type::predicate_marker {
-
-	template<typename Type>
-	static constexpr bool for_type = integer<Type>;
-};
+}

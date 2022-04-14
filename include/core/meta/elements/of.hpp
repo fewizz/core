@@ -60,12 +60,14 @@ namespace elements {
 	private:
 
 		template<nuint Index, typename Type>
-		constexpr auto& get_storage(element_storage<Index, Type>* ptr) {
+		constexpr auto&
+		get_storage(element_storage<Index, Type>* ptr) {
 			return ptr->element;
 		}
 
 		template<nuint Index, typename Type>
-		constexpr auto& get_storage(const element_storage<Index, Type>* ptr) const {
+		constexpr auto&
+		get_storage(const element_storage<Index, Type>* ptr) const {
 			return ptr->element;
 		}
 

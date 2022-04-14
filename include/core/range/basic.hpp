@@ -8,9 +8,9 @@ namespace range {
 
 	template<typename T>
 	concept basic = requires(T t) {
+		typename remove_reference<remove_const<T>>::value_type;
 		t.begin();
 		t.end();
-		typename remove_reference<remove_const<T>>::value_type;
 	};
 
 } // range

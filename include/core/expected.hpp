@@ -11,12 +11,21 @@ public:
 	template<typename... Args>
 	requires(
 		sizeof...(Args) != 1 ||
-		!type::is_same_as<expected>::template for_type<types::first::for_types<Args...>>
+		!type::is_same_as<expected>::template for_type<
+			types::first::for_types<Args...>
+		>
 	)
-	constexpr expected(Args&&... expected) : one_of{ forward<Args>(expected)... } {}
+	constexpr expected(Args&&... expected) :
+		one_of{ forward<Args>(expected)... }
+	{}
 
-	constexpr bool is_unexpected () const { return one_of.template is<UnexpectedType>(); }
-	constexpr bool is_expected () const { return one_of.template is<Type>(); }
+	constexpr bool is_unexpected () const {
+		return one_of.template is<UnexpectedType>();
+	}
+
+	constexpr bool is_expected () const {
+		return one_of.template is<Type>();
+	}
 
 	constexpr const UnexpectedType& get_unexpected() const {
 		return one_of.template get<UnexpectedType>();
@@ -37,4 +46,5 @@ public:
 	constexpr operator Type& () {
 		return get_expected();
 	}
+
 };

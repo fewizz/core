@@ -1,4 +1,4 @@
 #pragma once
 
-template<typename>
+template<typename ObjectType>
 struct handle;

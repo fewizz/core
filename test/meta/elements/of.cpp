@@ -13,9 +13,9 @@ consteval elements::of<int, float, bool> some_elements() {
 
 consteval int f() {
 	elements::of elems{ 0, 1.0F, a{} };
-	auto elems1 = move(elems);
+	[[maybe_unused]] auto elems1 = move(elems);
 
-	auto [ i, f, b ] = some_elements();
+	[[maybe_unused]] auto [ i, f, b ] = some_elements();
 	return 0;
 }
 

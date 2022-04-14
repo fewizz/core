@@ -6,7 +6,11 @@
 #include "../meta/type/is_same_as.hpp"
 
 template<typename Type, typename ObjectType>
-concept handle_of = type::is_same_as<handle<ObjectType>>::template for_type<decay<Type>>;
+concept handle_of =
+	same_as<Type, handle<ObjectType>> &&
+	requires(Type& o) {
+		o.value() -> same_as<ObjectType>;
+	};
 
 namespace type {
 
