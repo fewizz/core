@@ -1,0 +1,1 @@
+replacement for standard library, usable in `freestanding` environment
