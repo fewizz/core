@@ -2,14 +2,6 @@
 
 #include "meta/elements/one_of.hpp"
 
-template<typename UnexpectedType>
-struct unexpected {
-	UnexpectedType value;
-};
-
-template<typename UnexpectedType>
-unexpected(UnexpectedType) -> unexpected<UnexpectedType>;
-
 template<typename Type, typename UnexpectedType>
 class expected {
 	elements::one_of<Type, UnexpectedType> one_of;
@@ -25,10 +17,6 @@ public:
 	)
 	constexpr expected(Args&&... args) :
 		one_of{ forward<Args>(args)... }
-	{}
-
-	constexpr expected(unexpected<UnexpectedType> unexpected) :
-		one_of{ unexpected.value }
 	{}
 
 	constexpr bool is_unexpected () const {

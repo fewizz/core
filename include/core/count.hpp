@@ -1,5 +1,5 @@
 #pragma once
 
-#include "wrapper/of_integer.hpp"
+#include "integer.hpp"
 
-struct count : wrapper::of_integer<nuint> {};
+struct count { nuint _; operator nuint () const { return _; }};

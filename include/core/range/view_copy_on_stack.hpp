@@ -1,8 +1,8 @@
 #pragma once
 
+#include "view_on_stack.hpp"
 #include "basic.hpp"
 #include "value_type.hpp"
-#include "../span.hpp"
 
 namespace range {
 
@@ -18,14 +18,16 @@ namespace range {
 		template<typename F>
 		decltype(auto) operator () (F&& f) {
 			nuint size = range.size();
-			value_type storage[size];
 
-			nuint index = 0;
-			for(auto& v : range) {
-				storage[index++] = v;
-			}
-
-			return f(span{ storage, size });
+			return view_on_stack<value_type>(size)(
+				[&](auto s) {
+					nuint index = 0;
+					for(auto& v : range) {
+						s[index++] = v;
+					}
+					return f(s);
+				}
+			);
 		}
 
 	};

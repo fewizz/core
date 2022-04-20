@@ -62,6 +62,10 @@ struct span {
 		return span<Type>{ (Type*) data(), size() };
 	}
 
+	constexpr span cut(nuint size) {
+		return span{ data(), size };
+	}
+
 };
 
 template<typename ValueType>
