@@ -1,12 +1,11 @@
 #pragma once
 
-#include "wrapper/of_integer.hpp"
 #include "meta/decayed_same_as.hpp"
 #include "meta/type/is_invokable_with.hpp"
 #include "meta/types/are_exclusively_satisfying_predicates.hpp"
 
-struct base : wrapper::of_integer<nuint>{};
-struct number : wrapper::of_integer<nuint>{};
+struct base { nuint _; operator nuint () const { return _; }};
+struct number { nuint _; operator nuint () const { return _; }};
 
 template<typename... Args>
 requires(
@@ -17,8 +16,8 @@ requires(
 	>::for_types<Args...>
 )
 void for_each_digit_in_number(Args... args) {
-	nuint b = (nuint) elements::decayed_same_as<base>(args...);
-	nuint n = (nuint) elements::decayed_same_as<number>(args...);
+	auto b = elements::decayed_same_as<base>(args...);
+	auto n = elements::decayed_same_as<number>(args...);
 	auto f = elements::satisfying_predicate<type::is_invokable_with<nuint>>(args...);
 
 	nuint to_divide = 1;
