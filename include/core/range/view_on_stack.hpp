@@ -13,10 +13,10 @@ namespace range {
 			m_count{ count }
 		{}
 
-		template<typename F>
-		decltype(auto) operator () (F&& f) {
+		template<typename Handler>
+		decltype(auto) operator () (Handler&& handler) {
 			value_type storage[m_count];
-			return f(span{ storage, m_count });
+			return handler(span{ storage, m_count });
 		}
 
 	};

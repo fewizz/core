@@ -16,7 +16,7 @@ template<typename Type>
 struct null_terminated_string {
 	using value_type = Type;
 
-	const value_type* m_ptr;
+	value_type* m_ptr;
 
 	constexpr const value_type* begin() const { return m_ptr; }
 	constexpr null_character_sentinel end() const { return {}; }
