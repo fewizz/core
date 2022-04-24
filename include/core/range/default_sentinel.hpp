@@ -1,3 +1,7 @@
 #pragma once
 
-struct default_sentinel{};
+namespace range {
+
+	struct default_sentinel{};
+
+}

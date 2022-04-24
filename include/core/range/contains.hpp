@@ -10,20 +10,21 @@ namespace range {
 
 		constexpr contains(ValueType& value) : value{ value } {}
 
-		template<range::basic R>
-		constexpr bool operator () (R&& r) const {
-			for(auto&& v : forward<R>(r)) {
+		template<range::basic Range>
+		constexpr bool operator () (Range&& range) const {
+			for(auto&& v : forward<Range>(range)) {
 				if(v == value) return true;
 			}
 			return false;
 		}
 
-		template<range::basic R>
-		constexpr bool in(R&& r) const {
-			return (*this)(forward<R>(r));
+		template<range::basic Range>
+		constexpr bool in(Range&& range) const {
+			return (*this)(forward<Range>(range));
 		}
 	};
 
 	template<typename Type>
 	contains(Type&&) -> contains<Type&&>;
-}
+
+} // range
