@@ -40,7 +40,7 @@ namespace elements {
 
 		constexpr recursive_one_of_elements_storage&
 		operator = (Type&& value) {
-			element = move(value);
+			element = forward<Type>(value);
 			return *this;
 		}
 
@@ -204,10 +204,10 @@ namespace elements {
 		// assignment operator
 
 		template<typename Type>
-		constexpr one_of& operator = (Type& value) {
+		constexpr one_of& operator = (Type&& value) {
 			m_storage.destruct(dm_current);
-			m_storage(forward<Type>(value));
-			dm_current = type_index<Type>;
+			m_storage = forward<Type>(value);
+			dm_current = type_index<decay<Type>>; // TODO
 			return *this;
 		}
 

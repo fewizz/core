@@ -1,14 +1,14 @@
 #pragma once
 
 #include "view_on_stack.hpp"
-#include "range/basic.hpp"
-#include "range/value_type.hpp"
+#include "range.hpp"
+#include "value_type.hpp"
 
 
-template<range::basic Range>
+template<range Range>
 struct view_copy_on_stack {
 	Range& range;
-	using value_type = range::value_type<Range>;
+	using value_type = value_type<Range>;
 
 	view_copy_on_stack(Range& range) :
 		range{ range }

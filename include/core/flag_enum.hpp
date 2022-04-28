@@ -4,10 +4,10 @@
 #include "meta/type/is_enum.hpp"
 #include "meta/types/are_same.hpp"
 
-template<typename E>
-requires type::is_enum::for_type<E>
+template<typename Enum>
+requires type::is_enum::for_type<Enum>
 struct flag_enum {
-	using value_type = uint_of_size_of<E>;
+	using value_type = uint_of_size_of<Enum>;
 	value_type value{};
 
 	template<typename... Args>
@@ -15,17 +15,17 @@ struct flag_enum {
 	constexpr flag_enum(Args...) {}
 
 	template<typename... Args>
-	requires(sizeof...(Args) > 0 && types_are_same<E, Args...>)
+	requires(sizeof...(Args) > 0 && types_are_same<Enum, Args...>)
 	constexpr flag_enum(Args... args) {
 		value = ((value_type) args | ...);
 	}
 
-	constexpr flag_enum& set(E v) {
+	constexpr flag_enum& set(Enum v) {
 		value |= (value_type) v;
 		return *this;
 	}
 
-	constexpr bool get(E v) const {
+	constexpr bool get(Enum v) const {
 		return (value | (value_type) v) == value;
 	}
 
@@ -34,7 +34,7 @@ struct flag_enum {
 	}
 
 	constexpr flag_enum operator & (flag_enum other) const {
-		return { value & other.value };
+		return { (Enum) (value & other.value) };
 	}
 
 }; // flag_enum

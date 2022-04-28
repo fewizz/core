@@ -1,16 +1,12 @@
 #pragma once
 
-#include "basic.hpp"
+#include "range.hpp"
 #include "value_type.hpp"
 
-namespace range {
-
-	template<typename Range, typename Predicate>
-	concept of_value_type_satisfying_predicate =
-		range::basic<Range> && type::predicate<Predicate> &&
-		Predicate::template for_type<range::value_type<Range>>;
-
-} // range
+template<typename Range, typename Predicate>
+concept range_of_value_type_satisfying_predicate =
+	range<Range> && type::predicate<Predicate> &&
+	Predicate::template for_type<value_type<Range>>;
 
 namespace type {
 
@@ -21,7 +17,7 @@ namespace type {
 
 		template<typename Range>
 		static constexpr bool for_type =
-			range::of_value_type_satisfying_predicate<Range, Predicate>;
+			range_of_value_type_satisfying_predicate<Range, Predicate>;
 
 	};
 

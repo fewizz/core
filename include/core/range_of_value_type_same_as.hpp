@@ -1,25 +1,21 @@
 #pragma once
 
-#include "of_value_type_satisfying_predicate.hpp"
+#include "range_of_value_type_satisfying_predicate.hpp"
 
-namespace range {
+template<typename Range, typename Value>
+concept range_of_value_type_same_as =
+	range_of_value_type_satisfying_predicate<
+		Range,
+		type::is_same_as<Value>
+	>;
 
-	template<typename Range, typename Value>
-	concept of_value_type_same_as =
-		range::of_value_type_satisfying_predicate<
-			Range,
-			type::is_same_as<Value>
-		>;
+// aliases
 
-	// aliases
+template<typename Range, typename Value>
+concept range_of_value_type = range_of_value_type_same_as<Range, Value>;
 
-	template<typename Range, typename Value>
-	concept of_value_type = of_value_type_same_as<Range, Value>;
-
-	template<typename Range, typename Value>
-	concept of = of_value_type_same_as<Range, Value>;
-
-}
+template<typename Range, typename Value>
+concept range_of = range_of_value_type_same_as<Range, Value>;
 
 namespace type {
 
@@ -28,7 +24,7 @@ namespace type {
 
 		template<typename Range>
 		static constexpr bool for_type =
-			range::of_value_type_same_as<Range, Value>;
+			range_of_value_type_same_as<Range, Value>;
 
 	};
 
