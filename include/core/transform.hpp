@@ -37,13 +37,14 @@ struct transformed_iterator {
 };
 
 template<range Range, typename Function>
-struct transformed {
+struct transform_view {
 	Range& range;
-	Function&& function;
+	Function function;
 
-	transformed(Range& r, Function&& f) :
+	template<typename Function0>
+	transform_view(Range& r, Function0&& f) :
 		range{ r },
-		function{ forward<Function>(f) }
+		function{ forward<Function0>(f) }
 	{}
 
 	auto begin() {
@@ -75,18 +76,28 @@ struct transformed {
 	}
 };
 
-template<range Range>
+template<range Range, typename Function>
+transform_view(Range&&, Function&&) -> transform_view<Range, Function>;
+
+/*template<range Range>
 struct transform {
 	Range& range;
 
 	transform(Range& r) : range{ r } {}
 
-	template<typename F>
-	transformed<Range, F> operator () (F&& f) const {
-		return { range, forward<F>(f) };
+	template<typename Function>
+	transform_view<Range, Function>
+	with(Function&& function) const {
+		return { range, forward<Function>(function) };
 	}
 
-};
+	template<typename Function>
+	transform_view<Range, Function>
+	operator () (Function&& function) const {
+		return with(forward<Function>(function));
+	}
 
-template<range Range>
-transform(Range&&) -> transform<Range>;
+};*/
+
+//template<range Range>
+//transform(Range&&) -> transform<Range>;

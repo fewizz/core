@@ -76,8 +76,6 @@ namespace elements {
 		constexpr of(Types&&... values) : 
 			element_storage<Indices, Types>(::forward<Types>(values))...
 		{}
-
-		constexpr of(of&&) = default;
 	
 		template<nuint Index>
 		constexpr decltype(auto) at() const {
@@ -102,34 +100,34 @@ namespace elements {
 		}
 
 		template<typename F>
-		void for_each(F&& f) const {
+		constexpr void for_each(F&& f) const {
 			(f(at<Indices>()) , ...);
 		}
 		
 		template<typename F>
-		void for_each(F&& f) {
+		constexpr void for_each(F&& f) {
 			(f(at<Indices>()) , ...);
 		}
 
 		template<typename F, nuint... OtherIndices>
-		void for_each(F&& f, ::indices::of<OtherIndices...>) const {
+		constexpr void for_each(F&& f, ::indices::of<OtherIndices...>) const {
 			(f(at<OtherIndices>()) , ...);
 		}
 		
 		template<typename F, nuint... OtherIndices>
-		void for_each(F&& f, ::indices::of<OtherIndices...>) {
+		constexpr void for_each(F&& f, ::indices::of<OtherIndices...>) {
 			(f(at<OtherIndices>()) , ...);
 		}
 
-		decltype(auto) pass(auto&& f) const {
+		constexpr decltype(auto) pass(auto&& f) const {
 			return f(at<Indices>()...);
 		}
 
-		decltype(auto) pass(auto&& f) {
+		constexpr decltype(auto) pass(auto&& f) {
 			return f(at<Indices>()...);
 		}
 
-		decltype(auto) forward(auto&& f) const {
+		constexpr decltype(auto) forward(auto&& f) const {
 			return f(
 				::forward<Types>(
 					((const element_storage<Indices, Types>*)this)->element
@@ -137,7 +135,7 @@ namespace elements {
 			);
 		}
 
-		decltype(auto) forward(auto&& f) {
+		constexpr decltype(auto) forward(auto&& f) {
 			return f(
 				::forward<Types>(
 					((element_storage<Indices, Types>*)this)->element
@@ -170,6 +168,18 @@ namespace elements {
 	}
 
 } // elements
+
+template<typename... Types0, typename... Types1>
+constexpr inline bool operator == (
+	const elements::of<Types0...>& e0,
+	const elements::of<Types1...>& e1
+) {
+	return e0.pass([&](auto&... e0) {
+		return e1.pass([&](auto&... e1) {
+			return ((e1 == e0) && ...);
+		});
+	});
+}
 
 #include "core/std/tuple_size.hpp"
 

@@ -78,9 +78,10 @@ bool operator == (
 
 template<range FirstRange, range SecondRange>
 requires types_are_same<value_type<FirstRange>, value_type<SecondRange>>
-struct concatenated {
+class concatenated {
 	FirstRange& first_range;
 	SecondRange& second_range;
+public:
 
 	using iterator_type = concatenated_iterator<
 		decay<decltype(first_range.begin())>,

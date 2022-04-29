@@ -11,7 +11,7 @@ public:
 	constexpr copy(Range0&& range) : from{ range } {}
 
 	template<range To>
-	constexpr void to(To&& to) {
+	constexpr decltype(auto) to(To&& to) {
 		auto from_begin = begin(from);
 		auto from_end = end(from);
 		auto to_begin = begin(to);
@@ -21,6 +21,8 @@ public:
 			++from_begin;
 			++to_begin;
 		}
+
+		return forward<To>(to);
 	}
 
 };
