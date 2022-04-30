@@ -25,6 +25,20 @@ public:
 		return forward<To>(to);
 	}
 
+	template<typename To>
+	constexpr auto to(To to) {
+		auto from_begin = begin(from);
+		auto from_end = end(from);
+
+		while(from_begin != from_end) {
+			*to = *from_begin;
+			++from_begin;
+			++to;
+		}
+
+		return to;
+	}
+
 };
 
 template<range Range>
