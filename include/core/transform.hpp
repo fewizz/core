@@ -2,102 +2,92 @@
 
 #include "range.hpp"
 #include "forward.hpp"
-#include "meta/type/decay.hpp"
 #include "value_type.hpp"
+#include "meta/type/decay.hpp"
+#include "zip.hpp"
 
-template<typename Iterator, typename Function>
-struct transformed_iterator {
-	using base_iterator_type = Iterator;
+template<typename Function, typename... Iterators>
+                                  // signing for problems
+class transformed_view_iterator : public zip_view_iterator<Iterators...> {
+	Function& function_;
+	using base_type = zip_view_iterator<Iterators...>;
+public:
 
-	Iterator iterator;
-	Function& function;
-
-	constexpr transformed_iterator(Iterator iterator, Function& function) :
-		iterator{ iterator },
-		function{ function }
+	constexpr transformed_view_iterator(
+		Function& function, base_type base
+	) :
+		base_type{ base },
+		function_{ function }
 	{}
 
-	constexpr decltype(auto) operator * () const {
-		return function(*iterator);
-	}
-
 	constexpr decltype(auto) operator * () {
-		return function(*iterator);
+		return (base_type::operator * ())
+			.pass([&]<typename... Types>(Types&&... elements) {
+				return function_(forward<Types>(elements)...);
+			});
 	}
 
 	constexpr auto& operator ++ () {
-		++iterator;
+		base_type::operator ++ ();
 		return *this;
 	}
 
-	constexpr bool operator == (const transformed_iterator& other) const {
-		return iterator == other.iterator;
+	constexpr auto& operator += (nuint n) {
+		base_type::operator += (n);
+		return *this;
+	}
+
+	constexpr auto operator + (nuint n) {
+		transformed_view_iterator cpy{ *this };
+		return cpy += n;
 	}
 
 };
 
-template<range Range, typename Function>
-struct transform_view {
-	Range& range;
-	Function function;
+template<typename Function, range... Ranges>
+class transform_view : zip_view<Ranges...> {
+	Function function_;
+	using base_type = zip_view<Ranges...>;
 
-	template<typename Function0>
-	transform_view(Range& r, Function0&& f) :
-		range{ r },
-		function{ forward<Function0>(f) }
+	// TODO simplify
+	template<typename... Args>
+	constexpr transform_view(elements::of<Args...> args) :
+		base_type {
+			[&]<nuint... Indices>(indices::of<Indices...>) {
+				return elements::of{ args.template forward<Indices>()... };
+			}(indices::from<0>::to<sizeof...(Args) - 1>{})
+		},
+		function_ {
+			args.template forward<sizeof...(Args) - 1>()
+		}
 	{}
 
-	auto begin() {
-		return transformed_iterator {
-			range.begin(),
-			function
+public:
+
+	template<typename... Args>
+	constexpr transform_view(Args&&... args) :
+		transform_view(elements::of{ forward<Args>(args)... })
+	{}
+
+	constexpr auto begin() const {
+		return transformed_view_iterator {
+			function_, base_type::begin()
 		};
 	}
 
-	auto begin() const {
-		return transformed_iterator {
-			range.begin(),
-			function
-		};
+	using base_type::end;
+
+	constexpr auto operator [] (nuint n) const {
+		return *(begin() + n);
 	}
 
-	auto end() {
-		return transformed_iterator {
-			range.end(),
-			function
-		};
-	}
-
-	auto end() const {
-		return transformed_iterator {
-			range.end(),
-			function
-		};
-	}
 };
 
+// TODO
 template<range Range, typename Function>
-transform_view(Range&&, Function&&) -> transform_view<Range, Function>;
+transform_view(Range&&, Function&&)
+	-> transform_view<Function, Range>;
 
-/*template<range Range>
-struct transform {
-	Range& range;
-
-	transform(Range& r) : range{ r } {}
-
-	template<typename Function>
-	transform_view<Range, Function>
-	with(Function&& function) const {
-		return { range, forward<Function>(function) };
-	}
-
-	template<typename Function>
-	transform_view<Range, Function>
-	operator () (Function&& function) const {
-		return with(forward<Function>(function));
-	}
-
-};*/
-
-//template<range Range>
-//transform(Range&&) -> transform<Range>;
+template<range Range0, range Range1, typename Function>
+transform_view(Range0&&, Range1&&, Function&&)
+	-> transform_view<Function, Range0, Range1>;

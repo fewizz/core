@@ -11,12 +11,29 @@
 namespace elements {
 
 	template<nuint Index, typename Type>
-	struct element_storage {
-		Type element;
+	class element_storage {
+		Type element_;
+	public:
 
 		constexpr element_storage(Type&& element) :
-			element{ forward<Type>(element) }
+			element_{ ::forward<Type>(element) }
 		{}
+
+		constexpr auto& get() const {
+			return element_;
+		}
+
+		constexpr auto& get() {
+			return element_;
+		}
+
+		constexpr decltype(auto) forward() const {
+			return ::forward<Type>(element_);
+		}
+
+		constexpr decltype(auto) forward() {
+			return ::forward<Type>(element_);
+		}
 
 	};
 
@@ -61,30 +78,42 @@ namespace elements {
 
 		template<nuint Index, typename Type>
 		constexpr auto&
-		get_storage(element_storage<Index, Type>* ptr) {
-			return ptr->element;
+		get_from_storage(const element_storage<Index, Type>* ptr) const {
+			return ptr->get();
 		}
 
 		template<nuint Index, typename Type>
 		constexpr auto&
-		get_storage(const element_storage<Index, Type>* ptr) const {
-			return ptr->element;
+		get_from_storage(element_storage<Index, Type>* ptr) {
+			return ptr->get();
 		}
 
+
+		template<nuint Index, typename Type>
+		constexpr decltype(auto)
+		forward_from_storage(const element_storage<Index, Type>* ptr) const {
+			return ptr->forward();
+		}
+
+		template<nuint Index, typename Type>
+		constexpr decltype(auto)
+		forward_from_storage(element_storage<Index, Type>* ptr) {
+			return ptr->forward();
+		}
 	public:
 	
-		constexpr of(Types&&... values) : 
+		constexpr of(Types&&... values) :
 			element_storage<Indices, Types>(::forward<Types>(values))...
 		{}
 	
 		template<nuint Index>
 		constexpr decltype(auto) at() const {
-			return get_storage<Index>(this);
+			return get_from_storage<Index>(this);
 		}
 
 		template<nuint Index>
 		constexpr decltype(auto) at() {
-			return get_storage<Index>(this);
+			return get_from_storage<Index>(this);
 		}
 
 		template<typename Type>
@@ -127,20 +156,22 @@ namespace elements {
 			return f(at<Indices>()...);
 		}
 
+		template<nuint Index>
+		constexpr decltype(auto) forward() const {
+			return forward_from_storage<Index>(this);
+		}
+
+		template<nuint Index>
+		constexpr decltype(auto) forward() {
+			return forward_from_storage<Index>(this);
+		}
+
 		constexpr decltype(auto) forward(auto&& f) const {
-			return f(
-				::forward<Types>(
-					((const element_storage<Indices, Types>*)this)->element
-				)...
-			);
+			return f(forward_from_storage<Indices>(this)...);
 		}
 
 		constexpr decltype(auto) forward(auto&& f) {
-			return f(
-				::forward<Types>(
-					((element_storage<Indices, Types>*)this)->element
-				)...
-			);
+			return f(forward_from_storage<Indices>(this)...);
 		}
 	};
 	

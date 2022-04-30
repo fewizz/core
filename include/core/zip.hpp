@@ -88,6 +88,13 @@ template<range... Ranges>
 class zip_view {
 	elements::of<Ranges...> ranges_;
 
+protected:
+
+	template<typename... Ranges0>
+	constexpr zip_view(elements::of<Ranges0...> ranges) :
+		ranges_{ move(ranges) }
+	{}
+
 public:
 
 	template<typename... Ranges0>
