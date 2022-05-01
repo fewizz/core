@@ -1,14 +1,13 @@
 #pragma once
 
 #include "span.hpp"
+#include "default_sentinel.hpp"
 
-struct null_character_sentinel {};
-
-constexpr bool operator == (null_character_sentinel, const auto* ptr) {
+constexpr bool operator == (default_sentinel, const auto* ptr) {
 	return *ptr == 0;
 }
 
-constexpr bool operator == (const auto* ptr, null_character_sentinel) {
+constexpr bool operator == (const auto* ptr, default_sentinel) {
 	return *ptr == 0;
 }
 
@@ -19,7 +18,7 @@ struct null_terminated_string {
 	value_type* m_ptr;
 
 	constexpr const value_type* begin() const { return m_ptr; }
-	constexpr null_character_sentinel end() const { return {}; }
+	constexpr default_sentinel end() const { return {}; }
 
 	const Type& operator [] (nuint index) const { return m_ptr[index]; }
 

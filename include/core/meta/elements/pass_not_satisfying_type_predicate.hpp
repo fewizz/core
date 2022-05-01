@@ -6,6 +6,10 @@
 namespace elements {
 
 	template<type::predicate Predicate>
-	inline constexpr auto pass_not_satisfying_type_predicate = elements::pass_satisfying_type_predicate_t<type::negated_predicate<Predicate>>{};
+	inline constexpr auto pass_not_satisfying_type_predicate {
+		elements::pass_satisfying_type_predicate_t<
+			type::negated_predicate<Predicate>
+		>{}
+	};
 
-}
+} // elements

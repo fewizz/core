@@ -15,18 +15,18 @@ namespace elements {
 			elements::of<Types...> elements;
 
 			template<typename F>
-			decltype(auto) operator () (F&& f) const {
+			constexpr decltype(auto) operator () (F&& f) const {
 				return elements.forward(forward<F>(f));
 			}
 
 			template<typename F>
-			decltype(auto) operator () (F&& f) {
+			constexpr decltype(auto) operator () (F&& f) {
 				return elements.forward(forward<F>(f));
 			}
 		};
 
 		template<typename... Types>
-		auto operator () (Types&&...elements) const {
+		constexpr auto operator () (Types&&...elements) const {
 			using indices = typename
 				types::indices_of_satisfying_predicate<Predicate>::template
 				for_types<Types...>;
@@ -51,8 +51,8 @@ namespace elements {
 	};
 
 	template<type::predicate Predicate>
-	inline constexpr auto pass_satisfying_type_predicate =
-		elements::pass_satisfying_type_predicate_t<Predicate>
-	{};
+	inline constexpr auto pass_satisfying_type_predicate {
+		elements::pass_satisfying_type_predicate_t<Predicate>{}
+	};
 
 } // elements
