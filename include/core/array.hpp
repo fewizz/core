@@ -54,3 +54,37 @@ array(Types&&...)
 		remove_reference<typename types::first::for_types<Types...>>,
 		sizeof...(Types)
 	>;
+
+template<nuint Index, typename Type, nuint Size>
+constexpr auto&& get(array<Type, Size>&& a) {
+	return a[Index];
+}
+
+template<nuint Index, typename Type, nuint Size>
+constexpr auto&& get(const array<Type, Size>&& a) {
+	return a[Index];
+}
+
+template<nuint Index, typename Type, nuint Size>
+constexpr auto& get(array<Type, Size>& a) {
+	return a[Index];
+}
+
+template<nuint Index, typename Type, nuint Size>
+constexpr auto&& get(const array<Type, Size>& a) {
+	return a[Index];
+}
+
+#include <core/std/tuple_size.hpp>
+
+template<typename Type, nuint Size>
+struct std::tuple_size<array<Type, Size>> {
+	static constexpr nuint value = Size;
+};
+
+#include <core/std/tuple_element.hpp>
+
+template<nuint Index, typename Type, nuint Size>
+struct std::tuple_element<Index, array<Type, Size>> {
+	using type = Type;
+};
