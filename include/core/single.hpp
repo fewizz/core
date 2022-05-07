@@ -12,9 +12,8 @@ class single_view {
 
 public:
 
-	template<typename Type0>
-	constexpr single_view(Type0&& value) :
-		value_{ forward<Type0>(value) }
+	constexpr single_view(Type value) :
+		value_{ forward<Type>(value) }
 	{}
 
 	constexpr const auto* begin() const { return &value_; }

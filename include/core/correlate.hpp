@@ -2,6 +2,10 @@
 
 #include "range.hpp"
 
+enum class ending {
+	first, second, both, interrupted
+};
+
 template<range FirstRange, range SecondRange>
 struct correlate {
 	FirstRange& first_range;
@@ -13,12 +17,20 @@ struct correlate {
 	{}
 
 	template<typename Handler>
-	constexpr void operator () (Handler&& handler) const {
+	[[ nodiscard ]]
+	constexpr ending operator () (Handler&& handler) const {
 		auto r1 = begin(first_range);
-		auto r2 = end(second_range);
+		auto r2 = begin(second_range);
 
-		while(r1 != end(first_range) && r2 != end(second_range)) {
-			if(!handler(*r1++, *r2++)) break;
+		while(true) {
+			bool first  = r1 != end(first_range);
+			bool second = r2 != end(second_range);
+
+			if(!first && !second) return ending::both;
+			if( first && !second) return ending::second;
+			if(!first &&  second) return ending::first;
+
+			if(!handler(*r1++, *r2++)) return ending::interrupted;
 		}
 	}
 

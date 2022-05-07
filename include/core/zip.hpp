@@ -2,8 +2,10 @@
 
 #include "range.hpp"
 #include "begin.hpp"
+#include "move.hpp"
 #include "end.hpp"
 #include "meta/elements/of.hpp"
+#include "meta/type/is_addition_assignable.hpp"
 
 template<typename... Iterators>
 class zip_view_iterator {
@@ -29,14 +31,16 @@ public:
 		return *this;
 	}
 
-	constexpr auto& operator += (nuint n) {
+	constexpr auto& operator += (nuint n)
+	requires (addition_assignable<Iterators, nuint> && ...) {
 		iterators_.pass([&](auto&... iterators) {
 			((iterators += n), ...);
 		});
 		return *this;
 	}
 
-	constexpr auto operator + (nuint n) {
+	constexpr auto operator + (nuint n) const
+	requires (addition_assignable<Iterators, nuint> && ...) {
 		zip_view_iterator cpy{ *this };
 		return cpy += n;
 	}
@@ -90,16 +94,14 @@ class zip_view {
 
 protected:
 
-	template<typename... Ranges0>
-	constexpr zip_view(elements::of<Ranges0...> ranges) :
+	constexpr zip_view(elements::of<Ranges...> ranges) :
 		ranges_{ move(ranges) }
 	{}
 
 public:
 
-	template<typename... Ranges0>
-	constexpr zip_view(Ranges0&&... ranges) :
-		ranges_{ forward<Ranges0>(ranges)... }
+	constexpr zip_view(Ranges&&... ranges) :
+		ranges_{ forward<Ranges>(ranges)... }
 	{}
 
 	constexpr auto begin() const {
@@ -114,7 +116,8 @@ public:
 		});
 	}
 
-	constexpr auto operator [] (nuint n) const {
+	constexpr auto operator [] (nuint n) const
+	requires requires() { begin() + n; } {
 		return *(begin() + n);
 	}
 

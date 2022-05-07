@@ -14,7 +14,7 @@ struct begin_t {
 	}
 
 	template<typename Type>
-	requires requires (Type o) { o.begin(); }
+	requires requires (Type&& o) { o.begin(); }
 	constexpr auto operator () (Type&& o) const {
 		return o.begin();
 	}

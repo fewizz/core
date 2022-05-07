@@ -4,6 +4,7 @@
 #include "range.hpp"
 #include "value_type.hpp"
 
+#include <core/distance.hpp>
 
 template<range Range>
 struct view_copy_on_stack {
@@ -16,12 +17,12 @@ struct view_copy_on_stack {
 
 	template<typename F>
 	decltype(auto) operator () (F&& f) {
-		nuint size = range.size();
+		nuint size = distance(range);
 
 		return view_on_stack<value_type>(size)(
 			[&](auto s) {
 				nuint index = 0;
-				for(auto& v : range) {
+				for(decltype(auto) v : range) {
 					s[index++] = v;
 				}
 				return f(s);

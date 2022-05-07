@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../types/of.hpp"
+#include "../types/at_index.hpp"
 #include "../types/count_of_satisfying_predicate.hpp"
 #include "../types/index_of_satisfying_predicate.hpp"
 #include "../type/is_same_as.hpp"
@@ -74,6 +75,12 @@ namespace elements {
 			>::template
 			for_types<Types...>;
 
+		template<nuint Index>
+		using type_at =
+			typename ::types::template
+			at_index<Index>::template
+			for_types<Types...>;
+
 	private:
 
 		template<nuint Index, typename Type>
@@ -88,7 +95,6 @@ namespace elements {
 			return ptr->get();
 		}
 
-
 		template<nuint Index, typename Type>
 		constexpr decltype(auto)
 		forward_from_storage(const element_storage<Index, Type>* ptr) const {
@@ -102,7 +108,7 @@ namespace elements {
 		}
 	public:
 	
-		constexpr of(Types&&... values) :
+		constexpr of(Types... values) :
 			element_storage<Indices, Types>(::forward<Types>(values))...
 		{}
 	
@@ -220,7 +226,6 @@ struct std::tuple_size<elements::of<Types...>> {
 };
 
 #include "core/std/tuple_element.hpp"
-#include "core/meta/types/at_index.hpp"
 
 template<nuint Index, typename... Types>
 struct std::tuple_element<Index, elements::of<Types...>> {

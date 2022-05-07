@@ -18,6 +18,7 @@ struct null_terminated_string {
 	value_type* m_ptr;
 
 	constexpr const value_type* begin() const { return m_ptr; }
+	constexpr const value_type* data() const { return m_ptr; }
 	constexpr default_sentinel end() const { return {}; }
 
 	const Type& operator [] (nuint index) const { return m_ptr[index]; }

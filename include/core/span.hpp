@@ -55,7 +55,7 @@ public:
 		return values_;
 	}
 
-	constexpr auto& data() const {
+	constexpr const auto& data() const {
 		return values_;
 	}
 

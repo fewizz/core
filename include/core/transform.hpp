@@ -75,6 +75,12 @@ public:
 		};
 	}
 
+	constexpr auto begin() {
+		return transformed_view_iterator {
+			function_, base_type::begin()
+		};
+	}
+
 	using base_type::end;
 
 	constexpr auto operator [] (nuint n) const {

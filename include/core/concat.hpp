@@ -6,6 +6,7 @@
 #include "value_type.hpp"
 #include "default_sentinel.hpp"
 #include "meta/elements/of.hpp"
+#include "meta/types/common.hpp"
 
 template<typename... Pairs>
 class concat_view_iterator {
@@ -26,25 +27,30 @@ class concat_view_iterator {
 	}
 
 	template<nuint Index = 0>
-	constexpr decltype(auto) deref() const {
+	constexpr types::common::for_types<
+		decltype(*declval<typename Pairs::template type_at<0>>())...
+	>
+	deref() const {
 		if(index_ == Index) {
 			return *pairs_.template at<Index>().template at<0>();
 		}
 		else if constexpr(Index + 1 < sizeof...(Pairs)) {
 			return deref<Index + 1>();
 		}
-		throw;
+		__builtin_unreachable();
 	}
 
 	template<nuint Index = 0>
-	constexpr decltype(auto) deref() {
+	constexpr types::common::for_types<
+		decltype(*declval<typename Pairs::template type_at<0>>())...
+	> deref() {
 		if(index_ == Index) {
 			return *pairs_.template at<Index>().template at<0>();
 		}
 		else if constexpr(Index + 1 < sizeof...(Pairs)) {
 			return deref<Index + 1>();
 		}
-		throw;
+		__builtin_unreachable();
 	}
 
 	template<nuint Index = 0>
@@ -103,9 +109,8 @@ class concat_view {
 	elements::of<Ranges...> ranges_;
 public:
 
-	template<range... Ranges0>
-	constexpr concat_view(Ranges0... ranges) :
-		ranges_{ forward<Ranges0>(ranges)... }
+	constexpr concat_view(Ranges... ranges) :
+		ranges_{ forward<Ranges>(ranges)... }
 	{}
 
 	constexpr auto begin() const {
@@ -118,6 +123,12 @@ public:
 
 	constexpr auto end() const {
 		return default_sentinel{};
+	}
+
+	constexpr nuint size() const {
+		return ranges_.pass([](auto&&... ranges) {
+			return (ranges.size() + ...);
+		});
 	}
 };
 
