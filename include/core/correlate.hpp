@@ -19,18 +19,18 @@ struct correlate {
 	template<typename Handler>
 	[[ nodiscard ]]
 	constexpr ending operator () (Handler&& handler) const {
-		auto r1 = begin(first_range);
-		auto r2 = begin(second_range);
+		auto a = begin(first_range);
+		auto b = begin(second_range);
 
 		while(true) {
-			bool first  = r1 != end(first_range);
-			bool second = r2 != end(second_range);
+			bool first  = a == end(first_range);
+			bool second = b == end(second_range);
 
-			if(!first && !second) return ending::both;
-			if( first && !second) return ending::second;
-			if(!first &&  second) return ending::first;
+			if( first &&  second) return ending::both;
+			if(!first &&  second) return ending::second;
+			if( first && !second) return ending::first;
 
-			if(!handler(*r1++, *r2++)) return ending::interrupted;
+			if(!handler(*a++, *b++)) return ending::interrupted;
 		}
 	}
 

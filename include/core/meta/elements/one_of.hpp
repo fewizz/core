@@ -165,7 +165,7 @@ namespace elements {
 		nuint dm_current;
 
 		template<typename Type>
-		static constexpr bool only_one_such_type =
+		static constexpr bool one_such_type =
 			types::are_contain_one_satisfying_predicate<
 				type::is_same_as<Type>
 			>::template for_types<Types...>;
@@ -207,7 +207,7 @@ namespace elements {
 		constexpr one_of& operator = (Type&& value) {
 			m_storage.destruct(dm_current);
 			m_storage = forward<Type>(value);
-			dm_current = type_index<decay<Type>>; // TODO
+			dm_current = type_index<Type>; // TODO
 			return *this;
 		}
 
@@ -229,13 +229,13 @@ namespace elements {
 		}
 
 		template<typename Type>
-		requires only_one_such_type<Type>
+		requires one_such_type<Type>
 		constexpr const Type& get() const {
 			return at<type_index<Type>>();
 		}
 
 		template<typename Type>
-		requires only_one_such_type<Type>
+		requires one_such_type<Type>
 		constexpr Type& get() {
 			return at<type_index<Type>>();
 		}
