@@ -2,12 +2,15 @@
 
 #include "../types/are_same.hpp"
 #include "../type/is_same_as.hpp"
+#include "../type/is_assignable.hpp"
 #include "../type/is_constructible_from.hpp"
 #include "../types/at_index.hpp"
 #include "../types/index_of_satisfying_predicate.hpp"
 #include "../types/are_contain_satisfying_predicate.hpp"
 #include "../types/first.hpp"
 #include "../../forward.hpp"
+#include "../../placement_new.hpp"
+#include "../type/is_trivial.hpp"
 
 namespace elements {
 
@@ -22,34 +25,44 @@ namespace elements {
 		Type element;
 		next_type next;
 
-		// constructor
+		constexpr recursive_one_of_elements_storage() {}
 
 		template<typename... Args>
-		requires constructible_from<Type, Args&&...>
-		constexpr recursive_one_of_elements_storage(Args&&... args) :
-			element{ forward<Args>(args)... }
-		{}
+		requires type::is_constructible_from<Args...>::template for_type<Type>
+		constexpr void init(nuint index, Args&&... args) {
+			if(index == 0) {
+				new (&element) Type(forward<Args>(args)...);
+			}
+			else if constexpr(there_is_next) {
+				new (&next) next_type();
+				next.init(index - 1, forward<Args>(args)...);
+			}
+		}
 
 		template<typename... Args>
-		requires(!constructible_from<Type, Args&&...> && there_is_next)
-		constexpr recursive_one_of_elements_storage(Args&&... args) :
-			next{ forward<Args>(args)... }
-		{}
-
-		// assignment
-
-		constexpr recursive_one_of_elements_storage&
-		operator = (Type&& value) {
-			element = forward<Type>(value);
-			return *this;
+		constexpr void init(nuint index, Args&&... args) {
+			if constexpr(there_is_next) {
+				new (&next) next_type();
+				next.init(index - 1, forward<Args>(args)...);
+			}
 		}
 
 		template<typename Other>
-		requires(there_is_next)
-		constexpr recursive_one_of_elements_storage&
-		operator = (Other&& other) {
-			next = forward<Other>(other);
-			return *this;
+		requires type::is_assignable<Other>::template for_type<Type>
+		constexpr void assign(nuint index, Other&& other) {
+			if(index == 0) {
+				element = forward<Other>(other);
+			}
+			else if constexpr(there_is_next) {
+				next.assign(index - 1, forward<Other>(other));
+			}
+		}
+
+		template<typename Other>
+		constexpr void assign(nuint index, Other&& other) {
+			if constexpr(there_is_next) {
+				next.assign(index - 1, forward<Other>(other));
+			}
 		}
 
 		constexpr ~recursive_one_of_elements_storage() {}
@@ -61,6 +74,7 @@ namespace elements {
 			}
 			else if constexpr(there_is_next) {
 				next.destruct(index - 1);
+				next.~next_type();
 			}
 		}
 
@@ -94,45 +108,52 @@ namespace elements {
 		Type* element;
 		next_type next;
 
-		// constructor
+		constexpr recursive_one_of_elements_storage() {}
 
-		constexpr recursive_one_of_elements_storage(Type& ref) :
-			element{ &ref }
-		{}
+		constexpr void init(nuint index, Type& ref) {
+			if(index == 0) {
+				element = &ref;
+			}
+			else if constexpr(there_is_next) {
+				new (&next) next_type();
+				next.init(index - 1, ref);
+			}
+		}
 
 		template<typename... Args>
-		requires there_is_next && (
-			sizeof...(Args) != 1 ||
-			!types_are_same<Type&, types::first::for_types<Args...>>
-		)
-		constexpr recursive_one_of_elements_storage(Args&&... args) :
-			next{ forward<Args>(args)... }
-		{}
-
-		// assignment
-
-		constexpr recursive_one_of_elements_storage&
-		operator = (Type& value) {
-			element = &value;
-			return *this;
+		constexpr void init(nuint index, Args&&... args) {
+			if constexpr(there_is_next) {
+				new (&next) next_type();
+				next.init(index - 1, forward<Args>(args)...);
+			}
 		}
 
 		template<typename Other>
-		requires(there_is_next)
-		constexpr recursive_one_of_elements_storage&
-		operator = (Other&& other) {
-			next = forward<Other>(other);
-			return *this;
+		requires type::is_assignable<Other>::template for_type<Type&>
+		constexpr void assign(nuint index, Other&& other) {
+			if(index == 0) {
+				*element = forward<Other>(other);
+			}
+			else if constexpr(there_is_next) {
+				next.assign(index - 1, forward<Other>(other));
+			}
 		}
 
-		constexpr ~recursive_one_of_elements_storage(){}
+		template<typename Other>
+		constexpr void assign(nuint index, Other&& other) {
+			if constexpr(there_is_next) {
+				next.assign(index - 1, forward<Other>(other));
+			}
+		}
+
+		constexpr ~recursive_one_of_elements_storage() {}
 
 		constexpr void destruct(nuint index) {
 			if(index == 0) {
-				element = nullptr;
 			}
 			else if constexpr(there_is_next) {
 				next.destruct(index - 1);
+				next.~next_type();
 			}
 		}
 
@@ -161,8 +182,9 @@ namespace elements {
 	template<typename... Types>
 	class one_of {
 
-		recursive_one_of_elements_storage<Types...> m_storage;
-		nuint dm_current;
+		using storage_type = recursive_one_of_elements_storage<Types...>;
+		storage_type m_storage;
+		nuint m_current;
 
 		template<typename Type>
 		static constexpr bool one_such_type =
@@ -192,30 +214,38 @@ namespace elements {
 
 		// constructor
 
+		constexpr one_of() = default;
+
 		template<typename... Args>
 		requires types::are_contain_one_satisfying_predicate<
 			type::is_constructible_from<Args&&...>
 		>::template for_types<Types...>
 		constexpr one_of(Args&&... args) :
-			m_storage { forward<Args>(args)... },
-			dm_current { index_of_constructible_from_args<Args&&...> }
-		{}
+			m_current { index_of_constructible_from_args<Args&&...> }
+		{
+			m_storage.init(m_current, forward<Args>(args)...);
+		}
 
 		// assignment operator
-
 		template<typename Type>
 		constexpr one_of& operator = (Type&& value) {
-			m_storage.destruct(dm_current);
-			m_storage = forward<Type>(value);
-			dm_current = type_index<Type>; // TODO
+			nuint index = type_index<Type>;
+			if(index == m_current) {
+				m_storage.assign(index, forward<Type>(value));
+			}
+			else {
+				m_storage.destruct(m_current);
+				m_storage.init(index, forward<Type>(value));
+				m_current = index;
+			}
 			return *this;
 		}
 
-		constexpr ~one_of() { m_storage.destruct(dm_current); }
+		constexpr ~one_of() { m_storage.destruct(m_current); }
 
 		template<typename Type>
 		constexpr bool is() const {
-			return dm_current == type_index<Type>;
+			return m_current == type_index<Type>;
 		}
 
 		template<nuint Index>

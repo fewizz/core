@@ -3,6 +3,7 @@
 #include "integer.hpp"
 #include "exchange.hpp"
 #include "placement_new.hpp"
+#include "forward.hpp"
 
 template<
 	typename ValueType, typename SizeType, typename Allocator

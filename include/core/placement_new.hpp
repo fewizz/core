@@ -2,4 +2,4 @@
 
 #include "integer.hpp"
 
-inline void* operator new (nuint, void* ptr) { return ptr; }
+constexpr inline void* operator new (nuint, void* ptr) { return ptr; }

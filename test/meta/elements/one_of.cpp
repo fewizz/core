@@ -1,16 +1,15 @@
 #include "core/meta/elements/one_of.hpp"
-#include "assert.h"
 
 consteval void f() {
 	{
 		elements::one_of<int, float> f{ 0.0F };
-		assert(f.is<float>());
+		if(!f.is<float>()) throw;
 	}
 	{
 		elements::one_of<int, float> i{ 0 };
-		assert(i.is<int>());
+		if(!i.is<int>()) throw;
 		i = 0.0F;
-		assert(i.is<float>());
+		if(!i.is<float>()) throw;
 	}
 }
 
@@ -18,44 +17,53 @@ nuint a_destructions;
 
 struct a {
 	int i;
-
+	a(int i) : i{i} {}
 	~a() { ++a_destructions; }
 };
 
 nuint b_destructions;
 
 struct b {
-	float i;
-
+	float f;
+	b(float f) : f{f} {}
 	~b() { ++b_destructions; }
 };
 
 int main() {
-	f();
-
+	//f(); // TODO
 	{
-		elements::one_of<int, float> f{ 0.0F };
-		assert(f.is<float>());
+		elements::one_of<int, float> f;
 	}
 
 	{
-		elements::one_of<a, b> es{ 0 };
-		assert(es.is<a>());
+		elements::one_of<int, float> f{ 42.0F };
+		if(!f.is<float>()) throw;
+		if(f.get<float>() != 42.0F) throw;
+
+		f = 42;
+
+		if(!f.is<int>()) throw;
+		if(f.get<int>() != 42) throw;
 	}
 
-	assert(a_destructions == 1);
-	assert(b_destructions == 0);
+	{
+		elements::one_of<a, b> es{ 4 };
+		if(!es.is<a>()) throw;
+		if(es.get<a>().i != 4) throw;
 
-	{ 
-		elements::one_of<a, b> es{ 0.0F };
-		assert(es.is<b>());
+		es = b{ 4.0F };
+
+		if(!es.is<b>()) throw;
+		if(es.get<b>().f != 4.0) throw;
 	}
 
-	assert(a_destructions == 1);
-	assert(b_destructions == 1);
+	if(a_destructions != 1) throw;
+	if(b_destructions != 2) throw;
 
-	int i = 0;
-	elements::one_of<int&> int_ref{ i };
-	int_ref.template get<int&>() = 1;
-	assert(int_ref.template get<int&>() == 1);
+	{
+		int i = 0;
+		elements::one_of<int&> int_ref{ i };
+		int_ref.template get<int&>() = 1;
+		if(int_ref.template get<int&>() != 1) throw;
+	}
 }
