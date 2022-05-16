@@ -31,6 +31,16 @@ struct b {
 
 int main() {
 	{
+		elements::one_of<int, nuint> e{ nuint{ 666666666666 } };
+		auto copy = e;
+		if(!copy.is<nuint>()) throw;
+		if(copy.get<nuint>() != nuint{ 666666666666 }) throw;
+
+		auto moved = move(copy);
+		if(!moved.is<nuint>()) throw;
+		if(moved.get<nuint>() != nuint{ 666666666666 }) throw;
+	}
+	{
 		elements::one_of<int, float> f{ 42.0F };
 		if(!f.is<float>()) throw;
 		if(f.get<float>() != 42.0F) throw;
@@ -39,6 +49,8 @@ int main() {
 
 		if(!f.is<int>()) throw;
 		if(f.get<int>() != 42) throw;
+
+		elements::one_of<int, float> f0 = f;
 	}
 
 	{
