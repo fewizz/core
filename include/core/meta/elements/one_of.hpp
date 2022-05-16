@@ -214,8 +214,6 @@ namespace elements {
 
 		// constructor
 
-		constexpr one_of() = default;
-
 		template<typename... Args>
 		requires types::are_contain_one_satisfying_predicate<
 			type::is_constructible_from<Args&&...>

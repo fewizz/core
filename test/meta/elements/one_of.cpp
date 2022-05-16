@@ -30,11 +30,6 @@ struct b {
 };
 
 int main() {
-	//f(); // TODO
-	{
-		elements::one_of<int, float> f;
-	}
-
 	{
 		elements::one_of<int, float> f{ 42.0F };
 		if(!f.is<float>()) throw;
