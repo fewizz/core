@@ -14,7 +14,7 @@ test() {
 	fi
 
 	if ! build/$1; then 
-		echo "not passed"
+		echo "didn't pass"
 		exit 1
 	fi
 }

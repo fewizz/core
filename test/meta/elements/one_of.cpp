@@ -73,4 +73,14 @@ int main() {
 		int_ref.template get<int&>() = 1;
 		if(int_ref.template get<int&>() != 1) throw;
 	}
+
+	{
+		int i = 1;
+		float f = 2.0;
+		elements::one_of<int&, float&> x = i;
+		if(&x.get<int&>() != &i) throw;
+
+		x = f;
+		if(&x.get<float&>() != &f) throw;
+	}
 }

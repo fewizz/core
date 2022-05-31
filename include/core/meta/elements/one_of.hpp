@@ -25,28 +25,50 @@ namespace elements {
 		using next_type = recursive_one_of_elements_storage<TailTypes...>;
 		static constexpr bool there_is_next = sizeof...(TailTypes) > 0;
 
-		Type element;
-		next_type next;
+		Type element_;
+		next_type next_;
 
 		constexpr recursive_one_of_elements_storage() {}
 
 		template<typename... Args>
 		requires type::is_constructible_from<Args...>::template for_type<Type>
+		constexpr void init_raw(nuint index, Args&&... args) {
+			if(index == 0) {
+				new (&element_) Type(forward<Args>(args)...);
+				return;
+			}
+			if constexpr(there_is_next) {
+				new (&next_) next_type();
+				next_.init_raw(index - 1, forward<Args>(args)...);
+			}
+		}
+
+		template<typename... Args>
+		constexpr void init_raw(nuint index, Args&&... args) {
+			if constexpr(there_is_next) {
+				new (&next_) next_type();
+				next_.init_raw(index - 1, forward<Args>(args)...);
+			}
+		}
+
+				template<typename... Args>
+		requires type::is_constructible_from<Args...>::template for_type<Type>
 		constexpr void init(nuint index, Args&&... args) {
 			if(index == 0) {
-				new (&element) Type(forward<Args>(args)...);
+				new (&element_) Type(forward<Args>(args)...);
+				return;
 			}
-			else if constexpr(there_is_next) {
-				new (&next) next_type();
-				next.init(index - 1, forward<Args>(args)...);
+			if constexpr(there_is_next) {
+				new (&next_) next_type();
+				next_.init(index - 1, forward<Args>(args)...);
 			}
 		}
 
 		template<typename... Args>
 		constexpr void init(nuint index, Args&&... args) {
 			if constexpr(there_is_next) {
-				new (&next) next_type();
-				next.init(index - 1, forward<Args>(args)...);
+				new (&next_) next_type();
+				next_.init(index - 1, forward<Args>(args)...);
 			}
 		}
 
@@ -55,52 +77,63 @@ namespace elements {
 		// trivial recursive destructor
 		constexpr void destruct(nuint index) {
 			if(index == 0) {
-				element.~Type();
+				element_.~Type();
+				return;
+			}
+			if constexpr(there_is_next) {
+				next_.destruct(index - 1);
+				next_.~next_type();
+			}
+		}
+
+		template<typename Handler>
+		decltype(auto) view_raw(nuint index, Handler&& handler) const {
+			if(index == 0) {
+				return handler(element_);
+			}
+			if constexpr(there_is_next) {
+				return next_.view_raw(index - 1, forward<Handler>(handler));
+			}
+		}
+
+		template<typename Handler>
+		decltype(auto) view_raw(nuint index, Handler&& handler) {
+			if(index == 0) {
+				return handler(element_);
 			}
 			else if constexpr(there_is_next) {
-				next.destruct(index - 1);
-				next.~next_type();
+				return next_.view_raw(index - 1, forward<Handler>(handler));
 			}
 		}
 
 		template<typename Handler>
 		decltype(auto) view(nuint index, Handler&& handler) const {
-			if(index == 0) {
-				return handler(element);
-			}
-			else if constexpr(there_is_next) {
-				return next.view(index - 1, move(handler));
-			}
+			return view_raw(index, forward<Handler>(handler));
 		}
 
 		template<typename Handler>
 		decltype(auto) view(nuint index, Handler&& handler) {
-			if(index == 0) {
-				return handler(element);
-			}
-			else if constexpr(there_is_next) {
-				return next.view(index - 1, move(handler));
-			}
+			return view_raw(index, forward<Handler>(handler));
 		}
 
 		template<nuint Index> requires (Index == 0)
 		constexpr const auto& at() const {
-			return element;
+			return element_;
+		}
+
+		template<nuint Index> requires (Index == 0)
+		constexpr auto& at() {
+			return element_;
 		}
 	
 		template<nuint Index> requires (Index > 0 && there_is_next)
 		constexpr const auto& at() const {
-			return next.template at<Index - 1>();
-		}
-
-		template<nuint Index> requires (Index == 0)
-		constexpr auto& at() {
-			return element;
+			return next_.template at<Index - 1>();
 		}
 
 		template<nuint Index> requires (Index > 0 && there_is_next)
 		constexpr auto& at() {
-			return next.template at<Index - 1>();
+			return next_.template at<Index - 1>();
 		}
 
 	};
@@ -110,26 +143,46 @@ namespace elements {
 		using next_type = recursive_one_of_elements_storage<TailTypes...>;
 		static constexpr bool there_is_next = sizeof...(TailTypes) > 0;
 
-		Type* element;
-		next_type next;
+		Type* element_;
+		next_type next_;
 
 		constexpr recursive_one_of_elements_storage() {}
 
+		constexpr void init_raw(nuint index, Type* ptr) {
+			if(index == 0) {
+				element_ = ptr;
+				return;
+			}
+			if constexpr(there_is_next) {
+				new (&next_) next_type();
+				next_.init_raw(index - 1, ptr);
+			}
+		}
+
+		template<typename... Args>
+		constexpr void init_raw(nuint index, Args&&... args) {
+			if constexpr(there_is_next) {
+				new (&next_) next_type();
+				next_.init_raw(index - 1, forward<Args>(args)...);
+			}
+		}
+
 		constexpr void init(nuint index, Type& ref) {
 			if(index == 0) {
-				element = &ref;
+				element_ = &ref;
+				return;
 			}
-			else if constexpr(there_is_next) {
-				new (&next) next_type();
-				next.init(index - 1, ref);
+			if constexpr(there_is_next) {
+				new (&next_) next_type();
+				next_.init(index - 1, ref);
 			}
 		}
 
 		template<typename... Args>
 		constexpr void init(nuint index, Args&&... args) {
 			if constexpr(there_is_next) {
-				new (&next) next_type();
-				next.init(index - 1, forward<Args>(args)...);
+				new (&next_) next_type();
+				next_.init(index - 1, forward<Args>(args)...);
 			}
 		}
 
@@ -137,51 +190,57 @@ namespace elements {
 
 		constexpr void destruct(nuint index) {
 			if(index == 0) {
+				return;
 			}
-			else if constexpr(there_is_next) {
-				next.destruct(index - 1);
-				next.~next_type();
+			if constexpr(there_is_next) {
+				next_.destruct(index - 1);
+				next_.~next_type();
+			}
+		}
+
+		template<typename Handler>
+		decltype(auto) view_raw(nuint index, Handler&& handler) const {
+			if(index == 0) {
+				return handler(element_);
+			}
+			if constexpr(there_is_next) {
+				return next_.view_raw(index - 1, forward<Handler>(handler));
+			}
+		}
+
+		template<typename Handler>
+		decltype(auto) view_raw(nuint index, Handler&& handler) {
+			if(index == 0) {
+				return handler(element_);
+			}
+			if constexpr(there_is_next) {
+				return next_.view_raw(index - 1, forward<Handler>(handler));
 			}
 		}
 
 		template<typename Handler>
 		decltype(auto) view(nuint index, Handler&& handler) const {
-			if(index == 0) {
-				return handler(element);
-			}
-			else if constexpr(there_is_next) {
-				return next.view(index - 1, move(handler));
-			}
-		}
-
-		template<typename Handler>
-		decltype(auto) view(nuint index, Handler&& handler) {
-			if(index == 0) {
-				return handler(element);
-			}
-			else if constexpr(there_is_next) {
-				return next.view(index - 1, move(handler));
-			}
+			return *view_raw(index, forward<Handler>(handler));
 		}
 
 		template<nuint Index> requires (Index == 0)
 		constexpr const auto& at() const {
-			return *element;
-		}
-
-		template<nuint Index> requires (Index > 0 && there_is_next)
-		constexpr const auto& at() const {
-			return next.template at<Index - 1>();
+			return *element_;
 		}
 
 		template<nuint Index> requires (Index == 0)
 		constexpr auto& at() {
-			return *element;
+			return *element_;
+		}
+
+		template<nuint Index> requires (Index > 0 && there_is_next)
+		constexpr const auto& at() const {
+			return next_.template at<Index - 1>();
 		}
 
 		template<nuint Index> requires (Index > 0 && there_is_next)
 		constexpr auto& at() {
-			return next.template at<Index - 1>();
+			return next_.template at<Index - 1>();
 		}
 
 	};
@@ -189,11 +248,11 @@ namespace elements {
 	template<typename... Types>
 	class one_of {
 		using storage_type = recursive_one_of_elements_storage<Types...>;
-		storage_type m_storage;
-		nuint m_current;
+		storage_type storage_;
+		nuint current_;
 
 		template<typename Type>
-		static constexpr bool one_such_type =
+		static constexpr bool has_one_such_type =
 			types::are_contain_one_satisfying_predicate<
 				type::is_same_as<Type>
 			>::template for_types<Types...>;
@@ -246,38 +305,38 @@ namespace elements {
 		template<typename... Args>
 		requires has_one_constructible_from<Args...>
 		constexpr one_of(Args&&... args) :
-			m_current { index_of_constructible_from_args<Args...> }
+			current_ { index_of_constructible_from_args<Args...> }
 		{
-			m_storage.init(m_current, forward<Args>(args)...);
+			storage_.init(current_, forward<Args>(args)...);
 		}
 
 		// copy constructor
 		constexpr one_of(const one_of& other) :
-			m_current { other.m_current }
+			current_ { other.current_ }
 		{
 			other.view([&](auto& element) {
-				m_storage.init(m_current, element);
+				storage_.init(current_, element);
 			});
 		}
 
 		// move constructor
 		constexpr one_of(one_of&& other) :
-			m_current { other.m_current }
+			current_ { other.current_ }
 		{
 			other.view([&](auto& element) {
-				m_storage.init(m_current, move(element));
+				storage_.init(current_, move(element));
 			});
 		}
 
 		// move assignment operator
 		constexpr one_of& operator = (one_of&& other) {
-			if(m_current == other.m_current) {
-				view([&]<typename ThisType>(ThisType& this_e) {
-					other.view([&]<typename OtherType>(OtherType& other_e) {
+			if(current_ == other.current_) {
+				view_raw([&](auto& this_e) {
+					other.view_raw([&](auto& other_e) {
 						if constexpr(
 							type::is_assignable<
 								decltype(move(other_e))
-							>::template for_type<ThisType>
+							>::template for_type<decltype(this_e)>
 						) {
 							this_e = move(other_e);
 						}
@@ -285,10 +344,10 @@ namespace elements {
 				});
 			}
 			else {
-				m_storage.destruct(m_current);
-				m_current = other.m_current;
-				other.view([&](auto& element) {
-					m_storage.init(m_current, move(element));
+				storage_.destruct(current_);
+				current_ = other.current_;
+				other.view_raw([&](auto& element) {
+					storage_.init_raw(current_, move(element));
 				});
 			}
 			return *this;
@@ -296,24 +355,24 @@ namespace elements {
 
 		// copy assignment operator
 		constexpr one_of& operator = (const one_of& other) {
-			if(m_current == other.m_current) {
-				view([&]<typename ThisType>(ThisType& this_e) {
-					other.view([&]<typename OtherType>(OtherType& other_e) {
+			if(current_ == other.current_) {
+				view([&](auto& this_e) {
+					other.view([&](auto& other_e) {
 						if constexpr(
 							type::is_assignable<
 								decltype(other_e)
-							>::template for_type<ThisType>
+							>::template for_type<decltype(this_e)>
 						) {
-							this_e = move(other_e);
+							this_e = other_e;
 						}
 					});
 				});
 			}
 			else {
-				m_storage.destruct(m_current);
-				m_current = other.m_current;
-				other.view([&](auto& element) {
-					m_storage.init(m_current, move(element));
+				storage_.destruct(current_);
+				current_ = other.current_;
+				other.view_raw([&](auto& element) {
+					storage_.init_raw(current_, element);
 				});
 			}
 			return *this;
@@ -324,60 +383,70 @@ namespace elements {
 		requires has_one_copyable_and_constructible_from<TypeToAssign>
 		constexpr one_of& operator = (TypeToAssign&& value) {
 			nuint index = index_of_copyable_and_constructible_from_<TypeToAssign>;
-			if(index == m_current) {
-				view([&]<typename CurrentType>(CurrentType& element) {
+			if(index == current_) {
+				view_raw([&](auto& element) {
 					if constexpr(
 						type::is_assignable<
-							TypeToAssign
-						>::template for_type<CurrentType>
+							decltype(value)
+						>::template for_type<decltype(element)>
 					) {
 						element = value;
 					}
 				});
 			}
 			else {
-				m_storage.destruct(m_current);
-				m_current = index;
-				m_storage.init(index, forward<TypeToAssign>(value));
+				storage_.destruct(current_);
+				current_ = index;
+				storage_.init(index, forward<TypeToAssign>(value));
 			}
 			return *this;
 		}
 
-		constexpr ~one_of() { m_storage.destruct(m_current); }
+		constexpr ~one_of() { storage_.destruct(current_); }
 
 		template<typename Handler>
 		decltype(auto) view(Handler&& handler) const {
-			return m_storage.view(m_current, move(handler));
+			return storage_.view(current_, move(handler));
 		}
 
 		template<typename Handler>
 		decltype(auto) view(Handler&& handler) {
-			return m_storage.view(m_current, move(handler));
+			return storage_.view(current_, move(handler));
+		}
+
+		template<typename Handler>
+		decltype(auto) view_raw(Handler&& handler) const {
+			return storage_.view_raw(current_, move(handler));
+		}
+
+		template<typename Handler>
+		decltype(auto) view_raw(Handler&& handler) {
+			return storage_.view_raw(current_, move(handler));
 		}
 
 		template<typename Type>
 		constexpr bool is() const {
-			return m_current == type_index<Type>;
+			return current_ == type_index<Type>;
 		}
 
 		template<nuint Index>
 		constexpr type_at<Index>& at() {
-			return m_storage.template at<Index>();
+			return storage_.template at<Index>();
 		}
 
 		template<nuint Index>
 		constexpr const type_at<Index>& at() const {
-			return m_storage.template at<Index>();
+			return storage_.template at<Index>();
 		}
 
 		template<typename Type>
-		requires one_such_type<Type>
+		requires has_one_such_type<Type>
 		constexpr const Type& get() const {
 			return at<type_index<Type>>();
 		}
 
 		template<typename Type>
-		requires one_such_type<Type>
+		requires has_one_such_type<Type>
 		constexpr Type& get() {
 			return at<type_index<Type>>();
 		}

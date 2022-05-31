@@ -22,9 +22,14 @@ public:
 
 	constexpr decltype(auto) operator * () {
 		return (base_type::operator * ())
-			.pass([&]<typename... Types>(Types&&... elements) {
-				return function_(forward<Types>(elements)...);
-			});
+			.pass(
+				[&]
+				<typename... Types>
+				(Types&&... elements)
+				-> decltype(auto) {
+					return function_(forward<Types>(elements)...);
+				}
+			);
 	}
 
 	constexpr auto& operator ++ () {
