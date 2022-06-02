@@ -23,6 +23,11 @@ public:
 		values_{ values }, size_{ size }
 	{}
 
+	template<nuint Size>
+	constexpr span(value_type (&array)[Size]) :
+		values_{ array }, size_{ Size }
+	{}
+
 	constexpr size_type size() const {
 		return size_;
 	}

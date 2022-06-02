@@ -19,6 +19,8 @@ namespace indices {
 	
 		template<nuint ToIndex>
 		struct to_index {
+			static_assert(ToIndex >= FromIndex);
+
 			static constexpr nuint size = ToIndex - FromIndex;
 
 			template<nuint... ResultingIndices>
