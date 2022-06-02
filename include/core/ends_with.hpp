@@ -19,7 +19,7 @@ struct ends {
 
 		return equals(
 			to_range(
-				range_.begin() + (range_.size() - other.size()), range_.end()
+				range_.begin() + (size - other_size), range_.end()
 			),
 			other
 		);

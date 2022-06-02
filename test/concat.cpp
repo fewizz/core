@@ -1,7 +1,14 @@
 #include <core/concat.hpp>
 #include <core/array.hpp>
+#include <core/c_string.hpp>
 
 consteval bool f_i() {
+	{
+		concat_view v {
+			c_string{ "" }, array{ -1, -10, -10000 }
+		};
+	}
+
 	concat_view v {
 		array{ 0, 1, 2, 3 }, array{ -1, -10, -10000 }
 	};

@@ -21,7 +21,9 @@ struct null_terminated_string {
 	constexpr const value_type* data() const { return m_ptr; }
 	constexpr default_sentinel end() const { return {}; }
 
-	const Type& operator [] (nuint index) const { return m_ptr[index]; }
+	constexpr const Type& operator [] (nuint index) const {
+		return m_ptr[index];
+	}
 
 	constexpr nuint size() const {
 		nuint result = 0;

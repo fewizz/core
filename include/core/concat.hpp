@@ -81,6 +81,33 @@ public:
 		return *this;
 	}
 
+	constexpr auto operator ++ (int) {
+		concat_view_iterator cpy{ *this };
+		++*this;
+		return cpy;
+	}
+
+	constexpr auto& operator += (nuint n) {
+		while(n > 0) {
+			inc();
+			--n;
+		}
+		return *this;
+	}
+
+	constexpr auto operator + (nuint n) const {
+		concat_view_iterator cpy{ *this };
+		return cpy += n;
+	}
+
+	constexpr auto operator - (concat_view_iterator other) const {
+		return index_ - other.index_;
+	}
+
+	constexpr bool operator == (concat_view_iterator other) const {
+		return index_ == other.index_;
+	}
+
 };
 
 template<typename... Pairs>
@@ -109,7 +136,7 @@ class concat_view {
 	elements::of<Ranges...> ranges_;
 public:
 
-	constexpr concat_view(Ranges... ranges) :
+	constexpr concat_view(Ranges&&... ranges) :
 		ranges_{ forward<Ranges>(ranges)... }
 	{}
 
