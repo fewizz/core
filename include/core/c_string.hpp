@@ -6,6 +6,7 @@
 #include "meta/type/remove_pointer.hpp"
 #include "meta/type/remove_const.hpp"
 #include "meta/type/is_pointer.hpp"
+#include "meta/type/is_const.hpp"
 
 struct c_string_sentinel{};
 
@@ -94,7 +95,7 @@ c_string(Type(&)[Size]) -> c_string<
 >;
 
 template<typename Type>
-requires(is_pointer<Type>)
+requires is_pointer<Type> && is_const<remove_pointer<Type>>
 c_string(Type) -> c_string<
 	c_string_type::unknown_size,
 	remove_const<remove_pointer<Type>>

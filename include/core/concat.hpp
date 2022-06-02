@@ -12,7 +12,6 @@
 template<typename... Pairs>
 class concat_view_iterator {
 	elements::of<Pairs...> pairs_;
-public:
 	nuint index_ = 0;
 
 	using element_type = types::common::for_types<
