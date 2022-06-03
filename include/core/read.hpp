@@ -7,7 +7,7 @@
 template<
 	trivial Type, endianness Endianness = endianness::native, typename Iterator
 >
-Type read(Iterator&& iterator) {
+constexpr Type read(Iterator&& iterator) {
 	alignas(Type) uint8 storage[sizeof(Type)];
 
 	for(nuint byte_index = 0; byte_index < sizeof(Type); ++byte_index) {
@@ -20,6 +20,6 @@ Type read(Iterator&& iterator) {
 		storage[index] = b;
 	}
 
-	Type value = *((Type*) storage);
+	Type value = __builtin_bit_cast(Type, storage);//*((Type*) storage);
 	return value;
 }

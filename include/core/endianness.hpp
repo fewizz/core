@@ -1,3 +1,5 @@
+#pragma once
+
 enum class endianness {
 	little, big,
 	#if __LITTLE_ENDIAN__
