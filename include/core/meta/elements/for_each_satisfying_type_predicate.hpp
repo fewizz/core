@@ -16,7 +16,9 @@ namespace elements {
 			void operator () (F&& f) {
 				elements.for_each(
 					forward<F>(f),
-					typename types::indices_of_satisfying_predicate<Predicate>::template for_types<Types...>{}
+					typename types::indices_of_satisfying_predicate<
+						Predicate
+					>::template for_types<Types...>{}
 				);
 			}
 		};
@@ -31,5 +33,7 @@ namespace elements {
 	};
 
 	template<type::predicate Predicate>
-	inline constexpr auto for_each_satisfying_type_predicate = elements::for_each_satisfying_type_predicate_t<Predicate>{};
+	inline constexpr auto for_each_satisfying_type_predicate {
+		elements::for_each_satisfying_type_predicate_t<Predicate>{}
+	};
 }

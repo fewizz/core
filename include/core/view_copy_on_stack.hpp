@@ -20,7 +20,7 @@ struct view_copy_on_stack {
 		nuint size = distance(range);
 
 		return view_on_stack<value_type>(size)(
-			[&](auto s) {
+			[&](auto s) -> decltype(auto) {
 				nuint index = 0;
 				for(decltype(auto) v : range) {
 					s[index++] = v;

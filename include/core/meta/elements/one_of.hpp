@@ -51,7 +51,7 @@ namespace elements {
 			}
 		}
 
-				template<typename... Args>
+		template<typename... Args>
 		requires type::is_constructible_from<Args...>::template for_type<Type>
 		constexpr void init(nuint index, Args&&... args) {
 			if(index == 0) {

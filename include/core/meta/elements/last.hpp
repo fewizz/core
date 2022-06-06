@@ -9,7 +9,9 @@ namespace elements {
 		template<typename... Types>
 		requires(sizeof...(Types) > 0)
 		decltype(auto) operator () (Types&&... elements) const {
-			return elements::at_index<sizeof...(Types) - 1>(forward<Types>(elements)...);
+			return elements::at_index<sizeof...(Types) - 1>(
+				forward<Types>(elements)...
+			);
 		}
 
 	};

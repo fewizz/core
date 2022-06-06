@@ -10,7 +10,8 @@ namespace elements {
 	struct at_index_t {
 
 		template<typename... Types>
-		constexpr decltype(auto) operator () (Types&&... elements) const {
+		constexpr decltype(auto)
+		operator () (Types&&... elements) const {
 			return elements::of {
 				forward<Types>(elements)...
 			}.template at<Index>();
@@ -21,7 +22,8 @@ namespace elements {
 	struct at_index_t<0> {
 
 		template<typename Type0, typename... Types>
-		constexpr decltype(auto) operator () (Type0&& element, Types&&...) const {
+		constexpr decltype(auto)
+		operator () (Type0&& element, Types&&...) const {
 			return forward<Type0>(element);
 		}
 
