@@ -315,7 +315,7 @@ namespace elements {
 			current_ { other.current_ }
 		{
 			other.view([&](auto& element) {
-				storage_.init(current_, element);
+				storage_.init(other.current_, element);
 			});
 		}
 
