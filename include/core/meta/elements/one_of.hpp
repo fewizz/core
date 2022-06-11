@@ -17,6 +17,8 @@
 
 namespace elements {
 
+	struct none{};
+
 	template<typename... Types>
 	union recursive_one_of_elements_storage {};
 
