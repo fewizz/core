@@ -39,6 +39,42 @@ namespace elements {
 
 	};
 
+	template<typename Type>
+	class optional<Type&> {
+		Type* ptr_;
+	public:
+
+		optional(elements::none = {}) : ptr_{ nullptr } {}
+
+		optional(Type& element) : ptr_{ &element } {}
+
+		bool has_value() const {
+			return ptr_ != nullptr;
+		}
+
+		explicit operator bool () const {
+			return has_value();
+		}
+
+		decltype(auto) value() const {
+			return *ptr_;
+		}
+
+		decltype(auto) value() {
+			return *ptr_;
+		}
+
+		const remove_reference<Type>* operator -> () const {
+			return ptr_;
+		}
+
+		remove_reference<Type>* operator -> () {
+			return ptr_;
+		}
+
+	};
+
 } // elements
 
-using elements::optional;
+template<typename Type>
+using optional = elements::optional<Type>;
