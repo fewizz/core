@@ -9,7 +9,8 @@ template<
 	trivial Type, endianness Endianness = endianness::native, typename Iterator
 >
 void write(Type value, Iterator&& iterator) {
-	for(uint8 byte : span{ (uint8*)&value, sizeof(Type) }) {
-		*iterator++ = byte;
+	for(nuint i = 0; i < sizeof(Type); ++i) {
+		nuint i0 = Endianness != endianness::native ? sizeof(Type) - i - 1 : i;
+		*iterator++ = ((uint8*) &value)[i0];
 	}
 }
