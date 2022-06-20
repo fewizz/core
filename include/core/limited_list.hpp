@@ -5,12 +5,15 @@
 #include "placement_new.hpp"
 #include "forward.hpp"
 #include "meta/type/is_reference.hpp"
+#include "meta/type/remove_pointer.hpp"
+#include "meta/type/remove_const.hpp"
 
 template<typename ValueType, typename SizeType, typename Allocator>
-class limited_list {
+struct limited_list {
 	using value_type = ValueType;
 	using size_type = SizeType;
 
+protected:
 	ValueType* ptr_ = nullptr;
 	SizeType size_ = 0;
 	SizeType capacity_ = 0;
@@ -41,7 +44,16 @@ public:
 		allocator_{ move(other.allocator_) }
 	{}
 
+	constexpr limited_list(const limited_list&) = delete;
+
 	constexpr limited_list& operator = (limited_list&& other) {
+		while(size_ > 0) {
+			data()[--size_].~value_type();
+		}
+		allocator_.deallocate((uint8*) ptr_, capacity_);
+		ptr_ = nullptr;
+		capacity_ = 0;
+
 		ptr_ = exchange(other.ptr_, nullptr);
 		size_ = exchange(other.size_, 0);
 		capacity_ = exchange(other.capacity_, 0);
@@ -49,11 +61,19 @@ public:
 		return *this;
 	}
 
+	constexpr limited_list& operator = (const limited_list&) = delete;
+
 	constexpr ~limited_list() {
-		for(size_type i = size(); i > 0;) {
-			data()[--i].~value_type();
+		while(size_ > 0) {
+			data()[--size_].~value_type();
 		}
 		allocator_.deallocate((uint8*) ptr_, capacity_);
+		ptr_ = nullptr;
+		capacity_ = 0;
+	}
+
+	constexpr size_type index_of(const ValueType& v) const {
+		return &v - begin();
 	}
 
 	constexpr size_type size() const { return size_; }
@@ -66,7 +86,7 @@ public:
 	constexpr const value_type* begin() const { return data(); }
 
 	constexpr value_type* end() { return begin() + size(); }
-	const value_type* end() const {return begin() + size(); }
+	constexpr const value_type* end() const { return begin() + size(); }
 
 	auto& operator [] (size_type index) { return begin()[index]; }
 	const auto& operator [] (size_type index) const { return begin()[index]; }
@@ -83,14 +103,18 @@ public:
 
 template<typename ValueType>
 class reference_limited_list_iterator {
-	ValueType** ptr_;
+	ValueType* ptr_;
 public:
 
-	reference_limited_list_iterator(ValueType** ptr) :
+	reference_limited_list_iterator(ValueType* ptr) :
 		ptr_{ ptr }
 	{}
 
-	ValueType& operator * () {
+	remove_pointer<remove_const<ValueType>>& operator * () {
+		return **ptr_;
+	}
+
+	const remove_pointer<remove_const<ValueType>>& operator * () const {
 		return **ptr_;
 	}
 
@@ -122,14 +146,40 @@ class limited_list<ValueType&, SizeType, Allocator> :
 	>;
 	using value_type = remove_reference<ValueType>;
 	using size_type = SizeType;
-	using iterator_type = reference_limited_list_iterator<value_type>;
+	using iterator_type = reference_limited_list_iterator<value_type*>;
 	using const_iterator_type =
-		reference_limited_list_iterator<const value_type>;
+		reference_limited_list_iterator<value_type* const>;
 public:
 
 	using base_type::base_type;
+
 	using base_type::size;
 	using base_type::capacity;
+
+	constexpr size_type index_of(const value_type& v) const {
+		size_type index{};
+		for(value_type* const ref : (const base_type&) *this) {
+			if(ref == &v) {
+				return index;
+			}
+			++index;
+		}
+		__builtin_unreachable();
+	}
+
+	constexpr size_type index_of(const value_type& v) {
+		size_type index{};
+		for(value_type* ref : (base_type&) *this) {
+			if(ref == &v) {
+				return index;
+			}
+			++index;
+		}
+		__builtin_unreachable();
+	}
+
+	//constexpr value_type** data() { return base_type::ptr_; }
+	//constexpr const value_type** data() const { return base_type::ptr_; }
 
 	constexpr iterator_type begin() {
 		return { base_type::data() };

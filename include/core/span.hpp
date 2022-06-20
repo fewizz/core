@@ -5,10 +5,11 @@
 #include "meta/type/remove_reference.hpp"
 
 template<typename ValueType, unsigned_integer SizeType = nuint>
-class span {
+struct span {
 	using value_type = ValueType;
 	using size_type = SizeType;
 
+protected:
 	value_type* values_;
 	size_type size_;
 public:

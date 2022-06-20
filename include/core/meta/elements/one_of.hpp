@@ -96,6 +96,7 @@ namespace elements {
 			if constexpr(there_is_next) {
 				return next_.view_raw(index - 1, forward<Handler>(handler));
 			}
+			__builtin_unreachable();
 		}
 
 		template<typename Handler>
@@ -106,6 +107,7 @@ namespace elements {
 			else if constexpr(there_is_next) {
 				return next_.view_raw(index - 1, forward<Handler>(handler));
 			}
+			__builtin_unreachable();
 		}
 
 		template<typename Handler>
@@ -208,6 +210,7 @@ namespace elements {
 			if constexpr(there_is_next) {
 				return next_.view_raw(index - 1, forward<Handler>(handler));
 			}
+			__builtin_unreachable();
 		}
 
 		template<typename Handler>
@@ -218,6 +221,7 @@ namespace elements {
 			if constexpr(there_is_next) {
 				return next_.view_raw(index - 1, forward<Handler>(handler));
 			}
+			__builtin_unreachable();
 		}
 
 		template<typename Handler>
@@ -305,7 +309,9 @@ namespace elements {
 
 		// constructor
 		template<typename... Args>
-		requires has_one_constructible_from<Args...>
+		requires (types::count_of_satisfying_predicate<
+				type::is_constructible_from<Args...>
+			>::template for_types<Types...> == 1)
 		constexpr one_of(Args&&... args) :
 			current_ { index_of_constructible_from_args<Args...> }
 		{
