@@ -42,7 +42,9 @@ namespace elements {
 			if constexpr(there_is_next) {
 				new (&next_) next_type();
 				next_.init_raw(index - 1, forward<Args>(args)...);
+				return;
 			}
+			__builtin_unreachable();
 		}
 
 		template<typename... Args>
@@ -50,7 +52,9 @@ namespace elements {
 			if constexpr(there_is_next) {
 				new (&next_) next_type();
 				next_.init_raw(index - 1, forward<Args>(args)...);
+				return;
 			}
+			__builtin_unreachable();
 		}
 
 		template<typename... Args>
@@ -63,7 +67,9 @@ namespace elements {
 			if constexpr(there_is_next) {
 				new (&next_) next_type();
 				next_.init(index - 1, forward<Args>(args)...);
+				return;
 			}
+			__builtin_unreachable();
 		}
 
 		template<typename... Args>
@@ -71,7 +77,9 @@ namespace elements {
 			if constexpr(there_is_next) {
 				new (&next_) next_type();
 				next_.init(index - 1, forward<Args>(args)...);
+				return;
 			}
+			__builtin_unreachable();
 		}
 
 		constexpr ~recursive_one_of_elements_storage() {}
@@ -85,7 +93,9 @@ namespace elements {
 			if constexpr(there_is_next) {
 				next_.destruct(index - 1);
 				next_.~next_type();
+				return;
 			}
+			__builtin_unreachable();
 		}
 
 		template<typename Handler>
@@ -160,7 +170,9 @@ namespace elements {
 			if constexpr(there_is_next) {
 				new (&next_) next_type();
 				next_.init_raw(index - 1, ptr);
+				return;
 			}
+			__builtin_unreachable();
 		}
 
 		template<typename... Args>
@@ -168,7 +180,9 @@ namespace elements {
 			if constexpr(there_is_next) {
 				new (&next_) next_type();
 				next_.init_raw(index - 1, forward<Args>(args)...);
+				return;
 			}
+			__builtin_unreachable();
 		}
 
 		constexpr void init(nuint index, Type& ref) {
@@ -179,7 +193,9 @@ namespace elements {
 			if constexpr(there_is_next) {
 				new (&next_) next_type();
 				next_.init(index - 1, ref);
+				return;
 			}
+			__builtin_unreachable();
 		}
 
 		template<typename... Args>
@@ -187,7 +203,9 @@ namespace elements {
 			if constexpr(there_is_next) {
 				new (&next_) next_type();
 				next_.init(index - 1, forward<Args>(args)...);
+				return;
 			}
+			__builtin_unreachable();
 		}
 
 		constexpr ~recursive_one_of_elements_storage() {}
@@ -199,7 +217,9 @@ namespace elements {
 			if constexpr(there_is_next) {
 				next_.destruct(index - 1);
 				next_.~next_type();
+				return;
 			}
+			__builtin_unreachable();
 		}
 
 		template<typename Handler>

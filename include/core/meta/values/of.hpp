@@ -30,7 +30,10 @@ namespace indices {
 			requires(size != sizeof...(ResultingIndices))
 			struct resulting_indices<ResultingIndices...>
 				: type::of<
-					typename resulting_indices<ResultingIndices..., FromIndex + sizeof...(ResultingIndices)>::type
+					typename resulting_indices<
+						ResultingIndices...,
+						FromIndex + sizeof...(ResultingIndices)
+					>::type
 				>{};
 
 			template<nuint... ResultingIndices>
@@ -56,6 +59,24 @@ namespace indices {
 		using to = typename to_index<ToIndex>::template resulting_indices<>::type;
 
 	}; // from
+
+	template<>
+	struct from<0> {
+
+		template<typename Type, Type... Values>
+		struct __integer_sequence {
+			using values = values::of<Values...>;
+		};
+
+		template<nuint ToIndex>
+		using to =
+			typename __make_integer_seq<
+				__integer_sequence,
+				nuint,
+				ToIndex
+			>::values;
+
+	};
 
 }
 

@@ -64,6 +64,14 @@ namespace elements {
 			return *ptr_;
 		}
 
+		const remove_reference<Type>* ptr() const {
+			return ptr_;
+		}
+
+		remove_reference<Type>* ptr() {
+			return ptr_;
+		}
+
 		const remove_reference<Type>* operator -> () const {
 			return ptr_;
 		}
