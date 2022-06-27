@@ -13,7 +13,9 @@ test() {
 		exit 1
 	fi
 
-	if ! build/$1; then 
+	if build/$1; then
+		echo "success"
+	else
 		echo "didn't pass"
 		exit 1
 	fi

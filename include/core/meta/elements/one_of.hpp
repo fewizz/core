@@ -17,18 +17,17 @@
 
 namespace elements {
 
-	struct none{};
-
 	template<typename... Types>
 	union recursive_one_of_elements_storage {};
 
 	template<typename Type, typename... TailTypes>
 	union recursive_one_of_elements_storage<Type, TailTypes...> {
 		using next_type = recursive_one_of_elements_storage<TailTypes...>;
-		static constexpr bool there_is_next = sizeof...(TailTypes) > 0;
 
 		Type element_;
 		next_type next_;
+
+		static constexpr bool has_next = sizeof...(TailTypes) > 0;
 
 		constexpr recursive_one_of_elements_storage() {}
 
@@ -39,7 +38,7 @@ namespace elements {
 				new (&element_) Type(forward<Args>(args)...);
 				return;
 			}
-			if constexpr(there_is_next) {
+			if constexpr(has_next) {
 				new (&next_) next_type();
 				next_.init_raw(index - 1, forward<Args>(args)...);
 				return;
@@ -49,7 +48,7 @@ namespace elements {
 
 		template<typename... Args>
 		constexpr void init_raw(nuint index, Args&&... args) {
-			if constexpr(there_is_next) {
+			if constexpr(has_next) {
 				new (&next_) next_type();
 				next_.init_raw(index - 1, forward<Args>(args)...);
 				return;
@@ -64,7 +63,7 @@ namespace elements {
 				new (&element_) Type(forward<Args>(args)...);
 				return;
 			}
-			if constexpr(there_is_next) {
+			if constexpr(has_next) {
 				new (&next_) next_type();
 				next_.init(index - 1, forward<Args>(args)...);
 				return;
@@ -74,7 +73,7 @@ namespace elements {
 
 		template<typename... Args>
 		constexpr void init(nuint index, Args&&... args) {
-			if constexpr(there_is_next) {
+			if constexpr(has_next) {
 				new (&next_) next_type();
 				next_.init(index - 1, forward<Args>(args)...);
 				return;
@@ -90,7 +89,7 @@ namespace elements {
 				element_.~Type();
 				return;
 			}
-			if constexpr(there_is_next) {
+			if constexpr(has_next) {
 				next_.destruct(index - 1);
 				next_.~next_type();
 				return;
@@ -103,7 +102,7 @@ namespace elements {
 			if(index == 0) {
 				return handler(element_);
 			}
-			if constexpr(there_is_next) {
+			if constexpr(has_next) {
 				return next_.view_raw(index - 1, forward<Handler>(handler));
 			}
 			__builtin_unreachable();
@@ -114,7 +113,7 @@ namespace elements {
 			if(index == 0) {
 				return handler(element_);
 			}
-			else if constexpr(there_is_next) {
+			else if constexpr(has_next) {
 				return next_.view_raw(index - 1, forward<Handler>(handler));
 			}
 			__builtin_unreachable();
@@ -140,12 +139,12 @@ namespace elements {
 			return element_;
 		}
 	
-		template<nuint Index> requires (Index > 0 && there_is_next)
+		template<nuint Index> requires (Index > 0 && has_next)
 		constexpr const auto& at() const {
 			return next_.template at<Index - 1>();
 		}
 
-		template<nuint Index> requires (Index > 0 && there_is_next)
+		template<nuint Index> requires (Index > 0 && has_next)
 		constexpr auto& at() {
 			return next_.template at<Index - 1>();
 		}
@@ -155,10 +154,11 @@ namespace elements {
 	template<typename Type, typename... TailTypes>
 	union recursive_one_of_elements_storage<Type&, TailTypes...> {
 		using next_type = recursive_one_of_elements_storage<TailTypes...>;
-		static constexpr bool there_is_next = sizeof...(TailTypes) > 0;
 
 		Type* element_;
 		next_type next_;
+
+		static constexpr bool has_next = sizeof...(TailTypes) > 0;
 
 		constexpr recursive_one_of_elements_storage() {}
 
@@ -167,7 +167,7 @@ namespace elements {
 				element_ = ptr;
 				return;
 			}
-			if constexpr(there_is_next) {
+			if constexpr(has_next) {
 				new (&next_) next_type();
 				next_.init_raw(index - 1, ptr);
 				return;
@@ -177,7 +177,7 @@ namespace elements {
 
 		template<typename... Args>
 		constexpr void init_raw(nuint index, Args&&... args) {
-			if constexpr(there_is_next) {
+			if constexpr(has_next) {
 				new (&next_) next_type();
 				next_.init_raw(index - 1, forward<Args>(args)...);
 				return;
@@ -190,7 +190,7 @@ namespace elements {
 				element_ = &ref;
 				return;
 			}
-			if constexpr(there_is_next) {
+			if constexpr(has_next) {
 				new (&next_) next_type();
 				next_.init(index - 1, ref);
 				return;
@@ -200,7 +200,7 @@ namespace elements {
 
 		template<typename... Args>
 		constexpr void init(nuint index, Args&&... args) {
-			if constexpr(there_is_next) {
+			if constexpr(has_next) {
 				new (&next_) next_type();
 				next_.init(index - 1, forward<Args>(args)...);
 				return;
@@ -214,7 +214,7 @@ namespace elements {
 			if(index == 0) {
 				return;
 			}
-			if constexpr(there_is_next) {
+			if constexpr(has_next) {
 				next_.destruct(index - 1);
 				next_.~next_type();
 				return;
@@ -227,7 +227,7 @@ namespace elements {
 			if(index == 0) {
 				return handler(element_);
 			}
-			if constexpr(there_is_next) {
+			if constexpr(has_next) {
 				return next_.view_raw(index - 1, forward<Handler>(handler));
 			}
 			__builtin_unreachable();
@@ -238,7 +238,7 @@ namespace elements {
 			if(index == 0) {
 				return handler(element_);
 			}
-			if constexpr(there_is_next) {
+			if constexpr(has_next) {
 				return next_.view_raw(index - 1, forward<Handler>(handler));
 			}
 			__builtin_unreachable();
@@ -259,12 +259,12 @@ namespace elements {
 			return *element_;
 		}
 
-		template<nuint Index> requires (Index > 0 && there_is_next)
+		template<nuint Index> requires (Index > 0 && has_next)
 		constexpr const auto& at() const {
 			return next_.template at<Index - 1>();
 		}
 
-		template<nuint Index> requires (Index > 0 && there_is_next)
+		template<nuint Index> requires (Index > 0 && has_next)
 		constexpr auto& at() {
 			return next_.template at<Index - 1>();
 		}
@@ -275,7 +275,7 @@ namespace elements {
 	class one_of {
 		using storage_type = recursive_one_of_elements_storage<Types...>;
 		storage_type storage_;
-		nuint current_;
+		nuint current_{};
 
 		template<typename Type>
 		static constexpr bool has_one_such_type =
@@ -329,9 +329,7 @@ namespace elements {
 
 		// constructor
 		template<typename... Args>
-		requires (types::count_of_satisfying_predicate<
-				type::is_constructible_from<Args...>
-			>::template for_types<Types...> == 1)
+		requires has_one_constructible_from<Args...>
 		constexpr one_of(Args&&... args) :
 			current_ { index_of_constructible_from_args<Args...> }
 		{
@@ -410,7 +408,8 @@ namespace elements {
 		template<typename TypeToAssign>
 		requires has_one_copyable_and_constructible_from<TypeToAssign>
 		constexpr one_of& operator = (TypeToAssign&& value) {
-			nuint index = index_of_copyable_and_constructible_from_<TypeToAssign>;
+			nuint index =
+				index_of_copyable_and_constructible_from_<TypeToAssign>;
 			if(index == current_) {
 				view_raw([&](auto& element) {
 					if constexpr(
@@ -430,7 +429,9 @@ namespace elements {
 			return *this;
 		}
 
-		constexpr ~one_of() { storage_.destruct(current_); }
+		constexpr ~one_of() {
+			storage_.destruct(current_);
+		}
 
 		template<typename Handler>
 		decltype(auto) view(Handler&& handler) const {

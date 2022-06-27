@@ -83,4 +83,18 @@ int main() {
 		x = f;
 		if(&x.get<float&>() != &f) throw;
 	}
+
+	{
+		static bool destructor_called = false;
+		struct a {
+			~a() {
+				destructor_called = true;
+			}
+		};
+
+		elements::one_of<int, float, a, bool> x = a{};
+		x = 0.0F;
+		if(!x.is<float>()) throw;
+		if(!destructor_called) throw;
+	}
 }
