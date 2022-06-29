@@ -46,6 +46,7 @@ public:
 	c_string<c_string_type::known_size, Type> sized() const {
 		return { ptr_, distance(begin(), end()) };
 	}
+
 };
 
 template<typename Type>
