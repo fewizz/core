@@ -65,7 +65,7 @@ public:
 
 	constexpr ~limited_list() {
 		while(size_ > 0) {
-			data()[--size_].~value_type();
+			pop_back();
 		}
 		allocator_.deallocate((uint8*) ptr_, capacity_);
 		ptr_ = nullptr;
@@ -99,6 +99,11 @@ public:
 
 	const auto& back() const { return begin()[size() - 1]; }
 	auto& back() { return begin()[size() - 1]; }
+
+	void pop_back() {
+		data()[--size_].~value_type();
+	}
+
 };
 
 template<typename ValueType>
@@ -155,6 +160,7 @@ public:
 
 	using base_type::size;
 	using base_type::capacity;
+	using base_type::pop_back;
 
 	constexpr size_type index_of(const value_type& v) const {
 		size_type index{};

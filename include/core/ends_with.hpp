@@ -6,9 +6,9 @@
 
 template<range Range>
 struct ends {
-	Range&& range_;
+	Range range_;
 
-	constexpr ends(Range&& range) : range_{ range } {}
+	constexpr ends(Range&& range) : range_{ forward<Range>(range) } {}
 
 	template<range OtherRange>
 	constexpr bool with(OtherRange&& other) const {
