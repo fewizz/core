@@ -19,7 +19,7 @@ class concat_view_iterator {
 	>;
 
 	template<nuint Index>
-	static constexpr bool there_is_next = Index + 1 < sizeof...(Pairs);
+	static constexpr bool has_next = Index + 1 < sizeof...(Pairs);
 
 	template<nuint FromIndex = 0, typename Handler>
 	constexpr decltype(auto) current_pair_with_index(Handler&& handler) const {
@@ -28,7 +28,7 @@ class concat_view_iterator {
 				pairs_.template at<FromIndex>()
 			);
 		}
-		if constexpr(there_is_next<FromIndex>) {
+		if constexpr(has_next<FromIndex>) {
 			return current_pair_with_index<FromIndex + 1>(
 				forward<Handler>(handler)
 			);
@@ -44,7 +44,7 @@ class concat_view_iterator {
 				pairs_.template at<FromIndex>()
 			);
 		}
-		if constexpr(there_is_next<FromIndex>) {
+		if constexpr(has_next<FromIndex>) {
 			return current_pair_with_index<FromIndex + 1>(
 				forward<Handler>(handler)
 			);
@@ -78,7 +78,7 @@ class concat_view_iterator {
 	template<nuint FromIndex, typename Handler>
 	constexpr void skip_empty(Handler&& handler) {
 		current_pair_with_index<FromIndex>([&]<nuint Index>(auto& pair) {
-			if constexpr(there_is_next<Index>) {
+			if constexpr(has_next<Index>) {
 				if(it(pair) == end(pair)) {
 					++index_;
 					skip_empty<Index + 1>(forward<Handler>(handler));
@@ -122,10 +122,10 @@ class concat_view_iterator {
 				return;
 			}
 			it(pair) += len;
-			skip_empty<Index>([&]<nuint Index0>() {
-				if(n > len) {
-					if constexpr(there_is_next<Index0 - 1>) {
-						n -= len;
+			n -= len;
+			skip_empty<Index>([=]<nuint Index0>() {
+				if constexpr (Index0 > Index) {
+					if(n > 0) {
 						inc<Index0>(n);
 					}
 				}

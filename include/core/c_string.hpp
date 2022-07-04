@@ -33,7 +33,7 @@ private:
 	value_type* ptr_;
 public:
 
-	c_string(const Type* ptr) : ptr_{ ptr } {}
+	constexpr c_string(const Type* ptr) : ptr_{ ptr } {}
 
 	constexpr value_type* begin() const { return ptr_; }
 	constexpr value_type* data() const { return ptr_; }
@@ -43,7 +43,7 @@ public:
 		return ptr_[index];
 	}
 
-	c_string<c_string_type::known_size, Type> sized() const {
+	constexpr c_string<c_string_type::known_size, Type> sized() const {
 		return { ptr_, distance(begin(), end()) };
 	}
 
@@ -58,19 +58,19 @@ private:
 	nuint size_;
 public:
 
-	c_string() = default;
+	constexpr c_string() = default;
 
 	template<nuint Size>
-	c_string(value_type (&array)[Size]) :
+	constexpr c_string(value_type (&array)[Size]) :
 		ptr_{ array }, size_{ Size - 1 }
 	{}
 
-	c_string(value_type* ptr, nuint size) :
+	constexpr c_string(value_type* ptr, nuint size) :
 		ptr_{ ptr }, size_{ size }
 	{}
 
 	template<nuint Size>
-	c_string& operator = (value_type (&array)[Size]) {
+	constexpr c_string& operator = (value_type (&array)[Size]) {
 		ptr_ = array;
 		size_ = Size - 1;
 		return *this;
