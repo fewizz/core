@@ -96,6 +96,12 @@ c_string(Type(&)[Size]) -> c_string<
 >;
 
 template<typename Type>
+c_string(const Type*, nuint size) -> c_string<
+	c_string_type::known_size,
+	Type
+>;
+
+template<typename Type>
 requires is_pointer<Type> && is_const<remove_pointer<Type>>
 c_string(Type) -> c_string<
 	c_string_type::unknown_size,
