@@ -3,6 +3,10 @@
 #include "range.hpp"
 #include "to_range.hpp"
 #include "equals.hpp"
+#include "array.hpp"
+#include "value_type.hpp"
+#include "meta/types/are_same.hpp"
+#include "meta/types/first.hpp"
 
 template<range Range>
 struct ends {
@@ -23,6 +27,15 @@ struct ends {
 			),
 			other
 		);
+	}
+
+	template<typename... Types>
+	requires(
+		(sizeof...(Types) == 1 || types_are_same<decay<Types>...>) &&
+		types_are_same<value_type<Range>, decay<first_type<Types...>>>
+	)
+	constexpr bool with(Types&&... values) const {
+		return with(array{ values... });
 	}
 
 };

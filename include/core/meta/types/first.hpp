@@ -17,3 +17,6 @@ namespace types {
 	};
 
 } // types
+
+template<typename... Types>
+using first_type = types::first::for_types<Types...>;

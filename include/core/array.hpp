@@ -51,7 +51,7 @@ template<typename... Types>
 requires(sizeof...(Types) == 1 || types::are_same::for_types<Types...>)
 array(Types&&...)
 	-> array<
-		remove_reference<typename types::first::for_types<Types...>>,
+		remove_reference<first_type<Types...>>,
 		sizeof...(Types)
 	>;
 
