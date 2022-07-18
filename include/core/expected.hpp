@@ -2,6 +2,11 @@
 
 #include "meta/elements/one_of.hpp"
 
+template<typename Type>
+class unexpected {
+	
+};
+
 template<typename Type, typename UnexpectedType>
 class expected {
 	elements::one_of<Type, UnexpectedType> one_of;
@@ -10,10 +15,7 @@ public:
 
 	template<typename... Args>
 	requires(
-		sizeof...(Args) != 1 ||
-		!type::is_same_as<expected>::template for_type<
-			types::first::for_types<Args...>
-		>
+		!(sizeof...(Args) == 1 && types_are_same<expected, first_type<Args...>>)
 	)
 	constexpr expected(Args&&... args) :
 		one_of{ forward<Args>(args)... }

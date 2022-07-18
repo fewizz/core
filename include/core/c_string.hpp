@@ -27,13 +27,14 @@ struct c_string;
 
 template<typename Type>
 struct c_string<c_string_type::unknown_size, Type> {
-	using value_type = const Type;
+	using element_type = const Type&;
 
 private:
+	using value_type = const Type;
 	value_type* ptr_;
 public:
 
-	constexpr c_string(const Type* ptr) : ptr_{ ptr } {}
+	constexpr c_string(value_type* ptr) : ptr_{ ptr } {}
 
 	constexpr value_type* begin() const { return ptr_; }
 	constexpr value_type* data() const { return ptr_; }
@@ -51,9 +52,10 @@ public:
 
 template<typename Type>
 struct c_string<c_string_type::known_size, Type> {
-	using value_type = const Type;
+	using element_type = const Type&;
 
 private:
+	using value_type = const Type;
 	value_type* ptr_;
 	nuint size_;
 public:

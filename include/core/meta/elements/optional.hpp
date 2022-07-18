@@ -11,6 +11,7 @@ namespace elements {
 	public:
 
 		using base_type::base_type;
+		using base_type::operator = ;
 
 		optional() : base_type{ elements::none{} } {}
 

@@ -11,6 +11,7 @@
 template<typename ValueType, typename SizeType, typename Allocator>
 struct limited_list {
 	using value_type = ValueType;
+	using element_type = value_type&;
 	using size_type = SizeType;
 
 protected:
@@ -142,18 +143,18 @@ public:
 	}
 };
 
-template<typename ValueType, typename SizeType, typename Allocator>
-class limited_list<ValueType&, SizeType, Allocator> :
-	limited_list<remove_reference<ValueType>*, SizeType, Allocator>
+template<typename RawValueType, typename SizeType, typename Allocator>
+class limited_list<RawValueType&, SizeType, Allocator> :
+	limited_list<remove_reference<RawValueType>*, SizeType, Allocator>
 {
 	using base_type = limited_list<
-		remove_reference<ValueType>*, SizeType, Allocator
+		remove_reference<RawValueType>*, SizeType, Allocator
 	>;
-	using value_type = remove_reference<ValueType>;
+	using raw_value_type = remove_reference<RawValueType>;
 	using size_type = SizeType;
-	using iterator_type = reference_limited_list_iterator<value_type*>;
+	using iterator_type = reference_limited_list_iterator<raw_value_type*>;
 	using const_iterator_type =
-		reference_limited_list_iterator<value_type* const>;
+		reference_limited_list_iterator<raw_value_type* const>;
 public:
 
 	using base_type::base_type;
@@ -162,9 +163,9 @@ public:
 	using base_type::capacity;
 	using base_type::pop_back;
 
-	constexpr size_type index_of(const value_type& v) const {
+	constexpr size_type index_of(const raw_value_type& v) const {
 		size_type index{};
-		for(value_type* const ref : (const base_type&) *this) {
+		for(raw_value_type* const ref : (const base_type&) *this) {
 			if(ref == &v) {
 				return index;
 			}
@@ -173,9 +174,9 @@ public:
 		__builtin_unreachable();
 	}
 
-	constexpr size_type index_of(const value_type& v) {
+	constexpr size_type index_of(const raw_value_type& v) {
 		size_type index{};
-		for(value_type* ref : (base_type&) *this) {
+		for(raw_value_type* ref : (base_type&) *this) {
 			if(ref == &v) {
 				return index;
 			}
@@ -201,14 +202,14 @@ public:
 		return begin() += size();
 	}
 
-	value_type& operator [] (size_type index) { return *(begin() += index); }
-	const value_type& operator [] (size_type index) const {
+	raw_value_type& operator [] (size_type index) { return *(begin() += index); }
+	const raw_value_type& operator [] (size_type index) const {
 		return *(begin() += index);
 	}
 
 	template<typename... Args>
-	void emplace_back(value_type& v) { base_type::emplace_back(&v); }
+	void emplace_back(raw_value_type& v) { base_type::emplace_back(&v); }
 
-	const value_type& back() const { return *this[size() - 1]; }
-	value_type& back() { return *this[size() - 1]; }
+	const raw_value_type& back() const { return *this[size() - 1]; }
+	raw_value_type& back() { return *this[size() - 1]; }
 };

@@ -6,10 +6,11 @@
 
 template<typename ValueType, unsigned_integer SizeType = nuint>
 struct span {
-	using value_type = ValueType;
+	using element_type = ValueType&;
 	using size_type = SizeType;
 
 protected:
+	using value_type = ValueType;
 	value_type* values_;
 	size_type size_;
 public:
@@ -82,21 +83,25 @@ span(ValueType*, SizeType) -> span<ValueType>;
 template<typename ValueType, unsigned_integer SizeType>
 requires type::is_reference::for_type<ValueType>
 class span<ValueType, SizeType> {
-	using clear_value_type = remove_reference<ValueType>;
-	using value_type = clear_value_type&;
+	using raw_value_type = remove_reference<ValueType>;
+
+	raw_value_type** values_;
+public:
+
+	using element_type = ValueType;
 	using size_type = SizeType;
 
-	clear_value_type** values_;
+private:
 	size_type size_;
 public:
 	
 	class iterator {
-		clear_value_type** ptr_;
+		raw_value_type** ptr_;
 	public:
 
-		iterator(clear_value_type** ptr) : ptr_{ ptr } {}
+		iterator(raw_value_type** ptr) : ptr_{ ptr } {}
 
-		clear_value_type& operator * () const {
+		raw_value_type& operator * () const {
 			return **ptr_;
 		}
 
@@ -119,11 +124,11 @@ public:
 		}
 	};
 
-	constexpr span(clear_value_type** values, size_type size)
+	constexpr span(raw_value_type** values, size_type size)
 		: values_{ values }, size_{ size }
 	{}
 
-	constexpr span(size_type size, clear_value_type** values)
+	constexpr span(size_type size, raw_value_type** values)
 		: values_{ values }, size_{ size }
 	{}
 
@@ -139,15 +144,15 @@ public:
 		return { values_ + size_ };
 	}
 
-	constexpr clear_value_type** data() const {
+	constexpr raw_value_type** data() const {
 		return values_;
 	}
 
-	constexpr clear_value_type& operator [] (size_type index) {
+	constexpr raw_value_type& operator [] (size_type index) {
 		return *(begin() + index);
 	}
 
-	constexpr const clear_value_type& operator [] (size_type index) const {
+	constexpr const raw_value_type& operator [] (size_type index) const {
 		return *(begin() + index);
 	}
 

@@ -8,11 +8,11 @@
 
 template<range Range>
 struct view_copy_on_stack {
-	Range& range;
+	Range range;
 	using value_type = value_type<Range>;
 
-	view_copy_on_stack(Range& range) :
-		range{ range }
+	view_copy_on_stack(Range&& range) :
+		range{ forward<Range>(range) }
 	{}
 
 	template<typename F>
@@ -31,3 +31,6 @@ struct view_copy_on_stack {
 	}
 
 };
+
+template<range Range>
+view_copy_on_stack(Range&& range) -> view_copy_on_stack<Range>;

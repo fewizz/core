@@ -7,7 +7,11 @@
 
 template<typename Type, nuint Size>
 struct array {
+	using element_type = Type&;
+
+private:
 	using value_type = Type;
+public:
 	value_type m_array[Size];
 
 	constexpr nuint size() const {

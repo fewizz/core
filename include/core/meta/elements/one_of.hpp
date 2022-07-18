@@ -7,6 +7,7 @@
 #include "../types/at_index.hpp"
 #include "../types/index_of_satisfying_predicate.hpp"
 #include "../types/are_contain_satisfying_predicate.hpp"
+#include "../decayed_same_as.hpp"
 #include "../types/first.hpp"
 #include "../../forward.hpp"
 #include "../../placement_new.hpp"
@@ -296,7 +297,7 @@ namespace elements {
 			>::template for_types<Types...>;
 
 		template<typename Type>
-		static constexpr bool has_one_copyable_and_constructible_from =
+		static constexpr bool has_one_assignable_and_constructible_from =
 			types::are_contain_one_satisfying_predicate<
 				type::conjuncted_predicates<
 					type::is_constructible_from<Type>,
@@ -305,7 +306,7 @@ namespace elements {
 			>::template for_types<Types...>;
 
 		template<typename Type>
-		static constexpr nuint index_of_copyable_and_constructible_from_ =
+		static constexpr nuint index_of_assignable_and_constructible_from =
 			types::index_of_satisfying_predicate<
 				type::conjuncted_predicates<
 					type::is_constructible_from<Type>,
@@ -328,12 +329,19 @@ namespace elements {
 			>::template for_types<Types...>;
 
 		// constructor
-		template<typename... Args>
-		requires has_one_constructible_from<Args...>
-		constexpr one_of(Args&&... args) :
-			current_ { index_of_constructible_from_args<Args...> }
+		template<typename Type>
+		//requires has_one_constructible_from<Args...>
+		requires types::are_contain_one_decayed_same_as<
+			decay<Type>
+		>::template for_types<Types...>
+		constexpr one_of(Type&& arg) :
+			current_ {
+				types::index_of_decayed_same_as<
+					decay<Type>
+				>::template for_types<Types...>
+			}
 		{
-			storage_.init(current_, forward<Args>(args)...);
+			storage_.init(current_, forward<Type>(arg));
 		}
 
 		// copy constructor
@@ -406,10 +414,10 @@ namespace elements {
 
 		// assignment operator
 		template<typename TypeToAssign>
-		requires has_one_copyable_and_constructible_from<TypeToAssign>
+		requires has_one_assignable_and_constructible_from<TypeToAssign>
 		constexpr one_of& operator = (TypeToAssign&& value) {
 			nuint index =
-				index_of_copyable_and_constructible_from_<TypeToAssign>;
+				index_of_assignable_and_constructible_from<TypeToAssign>;
 			if(index == current_) {
 				view_raw([&](auto& element) {
 					if constexpr(
@@ -426,6 +434,16 @@ namespace elements {
 				current_ = index;
 				storage_.init(index, forward<TypeToAssign>(value));
 			}
+			return *this;
+		}
+
+		template<typename Type>
+		requires (
+			!has_one_assignable_and_constructible_from<Type> &&
+			constructible_from<one_of, Type>
+		)
+		constexpr one_of& operator = (Type&& value) {
+			(*this) = one_of{ forward<Type>(value) };
 			return *this;
 		}
 

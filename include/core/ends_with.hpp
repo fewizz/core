@@ -32,7 +32,7 @@ struct ends {
 	template<typename... Types>
 	requires(
 		(sizeof...(Types) == 1 || types_are_same<decay<Types>...>) &&
-		types_are_same<value_type<Range>, decay<first_type<Types...>>>
+		types_are_same<decay<element_type<Range>>, decay<first_type<Types...>>>
 	)
 	constexpr bool with(Types&&... values) const {
 		return with(array{ values... });
