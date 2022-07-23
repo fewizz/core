@@ -422,10 +422,10 @@ namespace elements {
 				view_raw([&](auto& element) {
 					if constexpr(
 						type::is_assignable<
-							decltype(value)
+							TypeToAssign
 						>::template for_type<decltype(element)>
 					) {
-						element = value;
+						element = forward<TypeToAssign>(value);
 					}
 				});
 			}

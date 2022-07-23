@@ -1,4 +1,5 @@
-#include "core/meta/elements/one_of.hpp"
+#include <core/meta/elements/one_of.hpp>
+#include <core/exchange.hpp>
 
 consteval void f() {
 	{
@@ -29,6 +30,18 @@ struct b {
 	~b() { ++b_destructions; }
 };
 
+struct c {
+	bool moved_out;
+
+	c() {
+		moved_out = false;
+	}
+
+	c(c&& other) {
+		other.moved_out = true;
+	}
+};
+
 int main() {
 	{
 		elements::one_of<int, nuint> e{ nuint{ 666666666666 } };
@@ -54,18 +67,19 @@ int main() {
 	}
 
 	{
-		elements::one_of<a, b> es{ 4 };
-		if(!es.is<a>()) throw;
-		if(es.get<a>().i != 4) throw;
+		{
+			elements::one_of<a, b> es{ a{ 4 } };
+			if(!es.is<a>()) throw;
+			if(es.get<a>().i != 4) throw;
 
-		es = b{ 4.0F };
+			es = b{ 4.0F };
 
-		if(!es.is<b>()) throw;
-		if(es.get<b>().f != 4.0) throw;
+			if(!es.is<b>()) throw;
+			if(es.get<b>().f != 4.0) throw;
+		}
+		if(a_destructions != 2) throw;
+		if(b_destructions != 2) throw;
 	}
-
-	if(a_destructions != 1) throw;
-	if(b_destructions != 2) throw;
 
 	{
 		int i = 0;
@@ -96,5 +110,11 @@ int main() {
 		x = 0.0F;
 		if(!x.is<float>()) throw;
 		if(!destructor_called) throw;
+	}
+
+	{
+		c c0{};
+		elements::one_of<c> x = move(c0);
+		if(!c0.moved_out) throw;
 	}
 }

@@ -77,8 +77,8 @@ public:
 
 };
 
-template<typename ValueType, typename SizeType>
-span(ValueType*, SizeType) -> span<ValueType>;
+template<typename ValueType>
+span(ValueType*) -> span<ValueType>;
 
 template<typename ValueType, unsigned_integer SizeType>
 requires type::is_reference::for_type<ValueType>
