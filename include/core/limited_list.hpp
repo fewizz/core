@@ -93,9 +93,11 @@ public:
 	const auto& operator [] (size_type index) const { return begin()[index]; }
 
 	template<typename... Args>
-	void emplace_back(Args&&... args) {
+	value_type& emplace_back(Args&&... args) {
 		new (ptr_ + size_) value_type{ forward<Args>(args)... };
+		value_type& v = (*this)[size_];
 		++size_;
+		return v;
 	}
 
 	const auto& back() const { return begin()[size() - 1]; }
@@ -208,7 +210,10 @@ public:
 	}
 
 	template<typename... Args>
-	void emplace_back(raw_value_type& v) { base_type::emplace_back(&v); }
+	raw_value_type& emplace_back(raw_value_type& v) {
+		base_type::emplace_back(&v);
+		return v;
+	}
 
 	const raw_value_type& back() const { return *this[size() - 1]; }
 	raw_value_type& back() { return *this[size() - 1]; }
