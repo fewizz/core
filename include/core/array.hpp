@@ -79,14 +79,14 @@ constexpr auto&& get(const array<Type, Size>& a) {
 	return a[Index];
 }
 
-#include <core/std/tuple_size.hpp>
+#include <std/tuple_size.hpp>
 
 template<typename Type, nuint Size>
 struct std::tuple_size<array<Type, Size>> {
 	static constexpr nuint value = Size;
 };
 
-#include <core/std/tuple_element.hpp>
+#include <std/tuple_element.hpp>
 
 template<nuint Index, typename Type, nuint Size>
 struct std::tuple_element<Index, array<Type, Size>> {

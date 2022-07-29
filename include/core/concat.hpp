@@ -22,7 +22,7 @@ class concat_view_iterator {
 	static constexpr bool has_next = Index + 1 < sizeof...(Pairs);
 
 	template<nuint FromIndex = 0, typename Handler>
-	constexpr decltype(auto) current_pair_with_index(Handler&& handler) const {
+	constexpr decltype(auto) current_pair_with_index(Handler&& handler) {
 		if(FromIndex == index_) {
 			return handler.template operator () <FromIndex>(
 				pairs_.template at<FromIndex>()
@@ -38,19 +38,121 @@ class concat_view_iterator {
 	}
 
 	template<nuint FromIndex = 0, typename Handler>
+	requires(sizeof...(Pairs) == 1)
 	constexpr decltype(auto) current_pair_with_index(Handler&& handler) {
-		if(FromIndex == index_) {
-			return handler.template operator () <FromIndex>(
-				pairs_.template at<FromIndex>()
+		return handler.template operator() <0>(pairs_.template at<0>());
+	}
+
+	template<nuint FromIndex, typename Handler>
+	requires(sizeof...(Pairs) == 2)
+	constexpr decltype(auto) current_pair_with_index(Handler&& handler) {
+		switch (index_) {
+			case 0: return handler.template operator() <0>(
+				pairs_.template at<0>()
+			);
+			case 1: return handler.template operator() <1>(
+				pairs_.template at<1>()
 			);
 		}
-		if constexpr(has_next<FromIndex>) {
-			return current_pair_with_index<FromIndex + 1>(
-				forward<Handler>(handler)
-			);
-		}
-		// ???
 		__builtin_unreachable();
+	}
+
+	template<nuint FromIndex, typename Handler>
+	requires(sizeof...(Pairs) == 3)
+	constexpr decltype(auto) current_pair_with_index(Handler&& handler) {
+		switch (index_) {
+			case 0: return handler.template operator() <0>(
+				pairs_.template at<0>()
+			);
+			case 1: return handler.template operator() <1>(
+				pairs_.template at<1>()
+			);
+			case 2: return handler.template operator() <2>(
+				pairs_.template at<2>()
+			);
+		}
+		__builtin_unreachable();
+	}
+
+	template<nuint FromIndex, typename Handler>
+	requires(sizeof...(Pairs) == 4)
+	constexpr decltype(auto) current_pair_with_index(Handler&& handler) {
+		switch (index_) {
+			case 0: return handler.template operator() <0>(
+				pairs_.template at<0>()
+			);
+			case 1: return handler.template operator() <1>(
+				pairs_.template at<1>()
+			);
+			case 2: return handler.template operator() <2>(
+				pairs_.template at<2>()
+			);
+			case 3: return handler.template operator() <3>(
+				pairs_.template at<3>()
+			);
+		}
+		__builtin_unreachable();
+	}
+
+	template<nuint FromIndex, typename Handler>
+	requires(sizeof...(Pairs) == 5)
+	constexpr decltype(auto) current_pair_with_index(Handler&& handler) {
+		switch (index_) {
+			case 0: return handler.template operator() <0>(
+				pairs_.template at<0>()
+			);
+			case 1: return handler.template operator() <1>(
+				pairs_.template at<1>()
+			);
+			case 2: return handler.template operator() <2>(
+				pairs_.template at<2>()
+			);
+			case 3: return handler.template operator() <3>(
+				pairs_.template at<3>()
+			);
+			case 4: return handler.template operator() <4>(
+				pairs_.template at<4>()
+			);
+		}
+		__builtin_unreachable();
+	}
+
+	template<nuint FromIndex, typename Handler>
+	requires(sizeof...(Pairs) == 6)
+	constexpr decltype(auto) current_pair_with_index(Handler&& handler) {
+		switch (index_) {
+			case 0: return handler.template operator() <0>(
+				pairs_.template at<0>()
+			);
+			case 1: return handler.template operator() <1>(
+				pairs_.template at<1>()
+			);
+			case 2: return handler.template operator() <2>(
+				pairs_.template at<2>()
+			);
+			case 3: return handler.template operator() <3>(
+				pairs_.template at<3>()
+			);
+			case 4: return handler.template operator() <4>(
+				pairs_.template at<4>()
+			);
+			case 5: return handler.template operator() <5>(
+				pairs_.template at<5>()
+			);
+		}
+		__builtin_unreachable();
+	}
+
+	template<nuint FromIndex = 0, typename Handler>
+	constexpr decltype(auto) current_pair_with_index(Handler&& handler) const {
+		return ((concat_view_iterator&) *this)
+			.current_pair_with_index<FromIndex>(
+				[&]<nuint Index, typename PairType>(PairType& pair)
+				-> decltype(auto) {
+					return handler.template
+						operator () <Index>((const PairType&) pair);
+				}
+			);
 	}
 
 	template<nuint FromIndex = 0, typename Handler>
@@ -87,6 +189,132 @@ class concat_view_iterator {
 			}
 			handler.template operator () <Index>();
 		});
+	}
+
+	template<nuint FromIndex, typename Handler>
+	requires(FromIndex + 1 == sizeof...(Pairs))
+	constexpr void skip_empty(Handler&& handler) {
+		handler.template operator () <FromIndex>();
+	}
+
+	template<nuint FromIndex, typename Handler>
+	requires(FromIndex + 2 == sizeof...(Pairs))
+	constexpr void skip_empty(Handler&& handler) {
+		auto& pair = pairs_.template at<FromIndex>();
+		if(it(pair) == end(pair)) {
+			++index_;
+			handler.template operator () <FromIndex + 1>();
+			return;
+		}
+		handler.template operator () <FromIndex>();
+	}
+
+	template<nuint FromIndex, typename Handler>
+	requires(FromIndex + 3 == sizeof...(Pairs))
+	constexpr void skip_empty(Handler&& handler) {
+		auto& pair = pairs_.template at<FromIndex>();
+		if(it(pair) == end(pair)) {
+			++index_;
+			auto& pair = pairs_.template at<FromIndex + 1>();
+			if(it(pair) == end(pair)) {
+				++index_;
+				handler.template operator () <FromIndex + 2>();
+				return;
+			}
+			handler.template operator () <FromIndex + 1>();
+			return;
+		}
+		handler.template operator () <FromIndex>();
+	}
+
+	template<nuint FromIndex, typename Handler>
+	requires(FromIndex + 4 == sizeof...(Pairs))
+	constexpr void skip_empty(Handler&& handler) {
+		auto& pair = pairs_.template at<FromIndex>();
+		if(it(pair) == end(pair)) {
+			++index_;
+			auto& pair = pairs_.template at<FromIndex + 1>();
+			if(it(pair) == end(pair)) {
+				++index_;
+				auto& pair = pairs_.template at<FromIndex + 2>();
+				if(it(pair) == end(pair)) {
+					++index_;
+					handler.template operator () <FromIndex + 3>();
+					return;
+				}
+				handler.template operator () <FromIndex + 2>();
+				return;
+			}
+			handler.template operator () <FromIndex + 1>();
+			return;
+		}
+		handler.template operator () <FromIndex>();
+	}
+
+	template<nuint FromIndex, typename Handler>
+	requires(FromIndex + 5 == sizeof...(Pairs))
+	constexpr void skip_empty(Handler&& handler) {
+		auto& pair = pairs_.template at<FromIndex>();
+		if(it(pair) == end(pair)) {
+			++index_;
+			auto& pair = pairs_.template at<FromIndex + 1>();
+			if(it(pair) == end(pair)) {
+				++index_;
+				auto& pair = pairs_.template at<FromIndex + 2>();
+				if(it(pair) == end(pair)) {
+					++index_;
+					auto& pair = pairs_.template at<FromIndex + 3>();
+					if(it(pair) == end(pair)) {
+						++index_;
+						handler.template operator () <FromIndex + 4>();
+						return;
+					}
+					handler.template operator () <FromIndex + 3>();
+					return;
+				}
+				handler.template operator () <FromIndex + 2>();
+				return;
+			}
+			handler.template operator () <FromIndex + 1>();
+			return;
+		}
+		handler.template operator () <FromIndex>();
+	}
+
+	template<nuint FromIndex, typename Handler>
+	requires(FromIndex + 6 == sizeof...(Pairs))
+	constexpr void skip_empty(Handler&& handler) {
+		auto& pair = pairs_.template at<FromIndex>();
+		if(it(pair) == end(pair)) {
+			++index_;
+			auto& pair = pairs_.template at<FromIndex + 1>();
+			if(it(pair) == end(pair)) {
+				++index_;
+				auto& pair = pairs_.template at<FromIndex + 2>();
+				if(it(pair) == end(pair)) {
+					++index_;
+					auto& pair = pairs_.template at<FromIndex + 3>();
+					if(it(pair) == end(pair)) {
+						++index_;
+						auto& pair = pairs_.template at<FromIndex + 4>();
+						if(it(pair) == end(pair)) {
+							++index_;
+							handler.template operator () <FromIndex + 5>();
+							return;
+						}
+						handler.template operator () <FromIndex + 4>();
+						return;
+					}
+					handler.template operator () <FromIndex + 3>();
+					return;
+				}
+				handler.template operator () <FromIndex + 2>();
+				return;
+			}
+			handler.template operator () <FromIndex + 1>();
+			return;
+		}
+		handler.template operator () <FromIndex>();
 	}
 
 	template<nuint FromIndex = 0>

@@ -8,10 +8,10 @@ namespace type {
 	class remove_reference : type::modifier_marker {
 
 		template<typename Type>
-		struct remove_reference_t : type::of<Type> {};
+		struct remove_reference_t         : type::of<Type> {};
 
 		template<typename Type>
-		struct remove_reference_t<Type&> : type::of<Type> {};
+		struct remove_reference_t<Type&>  : type::of<Type> {};
 
 		template<typename Type>
 		struct remove_reference_t<Type&&> : type::of<Type> {};

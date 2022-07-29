@@ -218,14 +218,14 @@ constexpr inline bool operator == (
 	});
 }
 
-#include "core/std/tuple_size.hpp"
+#include "std/tuple_size.hpp"
 
 template<typename... Types>
 struct std::tuple_size<elements::of<Types...>> {
 	static constexpr nuint value = sizeof...(Types);
 };
 
-#include "core/std/tuple_element.hpp"
+#include "std/tuple_element.hpp"
 
 template<nuint Index, typename... Types>
 struct std::tuple_element<Index, elements::of<Types...>> {

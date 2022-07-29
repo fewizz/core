@@ -5,6 +5,8 @@ test() {
 
 	if ! clang++ \
 		--config ./compile_flags.txt \
+		-fsanitize=undefined \
+		-fsanitize=memory \
 		-g \
 		-o build/$1 \
 		test/$1.cpp
