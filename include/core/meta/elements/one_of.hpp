@@ -242,25 +242,47 @@ namespace elements {
 		}
 
 		template<nuint Index>
-		constexpr type_at<Index>& at() {
+		constexpr type_at<Index>& at() & {
 			return storage_.template at<Index>();
 		}
 
 		template<nuint Index>
-		constexpr const type_at<Index>& at() const {
+		constexpr const type_at<Index>& at() const & {
 			return storage_.template at<Index>();
 		}
 
+		template<nuint Index>
+		constexpr type_at<Index>&& at() && {
+			return move(storage_.template at<Index>());
+		}
+
+		template<nuint Index>
+		constexpr const type_at<Index>&& at() const && {
+			return move(storage_.template at<Index>());
+		}
+
 		template<typename Type>
 		requires has_one_such_type<Type>
-		constexpr const Type& get() const {
+		constexpr const Type& get() const & {
 			return at<type_index<Type>>();
 		}
 
 		template<typename Type>
 		requires has_one_such_type<Type>
-		constexpr Type& get() {
+		constexpr Type& get() & {
 			return at<type_index<Type>>();
+		}
+
+		template<typename Type>
+		requires has_one_such_type<Type>
+		constexpr const Type&& get() const && {
+			return move(at<type_index<Type>>());
+		}
+
+		template<typename Type>
+		requires has_one_such_type<Type>
+		constexpr Type&& get() && {
+			return move(at<type_index<Type>>());
 		}
 
 	}; // one_of

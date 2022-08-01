@@ -7,6 +7,7 @@
 #include "meta/type/is_reference.hpp"
 #include "meta/type/remove_pointer.hpp"
 #include "meta/type/remove_const.hpp"
+#include "meta/type/is_move_constructible.hpp"
 
 template<typename ValueType, typename SizeType, typename Allocator>
 struct limited_list {
@@ -48,9 +49,7 @@ public:
 	constexpr limited_list(const limited_list&) = delete;
 
 	constexpr limited_list& operator = (limited_list&& other) {
-		while(size_ > 0) {
-			data()[--size_].~value_type();
-		}
+		clear();
 		allocator_.deallocate((uint8*) ptr_, capacity_);
 		ptr_ = nullptr;
 		capacity_ = 0;
@@ -65,9 +64,7 @@ public:
 	constexpr limited_list& operator = (const limited_list&) = delete;
 
 	constexpr ~limited_list() {
-		while(size_ > 0) {
-			pop_back();
-		}
+		clear();
 		allocator_.deallocate((uint8*) ptr_, capacity_);
 		ptr_ = nullptr;
 		capacity_ = 0;
@@ -100,11 +97,23 @@ public:
 		return v;
 	}
 
-	const auto& back() const { return begin()[size() - 1]; }
+	const ValueType& back() const { return begin()[size() - 1]; }
 	auto& back() { return begin()[size() - 1]; }
 
-	void pop_back() {
+	ValueType pop_back() requires move_constructible<ValueType> {
+		ValueType popped{ move(back()) };
 		data()[--size_].~value_type();
+		return move(popped);
+	}
+
+	void pop_back() requires (!move_constructible<ValueType>) {
+		data()[--size_].~value_type();
+	}
+
+	void clear() {
+		while(size_ > 0) {
+			pop_back();
+		}
 	}
 
 };
@@ -217,4 +226,9 @@ public:
 
 	const raw_value_type& back() const { return *this[size() - 1]; }
 	raw_value_type& back() { return *this[size() - 1]; }
+
+	raw_value_type& pop_back() {
+		return *base_type::pop_back();
+	}
+
 };
