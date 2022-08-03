@@ -62,18 +62,16 @@ namespace elements {
 			remove_reference<decltype(storage)>::template \
 				value_type_is_constructible_from<Args...> \
 		) { \
-			new (&(storage).element_) typename \
-				remove_reference<decltype(storage)>:: \
-				internal_type( &args... ); \
+			new (&(storage).element_) \
+				decltype((storage).element_)(&args...); \
 		} \
 		else if constexpr( \
 			remove_reference<decltype(storage)>::template \
 				internal_type_is_constructible_from<Args...> \
 		) { \
-			new (&(storage).element_) typename \
-				remove_reference<decltype(storage)>:: \
-				internal_type(forward<Args>(args)...); \
-		} \
+			new (&(storage).element_) \
+				decltype((storage).element_)(forward<Args>(args)...); \
+		}
 
 	#define INIT_NEXT(storage) \
 		new (&(storage).next_) \
@@ -100,17 +98,30 @@ namespace elements {
 			__builtin_unreachable();
 		}
 
+	#define DESTRUCT_ELEMENT(storage) \
+		(storage).element_.~decltype((storage).element_)();
+
+	#define DESTRUCT_NEXT(storage) \
+		(storage).next_.~decltype((storage).next_)();
+	
+	#define DESTRUCT_ELEMENT_OR_NEXT(storage, required_index) \
+		if(index == required_index) { \
+			DESTRUCT_ELEMENT(storage) \
+			return; \
+		} \
+		DESTRUCT_NEXT(storage)
+
 		constexpr ~one_of_storage() {}
 
 		// trivial recursive destructor
 		constexpr void destruct(nuint index) {
 			if(index == 0) {
-				element_.~internal_type();
+				DESTRUCT_ELEMENT(*this)
 				return;
 			}
 			if constexpr(has_next) {
 				next_.destruct(index - 1);
-				next_.~next_type();
+				DESTRUCT_NEXT(*this)
 				return;
 			}
 			__builtin_unreachable();
@@ -266,6 +277,104 @@ namespace elements {
 			INIT_ELEMENT(next_.next_.next_.next_.next_.next_.next_.next_)
 		}
 
+		constexpr void destruct(nuint) requires(sizeof...(TailTypes) == 0) {
+			DESTRUCT_ELEMENT(*this)
+		}
+
+		constexpr void destruct(nuint index)
+		requires(sizeof...(TailTypes) == 1) {
+			DESTRUCT_ELEMENT_OR_NEXT(*this, 0)
+			DESTRUCT_ELEMENT(next_)
+		}
+
+		constexpr void destruct(nuint index)
+		requires(sizeof...(TailTypes) == 2) {
+			DESTRUCT_ELEMENT_OR_NEXT(*this, 0)
+			DESTRUCT_ELEMENT_OR_NEXT(next_, 1)
+			DESTRUCT_ELEMENT(next_.next_)
+		}
+
+		constexpr void destruct(nuint index)
+		requires(sizeof...(TailTypes) == 3) {
+			DESTRUCT_ELEMENT_OR_NEXT(*this, 0)
+			DESTRUCT_ELEMENT_OR_NEXT(next_, 1)
+			DESTRUCT_ELEMENT_OR_NEXT(next_.next_, 2)
+			DESTRUCT_ELEMENT(next_.next_.next_)
+		}
+
+		constexpr void destruct(nuint index)
+		requires(sizeof...(TailTypes) == 4) {
+			DESTRUCT_ELEMENT_OR_NEXT(*this, 0)
+			DESTRUCT_ELEMENT_OR_NEXT(next_, 1)
+			DESTRUCT_ELEMENT_OR_NEXT(next_.next_, 2)
+			DESTRUCT_ELEMENT_OR_NEXT(next_.next_.next_, 3)
+			DESTRUCT_ELEMENT(next_.next_.next_.next_)
+		}
+
+		constexpr void destruct(nuint index)
+		requires(sizeof...(TailTypes) == 5) {
+			DESTRUCT_ELEMENT_OR_NEXT(*this, 0)
+			DESTRUCT_ELEMENT_OR_NEXT(next_, 1)
+			DESTRUCT_ELEMENT_OR_NEXT(next_.next_, 2)
+			DESTRUCT_ELEMENT_OR_NEXT(next_.next_.next_, 3)
+			DESTRUCT_ELEMENT_OR_NEXT(next_.next_.next_.next_, 4)
+			DESTRUCT_ELEMENT(next_.next_.next_.next_.next_)
+		}
+
+		constexpr void destruct(nuint index)
+		requires(sizeof...(TailTypes) == 6) {
+			DESTRUCT_ELEMENT_OR_NEXT(*this, 0)
+			DESTRUCT_ELEMENT_OR_NEXT(next_, 1)
+			DESTRUCT_ELEMENT_OR_NEXT(next_.next_, 2)
+			DESTRUCT_ELEMENT_OR_NEXT(next_.next_.next_, 3)
+			DESTRUCT_ELEMENT_OR_NEXT(next_.next_.next_.next_, 4)
+			DESTRUCT_ELEMENT_OR_NEXT(next_.next_.next_.next_.next_, 5)
+			DESTRUCT_ELEMENT(next_.next_.next_.next_.next_.next_)
+		}
+
+		constexpr void destruct(nuint index)
+		requires(sizeof...(TailTypes) == 7) {
+			DESTRUCT_ELEMENT_OR_NEXT(*this, 0)
+			DESTRUCT_ELEMENT_OR_NEXT(next_, 1)
+			DESTRUCT_ELEMENT_OR_NEXT(next_.next_, 2)
+			DESTRUCT_ELEMENT_OR_NEXT(next_.next_.next_, 3)
+			DESTRUCT_ELEMENT_OR_NEXT(next_.next_.next_.next_, 4)
+			DESTRUCT_ELEMENT_OR_NEXT(next_.next_.next_.next_.next_, 5)
+			DESTRUCT_ELEMENT_OR_NEXT(next_.next_.next_.next_.next_.next_, 6)
+			DESTRUCT_ELEMENT(next_.next_.next_.next_.next_.next_.next_)
+		}
+
+		constexpr void destruct(nuint index)
+		requires(sizeof...(TailTypes) == 8) {
+			DESTRUCT_ELEMENT_OR_NEXT(*this, 0)
+			DESTRUCT_ELEMENT_OR_NEXT(next_, 1)
+			DESTRUCT_ELEMENT_OR_NEXT(next_.next_, 2)
+			DESTRUCT_ELEMENT_OR_NEXT(next_.next_.next_, 3)
+			DESTRUCT_ELEMENT_OR_NEXT(next_.next_.next_.next_, 4)
+			DESTRUCT_ELEMENT_OR_NEXT(next_.next_.next_.next_.next_, 5)
+			DESTRUCT_ELEMENT_OR_NEXT(next_.next_.next_.next_.next_.next_, 6)
+			DESTRUCT_ELEMENT_OR_NEXT(
+				next_.next_.next_.next_.next_.next_.next_, 7)
+			DESTRUCT_ELEMENT(next_.next_.next_.next_.next_.next_.next_.next_)
+		}
+
+		constexpr void destruct(nuint index)
+		requires(sizeof...(TailTypes) == 9) {
+			DESTRUCT_ELEMENT_OR_NEXT(*this, 0)
+			DESTRUCT_ELEMENT_OR_NEXT(next_, 1)
+			DESTRUCT_ELEMENT_OR_NEXT(next_.next_, 2)
+			DESTRUCT_ELEMENT_OR_NEXT(next_.next_.next_, 3)
+			DESTRUCT_ELEMENT_OR_NEXT(next_.next_.next_.next_, 4)
+			DESTRUCT_ELEMENT_OR_NEXT(next_.next_.next_.next_.next_, 5)
+			DESTRUCT_ELEMENT_OR_NEXT(next_.next_.next_.next_.next_.next_, 6)
+			DESTRUCT_ELEMENT_OR_NEXT(
+				next_.next_.next_.next_.next_.next_.next_, 7)
+			DESTRUCT_ELEMENT_OR_NEXT(
+				next_.next_.next_.next_.next_.next_.next_.next_, 8)
+			DESTRUCT_ELEMENT(
+				next_.next_.next_.next_.next_.next_.next_.next_.next_)
+		}
+
 		template<one_of_storage_treat_type_as TreatAs, typename Handler>
 		requires (sizeof...(TailTypes) == 0)
 		constexpr decltype(auto) view(nuint, Handler&& handler) {
@@ -381,10 +490,35 @@ namespace elements {
 			__builtin_unreachable();
 		}
 
+		template<one_of_storage_treat_type_as TreatAs, typename Handler>
+		requires (sizeof...(TailTypes) == 9)
+		constexpr decltype(auto) view(nuint index, Handler&& handler) {
+			switch (index) {
+				case 0: VIEW_ELEMENT(*this)
+				case 1: VIEW_ELEMENT(next_)
+				case 2: VIEW_ELEMENT(next_.next_)
+				case 3: VIEW_ELEMENT(next_.next_.next_)
+				case 4: VIEW_ELEMENT(next_.next_.next_.next_)
+				case 5: VIEW_ELEMENT(next_.next_.next_.next_.next_)
+				case 6: VIEW_ELEMENT(next_.next_.next_.next_.next_.next_)
+				case 7: VIEW_ELEMENT(next_.next_.next_.next_.next_.next_.next_)
+				case 8: VIEW_ELEMENT(next_.next_.next_.next_.next_.next_.next_.\
+					next_)
+				case 9: VIEW_ELEMENT(next_.next_.next_.next_.next_.next_.next_.\
+					next_.next_)
+			}
+			__builtin_unreachable();
+		}
+
 	#undef VIEW_ELEMENT
+
 	#undef INIT_ELEMENT
 	#undef INIT_NEXT
 	#undef INIT_ELEMENT_OR_NEXT
+
+	#undef DESTRUCT_ELEMENT
+	#undef DESTRUCT_NEXT
+	#undef DESTRUCT_ELEMENT_OR_NEXT
 
 	};
 
