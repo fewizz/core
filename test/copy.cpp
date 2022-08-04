@@ -1,5 +1,3 @@
-#pragma once
-
 #include <core/copy.hpp>
 #include <core/equals.hpp>
 #include <core/array.hpp>
@@ -17,3 +15,5 @@ consteval bool f() {
 }
 
 static_assert(f());
+
+int main() {}

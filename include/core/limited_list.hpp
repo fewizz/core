@@ -196,9 +196,6 @@ public:
 		__builtin_unreachable();
 	}
 
-	//constexpr value_type** data() { return base_type::ptr_; }
-	//constexpr const value_type** data() const { return base_type::ptr_; }
-
 	constexpr iterator_type begin() {
 		return { base_type::data() };
 	}

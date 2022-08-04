@@ -1,5 +1,3 @@
-#pragma once
-
 #include <core/zip.hpp>
 #include <core/array.hpp>
 #include <core/c_string.hpp>
@@ -22,3 +20,5 @@ static_assert(f()[3] == elements::of{ 16, 'j', 1000.0, 'l' });
 
 static_assert(f().begin() + 4 == f().end());
 static_assert(f().begin() + 3 != f().end());
+
+int main() {}

@@ -59,3 +59,5 @@ static_assert(f(0, 0.0F) == 42);
 static_assert(f(w<int>{0}, 0.0F) == 42);
 static_assert(f(0, w<float>{0.0F}) == 42);
 static_assert(f(w<int>{0}, w<float>{0.0F}) == 42);
+
+int main() {}

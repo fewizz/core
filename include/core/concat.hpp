@@ -5,9 +5,11 @@
 #include "end.hpp"
 #include "value_type.hpp"
 #include "forward.hpp"
+#include "distance.hpp"
 #include "default_sentinel.hpp"
 #include "meta/elements/of.hpp"
 #include "meta/types/common.hpp"
+#include "meta/expression_of_type.hpp"
 
 template<typename... Pairs>
 class concat_view_iterator {
@@ -15,7 +17,7 @@ class concat_view_iterator {
 	nuint index_ = 0;
 
 	using element_type = types::common::for_types<
-		decltype(*declval<typename Pairs::template type_at<0>>())...
+		decltype( * expression_of_type<typename Pairs::template type_at<0>>)...
 	>;
 
 	template<nuint Index>
@@ -38,107 +40,89 @@ class concat_view_iterator {
 	}
 
 	template<nuint FromIndex = 0, typename Handler>
-	requires(sizeof...(Pairs) == 1)
+	requires(sizeof...(Pairs) - FromIndex == 1)
 	constexpr decltype(auto) current_pair_with_index(Handler&& handler) {
-		return handler.template operator() <0>(pairs_.template at<0>());
+		return handler.template operator() <FromIndex>(
+			pairs_.template at<FromIndex>()
+		);
 	}
 
 	template<nuint FromIndex, typename Handler>
-	requires(sizeof...(Pairs) == 2)
+	requires(sizeof...(Pairs) - FromIndex == 2)
 	constexpr decltype(auto) current_pair_with_index(Handler&& handler) {
 		switch (index_) {
-			case 0: return handler.template operator() <0>(
-				pairs_.template at<0>()
-			);
-			case 1: return handler.template operator() <1>(
-				pairs_.template at<1>()
-			);
+			case FromIndex + 0: return handler.template operator()
+				<FromIndex + 0>(pairs_.template at<FromIndex + 0>());
+			case FromIndex + 1: return handler.template operator()
+				<FromIndex + 1>(pairs_.template at<FromIndex + 1>());
 		}
 		__builtin_unreachable();
 	}
 
 	template<nuint FromIndex, typename Handler>
-	requires(sizeof...(Pairs) == 3)
+	requires(sizeof...(Pairs) - FromIndex == 3)
 	constexpr decltype(auto) current_pair_with_index(Handler&& handler) {
 		switch (index_) {
-			case 0: return handler.template operator() <0>(
-				pairs_.template at<0>()
-			);
-			case 1: return handler.template operator() <1>(
-				pairs_.template at<1>()
-			);
-			case 2: return handler.template operator() <2>(
-				pairs_.template at<2>()
-			);
+			case FromIndex + 0: return handler.template operator()
+				<FromIndex + 0>(pairs_.template at<FromIndex + 0>());
+			case FromIndex + 1: return handler.template operator()
+				<FromIndex + 1>(pairs_.template at<FromIndex + 1>());
+			case FromIndex + 2: return handler.template operator()
+				<FromIndex + 2>(pairs_.template at<FromIndex + 2>());
 		}
 		__builtin_unreachable();
 	}
 
 	template<nuint FromIndex, typename Handler>
-	requires(sizeof...(Pairs) == 4)
+	requires(sizeof...(Pairs) - FromIndex == 4)
 	constexpr decltype(auto) current_pair_with_index(Handler&& handler) {
 		switch (index_) {
-			case 0: return handler.template operator() <0>(
-				pairs_.template at<0>()
-			);
-			case 1: return handler.template operator() <1>(
-				pairs_.template at<1>()
-			);
-			case 2: return handler.template operator() <2>(
-				pairs_.template at<2>()
-			);
-			case 3: return handler.template operator() <3>(
-				pairs_.template at<3>()
-			);
+			case FromIndex + 0: return handler.template operator()
+				<FromIndex + 0>(pairs_.template at<FromIndex + 0>());
+			case FromIndex + 1: return handler.template operator()
+				<FromIndex + 1>(pairs_.template at<FromIndex + 1>());
+			case FromIndex + 2: return handler.template operator()
+				<FromIndex + 2>(pairs_.template at<2>());
+			case FromIndex + 3: return handler.template operator()
+				<FromIndex + 3>(pairs_.template at<3>());
 		}
 		__builtin_unreachable();
 	}
 
 	template<nuint FromIndex, typename Handler>
-	requires(sizeof...(Pairs) == 5)
+	requires(sizeof...(Pairs) - FromIndex == 5)
 	constexpr decltype(auto) current_pair_with_index(Handler&& handler) {
 		switch (index_) {
-			case 0: return handler.template operator() <0>(
-				pairs_.template at<0>()
-			);
-			case 1: return handler.template operator() <1>(
-				pairs_.template at<1>()
-			);
-			case 2: return handler.template operator() <2>(
-				pairs_.template at<2>()
-			);
-			case 3: return handler.template operator() <3>(
-				pairs_.template at<3>()
-			);
-			case 4: return handler.template operator() <4>(
-				pairs_.template at<4>()
-			);
+			case FromIndex + 0: return handler.template operator()
+				<FromIndex + 0>(pairs_.template at<FromIndex + 0>());
+			case FromIndex + 1: return handler.template operator()
+				<FromIndex + 1>(pairs_.template at<FromIndex + 1>());
+			case FromIndex + 2: return handler.template operator()
+				<FromIndex + 2>(pairs_.template at<FromIndex + 2>());
+			case FromIndex + 3: return handler.template operator()
+				<FromIndex + 3>(pairs_.template at<FromIndex + 3>());
+			case FromIndex + 4: return handler.template operator()
+				<FromIndex + 4>(pairs_.template at<4>());
 		}
 		__builtin_unreachable();
 	}
 
 	template<nuint FromIndex, typename Handler>
-	requires(sizeof...(Pairs) == 6)
+	requires(sizeof...(Pairs) - FromIndex== 6)
 	constexpr decltype(auto) current_pair_with_index(Handler&& handler) {
 		switch (index_) {
-			case 0: return handler.template operator() <0>(
-				pairs_.template at<0>()
-			);
-			case 1: return handler.template operator() <1>(
-				pairs_.template at<1>()
-			);
-			case 2: return handler.template operator() <2>(
-				pairs_.template at<2>()
-			);
-			case 3: return handler.template operator() <3>(
-				pairs_.template at<3>()
-			);
-			case 4: return handler.template operator() <4>(
-				pairs_.template at<4>()
-			);
-			case 5: return handler.template operator() <5>(
-				pairs_.template at<5>()
-			);
+			case FromIndex + 0: return handler.template operator()
+				<FromIndex + 0>(pairs_.template at<FromIndex + 0>());
+			case FromIndex + 1: return handler.template operator()
+				<FromIndex + 1>(pairs_.template at<FromIndex + 1>());
+			case FromIndex + 2: return handler.template operator()
+				<FromIndex + 2>(pairs_.template at<FromIndex + 2>());
+			case FromIndex + 3: return handler.template operator()
+				<FromIndex + 3>(pairs_.template at<FromIndex + 3>());
+			case FromIndex + 4: return handler.template operator()
+				<FromIndex + 4>(pairs_.template at<FromIndex + 4>());
+			case FromIndex + 5: return handler.template operator()
+				<FromIndex + 5>(pairs_.template at<FromIndex + 5>());
 		}
 		__builtin_unreachable();
 	}
@@ -367,21 +351,19 @@ class concat_view_iterator {
 				[&]<nuint Index>(auto& pair) {
 					return [&]<nuint... Indices>(indices::of<Indices...>) {
 						nuint len = (
-							(
-								end(other.pairs_.template at<Indices>()) -
-								it(other.pairs_.template at<Indices>())
+							distance(
+								it(other.pairs_.template at<Indices>()),
+								end(other.pairs_.template at<Indices>())
 							)
 							+ ... + 0
 						);
 						len +=
-							it(pair) -
-							it(other.pairs_.template at<Index>());
+							distance(
+								it(other.pairs_.template at<Index>()),
+								it(pair)
+							);
 						return len;
-					}(
-						typename indices::
-							from<OtherIndex>::template
-							to<Index>{}
-					);
+					}(typename indices::from<OtherIndex>::template to<Index>{});
 				}
 			);
 		});

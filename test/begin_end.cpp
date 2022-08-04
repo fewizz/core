@@ -1,5 +1,3 @@
-#pragma once
-
 #include <core/begin.hpp>
 #include <core/end.hpp>
 #include <core/array.hpp>

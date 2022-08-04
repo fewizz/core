@@ -1,5 +1,3 @@
-#pragma once
-
 #include <core/array.hpp>
 #include <core/split.hpp>
 

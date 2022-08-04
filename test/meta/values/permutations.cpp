@@ -1,7 +1,5 @@
-#pragma once
-
-#include "meta/types/are_same.hpp"
-#include "meta/values/permutations.hpp"
+#include <core/meta/types/are_same.hpp>
+#include <core/meta/values/permutations.hpp>
 
 static_assert(
 	types_are_same<

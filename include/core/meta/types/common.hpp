@@ -2,7 +2,7 @@
 
 #include "../type/decay.hpp"
 #include "../type/of.hpp"
-#include "../../declval.hpp"
+#include "../expression_of_type.hpp"
 
 namespace types {
 
@@ -29,22 +29,24 @@ namespace types {
 		static constexpr bool case_1 =
 			! case_0<Type0, Type1> &&
 			requires() {
-				false ? declval<Type0>() : declval<Type1>();
+				false ?
+				expression_of_type<Type0> : expression_of_type<Type1>;
 
 				requires requires() {
-					typename decay<
-						decltype(false ? declval<Type0>() : declval<Type1>())
-					>;
+					typename decay<decltype(
+						false ?
+						expression_of_type<Type0> : expression_of_type<Type1>
+					)>;
 				};
 			};
 
 		template<typename Type0, typename Type1>
 		requires case_1<Type0, Type1>
-		struct result<Type0, Type1> :
-			type::of<decay<
-				decltype(false ? declval<Type0>() : declval<Type1>())
-			>>
-		{};
+		struct result<Type0, Type1> : type::of<
+			decay<decltype(
+				false ? expression_of_type<Type0> : expression_of_type<Type1>
+			)>
+		>{};
 
 		template<typename Type0, typename Type1, typename... Types>
 		requires (sizeof...(Types) > 0) && requires() {

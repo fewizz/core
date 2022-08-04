@@ -1,5 +1,3 @@
-#pragma once
-
 #include <core/to_range.hpp>
 #include <core/array.hpp>
 

@@ -20,3 +20,5 @@ static_assert(f()[3] == 6);
 
 static_assert(f().begin() + 4 == f().end());
 static_assert(f().begin() + 3 != f().end());
+
+int main() {}

@@ -11,8 +11,8 @@ namespace values {
 
 	class permutations {
 
-		template<nuint Index>
-		struct push_index_to_front {
+		template<auto Index>
+		struct push_value_to_front {
 
 			template<typename Type>
 			using for_type = typename
@@ -42,7 +42,7 @@ namespace values {
 
 				using transformed = typename
 					inner_permutations::template
-					transform<push_index_to_front<value_at_current_index>>;
+					transform<push_value_to_front<value_at_current_index>>;
 
 				using combine_with_transformed = typename
 					transformed::template
@@ -59,8 +59,7 @@ namespace values {
 					current_index_and_result<
 						CurrentIndex + 1,
 						combined_result
-					>::
-					result;
+					>::result;
 
 			};
 

@@ -1,5 +1,3 @@
-#pragma once
-
 #include <core/value_type.hpp>
 #include <core/meta/type/is_same_as.hpp>
 
