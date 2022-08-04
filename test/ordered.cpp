@@ -1,6 +1,6 @@
-#include <core/meta/decayed_same_as.hpp>
-#include <core/meta/elements/pass_not_satisfying_type_predicate.hpp>
-#include <core/meta/types/are_exclusively_satisfying_predicates.hpp>
+#include <decayed_same_as.hpp>
+#include <elements/pass_not_satisfying_type_predicate.hpp>
+#include <types/are_exclusively_satisfying_predicates.hpp>
 
 template<typename Type> struct w { Type value; };
 

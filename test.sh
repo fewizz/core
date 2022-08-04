@@ -28,33 +28,36 @@ if [ ! -z $1 ]; then
 	exit
 fi
 
-test meta/type/array_extent
-test meta/type/is_same_as
+test type/array_extent
+test type/is_same_as
 
-test meta/types/are_same
-test meta/types/at_indices
-test meta/types/common
-test meta/types/erase_at_index
-test meta/types/count_of_satisfying_predicate
-test meta/types/indices_of_satisfying_predicate
-test meta/types/are_exclusively_satisfying_predicates
+test types/are_same
+test types/at_indices
+test types/common
+test types/erase_at_index
+test types/count_of_satisfying_predicate
+test types/indices_of_satisfying_predicate
+test types/are_exclusively_satisfying_predicates
 
-test meta/values/of
-test meta/values/permutations
+test values/of
+test values/permutations
 
-test meta/elements/of
-test meta/elements/one_of
-test meta/elements/at_index
+test elements/of
+test elements/one_of
+test elements/at_index
 
 test expected
 test ordered
-test value_type
-test begin_end
-test to_range
-test copy
-test starts_with
 
-test concat
-test split
-test transform
-test zip
+test iterators/to_range
+
+test range/element_type
+test range/value_type
+test range/begin_end
+test range/copy
+test range/starts_with
+
+test ranges/concat_view
+test ranges/split_view
+test ranges/transform_view
+test ranges/zip_view

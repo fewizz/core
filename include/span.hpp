@@ -1,0 +1,159 @@
+#pragma once
+
+#include "integer.hpp"
+#include "type/is_reference.hpp"
+#include "type/remove_reference.hpp"
+
+template<typename ValueType, unsigned_integer SizeType = nuint>
+struct span {
+	using element_type = ValueType&;
+	using size_type = SizeType;
+
+protected:
+	using value_type = ValueType;
+	value_type* values_;
+	size_type size_;
+public:
+
+	constexpr span() = default;
+
+	constexpr span(value_type* values, size_type size) :
+		values_{ values }, size_{ size }
+	{}
+
+	constexpr span(size_type size, value_type* values) :
+		values_{ values }, size_{ size }
+	{}
+
+	template<nuint Size>
+	constexpr span(value_type (&array)[Size]) :
+		values_{ array }, size_{ Size }
+	{}
+
+	constexpr size_type size() const {
+		return size_;
+	}
+
+	constexpr const value_type* begin() const {
+		return values_;
+	}
+
+	constexpr value_type* begin() {
+		return values_;
+	}
+
+	constexpr const value_type* end() const {
+		return values_ + size_;
+	}
+
+	constexpr value_type* end() {
+		return values_ + size_;
+	}
+
+	constexpr auto& operator [] (size_type index) {
+		return data()[index];
+	}
+
+	constexpr const auto& operator [] (size_type index) const {
+		return data()[index];
+	}
+
+	constexpr auto& data() {
+		return values_;
+	}
+
+	constexpr const auto& data() const {
+		return values_;
+	}
+
+	template<typename Type>
+	constexpr span<Type> cast() {
+		return span<Type>{ (Type*) data(), size() };
+	}
+
+	constexpr span cut(size_type size) {
+		return span{ data(), size };
+	}
+
+};
+
+template<typename ValueType>
+span(ValueType*) -> span<ValueType>;
+
+template<typename ValueType, unsigned_integer SizeType>
+requires type::is_reference::for_type<ValueType>
+class span<ValueType, SizeType> {
+	using raw_value_type = remove_reference<ValueType>;
+
+	raw_value_type** values_;
+public:
+
+	using element_type = ValueType;
+	using size_type = SizeType;
+
+private:
+	size_type size_;
+public:
+	
+	class iterator {
+		raw_value_type** ptr_;
+	public:
+
+		iterator(raw_value_type** ptr) : ptr_{ ptr } {}
+
+		raw_value_type& operator * () const {
+			return **ptr_;
+		}
+
+		auto& operator ++ () {
+			++ptr_;
+			return *this;
+		}
+
+		auto& operator += (size_type n) {
+			ptr_ += n;
+			return *this;
+		}
+	
+		auto operator + (size_type n) const {
+			return iterator{ *this } += n;
+		}
+	
+		bool operator == (const iterator other) const {
+			return ptr_ == other.ptr_;
+		}
+	};
+
+	constexpr span(raw_value_type** values, size_type size)
+		: values_{ values }, size_{ size }
+	{}
+
+	constexpr span(size_type size, raw_value_type** values)
+		: values_{ values }, size_{ size }
+	{}
+
+	constexpr size_type size() const {
+		return size_;
+	}
+
+	constexpr iterator begin() const {
+		return { values_ };
+	}
+
+	constexpr iterator end() const {
+		return { values_ + size_ };
+	}
+
+	constexpr raw_value_type** data() const {
+		return values_;
+	}
+
+	constexpr raw_value_type& operator [] (size_type index) {
+		return *(begin() + index);
+	}
+
+	constexpr const raw_value_type& operator [] (size_type index) const {
+		return *(begin() + index);
+	}
+
+};
