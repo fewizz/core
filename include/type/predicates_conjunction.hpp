@@ -5,7 +5,7 @@
 namespace type {
 
 	template<type::predicate... Predicates>
-	struct conjuncted_predicates : type::predicate_marker {
+	struct predicates_conjunction : type::predicate_marker {
 
 		template<typename Type>
 		static constexpr bool for_type =

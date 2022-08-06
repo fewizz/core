@@ -12,3 +12,6 @@ namespace type {
 	};
 
 } // type
+
+template<typename Type>
+inline constexpr bool is_enum = __is_enum(Type);

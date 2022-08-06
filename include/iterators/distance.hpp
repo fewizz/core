@@ -1,22 +1,19 @@
 #pragma once
 
 #include "integer.hpp"
-#include "range/basic.hpp"
 
-namespace iterators {
-
-	// TODO optimized versions
-
-	template<typename Iterator, typename Sentinel>
-	constexpr nuint distance(Iterator iterator, Sentinel sentinel) {
-		nuint d = 0; // TODO size_type
-
-		while(iterator != sentinel) {
-			++d;
-			++iterator;
-		}
-
-		return d;
+template<typename Iterator, typename Sentinel>
+constexpr nuint iterators_distance(Iterator iterator, Sentinel sentinel) {
+	nuint distance = 0;
+	while(iterator != sentinel) {
+		++distance;
+		++iterator;
 	}
+	return distance;
+}
 
-} // iterators
+template<typename Iterator, typename Sentinel>
+requires requires(Iterator i, Sentinel s) { s - i; }
+constexpr auto iterators_distance(Iterator iterator, Sentinel sentinel) {
+	return sentinel - iterator;
+}

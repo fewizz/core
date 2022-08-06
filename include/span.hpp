@@ -4,156 +4,105 @@
 #include "type/is_reference.hpp"
 #include "type/remove_reference.hpp"
 
-template<typename ValueType, unsigned_integer SizeType = nuint>
+template<typename Type, unsigned_integer SizeType = nuint>
 struct span {
-	using element_type = ValueType&;
 	using size_type = SizeType;
 
 protected:
-	using value_type = ValueType;
-	value_type* values_;
+	Type* ptr_;
 	size_type size_;
 public:
 
 	constexpr span() = default;
 
-	constexpr span(value_type* values, size_type size) :
-		values_{ values }, size_{ size }
-	{}
-
-	constexpr span(size_type size, value_type* values) :
-		values_{ values }, size_{ size }
-	{}
+	constexpr span(Type* ptr, size_type size) : ptr_{ ptr }, size_{ size } {}
+	constexpr span(size_type size, Type* ptr) : ptr_{ ptr }, size_{ size } {}
 
 	template<nuint Size>
-	constexpr span(value_type (&array)[Size]) :
-		values_{ array }, size_{ Size }
+	constexpr span(Type (&array)[Size]) :
+		ptr_{ array }, size_{ Size }
 	{}
 
-	constexpr size_type size() const {
-		return size_;
+	constexpr size_type size() const { return size_; }
+
+	constexpr const Type* iterator() const { return ptr_; }
+	constexpr       Type* iterator()       { return ptr_; }
+
+	constexpr const Type* sentinel() const { return ptr_ + size_; }
+	constexpr       Type* sentinel()       { return ptr_ + size_; }
+
+	constexpr       Type& operator [] (size_type index)       {
+		return ptr_[index];
+	}
+	constexpr const Type& operator [] (size_type index) const {
+		return ptr_[index];
 	}
 
-	constexpr const value_type* begin() const {
-		return values_;
+	constexpr       Type* elements_ptr()       { return ptr_; }
+	constexpr const Type* elements_ptr() const { return ptr_; }
+
+	template<typename CastType>
+	constexpr span<CastType> cast() {
+		return span<CastType>{ (CastType*) ptr_, size_ };
 	}
 
-	constexpr value_type* begin() {
-		return values_;
-	}
-
-	constexpr const value_type* end() const {
-		return values_ + size_;
-	}
-
-	constexpr value_type* end() {
-		return values_ + size_;
-	}
-
-	constexpr auto& operator [] (size_type index) {
-		return data()[index];
-	}
-
-	constexpr const auto& operator [] (size_type index) const {
-		return data()[index];
-	}
-
-	constexpr auto& data() {
-		return values_;
-	}
-
-	constexpr const auto& data() const {
-		return values_;
-	}
-
-	template<typename Type>
-	constexpr span<Type> cast() {
-		return span<Type>{ (Type*) data(), size() };
-	}
-
-	constexpr span cut(size_type size) {
-		return span{ data(), size };
-	}
+	constexpr span shrink(size_type size) { return span{ ptr_, size }; }
 
 };
 
-template<typename ValueType>
-span(ValueType*) -> span<ValueType>;
+template<typename Type>
+span(Type*) -> span<Type>;
 
-template<typename ValueType, unsigned_integer SizeType>
-requires type::is_reference::for_type<ValueType>
-class span<ValueType, SizeType> {
-	using raw_value_type = remove_reference<ValueType>;
-
-	raw_value_type** values_;
-public:
-
-	using element_type = ValueType;
+template<typename Type, unsigned_integer SizeType>
+struct span<Type&, SizeType> {
 	using size_type = SizeType;
-
 private:
+	Type**    ptr_;
 	size_type size_;
 public:
 	
-	class iterator {
-		raw_value_type** ptr_;
+	class it {
+		Type** ptr_;
 	public:
 
-		iterator(raw_value_type** ptr) : ptr_{ ptr } {}
+		constexpr it(Type** ptr) : ptr_{ ptr } {}
 
-		raw_value_type& operator * () const {
-			return **ptr_;
-		}
+		constexpr Type& operator * () const { return **ptr_; }
 
-		auto& operator ++ () {
-			++ptr_;
-			return *this;
-		}
+		constexpr it& operator ++ () { ++ptr_; return *this; }
 
-		auto& operator += (size_type n) {
-			ptr_ += n;
-			return *this;
+		constexpr it& operator += (size_type n) {
+			ptr_ += n; return *this;
 		}
 	
-		auto operator + (size_type n) const {
-			return iterator{ *this } += n;
+		constexpr it operator + (size_type n) const {
+			return it{ *this } += n;
 		}
 	
-		bool operator == (const iterator other) const {
+		constexpr bool operator == (const it other) const {
 			return ptr_ == other.ptr_;
 		}
 	};
 
-	constexpr span(raw_value_type** values, size_type size)
-		: values_{ values }, size_{ size }
-	{}
+	constexpr span(Type** ptr, size_type size) : ptr_{ ptr }, size_{ size } {}
+	constexpr span(size_type size, Type** ptr) : ptr_{ ptr }, size_{ size } {}
 
-	constexpr span(size_type size, raw_value_type** values)
-		: values_{ values }, size_{ size }
-	{}
+	constexpr size_type size() const { return size_; }
 
-	constexpr size_type size() const {
-		return size_;
+	constexpr it iterator() const { return { ptr_ }; }
+	constexpr it iterator()       { return { ptr_ }; }
+
+	constexpr it sentinel() const { return { ptr_ + size_ }; }
+	constexpr it sentinel()       { return { ptr_ + size_ }; }
+
+	constexpr const Type** elements_ptr() const { return ptr_; }
+	constexpr       Type** elements_ptr()       { return ptr_; }
+
+	constexpr       Type& operator [] (size_type index)       {
+		return *(ptr_ + index);
 	}
-
-	constexpr iterator begin() const {
-		return { values_ };
-	}
-
-	constexpr iterator end() const {
-		return { values_ + size_ };
-	}
-
-	constexpr raw_value_type** data() const {
-		return values_;
-	}
-
-	constexpr raw_value_type& operator [] (size_type index) {
-		return *(begin() + index);
-	}
-
-	constexpr const raw_value_type& operator [] (size_type index) const {
-		return *(begin() + index);
+	constexpr const Type& operator [] (size_type index) const {
+		return *(ptr_ + index);
 	}
 
 };

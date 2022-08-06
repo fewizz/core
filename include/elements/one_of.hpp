@@ -1,20 +1,23 @@
 #pragma once
 
 #include "./one_of_storage.hpp"
-#include "../types/are_same.hpp"
+
 #include "../type/is_same_as.hpp"
 #include "../type/is_assignable.hpp"
 #include "../type/is_constructible_from.hpp"
+#include "../type/is_trivial.hpp"
+#include "../type/is_base.hpp"
+#include "../type/predicates_conjunction.hpp"
+
+#include "../types/are_same.hpp"
 #include "../types/at_index.hpp"
 #include "../types/index_of_satisfying_predicate.hpp"
 #include "../types/are_contain_satisfying_predicate.hpp"
-#include "../decayed_same_as.hpp"
 #include "../types/first.hpp"
+
+#include "../decayed_same_as.hpp"
 #include "../forward.hpp"
 #include "../placement_new.hpp"
-#include "../type/is_trivial.hpp"
-#include "../type/is_base.hpp"
-#include "../type/conjuncted_predicates.hpp"
 #include "../move.hpp"
 
 namespace elements {
@@ -46,7 +49,7 @@ namespace elements {
 		template<typename Type>
 		static constexpr bool has_one_assignable_and_constructible_from =
 			types::are_contain_one_satisfying_predicate<
-				type::conjuncted_predicates<
+				type::predicates_conjunction<
 					type::is_constructible_from<Type>,
 					type::is_assignable<Type>
 				>
@@ -55,7 +58,7 @@ namespace elements {
 		template<typename Type>
 		static constexpr nuint index_of_assignable_and_constructible_from =
 			types::index_of_satisfying_predicate<
-				type::conjuncted_predicates<
+				type::predicates_conjunction<
 					type::is_constructible_from<Type>,
 					type::is_assignable<Type>
 				>

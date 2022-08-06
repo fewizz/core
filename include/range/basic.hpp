@@ -1,15 +1,15 @@
 #pragma once
 
-#include "./begin.hpp"
-#include "./end.hpp"
+#include "./iterator.hpp"
+#include "./sentinel.hpp"
 #include "./type/remove_const.hpp"
 #include "./type/is_same_as.hpp"
 #include "./type/remove_reference.hpp"
 
 template<typename T>
 concept basic_range = requires(T& t) {
-	range::begin(t);
-	range::end(t);
+	range_iterator(t);
+	range_sentinel(t);
 };
 
 namespace type {

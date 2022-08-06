@@ -1,41 +1,37 @@
 #pragma once
 
 #include "../range/basic.hpp"
+#include "../loop_action.hpp"
 
-namespace ranges {
+enum class ranges_correlation_end_cause {
+	first_ended, second_ended, both_ended, interrupted
+};
 
-	enum class ending {
-		first, second, both, interrupted
-	};
+template<basic_range FirstRange, basic_range SecondRange, typename Handler>
+constexpr ranges_correlation_end_cause correlate_ranges(
+	FirstRange&& first_range,
+	SecondRange&& second_range,
+	Handler&& handler
+) {
+	auto ai = range_iterator(first_range);
+	auto bi = range_iterator(second_range);
+	auto as = range_sentinel(first_range);
+	auto bs = range_sentinel(second_range);
 
-	template<basic_range FirstRange, basic_range SecondRange>
-	struct correlate {
-		FirstRange& first_range;
-		SecondRange& second_range;
+	while(true) {
+		bool first  = ai == as;
+		bool second = bi == bs;
 
-		constexpr correlate(FirstRange& first_range, SecondRange& second_range) :
-			first_range{ first_range },
-			second_range{ second_range }
-		{}
+		if( first &&  second) return ranges_correlation_end_cause::both_ended;
+		if(!first &&  second) return ranges_correlation_end_cause::second_ended;
+		if( first && !second) return ranges_correlation_end_cause::first_ended;
 
-		template<typename Handler>
-		[[ nodiscard ]]
-		constexpr ending operator () (Handler&& handler) const {
-			auto a = range::begin(first_range);
-			auto b = range::begin(second_range);
-
-			while(true) {
-				bool first  = a == range::end(first_range);
-				bool second = b == range::end(second_range);
-
-				if( first &&  second) return ending::both;
-				if(!first &&  second) return ending::second;
-				if( first && !second) return ending::first;
-
-				if(!handler(*a++, *b++)) return ending::interrupted;
-			}
+		loop_action action = handler(*ai++, *bi++);
+		switch (action) {
+			case loop_action::stop:
+				return ranges_correlation_end_cause::interrupted;
+			case loop_action::next:
+				continue;
 		}
-
-	};
-
-} // ranges
+	}
+}

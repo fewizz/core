@@ -1,10 +1,9 @@
 #pragma once
 
 #include "../range/basic.hpp"
-#include "../range/begin.hpp"
-#include "../range/end.hpp"
+#include "../range/iterator.hpp"
+#include "../range/sentinel.hpp"
 #include "../range/default_sentinel.hpp"
-#include "../range/value_type.hpp"
 #include "../iterators/distance.hpp"
 #include "../forward.hpp"
 #include "../elements/of.hpp"
@@ -19,7 +18,9 @@ class concat_view_iterator {
 	nuint index_ = 0;
 
 	using element_type = types::common::for_types<
-		decltype( * expression_of_type<typename Pairs::template type_at<0>>)...
+		decltype(
+			* expression_of_type<typename Pairs::template type_at<0>>
+		)...
 	>;
 
 	template<nuint Index>
@@ -353,14 +354,14 @@ class concat_view_iterator {
 				[&]<nuint Index>(auto& pair) {
 					return [&]<nuint... Indices>(indices::of<Indices...>) {
 						nuint len = (
-							iterators::distance(
+							iterators_distance(
 								it(other.pairs_.template at<Indices>()),
 								end(other.pairs_.template at<Indices>())
 							)
 							+ ... + 0
 						);
 						len +=
-							iterators::distance(
+							iterators_distance(
 								it(other.pairs_.template at<Index>()),
 								it(pair)
 							);
@@ -428,26 +429,25 @@ public:
 
 template<typename... Pairs>
 constexpr bool operator == (
-	concat_view_iterator<Pairs...> it, range::default_sentinel
+	concat_view_iterator<Pairs...> it, default_sentinel
 ) { return it.is_ended(); }
 
 template<typename... Pairs>
 constexpr bool operator == (
-	range::default_sentinel, concat_view_iterator<Pairs...> it
+	default_sentinel, concat_view_iterator<Pairs...> it
 ) { return it.is_ended(); }
 
 template<typename... Pairs>
 constexpr bool operator != (
-	concat_view_iterator<Pairs...> it, range::default_sentinel
+	concat_view_iterator<Pairs...> it, default_sentinel
 ) { return !it.is_ended(); }
 
 template<typename... Pairs>
 constexpr bool operator != (
-	range::default_sentinel, concat_view_iterator<Pairs...> it
+	default_sentinel, concat_view_iterator<Pairs...> it
 ) { return !it.is_ended(); }
 
 template<basic_range... Ranges>
-//requires types_are_same<value_type<Ranges>...>
 class concat_view {
 	elements::of<Ranges...> ranges_;
 public:
@@ -456,16 +456,19 @@ public:
 		ranges_{ forward<Ranges>(ranges)... }
 	{}
 
-	constexpr auto begin() const {
+	constexpr auto iterator() const {
 		return ranges_.pass([](auto&&... ranges) {
 			return concat_view_iterator {
-				elements::of{ range::begin(ranges), range::end(ranges) } ...
+				elements::of {
+					range_iterator(ranges),
+					range_sentinel(ranges)
+				} ...
 			};
 		});
 	}
 
-	constexpr auto end() const {
-		return range::default_sentinel{};
+	constexpr auto sentinel() const {
+		return default_sentinel{};
 	}
 
 	constexpr nuint size() const {
@@ -473,6 +476,7 @@ public:
 			return (ranges.size() + ...);
 		});
 	}
+
 };
 
 template<basic_range... Ranges>

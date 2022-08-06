@@ -7,52 +7,31 @@
 
 template<typename Type, nuint Size>
 struct array {
-	using element_type = Type&;
-
-private:
-	using value_type = Type;
-public:
-	value_type m_array[Size];
+	Type array_[Size];
 
 	constexpr nuint size() const {
 		return Size;
 	}
 
-	constexpr auto begin() const {
-		return m_array;
-	}
+	constexpr const Type* iterator() const & { return array_; }
+	constexpr       Type* iterator()       & { return array_; }
 
-	constexpr auto begin() {
-		return m_array;
-	}
+	constexpr const Type* sentinel() const & { return array_ + Size; }
+	constexpr       Type* sentinel()       & { return array_ + Size; }
 
-	constexpr auto end() const {
-		return m_array + Size;
-	}
+	constexpr const Type* elements_ptr() const & { return array_; }
+	constexpr       Type* elements_ptr()       & { return array_; }
 
-	constexpr auto end() {
-		return m_array + Size;
+	constexpr decltype(auto) operator [] (nuint index) const {
+		return array_[index];
 	}
-
-	constexpr auto& operator [] (nuint index) {
-		return data()[index];
-	}
-
-	constexpr const auto& operator [] (nuint index) const {
-		return data()[index];
-	}
-
-	constexpr value_type* data() {
-		return m_array;
-	}
-
-	constexpr const value_type* data() const {
-		return m_array;
+	constexpr decltype(auto) operator [] (nuint index) {
+		return array_[index];
 	}
 };
 
 template<typename... Types>
-requires(sizeof...(Types) == 1 || types::are_same::for_types<Types...>)
+requires(sizeof...(Types) == 1 || types_are_same<Types...>)
 array(Types&&...)
 	-> array<
 		remove_reference<first_type<Types...>>,
@@ -60,24 +39,16 @@ array(Types&&...)
 	>;
 
 template<nuint Index, typename Type, nuint Size>
-constexpr auto&& get(array<Type, Size>&& a) {
-	return a[Index];
-}
+constexpr const Type&  get(const array<Type, Size>&  a) { return a[Index]; }
 
 template<nuint Index, typename Type, nuint Size>
-constexpr auto&& get(const array<Type, Size>&& a) {
-	return a[Index];
-}
+constexpr       Type&  get(      array<Type, Size>&  a) { return a[Index]; }
 
 template<nuint Index, typename Type, nuint Size>
-constexpr auto& get(array<Type, Size>& a) {
-	return a[Index];
-}
+constexpr const Type&& get(const array<Type, Size>&& a) { return a[Index]; }
 
 template<nuint Index, typename Type, nuint Size>
-constexpr auto&& get(const array<Type, Size>& a) {
-	return a[Index];
-}
+constexpr       Type&& get(      array<Type, Size>&& a) { return a[Index]; }
 
 #include <std/tuple_size.hpp>
 

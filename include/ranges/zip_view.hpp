@@ -1,8 +1,8 @@
 #pragma once
 
 #include "../range/basic.hpp"
-#include "../range/begin.hpp"
-#include "../range/end.hpp"
+#include "../range/iterator.hpp"
+#include "../range/sentinel.hpp"
 #include "../move.hpp"
 #include "../elements/of.hpp"
 #include "../type/is_addition_assignable.hpp"
@@ -106,21 +106,21 @@ public:
 		ranges_{ forward<Ranges>(ranges)... }
 	{}
 
-	constexpr auto begin() const {
+	constexpr auto iterator() const {
 		return ranges_.pass([](auto&... ranges) {
-			return zip_view_iterator{ range::begin(ranges)... };
+			return zip_view_iterator{ range_iterator(ranges)... };
 		});
 	}
 
 	constexpr auto end() const {
 		return ranges_.pass([](auto&... ranges) {
-			return zip_view_sentinel{ range::end(ranges)... };
+			return zip_view_sentinel{ range_sentinel(ranges)... };
 		});
 	}
 
 	constexpr auto operator [] (nuint n) const
-	requires requires() { begin() + n; } {
-		return *(begin() + n);
+	requires requires(zip_view& ths) { ths.iterator() + n; } {
+		return *(iterator() + n);
 	}
 
 };

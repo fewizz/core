@@ -1,22 +1,19 @@
 #pragma once
 
 #include "./basic.hpp"
-#include "./begin.hpp"
+#include "./iterator.hpp"
 #include "../expression_of_type.hpp"
 #include "../type/of.hpp"
 
-namespace range {
 
-	template<typename Type>
-	struct element_type_t : type::of<Type> {};
+template<typename Type>
+struct range_element_type_t : type::of<Type> {};
 
-	template<basic_range RangeType>
-	struct element_type_t<RangeType> : type::of<
-		decltype(*range::begin(expression_of_type<RangeType>))
-	> {};
+template<basic_range Range>
+struct range_element_type_t<Range> : type::of<
+	decltype(*range_iterator(expression_of_type<Range>))
+> {};
 
-	template<typename RangeType>
-	requires basic_range<RangeType>
-	using element_type = typename element_type_t<RangeType>::type;
-
-} // range
+template<typename Range>
+requires basic_range<Range>
+using range_element_type = typename range_element_type_t<Range>::type;

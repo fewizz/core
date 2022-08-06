@@ -2,50 +2,41 @@
 
 #include "./basic.hpp"
 
-namespace range {
+// hope it will use memcpy
 
-	// hope it will use internal memcpy
+template<basic_range Range>
+class range_copy {
+	Range from_;
+public:
 
-	template<basic_range Range>
-	class copy {
-		Range from;
-	public:
+	constexpr range_copy(Range&& range) : from_{ forward<Range>(range) } {}
 
-		template<basic_range Range0>
-		constexpr copy(Range0&& range) : from{ range } {}
+	template<basic_range To>
+	constexpr void to(To&& to) {
+		auto from_begin = range_iterator(from_);
+		auto from_end   = range_sentinel(from_);
+		auto to_begin   = range_iterator(to);
 
-		template<basic_range To>
-		constexpr decltype(auto) to(To&& to) {
-			auto from_begin = begin(from);
-			auto from_end = end(from);
-			auto to_begin = begin(to);
-
-			while(from_begin != from_end) {
-				*to_begin = *from_begin;
-				++from_begin;
-				++to_begin;
-			}
-
-			return forward<To>(to);
+		while(from_begin != from_end) {
+			*to_begin = *from_begin;
+			++from_begin;
+			++to_begin;
 		}
+	}
 
-		template<typename To>
-		constexpr auto to(To to) {
-			auto from_begin = begin(from);
-			auto from_end = end(from);
+	template<typename To>
+	constexpr auto to_iterator(To&& to) {
+		auto from_begin = range_iterator(from_);
+		auto from_end   = range_sentinel(from_);
 
-			while(from_begin != from_end) {
-				*to = *from_begin;
-				++from_begin;
-				++to;
-			}
-
-			return to;
+		while(from_begin != from_end) {
+			*to = *from_begin;
+			++from_begin;
+			++to;
 		}
+	}
 
-	};
+};
 
-	template<basic_range Range>
-	copy(Range&&) -> copy<Range>;
-
-} // range
+template<basic_range Range>
+range_copy(Range&&) -> range_copy<Range>;

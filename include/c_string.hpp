@@ -26,62 +26,59 @@ struct c_string;
 
 template<typename Type>
 struct c_string<c_string_type::unknown_size, Type> {
-	using element_type = const Type&;
-
 private:
-	using value_type = const Type;
-	value_type* ptr_;
+	const Type* ptr_;
 public:
 
-	constexpr c_string(value_type* ptr) : ptr_{ ptr } {}
+	constexpr c_string(const Type* ptr) : ptr_{ ptr } {}
 
-	constexpr value_type* begin() const { return ptr_; }
-	constexpr value_type* data() const { return ptr_; }
-	constexpr c_string_sentinel end() const { return {}; }
+	constexpr const Type*       iterator() const { return ptr_; }
+	constexpr c_string_sentinel sentinel() const { return {}; }
 
-	constexpr value_type& operator [] (nuint index) const {
+	constexpr const Type* elements_ptr() const { return ptr_; }
+
+	constexpr const Type& operator [] (nuint index) const {
 		return ptr_[index];
 	}
 
 	constexpr c_string<c_string_type::known_size, Type> sized() const {
-		return { ptr_, iterators::distance(begin(), end()) };
+		return { ptr_, iterators_distance(iterator(), sentinel()) };
 	}
 
 };
 
 template<typename Type>
 struct c_string<c_string_type::known_size, Type> {
-	using element_type = const Type&;
 
 private:
-	using value_type = const Type;
-	value_type* ptr_;
+	const Type* ptr_;
 	nuint size_;
 public:
 
 	constexpr c_string() = default;
 
 	template<nuint Size>
-	constexpr c_string(value_type (&array)[Size]) :
+	constexpr c_string(const Type (&array)[Size]) :
 		ptr_{ array }, size_{ Size - 1 }
 	{}
 
-	constexpr c_string(value_type* ptr, nuint size) :
+	constexpr c_string(const Type* ptr, nuint size) :
 		ptr_{ ptr }, size_{ size }
 	{}
 
 	template<nuint Size>
-	constexpr c_string& operator = (value_type (&array)[Size]) {
+	constexpr c_string& operator = (const Type* (&array)[Size]) {
 		ptr_ = array;
 		size_ = Size - 1;
 		return *this;
 	}
 
-	constexpr value_type* begin() const { return ptr_; }
-	constexpr value_type* data() const { return ptr_; }
-	constexpr value_type* end() const { return ptr_ + size_; }
+	constexpr const Type* iterator() const { return ptr_; }
+	constexpr const Type* sentinel() const { return ptr_ + size_; }
 
-	constexpr value_type& operator [] (nuint index) const {
+	constexpr const Type* elements_ptr() const { return ptr_; }
+
+	constexpr const Type& operator [] (nuint index) const {
 		return ptr_[index];
 	}
 

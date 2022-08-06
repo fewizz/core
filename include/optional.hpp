@@ -13,29 +13,15 @@ public:
 
 	optional() : base_type{ elements::none{} } {}
 
-	bool has_value() const {
-		return base_type::template is<Type>();
-	}
+	bool has_value() const { return base_type::template is<Type>(); }
 
-	explicit operator bool () const {
-		return has_value();
-	}
+	explicit operator bool () const { return has_value(); }
 
-	decltype(auto) value() const {
-		return base_type::template get<Type>();
-	}
+	decltype(auto) value() const { return base_type::template get<Type>(); }
+	decltype(auto) value()       { return base_type::template get<Type>(); }
 
-	decltype(auto) value() {
-		return base_type::template get<Type>();
-	}
-
-	const remove_reference<Type>* operator -> () const {
-		return &value();
-	}
-
-	remove_reference<Type>* operator -> () {
-		return &value();
-	}
+	const remove_reference<Type>* operator -> () const { return &value(); }
+	      remove_reference<Type>* operator -> ()       { return &value(); }
 
 };
 
@@ -48,36 +34,17 @@ public:
 
 	optional(Type& element) : ptr_{ &element } {}
 
-	bool has_value() const {
-		return ptr_ != nullptr;
-	}
+	bool has_value() const { return ptr_ != nullptr; }
 
-	explicit operator bool () const {
-		return has_value();
-	}
+	explicit operator bool () const { return has_value(); }
 
-	decltype(auto) value() const {
-		return *ptr_;
-	}
+	decltype(auto) value() const { return *ptr_; }
+	decltype(auto) value()       { return *ptr_; }
 
-	decltype(auto) value() {
-		return *ptr_;
-	}
+	const remove_reference<Type>* ptr() const { return ptr_; }
+	      remove_reference<Type>* ptr()       { return ptr_; }
 
-	const remove_reference<Type>* ptr() const {
-		return ptr_;
-	}
-
-	remove_reference<Type>* ptr() {
-		return ptr_;
-	}
-
-	const remove_reference<Type>* operator -> () const {
-		return ptr_;
-	}
-
-	remove_reference<Type>* operator -> () {
-		return ptr_;
-	}
+	const remove_reference<Type>* operator -> () const { return ptr_; }
+	      remove_reference<Type>* operator -> ()       { return ptr_; }
 
 };

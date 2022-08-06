@@ -1,14 +1,14 @@
 #pragma once
 
-#include "move.hpp"
+#include "forward.hpp"
 
 template<typename Handler>
 class on_scope_exit {
 	Handler handler_;
 public:
 
-	constexpr on_scope_exit(Handler handler) :
-		handler_{ handler }
+	constexpr on_scope_exit(Handler&& handler) :
+		handler_{ forward<Handler>(handler) }
 	{}
 
 	constexpr ~on_scope_exit() {
@@ -16,3 +16,6 @@ public:
 	}
 
 };
+
+template<typename Handler>
+on_scope_exit(Handler&&) -> on_scope_exit<Handler>;

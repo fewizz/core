@@ -20,6 +20,6 @@ constexpr Type read(Iterator&& iterator) {
 		storage[index] = b;
 	}
 
-	Type value = __builtin_bit_cast(Type, storage);//*((Type*) storage);
+	Type value = __builtin_bit_cast(Type, storage);
 	return value;
 }

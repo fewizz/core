@@ -2,6 +2,7 @@
 
 #include "type/remove_reference.hpp"
 
-constexpr auto&& move(auto&& v) {
-	return (remove_reference<decltype(v)>&&) v; 
+template<typename Type>
+constexpr remove_reference<Type>&& move(Type&& v) {
+	return (remove_reference<Type>&&) v; 
 }

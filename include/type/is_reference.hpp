@@ -12,3 +12,6 @@ namespace type {
 	};
 
 } // type
+
+template<typename Type>
+inline constexpr bool is_reference = __is_reference(Type);

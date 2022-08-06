@@ -6,7 +6,7 @@
 
 namespace type {
 
-	struct add_pointer : type::modifier_marker {
+	class add_pointer : type::modifier_marker {
 
 		template<typename Type>
 		struct add_pointer_t : type::of<Type*> {};
@@ -15,20 +15,21 @@ namespace type {
 		struct add_pointer_t<Type&> : type::of<Type*> {};
 
 		template<typename Type>
-		requires(type::is_function::for_type<Type>)
-		struct add_pointer_t<Type&> : type::of<Type*> {};
+		requires(::is_function<Type>)
+		struct add_pointer_t<               Type&> : type::of<Type*> {};
 
 		template<typename Type>
-		requires(type::is_function::for_type<Type>)
-		struct add_pointer_t<const Type&> : type::of<Type*> {};
+		requires(::is_function<Type>)
+		struct add_pointer_t<const          Type&> : type::of<Type*> {};
 
 		template<typename Type>
-		requires(type::is_function::for_type<Type>)
+		requires(::is_function<Type>)
 		struct add_pointer_t<const volatile Type&> : type::of<Type*> {};
 
 		template<typename Type>
-		requires(type::is_function::for_type<Type>)
-		struct add_pointer_t<volatile Type&> : type::of<Type*> {};
+		requires(::is_function<Type>)
+		struct add_pointer_t<      volatile Type&> : type::of<Type*> {};
+	public:
 
 		template<typename Type>
 		using for_type = typename add_pointer_t<Type>::type;
