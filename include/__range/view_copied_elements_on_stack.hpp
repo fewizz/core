@@ -7,7 +7,7 @@
 namespace __range {
 
 template<sized_range Range, typename Handler>
-decltype(auto) view_on_stack_copied_elements(Range&& range, Handler&& handler) {
+decltype(auto) view_copied_elements_on_stack(Range&& range, Handler&& handler) {
 	nuint size = range.size();
 
 	return view_on_stack<range_element_type<Range>>(size)(

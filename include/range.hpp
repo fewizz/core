@@ -7,7 +7,7 @@
 #include "./__range/copy.hpp"
 #include "./__range/iterator.hpp"
 #include "./__range/split_view.hpp"
-#include "./__range/view_on_stack_copied_elements.hpp"
+#include "./__range/view_copied_elements_on_stack.hpp"
 #include "./__ranges/transform_view.hpp"
 
 template<basic_range Range>
@@ -71,14 +71,14 @@ public:
 	template<typename Handler>
 	constexpr decltype(auto)
 	view_copied_elements_on_stack(Handler&& handler) const {
-		return __range::view_on_stack_copied_elements(
+		return __range::view_copied_elements_on_stack(
 			range_, forward<Handler>(handler)
 		);
 	}
 	template<typename Handler>
 	constexpr decltype(auto)
 	view_copied_elements_on_stack(Handler&& handler)       {
-		return __range::view_on_stack_copied_elements(
+		return __range::view_copied_elements_on_stack(
 			range_, forward<Handler>(handler)
 		);
 	}

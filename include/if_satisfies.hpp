@@ -1,7 +1,7 @@
 #pragma once
 
 template<bool P>
-struct if_satisfy {
+struct if_satisfies {
 
 	template<typename T>
 	struct then;

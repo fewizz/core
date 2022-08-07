@@ -1,6 +1,6 @@
 #pragma once
 
-#include "if_satisfy.hpp"
+#include "if_satisfies.hpp"
 #include "type/predicate.hpp"
 #include "type/of.hpp"
 #include "types/are_same.hpp"
@@ -44,14 +44,14 @@ template<> struct uint_of_bits_type<32> : type::of<uint32> {};
 // 64
 
 using int64 =
-	if_satisfy<sizeof(long) == 8>::
+	if_satisfies<sizeof(long) == 8>::
 	then<long>::
 	otherwise<long long>;
 
 static_assert(sizeof(int64) == 8);
 
 using uint64 =
-	if_satisfy<sizeof(unsigned long) == 8>::
+	if_satisfies<sizeof(unsigned long) == 8>::
 	then<unsigned long>::
 	otherwise<unsigned long long>;
 

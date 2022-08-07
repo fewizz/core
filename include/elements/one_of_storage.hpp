@@ -5,7 +5,7 @@
 #include "../type/remove_reference.hpp"
 #include "../types/first.hpp"
 #include "../integer.hpp"
-#include "../if_satisfy.hpp"
+#include "../if_satisfies.hpp"
 
 namespace elements {
 
@@ -32,7 +32,7 @@ namespace elements {
 		using next_type = one_of_storage<TailTypes...>;
 
 		using internal_type = typename
-			if_satisfy<value_type_is_reference>::template
+			if_satisfies<value_type_is_reference>::template
 			then<remove_reference<Type> *>::template
 			otherwise<Type>;
 

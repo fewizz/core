@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../if_satisfy.hpp"
+#include "../if_satisfies.hpp"
 #include "remove_reference.hpp"
 #include "remove_extent.hpp"
 #include "remove_volatile.hpp"
@@ -16,13 +16,13 @@ namespace type {
 
 		template<typename Type>
 		using for_type =
-			typename if_satisfy<
+			typename if_satisfies<
 				::is_array<::remove_reference<Type>>
 			>::template then<
 				::remove_extent<::remove_reference<Type>>
 			>
 			::template otherwise<
-				typename if_satisfy<
+				typename if_satisfies<
 					::is_function<::remove_reference<Type>>
 				>
 				::template then<
