@@ -2,7 +2,6 @@
 
 #include "../integer.hpp"
 #include "./basic.hpp"
-#include "./has_sentinel_member_function.hpp"
 
 namespace __range {
 

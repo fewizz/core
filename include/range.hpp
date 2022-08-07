@@ -18,8 +18,8 @@ public:
 
 	constexpr range(Range&& range) : range_{ forward<Range>(range) } {}
 
-	constexpr auto iterator() const { return range_.iterator(); }
-	constexpr auto iterator()       { return range_.iterator(); }
+	constexpr basic_range auto iterator() const { return range_.iterator(); }
+	constexpr basic_range auto iterator()       { return range_.iterator(); }
 
 	constexpr auto sentinel() const { return range_.sentinel(); }
 	constexpr auto sentinel()       { return range_.sentinel(); }

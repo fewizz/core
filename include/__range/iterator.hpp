@@ -2,7 +2,6 @@
 
 #include "integer.hpp"
 #include "./basic.hpp"
-#include "./has_iterator_member_function.hpp"
 #include "type/remove_const.hpp"
 #include "type/remove_reference.hpp"
 

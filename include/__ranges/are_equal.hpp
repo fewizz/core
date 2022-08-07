@@ -1,12 +1,15 @@
 #pragma once
 
 #include "../__range/basic.hpp"
-#include "../__range/sized.hpp"
+#include "../__range/size.hpp"
+#include "../__iterator/basic.hpp"
 #include "./elements/of.hpp"
 #include "./array.hpp"
 
+namespace __ranges {
+
 template<basic_range... Ranges>
-constexpr bool ranges_are_equal_unknown_size(Ranges&&... ranges) {
+constexpr bool are_equal_unknown_size(Ranges&&... ranges) {
 	auto iterators = elements::of {
 		elements::of {
 			ranges.iterator(),
@@ -44,12 +47,12 @@ constexpr bool ranges_are_equal_unknown_size(Ranges&&... ranges) {
 }
 
 template<basic_range Range0, basic_range Range1>
-constexpr bool ranges_are_equal_unknown_size(
+constexpr bool are_equal_unknown_size(
 	Range0&& range0, Range1&& range1
 ) {
-	auto i0 = range0.iterator();
+	basic_iterator auto i0 = range0.iterator();
 	auto s0 = range0.sentinel();
-	auto i1 = range1.iterator();
+	basic_iterator auto i1 = range1.iterator();
 	auto s1 = range1.sentinel();
 
 	while(true) {
@@ -70,11 +73,11 @@ constexpr bool ranges_are_equal_unknown_size(
 }
 
 template<sized_range... Ranges>
-constexpr bool ranges_are_equal_known_size(Ranges&&... ranges) {
+constexpr bool are_equal_known_size(Ranges&&... ranges) {
 	auto iterators = elements::of { ranges.iterator()... };
 	auto sizes = elements::of{ ranges.size()... };
 
-	if(!sizes.pass([](auto first, auto... others) {
+	if(!sizes.pass([](integer auto first, integer auto... others) {
 		return ((first == others) && ...);
 	})) { return false; }
 
@@ -84,30 +87,30 @@ constexpr bool ranges_are_equal_known_size(Ranges&&... ranges) {
 		--size;
 
 		bool elements_equal_to_first = iterators.pass(
-			[](auto first, auto... its) {
+			[](basic_iterator auto first, basic_iterator auto... its) {
 				decltype(auto) first_element = *first;
 				return ((first_element == *its) && ...);
 			}
 		);
 		if(!elements_equal_to_first) { return false; }
 
-		iterators.pass([](auto&... its) { (++its, ...);});
+		iterators.pass([](basic_iterator auto&... its) { (++its, ...);});
 	}
 
 	return true;
 }
 
 template<sized_range Range0, sized_range Range1>
-constexpr bool ranges_are_equal_known_size(
+constexpr bool are_equal_known_size(
 	Range0&& range0, Range1&& range1
 ) {
-	auto s0 = size(range0);
-	auto s1 = size(range1);
+	integer auto s0 = range_size(range0);
+	integer auto s1 = range_size(range1);
 
 	if(s0 != s1) { return false; }
 
-	auto i0 = range0.iterator();
-	auto i1 = range1.iterator();
+	basic_iterator auto i0 = range0.iterator();
+	basic_iterator auto i1 = range1.iterator();
 
 	while(s0 > 0) {
 		--s0;
@@ -122,11 +125,13 @@ constexpr bool ranges_are_equal_known_size(
 }
 
 template<basic_range... Ranges>
-constexpr bool ranges_are_equal(Ranges&&... ranges) {
+constexpr bool are_equal(Ranges&&... ranges) {
 	if constexpr((sized_range<Ranges> && ...)) {
-		return ranges_are_equal_known_size(forward<Ranges>(ranges)...);
+		return are_equal_known_size(forward<Ranges>(ranges)...);
 	}
 	else {
-		return ranges_are_equal_unknown_size(forward<Ranges>(ranges)...);
+		return are_equal_unknown_size(forward<Ranges>(ranges)...);
 	}
 }
+
+} // __ranges

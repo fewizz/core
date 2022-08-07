@@ -1,17 +1,16 @@
 #pragma once
 
-#include "./has_iterator_member_function.hpp"
-#include "./has_sentinel_member_function.hpp"
 #include "./type/is_array.hpp"
 #include "./type/remove_const.hpp"
 #include "./type/is_same_as.hpp"
 #include "./type/remove_reference.hpp"
+#include "../__iterator/basic.hpp"
 
 template<typename Type>
 concept basic_range =
 	(
-		__range::has_iterator_member_function<Type> &&
-		__range::has_sentinel_member_function<Type>
+		requires(Type& o) { { o.iterator()  } -> basic_iterator; } &&
+		requires(Type& o) { o.sentinel(); }
 	) ||
 	is_array<Type>;
 

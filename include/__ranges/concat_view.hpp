@@ -4,23 +4,25 @@
 #include "../__range/iterator.hpp"
 #include "../__range/sentinel.hpp"
 #include "../__range/default_sentinel.hpp"
+#include "../__iterator/element_type.hpp"
 #include "../iterators/distance.hpp"
 #include "../forward.hpp"
 #include "../elements/of.hpp"
 #include "../types/common.hpp"
 #include "../expression_of_type.hpp"
 
-namespace ranges {
+namespace __ranges {
 
 template<typename... Pairs>
 class concat_view_iterator {
 	elements::of<Pairs...> pairs_;
 	nuint index_ = 0;
 
+	template<typename Pair>
+	using pair_iterator_type = typename Pair::template type_at<0>;
+
 	using element_type = types::common::for_types<
-		decltype(
-			* expression_of_type<typename Pairs::template type_at<0>>
-		)...
+		iterator_element_type<pair_iterator_type<Pairs>>...
 	>;
 
 	template<nuint Index>
@@ -156,7 +158,7 @@ class concat_view_iterator {
 		});
 	}
 
-	static constexpr decltype(auto) it(auto& pair) {
+	static constexpr basic_iterator decltype(auto) it(auto& pair) {
 		return pair.template at<0>();
 	}
 
@@ -381,9 +383,7 @@ public:
 			it(pair) == end(pair);
 	}
 
-	constexpr concat_view_iterator(Pairs... pairs) :
-		pairs_{ pairs... }
-	{
+	constexpr concat_view_iterator(Pairs... pairs) : pairs_{ pairs... } {
 		skip_empty();
 	}
 
@@ -482,4 +482,4 @@ public:
 template<basic_range... Ranges>
 concat_view(Ranges&&...) -> concat_view<Ranges...>;
 
-} // ranges
+} // __ranges

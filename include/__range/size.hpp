@@ -22,4 +22,4 @@ namespace __range {
 
 } // __range
 
-inline constexpr __range::size_t size {};
+inline constexpr __range::size_t range_size {};
