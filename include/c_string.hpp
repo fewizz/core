@@ -1,7 +1,7 @@
 #pragma once
 
 #include "./span.hpp"
-#include "./iterators/distance.hpp"
+#include "./__iterator_and_sentinel/distance.hpp"
 #include "./type/remove_pointer.hpp"
 #include "./type/remove_const.hpp"
 #include "./type/is_pointer.hpp"
@@ -42,7 +42,9 @@ public:
 	}
 
 	constexpr c_string<c_string_type::known_size, Type> sized() const {
-		return { ptr_, iterators_distance(iterator(), sentinel()) };
+		return {
+			ptr_, __iterator_and_sentinel::distance(iterator(), sentinel())
+		};
 	}
 
 };

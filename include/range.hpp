@@ -6,6 +6,7 @@
 #include "./__range/contains.hpp"
 #include "./__range/copy.hpp"
 #include "./__range/iterator.hpp"
+#include "./__range/split_view.hpp"
 #include "./__range/view_on_stack_copied_elements.hpp"
 
 template<basic_range Range>
@@ -41,6 +42,26 @@ public:
 	template<basic_range OtherRange>
 	constexpr void copy_to(OtherRange&& other_range) const {
 		__range::copy{ range_ }.to( forward<OtherRange>(other_range) );
+	}
+
+	template<basic_range SplittersRange>
+	constexpr auto split_view(SplittersRange&& splitters_range) const {
+		__range::split_view{ range_, forward<SplittersRange>(splitters_range) };
+	}
+
+	template<basic_range SplittersRange>
+	constexpr auto split_view(SplittersRange&& splitters_range) {
+		__range::split_view{ range_, forward<SplittersRange>(splitters_range) };
+	}
+
+	template<typename... Splitters>
+	constexpr auto split_view(Splitters&&... splitters) const {
+		__range::split_view{ range_, forward<Splitters>(splitters)... };
+	}
+
+	template<typename... Splitters>
+	constexpr auto split_view(Splitters&&... splitters) {
+		__range::split_view{ range_, forward<Splitters>(splitters)... };
 	}
 
 	template<typename Handler>
