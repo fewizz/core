@@ -1,108 +1,73 @@
 #pragma once
 
-#include "./zip_view.hpp"
-#include "../range/basic.hpp"
+#include "../__range/sized.hpp"
+#include "../__range/basic.hpp"
 #include "../forward.hpp"
-#include "../range/value_type.hpp"
 #include "../type/decay.hpp"
 
-namespace ranges {
-
 template<typename Function, typename... Iterators>
-                                  // signing for problems
-class transformed_view_iterator : public zip_view_iterator<Iterators...> {
-	Function& function_;
-	using base_type = zip_view_iterator<Iterators...>;
-public:
-
-	constexpr transformed_view_iterator(
-		Function& function, base_type base
-	) :
-		base_type{ base },
-		function_{ function }
-	{}
-
-	constexpr decltype(auto) operator * () {
-		return (base_type::operator * ())
-			.pass(
-				[&]
-				<typename... Types>
-				(Types&&... elements)
-				-> decltype(auto) {
-					return function_(forward<Types>(elements)...);
-				}
-			);
-	}
-
-	constexpr auto& operator ++ () {
-		base_type::operator ++ ();
-		return *this;
-	}
-
-	constexpr auto& operator += (nuint n) {
-		base_type::operator += (n);
-		return *this;
-	}
-
-	constexpr auto operator + (nuint n) {
-		transformed_view_iterator cpy{ *this };
-		return cpy += n;
-	}
-
-};
+class transform_view_iterator;
 
 template<typename Function, basic_range... Ranges>
-class transform_view : zip_view<Ranges...> {
-	Function function_;
-	using base_type = zip_view<Ranges...>;
+class transform_view;
 
-	// TODO simplify
-	template<typename... Args>
-	constexpr transform_view(elements::of<Args...> args) :
-		base_type {
-			[&]<nuint... Indices>(indices::of<Indices...>) {
-				return elements::of{ args.template forward<Indices>()... };
-			}(indices::from<0>::to<sizeof...(Args) - 1>{})
-		},
-		function_ {
-			args.template forward<sizeof...(Args) - 1>()
-		}
-	{}
-
+// specialisation for single range
+template<typename Function, typename Iterator>
+class transform_view_iterator<Function, Iterator> {
+	Iterator iterator_;
+	Function& function_;
 public:
 
-	template<typename... Args>
-	constexpr transform_view(Args&&... args) :
-		transform_view(elements::of{ forward<Args>(args)... })
+	transform_view_iterator(Iterator iterator, Function& function) :
+		iterator_{ iterator }, function_{ function }
 	{}
 
-	constexpr auto begin() const {
-		return transformed_view_iterator {
-			function_, base_type::begin()
-		};
-	}
+	Iterator iterator_copy() { return iterator_; }
 
-	constexpr auto begin() {
-		return transformed_view_iterator {
-			function_, base_type::begin()
-		};
-	}
+	decltype(auto) operator * ()       { return function_(*iterator_); }
+	decltype(auto) operator * () const { return function_(*iterator_); }
 
-	using base_type::end;
-
-	constexpr auto operator [] (nuint n) const {
-		return *(begin() + n);
-	}
+	transform_view_iterator& operator ++ () { ++iterator_; return *this; }
 
 };
 
-// TODO
-template<basic_range Range, typename Function>
-transform_view(Range&&, Function&&)
-	-> transform_view<Function, Range>;
+template<typename Function, typename Iterator, typename Sentinel>
+constexpr bool operator == (
+	transform_view_iterator<Iterator, Function> tvi,
+	Sentinel sentinel
+) {
+	return tvi.iterator_copy() == sentinel;
+}
 
-template<basic_range Range0, basic_range Range1, typename Function>
-transform_view(Range0&&, Range1&&, Function&&)
-	-> transform_view<Function, Range0, Range1>;
+template<typename Function, typename Iterator, typename Sentinel>
+constexpr bool operator == (
+	Sentinel sentinel,
+	transform_view_iterator<Iterator, Function> tvi
+) {
+	return tvi.iterator_copy() == sentinel;
+}
 
-} // ranges
+template<typename Function, basic_range Range>
+class transform_view<Function, Range> {
+	Range range_;
+	Function function_;
+public:
+
+	transform_view(Range&& range, Function&& function) :
+		range_{ forward<Range>(range) },
+		function_{ forward<Function>(function) }
+	{}
+
+	auto iterator() {
+		transform_view_iterator{ iterator(range_), function_ };
+	}
+
+	auto sentinel() {
+		return sentinel(range_);
+	}
+
+	auto size() const requires sized_range<Range> {
+		return size(range_);
+	}
+
+};

@@ -1,12 +1,12 @@
 #pragma once
 
 #include "./basic.hpp"
-#include "./value_type.hpp"
+#include "./element_type.hpp"
 
 template<typename Range, typename Predicate>
 concept range_of_value_type_satisfying_predicate =
 	basic_range<Range> && type::predicate<Predicate> &&
-	Predicate::template for_type<range::value_type<Range>>;
+	Predicate::template for_type<decay<range_element_type<Range>>>;
 
 namespace type {
 

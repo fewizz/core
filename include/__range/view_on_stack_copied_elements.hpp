@@ -4,8 +4,10 @@
 #include "element_type.hpp"
 #include "../view_on_stack.hpp"
 
-template<sized_range Range, typename F>
-decltype(auto) view_on_stack_copied_range_elements(Range&& range, F&& f) {
+namespace __range {
+
+template<sized_range Range, typename Handler>
+decltype(auto) view_on_stack_copied_elements(Range&& range, Handler&& handler) {
 	nuint size = range.size();
 
 	return view_on_stack<range_element_type<Range>>(size)(
@@ -14,7 +16,9 @@ decltype(auto) view_on_stack_copied_range_elements(Range&& range, F&& f) {
 			for(decltype(auto) v : range) {
 				s[index++] = v;
 			}
-			return f(s);
+			return handler(s);
 		}
 	);
 }
+
+} // __range

@@ -13,40 +13,40 @@ consteval bool f_i() {
 		array{ 0, 1, 2, 3 }, array{ -1, -10, -10000 }
 	};
 
-	auto it = v.begin();
+	auto it = v.iterator();
 
-	if(v.begin() != v.begin()) throw;
-	if(v.begin() + 1 != v.begin() + 1) throw;
+	if(v.iterator() != v.iterator()) throw;
+	if(v.iterator() + 1 != v.iterator() + 1) throw;
 
 	if(*it != 0) throw;
 	if(*(++it) != 1) throw;
-	if(it != v.begin() + 1) throw;
+	if(it != v.iterator() + 1) throw;
 	if(*(++it) != 2) throw;
-	if(it != v.begin() + 2) throw;
+	if(it != v.iterator() + 2) throw;
 	if(*(++it) != 3) throw;
-	if(it != v.begin() + 3) throw;
+	if(it != v.iterator() + 3) throw;
 	if(*(++it) != -1) throw;
-	if(it != v.begin() + 4) throw;
+	if(it != v.iterator() + 4) throw;
 	if(*(++it) != -10) throw;
-	if(it != v.begin() + 5) throw;
+	if(it != v.iterator() + 5) throw;
 	if(*(++it) != -10000) throw;
-	if(it != v.begin() + 6) throw;
-	if(++it != v.end()) throw;
+	if(it != v.iterator() + 6) throw;
+	if(++it != v.sentinel()) throw;
 
-	it = v.begin();
-	if(it != v.begin()) throw;
+	it = v.iterator();
+	if(it != v.iterator()) throw;
 	if(*(it += 2) != 2) throw;
-	if(it != v.begin() + 2) throw;
+	if(it != v.iterator() + 2) throw;
 	if(*(it += 2) != -1) throw;
-	if(it != v.begin() + 4) throw;
+	if(it != v.iterator() + 4) throw;
 	if(*(it += 2) != -10000) throw;
-	if(it != v.begin() + 6) throw;
+	if(it != v.iterator() + 6) throw;
 	it += 1;
-	if(it != v.begin() + 7) throw;
+	if(it != v.iterator() + 7) throw;
 
-	if(it - v.begin() != 7) throw;
+	if(it - v.iterator() != 7) throw;
 
-	if(it != v.end()) throw;
+	if(it != v.sentinel()) throw;
 
 	return true;
 }

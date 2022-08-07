@@ -1,9 +1,9 @@
 #pragma once
 
-#include "integer.hpp"
-#include "type/remove_reference.hpp"
-#include "types/are_same.hpp"
-#include "types/first.hpp"
+#include "./values/of.hpp"
+#include "./type/remove_reference.hpp"
+#include "./types/are_same.hpp"
+#include "./types/first.hpp"
 
 template<typename Type, nuint Size>
 struct array {
@@ -27,6 +27,14 @@ struct array {
 	}
 	constexpr decltype(auto) operator [] (nuint index) {
 		return array_[index];
+	}
+
+	template<typename F>
+	constexpr decltype(auto) pass(F&& f) const {
+		return [&]<nuint... Indices>(indices::of<Indices...>)
+		-> decltype(auto) {
+			return f((*this)[Indices]...);
+		}(indices::from<0>::to<Size>{});
 	}
 };
 

@@ -7,9 +7,6 @@
 #include "../iterators/to_range.hpp"
 #include "../array.hpp"
 
-namespace ranges {
-
-// TODO range::of<iterator::value_type<>> SplitRange
 template<typename It, typename Sentinel, typename SplitRange>
 struct splitted_iterator {
 	It begin;
@@ -123,5 +120,3 @@ struct split {
 		return with(array{ splitters... });
 	}
 };
-
-} // ranges

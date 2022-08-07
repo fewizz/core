@@ -1,16 +1,19 @@
 #pragma once
 
-#include "./iterator.hpp"
-#include "./sentinel.hpp"
+#include "./has_iterator_member_function.hpp"
+#include "./has_sentinel_member_function.hpp"
+#include "./type/is_array.hpp"
 #include "./type/remove_const.hpp"
 #include "./type/is_same_as.hpp"
 #include "./type/remove_reference.hpp"
 
-template<typename T>
-concept basic_range = requires(T& t) {
-	range_iterator(t);
-	range_sentinel(t);
-};
+template<typename Type>
+concept basic_range =
+	(
+		__range::has_iterator_member_function<Type> &&
+		__range::has_sentinel_member_function<Type>
+	) ||
+	is_array<Type>;
 
 namespace type {
 

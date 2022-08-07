@@ -2,14 +2,16 @@
 
 #include "./basic.hpp"
 
+namespace __range {
+
 // hope it will use memcpy
 
 template<basic_range Range>
-class range_copy {
+class copy {
 	Range from_;
 public:
 
-	constexpr range_copy(Range&& range) : from_{ forward<Range>(range) } {}
+	constexpr copy(Range&& range) : from_{ forward<Range>(range) } {}
 
 	template<basic_range To>
 	constexpr void to(To&& to) {
@@ -39,4 +41,6 @@ public:
 };
 
 template<basic_range Range>
-range_copy(Range&&) -> range_copy<Range>;
+copy(Range&&) -> copy<Range>;
+
+} // __range
