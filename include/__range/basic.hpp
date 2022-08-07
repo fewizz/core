@@ -12,7 +12,7 @@ concept basic_range =
 		requires(Type& o) { { o.iterator()  } -> basic_iterator; } &&
 		requires(Type& o) { o.sentinel(); }
 	) ||
-	is_array<Type>;
+	is_array<remove_reference<Type>>;
 
 namespace type {
 

@@ -3,6 +3,7 @@
 #include "./__range/basic.hpp"
 #include "./__ranges/are_equal.hpp"
 #include "./__ranges/concat_view.hpp"
+#include "./__ranges/transform_view.hpp"
 #include "./elements/of.hpp"
 
 template<basic_range... Ranges>
@@ -28,6 +29,24 @@ public:
 	constexpr __ranges::concat_view<Ranges...> concat_view() {
 		return ranges_.pass([](basic_range auto&... ranges) {
 			return __ranges::concat_view{ ranges... };
+		});
+	}
+	
+	template<typename Function>
+	constexpr auto transform_view(Function&& function) const {
+		return ranges_.pass([&](basic_range auto&... ranges) {
+			return __ranges::transform_view {
+				forward<Function>(function), ranges...
+			};
+		});
+	}
+
+	template<typename Function>
+	constexpr auto transform_view(Function&& function) {
+		return ranges_.pass([&](basic_range auto&... ranges) {
+			return __ranges::transform_view {
+				forward<Function>(function), ranges...
+			};
 		});
 	}
 

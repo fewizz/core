@@ -2,6 +2,8 @@
 
 #include "../__range/basic.hpp"
 #include "../__range/size.hpp"
+#include "../__range/iterator.hpp"
+#include "../__range/sentinel.hpp"
 #include "../__iterator/basic.hpp"
 #include "./elements/of.hpp"
 #include "./array.hpp"
@@ -50,10 +52,10 @@ template<basic_range Range0, basic_range Range1>
 constexpr bool are_equal_unknown_size(
 	Range0&& range0, Range1&& range1
 ) {
-	basic_iterator auto i0 = range0.iterator();
-	auto s0 = range0.sentinel();
-	basic_iterator auto i1 = range1.iterator();
-	auto s1 = range1.sentinel();
+	basic_iterator auto i0 = range_iterator(range0);
+	               auto s0 = range_sentinel(range0);
+	basic_iterator auto i1 = range_iterator(range1);
+	               auto s1 = range_sentinel(range1);
 
 	while(true) {
 		bool e0 = i0 == s0;

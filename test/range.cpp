@@ -12,8 +12,6 @@ bool consteval f() {
 	range{ a }.copy_to(empty);
 	if(empty[0] != 0.0F || empty[1] != 0.1F || empty[2] != 0.2F) throw;
 
-	
-
 	return true;
 }
 

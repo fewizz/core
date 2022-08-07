@@ -5,7 +5,7 @@
 #include "../__range/sentinel.hpp"
 #include "../__range/default_sentinel.hpp"
 #include "../__iterator/element_type.hpp"
-#include "../iterators/distance.hpp"
+#include "../__iterator_and_sentinel/distance.hpp"
 #include "../forward.hpp"
 #include "../elements/of.hpp"
 #include "../types/common.hpp"
@@ -356,14 +356,14 @@ class concat_view_iterator {
 				[&]<nuint Index>(auto& pair) {
 					return [&]<nuint... Indices>(indices::of<Indices...>) {
 						nuint len = (
-							iterators_distance(
+							__iterator_and_sentinel::distance(
 								it(other.pairs_.template at<Indices>()),
 								end(other.pairs_.template at<Indices>())
 							)
 							+ ... + 0
 						);
 						len +=
-							iterators_distance(
+							__iterator_and_sentinel::distance(
 								it(other.pairs_.template at<Index>()),
 								it(pair)
 							);

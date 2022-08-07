@@ -5,6 +5,8 @@
 #include "../forward.hpp"
 #include "../type/decay.hpp"
 
+namespace __ranges {
+
 template<typename Function, typename... Iterators>
 class transform_view_iterator;
 
@@ -53,21 +55,35 @@ class transform_view<Function, Range> {
 	Function function_;
 public:
 
-	transform_view(Range&& range, Function&& function) :
+	constexpr transform_view(Range&& range, Function&& function) :
 		range_{ forward<Range>(range) },
 		function_{ forward<Function>(function) }
 	{}
 
-	auto iterator() {
+	constexpr auto iterator() const {
+		transform_view_iterator{ iterator(range_), function_ };
+	}
+	constexpr auto iterator()       {
 		transform_view_iterator{ iterator(range_), function_ };
 	}
 
-	auto sentinel() {
-		return sentinel(range_);
-	}
+	constexpr auto sentinel() const { return sentinel(range_); }
+	constexpr auto sentinel()       { return sentinel(range_); }
 
-	auto size() const requires sized_range<Range> {
+	constexpr auto size() const requires sized_range<Range> {
 		return size(range_);
 	}
 
+	constexpr decltype(auto) operator [] (nuint index) const {
+		return function_(range_[index]);
+	}
+	constexpr decltype(auto) operator [] (nuint index)       {
+		return function_(range_[index]);
+	}
+
 };
+
+template<typename Function, basic_range Range>
+transform_view(Range&&, Function&&) -> transform_view<Function, Range>;
+
+} // __ranges

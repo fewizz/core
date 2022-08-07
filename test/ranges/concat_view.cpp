@@ -1,15 +1,15 @@
-#include <ranges/concat_view.hpp>
+#include <__ranges/concat_view.hpp>
 #include <array.hpp>
 #include <c_string.hpp>
 
 consteval bool f_i() {
 	{
-		[[maybe_unused]] ranges::concat_view v {
+		[[maybe_unused]] __ranges::concat_view v {
 			c_string{ "" }, array{ -1, -10, -10000 }
 		};
 	}
 
-	ranges::concat_view v {
+	__ranges::concat_view v {
 		array{ 0, 1, 2, 3 }, array{ -1, -10, -10000 }
 	};
 

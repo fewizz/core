@@ -1,11 +1,24 @@
-#include <ranges/transform_view.hpp>
+#include <__ranges/transform_view.hpp>
 #include <array.hpp>
 
 constexpr array a{ 0, 1, 2, 4 };
 constexpr array b{ 3, 6, 3, 2 };
 
-auto constexpr f() {
-	return ranges::transform_view {
+auto constexpr f(auto&& c) {
+	return __ranges::transform_view {
+		c, [](auto e) { return e * 4; }
+	};
+}
+
+static_assert(f(a)[0] == 0);
+static_assert(f(b)[0] == 12);
+static_assert(f(a)[1] == 4);
+static_assert(f(b)[1] == 24);
+static_assert(f(a)[3] == 16);
+static_assert(f(b)[3] == 8);
+
+/*auto constexpr f0() {
+	return __ranges::transform_view {
 		a, b,
 		[](auto a, auto b) {
 			return a + b;
@@ -13,12 +26,12 @@ auto constexpr f() {
 	};
 }
 
-static_assert(f()[0] == 3);
-static_assert(f()[1] == 7);
-static_assert(f()[2] == 5);
-static_assert(f()[3] == 6);
+static_assert(f0()[0] == 3);
+static_assert(f0()[1] == 7);
+static_assert(f0()[2] == 5);
+static_assert(f0()[3] == 6);
 
-static_assert(f().begin() + 4 == f().end());
-static_assert(f().begin() + 3 != f().end());
+static_assert(f0().iterator() + 4 == f().end());
+static_assert(f0().iterator() + 3 != f().end());*/
 
 int main() {}

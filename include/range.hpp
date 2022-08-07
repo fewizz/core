@@ -8,6 +8,7 @@
 #include "./__range/iterator.hpp"
 #include "./__range/split_view.hpp"
 #include "./__range/view_on_stack_copied_elements.hpp"
+#include "./__ranges/transform_view.hpp"
 
 template<basic_range Range>
 struct range {
@@ -44,11 +45,15 @@ public:
 		__range::copy{ range_ }.to( forward<OtherRange>(other_range) );
 	}
 
+	template<basic_range OtherRange>
+	constexpr void copy_to(OtherRange&& other_range)       {
+		__range::copy{ range_ }.to( forward<OtherRange>(other_range) );
+	}
+
 	template<basic_range SplittersRange>
 	constexpr auto split_view(SplittersRange&& splitters_range) const {
 		__range::split_view{ range_, forward<SplittersRange>(splitters_range) };
 	}
-
 	template<basic_range SplittersRange>
 	constexpr auto split_view(SplittersRange&& splitters_range) {
 		__range::split_view{ range_, forward<SplittersRange>(splitters_range) };
@@ -58,9 +63,8 @@ public:
 	constexpr auto split_view(Splitters&&... splitters) const {
 		__range::split_view{ range_, forward<Splitters>(splitters)... };
 	}
-
 	template<typename... Splitters>
-	constexpr auto split_view(Splitters&&... splitters) {
+	constexpr auto split_view(Splitters&&... splitters)       {
 		__range::split_view{ range_, forward<Splitters>(splitters)... };
 	}
 
@@ -70,6 +74,22 @@ public:
 		return __range::view_on_stack_copied_elements(
 			range_, forward<Handler>(handler)
 		);
+	}
+	template<typename Handler>
+	constexpr decltype(auto)
+	view_copied_elements_on_stack(Handler&& handler)       {
+		return __range::view_on_stack_copied_elements(
+			range_, forward<Handler>(handler)
+		);
+	}
+
+	template<typename Function>
+	constexpr auto transform_view(Function&& function) const {
+		return __ranges::transform_view{ forward<Function>(function), range_ };
+	}
+	template<typename Function>
+	constexpr auto transform_view(Function&& function)       {
+		return __ranges::transform_view{ forward<Function>(function), range_ };
 	}
 
 };
