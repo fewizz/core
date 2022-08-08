@@ -1,8 +1,9 @@
 #pragma once
 
-#include "integer.hpp"
-#include "type/is_reference.hpp"
-#include "type/remove_reference.hpp"
+#include "./integer.hpp"
+#include "./type/is_reference.hpp"
+#include "./type/remove_reference.hpp"
+#include "./c_string.hpp"
 
 template<typename Type, unsigned_integer SizeType = nuint>
 struct span {
@@ -47,6 +48,10 @@ public:
 	}
 
 	constexpr span shrink(size_type size) { return span{ ptr_, size }; }
+
+	constexpr c_string<c_string_type::known_size> as_c_string() const {
+		return { elements_ptr(), size() };
+	}
 
 };
 

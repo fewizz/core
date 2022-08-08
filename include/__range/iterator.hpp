@@ -9,14 +9,14 @@ namespace __range {
 
 	struct iterator_t {
 
-		template<basic_range Type>
-		requires is_array<Type>
-		constexpr auto operator () (Type& o) const {
+		template<basic_range Range>
+		requires is_array<Range>
+		constexpr auto operator () (Range&& o) const {
 			return o;
 		}
 
 		template<basic_range Type>
-		constexpr auto operator () (Type& o) const {
+		constexpr auto operator () (Type&& o) const {
 			return o.iterator();
 		}
 
@@ -26,7 +26,7 @@ namespace __range {
 
 inline constexpr __range::iterator_t range_iterator {};
 
-template<basic_range Type>
-constexpr auto begin(Type& possible_range) {
-	return range_iterator(possible_range);
+template<basic_range Range>
+constexpr auto begin(Range&& range) {
+	return range_iterator(range);
 }

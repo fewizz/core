@@ -33,6 +33,10 @@ public:
 
 };
 
+template<typename Function, typename Iterator>
+transform_view_iterator(Iterator, Function&)
+	-> transform_view_iterator<Function, Iterator>;
+
 template<typename Function, typename Iterator, typename Sentinel>
 constexpr bool operator == (
 	transform_view_iterator<Iterator, Function> tvi,
@@ -61,14 +65,14 @@ public:
 	{}
 
 	constexpr auto iterator() const {
-		transform_view_iterator{ iterator(range_), function_ };
+		return transform_view_iterator{ range_iterator(range_), function_ };
 	}
 	constexpr auto iterator()       {
-		transform_view_iterator{ iterator(range_), function_ };
+		return transform_view_iterator{ range_iterator(range_), function_ };
 	}
 
-	constexpr auto sentinel() const { return sentinel(range_); }
-	constexpr auto sentinel()       { return sentinel(range_); }
+	constexpr auto sentinel() const { return range_sentinel(range_); }
+	constexpr auto sentinel()       { return range_sentinel(range_); }
 
 	constexpr auto size() const requires sized_range<Range> {
 		return size(range_);

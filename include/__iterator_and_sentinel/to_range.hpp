@@ -2,6 +2,7 @@
 
 #include "../integer.hpp"
 #include "../__iterator/basic.hpp"
+#include "../__range/default_sentinel.hpp"
 
 namespace __iterator_and_sentinel {
 
@@ -32,8 +33,6 @@ public:
 	// TODO if contiguous
 	constexpr nuint size() const { return sentinel_ - iterator_; }
 };
-
-#include "../__range/default_sentinel.hpp"
 
 template<basic_iterator Iterator, typename Sentinel = default_sentinel>
 constexpr range_on_iterator_and_sentinel<Iterator, Sentinel> to_range(

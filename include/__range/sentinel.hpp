@@ -12,8 +12,8 @@ namespace __range {
 			return o + Size;
 		}
 
-		template<basic_range Type>
-		constexpr auto operator () (Type& o) const {
+		template<basic_range Range>
+		constexpr auto operator () (Range&& o) const {
 			return o.sentinel();
 		}
 
@@ -23,7 +23,7 @@ namespace __range {
 
 inline constexpr __range::sentinel_t range_sentinel {};
 
-template<basic_range Type>
-constexpr auto end(Type& possible_range) {
-	return range_sentinel(possible_range);
+template<basic_range Range>
+constexpr auto end(Range&& range) {
+	return range_sentinel(range);
 }

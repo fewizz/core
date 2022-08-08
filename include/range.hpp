@@ -1,6 +1,8 @@
 #pragma once
 
 #include "./forward.hpp"
+#include "./__range/iterator.hpp"
+#include "./__range/sentinel.hpp"
 #include "./__range/accumulate.hpp"
 #include "./__range/basic.hpp"
 #include "./__range/contains.hpp"
@@ -9,6 +11,7 @@
 #include "./__range/split_view.hpp"
 #include "./__range/view_copied_elements_on_stack.hpp"
 #include "./__ranges/transform_view.hpp"
+#include "./__ranges/are_equal.hpp"
 
 template<basic_range Range>
 struct range {
@@ -20,11 +23,15 @@ public:
 
 	constexpr range(Range&& range) : range_{ forward<Range>(range) } {}
 
-	constexpr basic_range auto iterator() const { return range_.iterator(); }
-	constexpr basic_range auto iterator()       { return range_.iterator(); }
+	constexpr basic_iterator auto iterator() const {
+		return range_iterator(range_);
+	}
+	constexpr basic_iterator auto iterator()       {
+		return range_iterator(range_);
+	}
 
-	constexpr auto sentinel() const { return range_.sentinel(); }
-	constexpr auto sentinel()       { return range_.sentinel(); }
+	constexpr auto sentinel() const { return range_sentinel(range_); }
+	constexpr auto sentinel()       { return range_sentinel(range_); }
 
 	constexpr auto accumulate() const {
 		return __range::accumulate(range_);
@@ -48,6 +55,11 @@ public:
 	template<basic_range OtherRange>
 	constexpr void copy_to(OtherRange&& other_range)       {
 		__range::copy{ range_ }.to( forward<OtherRange>(other_range) );
+	}
+
+	template<basic_range OtherRange>
+	constexpr bool equals_to(OtherRange&& other_range) const {
+		return __ranges::are_equal(range_, forward<OtherRange>(other_range));
 	}
 
 	template<basic_range SplittersRange>
@@ -85,11 +97,11 @@ public:
 
 	template<typename Function>
 	constexpr auto transform_view(Function&& function) const {
-		return __ranges::transform_view{ forward<Function>(function), range_ };
+		return __ranges::transform_view{ range_, forward<Function>(function) };
 	}
 	template<typename Function>
 	constexpr auto transform_view(Function&& function)       {
-		return __ranges::transform_view{ forward<Function>(function), range_ };
+		return __ranges::transform_view{ range_, forward<Function>(function) };
 	}
 
 };

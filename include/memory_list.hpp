@@ -92,6 +92,12 @@ public:
 		elements_ptr()[--size_].~value_type();
 	}
 
+	void fill(const ValueType& element) {
+		while(size() < capacity()) {
+			emplace_back(element);
+		}
+	}
+
 	void clear() {
 		while(size_ > 0) {
 			pop_back();
@@ -169,6 +175,10 @@ public:
 	RawValueType& emplace_back(RawValueType& v) {
 		base_type::emplace_back(&v);
 		return v;
+	}
+
+	void fill(const RawValueType& element) {
+		base_type::fill(&element);
 	}
 
 	const RawValueType& back() const { return *this[size() - 1]; }
