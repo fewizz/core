@@ -1,6 +1,5 @@
 #pragma once
 
-#include "./span.hpp"
 #include "./__iterator_and_sentinel/distance.hpp"
 #include "./type/remove_pointer.hpp"
 #include "./type/remove_const.hpp"

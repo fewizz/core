@@ -20,13 +20,13 @@ public:
 		});
 	}
 
-	constexpr __ranges::concat_view<Ranges...> concat_view() const {
+	constexpr auto concat_view() const {
 		return ranges_.pass([](basic_range auto&... ranges) {
 			return __ranges::concat_view{ ranges... };
 		});
 	}
 
-	constexpr __ranges::concat_view<Ranges...> concat_view() {
+	constexpr auto concat_view() {
 		return ranges_.pass([](basic_range auto&... ranges) {
 			return __ranges::concat_view{ ranges... };
 		});
