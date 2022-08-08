@@ -19,8 +19,8 @@ public:
 		sentinel_{ sentinel }
 	{}
 
-	constexpr Iterator begin() const { return iterator_; }
-	constexpr Sentinel end()   const { return sentinel_; }
+	constexpr Iterator iterator() const { return iterator_; }
+	constexpr Sentinel sentinel() const { return sentinel_; }
 
 	constexpr decltype(auto) operator [] (nuint index) const {
 		return iterator_[index];
