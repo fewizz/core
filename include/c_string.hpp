@@ -6,22 +6,15 @@
 #include "./type/is_pointer.hpp"
 #include "./type/is_const.hpp"
 
-struct c_string_sentinel{};
-
-constexpr bool operator == (c_string_sentinel, const auto* ptr) {
-	return *ptr == 0;
-}
-
-constexpr bool operator == (const auto* ptr, c_string_sentinel) {
-	return *ptr == 0;
-}
-
 enum class c_string_type {
 	known_size, unknown_size
 };
 
 template<c_string_type Sized, typename Type = char>
+/* *sentinel() == '\0' */
 struct c_string;
+
+struct c_string_sentinel{};
 
 template<typename Type>
 struct c_string<c_string_type::unknown_size, Type> {
@@ -48,45 +41,34 @@ public:
 
 };
 
-template<typename Type>
-struct c_string<c_string_type::known_size, Type> {
+constexpr bool operator == (c_string_sentinel, const auto* ptr) {
+	return *ptr == 0;
+}
 
+constexpr bool operator == (const auto* ptr, c_string_sentinel) {
+	return *ptr == 0;
+}
+
+#include "./span.hpp"
+
+template<typename Type>
+struct c_string<c_string_type::known_size, Type> : span<const Type, nuint> {
 private:
-	const Type* ptr_;
-	nuint size_;
+	using base_type = span<const Type, nuint>;
 public:
 
-	constexpr c_string() = default;
+	using base_type::base_type;
 
 	template<nuint Size>
 	constexpr c_string(const Type (&array)[Size]) :
-		ptr_{ array }, size_{ Size - 1 }
+		base_type{ array, Size - 1}
 	{}
 
-	constexpr c_string(const Type* ptr, nuint size) :
-		ptr_{ ptr }, size_{ size }
-	{}
-
-	template<nuint Size>
-	constexpr c_string& operator = (const Type* (&array)[Size]) {
-		ptr_ = array;
-		size_ = Size - 1;
-		return *this;
-	}
-
-	constexpr const Type* iterator() const { return ptr_; }
-	constexpr const Type* sentinel() const { return ptr_ + size_; }
-
-	constexpr const Type* elements_ptr() const { return ptr_; }
-
-	constexpr const Type& operator [] (nuint index) const {
-		return ptr_[index];
-	}
-
-	constexpr nuint size() const {
-		return size_;
-	}
+	using base_type::operator = ;
 };
+
+using c_string_of_unknown_size = c_string<c_string_type::unknown_size>;
+using c_string_of_known_size   = c_string<c_string_type::known_size>;
 
 template<typename Type, nuint Size>
 c_string(Type(&)[Size]) -> c_string<

@@ -23,6 +23,16 @@ public:
 	const remove_reference<Type>* operator -> () const { return &value(); }
 	      remove_reference<Type>* operator -> ()       { return &value(); }
 
+	template<typename Handler>
+	const optional& if_no_value(Handler&& handler) const {
+		handler(); return *this;
+	}
+
+	template<typename Handler>
+	      optional& if_no_value(Handler&& handler)       {
+		handler(); return *this;
+	}
+
 };
 
 template<typename Type>
@@ -46,5 +56,14 @@ public:
 
 	const remove_reference<Type>* operator -> () const { return ptr_; }
 	      remove_reference<Type>* operator -> ()       { return ptr_; }
+
+	template<typename Handler>
+	const optional& if_no_value(Handler&& handler) const {
+		handler(); return *this;
+	}
+	template<typename Handler>
+	      optional& if_no_value(Handler&& handler)       {
+		handler(); return *this;
+	}
 
 };

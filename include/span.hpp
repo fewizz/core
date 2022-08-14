@@ -3,7 +3,8 @@
 #include "./integer.hpp"
 #include "./type/is_reference.hpp"
 #include "./type/remove_reference.hpp"
-#include "./c_string.hpp"
+#include "./__range/basic.hpp"
+#include "./__range/element_type.hpp"
 
 template<typename Type, unsigned_integer SizeType = nuint>
 struct span {
@@ -22,6 +23,12 @@ public:
 	template<nuint Size>
 	constexpr span(Type (&array)[Size]) :
 		ptr_{ array }, size_{ Size }
+	{}
+
+	// TODO contiguous range, range_size_type
+	template<basic_range Range>
+	constexpr span(Range&& range) :
+		ptr_{ range.elements_ptr() }, size_{ (SizeType) range.size() }
 	{}
 
 	constexpr size_type size() const { return size_; }
@@ -49,14 +56,13 @@ public:
 
 	constexpr span shrink(size_type size) { return span{ ptr_, size }; }
 
-	constexpr c_string<c_string_type::known_size> as_c_string() const {
-		return { elements_ptr(), size() };
-	}
-
 };
 
 template<typename Type>
 span(Type*) -> span<Type>;
+
+template<basic_range Range>
+span(Range&&) -> span<remove_reference<range_element_type<Range>>>;
 
 template<typename Type, unsigned_integer SizeType>
 struct span<Type&, SizeType> {

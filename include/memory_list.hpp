@@ -139,9 +139,9 @@ class memory_list<RawValueType&, SizeType> :
 		remove_reference<RawValueType>*, SizeType
 	>;
 	using size_type = SizeType;
-	using iterator_type = reference_memory_list_iterator<RawValueType*>;
+	using iterator_type = reference_memory_list_iterator<RawValueType>;
 	using const_iterator_type =
-		reference_memory_list_iterator<const RawValueType*>;
+		reference_memory_list_iterator<const RawValueType>;
 public:
 
 	using base_type::base_type;
