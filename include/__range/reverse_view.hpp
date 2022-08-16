@@ -52,6 +52,10 @@ public:
 		};
 	}
 
+	auto size() {
+		return range_.size();
+	}
+
 };
 
 template<sized_range Range>

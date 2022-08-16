@@ -3,6 +3,7 @@
 #include "./integer.hpp"
 #include "./type/is_reference.hpp"
 #include "./type/remove_reference.hpp"
+#include "./__range/size.hpp"
 #include "./__range/basic.hpp"
 #include "./__range/element_type.hpp"
 
@@ -26,9 +27,9 @@ public:
 	{}
 
 	// TODO contiguous range, range_size_type
-	template<basic_range Range>
+	template<sized_range Range>
 	constexpr span(Range&& range) :
-		ptr_{ range.elements_ptr() }, size_{ (SizeType) range.size() }
+		ptr_{ range.elements_ptr() }, size_{ (size_type) range_size(range) }
 	{}
 
 	constexpr size_type size() const { return size_; }
@@ -53,7 +54,7 @@ public:
 	constexpr span<CastType> cast() {
 		return span<CastType> {
 			(CastType*) ptr_,
-			size_ * sizeof(CastType) / sizeof(Type)
+			size_ * sizeof(Type) / sizeof(CastType)
 		};
 	}
 

@@ -15,6 +15,8 @@ consteval bool f_i() {
 
 	auto it = v.iterator();
 
+	if(v.size() != 7) throw;
+
 	if(v.iterator() != v.iterator()) throw;
 	if(v.iterator() + 1 != v.iterator() + 1) throw;
 
@@ -47,6 +49,17 @@ consteval bool f_i() {
 	if(it - v.iterator() != 7) throw;
 
 	if(it != v.sentinel()) throw;
+
+	__ranges::concat_view v2 {
+		array{ 'a' }, c_string{ "ka" }, c_string{ "s" }, array{ 'i' }
+	};
+	if(v2.size() != 5) throw;
+	if(*v2.iterator() != 'a') throw;
+	if(*(v2.iterator() + 1) != 'k') throw;
+	if(*(v2.iterator() + 2) != 'a') throw;
+	if(*(v2.iterator() + 3) != 's') throw;
+	if(*(v2.iterator() + 4) != 'i') throw;
+	if((v2.iterator() + 5) != v2.sentinel()) throw;
 
 	return true;
 }

@@ -115,12 +115,12 @@ constexpr bool are_equal_known_size(
 	basic_iterator auto i1 = range1.iterator();
 
 	while(s0 > 0) {
-		--s0;
 		if(*i0 != *i1) {
 			return false;
 		}
 		++i0;
 		++i1;
+		--s0;
 	}
 
 	return true;

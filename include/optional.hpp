@@ -25,12 +25,18 @@ public:
 
 	template<typename Handler>
 	const optional& if_no_value(Handler&& handler) const {
-		handler(); return *this;
+		if(!has_value()) {
+			handler();
+		}
+		return *this;
 	}
 
 	template<typename Handler>
 	      optional& if_no_value(Handler&& handler)       {
-		handler(); return *this;
+		if(!has_value()) {
+			handler();
+		}
+		return *this;
 	}
 
 	template<typename Handler>
@@ -44,7 +50,10 @@ public:
 
 	template<typename Handler>
 	optional& set_if_no_value(Handler&& handler) {
-		*this = handler(); return *this;
+		if(!has_value()) {
+			*this = handler();
+		}
+		return *this;
 	}
 
 };
@@ -73,11 +82,17 @@ public:
 
 	template<typename Handler>
 	const optional& if_no_value(Handler&& handler) const {
-		handler(); return *this;
+		if(!has_value()) {
+			handler();
+		}
+		return *this;
 	}
 	template<typename Handler>
 	      optional& if_no_value(Handler&& handler)       {
-		handler(); return *this;
+		if(!has_value()) {
+			handler();
+		}
+		return *this;
 	}
 
 	template<typename Handler>
@@ -91,7 +106,10 @@ public:
 
 	template<typename Handler>
 	optional& set_if_no_value(Handler&& handler) {
-		*this = handler(); return *this;
+		if(!has_value()) {
+			*this = handler();
+		}
+		return *this;
 	}
 
 };

@@ -1,8 +1,10 @@
 #include <__ranges/transform_view.hpp>
 #include <array.hpp>
+#include <c_string.hpp>
 
 constexpr array a{ 0, 1, 2, 4 };
 constexpr array b{ 3, 6, 3, 2 };
+constexpr c_string c{ "Hello" };
 
 auto constexpr f(auto&& c) {
 	return __ranges::transform_view {
@@ -16,6 +18,12 @@ static_assert(f(a)[1] == 4);
 static_assert(f(b)[1] == 24);
 static_assert(f(a)[3] == 16);
 static_assert(f(b)[3] == 8);
+static_assert((++(++(++(++f(b).iterator())))) == f(b).sentinel());
+static_assert(f(b).iterator() != f(b).sentinel());
+
+static_assert(
+	__ranges::transform_view { c, [](auto){ return 0; }}[0] == 0
+);
 
 /*auto constexpr f0() {
 	return __ranges::transform_view {

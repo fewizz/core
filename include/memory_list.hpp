@@ -72,7 +72,7 @@ public:
 
 	template<typename... Args>
 	ValueType& emplace_back(Args&&... args) {
-		ValueType* v = new (memory_span_.elements_ptr() + size_)
+		ValueType* v = new (elements_ptr() + size_)
 			ValueType{ forward<Args>(args)... };
 		++size_;
 		return *v;
@@ -80,7 +80,7 @@ public:
 
 	template<typename... Args>
 	void emplace_at(nuint index, Args&&... args) {
-		(*this)[index] = new (memory_span_.elements_ptr() + index)
+		(*this)[index] = new (elements_ptr() + index)
 			ValueType{ forward<Args>(args)... };
 	}
 

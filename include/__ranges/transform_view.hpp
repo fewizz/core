@@ -1,7 +1,9 @@
 #pragma once
 
-#include "../__range/sized.hpp"
+#include "../__range/size.hpp"
 #include "../__range/basic.hpp"
+#include "../__range/iterator.hpp"
+#include "../__range/sentinel.hpp"
 #include "../forward.hpp"
 #include "../type/decay.hpp"
 
@@ -20,16 +22,22 @@ class transform_view_iterator<Function, Iterator> {
 	Function& function_;
 public:
 
-	transform_view_iterator(Iterator iterator, Function& function) :
+	constexpr transform_view_iterator(Iterator iterator, Function& function) :
 		iterator_{ iterator }, function_{ function }
 	{}
 
-	Iterator iterator_copy() { return iterator_; }
+	constexpr Iterator iterator_copy() { return iterator_; }
 
-	decltype(auto) operator * ()       { return function_(*iterator_); }
-	decltype(auto) operator * () const { return function_(*iterator_); }
+	constexpr decltype(auto) operator * ()       {
+		return function_(*iterator_);
+	}
+	constexpr decltype(auto) operator * () const {
+		return function_(*iterator_);
+	}
 
-	transform_view_iterator& operator ++ () { ++iterator_; return *this; }
+	constexpr transform_view_iterator& operator ++ () {
+		++iterator_; return *this;
+	}
 
 };
 

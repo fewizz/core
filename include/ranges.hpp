@@ -15,35 +15,33 @@ public:
 	ranges(Ranges&&... ranges) : ranges_{ forward<Ranges>(ranges)... } {}
 
 	constexpr bool are_equal() const {
-		return ranges_.pass([](basic_range auto&... ranges) {
+		return ranges_.pass([](const Ranges&... ranges) {
 			return __ranges::are_equal(ranges...);
 		});
 	}
 
 	constexpr auto concat_view() const {
-		return ranges_.pass([](basic_range auto&... ranges) {
+		return ranges_.pass([](const Ranges&... ranges) {
 			return __ranges::concat_view{ ranges... };
 		});
 	}
-
 	constexpr auto concat_view() {
-		return ranges_.pass([](basic_range auto&... ranges) {
+		return ranges_.pass([](Ranges&... ranges) {
 			return __ranges::concat_view{ ranges... };
 		});
 	}
 	
 	template<typename Function>
 	constexpr auto transform_view(Function&& function) const {
-		return ranges_.pass([&](basic_range auto&... ranges) {
+		return ranges_.pass([&](const Ranges&... ranges) {
 			return __ranges::transform_view {
 				forward<Function>(function), ranges...
 			};
 		});
 	}
-
 	template<typename Function>
-	constexpr auto transform_view(Function&& function) {
-		return ranges_.pass([&](basic_range auto&... ranges) {
+	constexpr auto transform_view(Function&& function)       {
+		return ranges_.pass([&](Ranges&... ranges) {
 			return __ranges::transform_view {
 				forward<Function>(function), ranges...
 			};

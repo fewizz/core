@@ -206,10 +206,10 @@ namespace elements {
 
 } // elements
 
-template<typename... Types0, typename... Types1>
+template<typename... Types>
 constexpr inline bool operator == (
-	const elements::of<Types0...>& e0,
-	const elements::of<Types1...>& e1
+	const elements::of<Types...>& e0,
+	const elements::of<Types...>& e1
 ) {
 	return e0.pass([&](auto&... e0) {
 		return e1.pass([&](auto&... e1) {

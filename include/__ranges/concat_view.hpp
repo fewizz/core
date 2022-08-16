@@ -4,6 +4,7 @@
 #include "../__range/iterator.hpp"
 #include "../__range/sentinel.hpp"
 #include "../__range/default_sentinel.hpp"
+#include "../__range/size.hpp"
 #include "../__iterator/element_type.hpp"
 #include "../__iterator_and_sentinel/distance.hpp"
 #include "../forward.hpp"
@@ -87,9 +88,9 @@ class concat_view_iterator {
 			case FromIndex + 1: return handler.template operator()
 				<FromIndex + 1>(pairs_.template at<FromIndex + 1>());
 			case FromIndex + 2: return handler.template operator()
-				<FromIndex + 2>(pairs_.template at<2>());
+				<FromIndex + 2>(pairs_.template at<FromIndex + 2>());
 			case FromIndex + 3: return handler.template operator()
-				<FromIndex + 3>(pairs_.template at<3>());
+				<FromIndex + 3>(pairs_.template at<FromIndex + 3>());
 		}
 		__builtin_unreachable();
 	}
@@ -107,7 +108,7 @@ class concat_view_iterator {
 			case FromIndex + 3: return handler.template operator()
 				<FromIndex + 3>(pairs_.template at<FromIndex + 3>());
 			case FromIndex + 4: return handler.template operator()
-				<FromIndex + 4>(pairs_.template at<4>());
+				<FromIndex + 4>(pairs_.template at<FromIndex + 4>());
 		}
 		__builtin_unreachable();
 	}
@@ -388,25 +389,25 @@ public:
 	}
 
 	constexpr decltype(auto) operator * () const { return deref(); }
-	constexpr decltype(auto) operator * () { return deref(); }
+	constexpr decltype(auto) operator * ()       { return deref(); }
 
-	constexpr auto& operator ++ () {
+	constexpr concat_view_iterator& operator ++ () {
 		inc();
 		return *this;
 	}
 
-	constexpr auto operator ++ (int) {
-		concat_view_iterator cpy{ *this };
+	constexpr concat_view_iterator operator ++ (int) {
+		concat_view_iterator cpy = *this;
 		++*this;
 		return cpy;
 	}
 
-	constexpr auto& operator += (nuint n) {
+	constexpr concat_view_iterator& operator += (nuint n) {
 		inc(n);
 		return *this;
 	}
 
-	constexpr auto operator + (nuint n) const {
+	constexpr concat_view_iterator operator + (nuint n) const {
 		concat_view_iterator cpy{ *this };
 		return cpy += n;
 	}
@@ -425,27 +426,23 @@ public:
 		});
 	}
 
+	constexpr friend bool operator == (
+		__ranges::concat_view_iterator<Pairs...> it, default_sentinel
+	) { return it.is_ended(); }
+
+	constexpr friend bool operator == (
+		default_sentinel, __ranges::concat_view_iterator<Pairs...> it
+	) { return it.is_ended(); }
+
+	constexpr friend bool operator != (
+		__ranges::concat_view_iterator<Pairs...> it, default_sentinel
+	) { return !it.is_ended(); }
+
+	constexpr friend bool operator != (
+		default_sentinel, __ranges::concat_view_iterator<Pairs...> it
+	) { return !it.is_ended(); }
+
 };
-
-template<typename... Pairs>
-constexpr bool operator == (
-	concat_view_iterator<Pairs...> it, default_sentinel
-) { return it.is_ended(); }
-
-template<typename... Pairs>
-constexpr bool operator == (
-	default_sentinel, concat_view_iterator<Pairs...> it
-) { return it.is_ended(); }
-
-template<typename... Pairs>
-constexpr bool operator != (
-	concat_view_iterator<Pairs...> it, default_sentinel
-) { return !it.is_ended(); }
-
-template<typename... Pairs>
-constexpr bool operator != (
-	default_sentinel, concat_view_iterator<Pairs...> it
-) { return !it.is_ended(); }
 
 template<basic_range... Ranges>
 class concat_view {
@@ -457,11 +454,19 @@ public:
 	{}
 
 	constexpr auto iterator() const {
-		return ranges_.pass([](auto&&... ranges) {
+		return ranges_.pass([](const Ranges&... ranges) {
 			return concat_view_iterator {
 				elements::of {
-					range_iterator(ranges),
-					range_sentinel(ranges)
+					range_iterator(ranges), range_sentinel(ranges)
+				} ...
+			};
+		});
+	}
+	constexpr auto iterator()       {
+		return ranges_.pass([](Ranges&... ranges) {
+			return concat_view_iterator {
+				elements::of {
+					range_iterator(ranges), range_sentinel(ranges)
 				} ...
 			};
 		});
@@ -472,8 +477,8 @@ public:
 	}
 
 	constexpr nuint size() const {
-		return ranges_.pass([](auto&&... ranges) {
-			return (ranges.size() + ...);
+		return ranges_.pass([](const Ranges&... ranges) {
+			return (((nuint) range_size(ranges)) + ...);
 		});
 	}
 

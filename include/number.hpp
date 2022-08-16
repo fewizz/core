@@ -4,11 +4,11 @@
 #include "./type/is_invokable_with.hpp"
 #include "./types/are_exclusively_satisfying_predicates.hpp"
 
-class numer_base {
+class number_base {
 	nuint value_; 
 public:
 
-	numer_base(nuint value) : value_{ value } {}
+	number_base(nuint value) : value_{ value } {}
 
 	operator       nuint& ()       & { return value_; }
 	operator const nuint& () const & { return value_; }
@@ -17,8 +17,8 @@ public:
 template<typename... Args>
 requires(
 	types::are_exclusively_satisfying_predicates<
-		types::are_contain_one_decayed_same_as<numer_base>,
-		types::are_contain_one_satisfying_predicate<
+		types::are_contain_one_decayed_same_as<number_base>,
+		types::are_contain_one_decayed_satisfying_predicate<
 			type::is_integer
 		>,
 		types::are_contain_one_satisfying_predicate<
@@ -27,8 +27,8 @@ requires(
 	>::for_types<Args...>
 )
 void for_each_digit_in_number(Args... args) {
-	auto b = elements::decayed_same_as<numer_base>(args...);
-	auto n = elements::satisfying_predicate<
+	auto b = elements::decayed_same_as<number_base>(args...);
+	auto n = elements::decayed_satisfying_predicate<
 		type::is_integer
 	>(args...);
 	auto f = elements::satisfying_predicate<
