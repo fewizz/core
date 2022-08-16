@@ -45,10 +45,11 @@ public:
 	reverse_view(Range&& range): range_{ forward<Range>(range) } {}
 
 	auto iterator() {
-		auto it = range_iterator(range_);
+		auto it   = range_iterator(range_);
+		auto size = range_size(range_);
 		// avoid applying non-zero offset  to null pointer
 		return reverse_view_iterator {
-			range_size(range_) == 0 ? it : it + range_size(range_)
+			size == 0 ? it : it + size
 		};
 	}
 
