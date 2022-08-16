@@ -15,7 +15,11 @@ public:
 
 	reverse_view_iterator(Iterator iterator) : iterator_{ iterator } {}
 
-	decltype(auto) operator * () { return *iterator_; }
+	decltype(auto) operator * () {
+		Iterator cpy = iterator_;
+		--cpy;
+		return *cpy;
+	}
 
 	reverse_view_iterator& operator ++ () {
 		--iterator_;
@@ -41,14 +45,16 @@ public:
 	reverse_view(Range&& range): range_{ forward<Range>(range) } {}
 
 	auto iterator() {
+		auto it = range_iterator(range_);
+		// avoid applying non-zero offset  to null pointer
 		return reverse_view_iterator {
-			(range_iterator(range_) + range_size(range_)) - 1
+			range_size(range_) == 0 ? it : it + range_size(range_)
 		};
 	}
 
 	auto sentinel() {
 		return reverse_view_iterator {
-			range_iterator(range_) - 1
+			range_iterator(range_)
 		};
 	}
 
