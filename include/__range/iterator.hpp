@@ -1,9 +1,9 @@
 #pragma once
 
-#include "integer.hpp"
 #include "./basic.hpp"
-#include "type/remove_const.hpp"
-#include "type/remove_reference.hpp"
+#include "../integer.hpp"
+#include "../type/remove_const.hpp"
+#include "../type/remove_reference.hpp"
 
 namespace __range {
 

@@ -2,6 +2,8 @@
 
 #include "../integer.hpp"
 #include "../__iterator/basic.hpp"
+#include "../__range/iterator.hpp"
+#include "../__range/sentinel.hpp"
 #include "../__range/default_sentinel.hpp"
 
 namespace __iterator_and_sentinel {
@@ -13,9 +15,9 @@ class range_on_iterator_and_sentinel {
 public:
 
 	constexpr range_on_iterator_and_sentinel(
-		Iterator begin, Sentinel sentinel
+		Iterator iterator, Sentinel sentinel
 	) :
-		iterator_{ begin },
+		iterator_{ iterator },
 		sentinel_{ sentinel }
 	{}
 

@@ -3,6 +3,13 @@
 #include "./__iterator/basic.hpp"
 #include "./__iterator_and_sentinel/distance.hpp"
 #include "./__iterator_and_sentinel/to_range.hpp"
+#include "./__range/iterator.hpp"
+#include "./__range/sentinel.hpp"
+
+namespace __iterator_and_sentinel {
+	using ::begin;
+	using ::end;
+}
 
 template<basic_iterator Iterator, typename Sentinel>
 struct iterator_and_sentinel {
@@ -15,7 +22,7 @@ public:
 		iterator_{ iterator }, sentinel_{ sentinel }
 	{}
 
-	constexpr auto distance() const {
+	constexpr nuint distance() const {
 		return __iterator_and_sentinel::distance(iterator_, sentinel_);
 	}
 

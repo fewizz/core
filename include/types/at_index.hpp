@@ -1,6 +1,6 @@
 #pragma once
 
-#include "of.hpp"
+#include "./of.hpp"
 #include "../integer.hpp"
 
 namespace types {

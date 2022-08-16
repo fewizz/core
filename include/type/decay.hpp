@@ -1,14 +1,14 @@
 #pragma once
 
 #include "../if_satisfies.hpp"
-#include "remove_reference.hpp"
-#include "remove_extent.hpp"
-#include "remove_volatile.hpp"
-#include "remove_const.hpp"
-#include "add_pointer.hpp"
-#include "add_pointer.hpp"
-#include "is_function.hpp"
-#include "is_array.hpp"
+#include "./remove_reference.hpp"
+#include "./remove_extent.hpp"
+#include "./remove_volatile.hpp"
+#include "./remove_const.hpp"
+#include "./add_pointer.hpp"
+#include "./add_pointer.hpp"
+#include "./is_function.hpp"
+#include "./is_array.hpp"
 
 namespace type {
 

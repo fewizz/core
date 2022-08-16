@@ -1,51 +1,30 @@
 #pragma once
 
 #include "./basic.hpp"
-#include "./array.hpp"
-#include "./value_type.hpp"
-#include "../ranges/equals.hpp"
-#include "../types/are_same.hpp"
-#include "../types/first.hpp"
-#include "../iterators/to_range.hpp"
+#include "./size.hpp"
+#include "../array.hpp"
+#include "../__ranges/are_equal.hpp"
+#include "../__iterator_and_sentinel/to_range.hpp"
 
-namespace range {
+namespace __range {
 
-	template<basic_range Range>
-	struct starts {
-		Range range_;
+	template<basic_range Range, basic_range OtherRange>
+	constexpr bool starts_with(Range&& range, OtherRange&& other) {
+		auto size       = range_size(range);
+		auto other_size = range_size(other);
+		if(size < other_size) return false;
+		return __ranges::are_equal(
+			__iterator_and_sentinel::to_range(
+				range.iterator(), range.iterator() + other_size
+			),
+			other
+		);
+	}
 
-		constexpr starts(Range&& range) : range_{ forward<Range>(range) } {}
+	template<basic_range Range, typename... Elements>
+	requires requires(Elements&&... ts) { array{ ts... }; }
+	constexpr bool starts_with(Range&& range, Elements&&... elements) {
+		return starts_with(forward<Range>(range), array{ elements... });
+	}
 
-		template<basic_range OtherRange>
-		constexpr bool with(OtherRange&& other) const {
-			auto size = range_.size();
-			auto other_size = other.size();
-
-			if(size < other_size) return false;
-
-			return ranges::equals(
-				iterators::to_range(
-					range_.begin(), range_.begin() + other_size
-				),
-				other
-			);
-		}
-
-		template<typename... Types>
-		requires(
-			(sizeof...(Types) == 1 || types_are_same<decay<Types>...>) &&
-			types_are_same<
-				decay<element_type<Range>>,
-				decay<first_type<Types...>>
-			>
-		)
-		constexpr bool with(Types&&... values) const {
-			return with(array{ values... });
-		}
-
-	};
-
-	template<basic_range Range>
-	starts(Range&&) -> starts<Range>;
-
-} // range
+} // __range

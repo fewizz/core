@@ -1,9 +1,9 @@
 #pragma once
 
-#include "type/predicate.hpp"
-#include "types/count_of_satisfying_predicate.hpp"
-#include "types/index_of_satisfying_predicate.hpp"
-#include "types/are_contain_satisfying_predicate.hpp"
+#include "./type/predicate.hpp"
+#include "./types/count_of_satisfying_predicate.hpp"
+#include "./types/index_of_satisfying_predicate.hpp"
+#include "./types/are_contain_satisfying_predicate.hpp"
 
 namespace type {
 

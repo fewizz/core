@@ -1,9 +1,9 @@
 #pragma once
 
-#include "if_satisfies.hpp"
-#include "type/predicate.hpp"
-#include "type/of.hpp"
-#include "types/are_same.hpp"
+#include "./if_satisfies.hpp"
+#include "./type/predicate.hpp"
+#include "./type/of.hpp"
+#include "./types/are_same.hpp"
 
 template<unsigned Bits>
 struct int_of_bits_type;

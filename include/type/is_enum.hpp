@@ -1,6 +1,6 @@
 #pragma once
 
-#include "predicate.hpp"
+#include "./predicate.hpp"
 
 namespace type {
 

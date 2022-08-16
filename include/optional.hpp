@@ -1,7 +1,7 @@
 #pragma once
 
-#include "elements/none.hpp"
-#include "elements/one_of.hpp"
+#include "./elements/none.hpp"
+#include "./elements/one_of.hpp"
 
 template<typename Type>
 class optional : public elements::one_of<Type, elements::none> {
@@ -31,6 +31,20 @@ public:
 	template<typename Handler>
 	      optional& if_no_value(Handler&& handler)       {
 		handler(); return *this;
+	}
+
+	template<typename Handler>
+	decltype(auto) if_has_value(Handler&& handler) const {
+		if(has_value()) return handler(value());
+	}
+	template<typename Handler>
+	decltype(auto) if_has_value(Handler&& handler)       {
+		if(has_value()) return handler(value());
+	}
+
+	template<typename Handler>
+	optional& set_if_no_value(Handler&& handler) {
+		*this = handler(); return *this;
 	}
 
 };
@@ -64,6 +78,20 @@ public:
 	template<typename Handler>
 	      optional& if_no_value(Handler&& handler)       {
 		handler(); return *this;
+	}
+
+	template<typename Handler>
+	decltype(auto) if_has_value(Handler&& handler) const {
+		if(has_value()) return handler(value());
+	}
+	template<typename Handler>
+	decltype(auto) if_has_value(Handler&& handler)       {
+		if(has_value()) return handler(value());
+	}
+
+	template<typename Handler>
+	optional& set_if_no_value(Handler&& handler) {
+		*this = handler(); return *this;
 	}
 
 };

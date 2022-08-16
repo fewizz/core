@@ -1,6 +1,6 @@
 #pragma once
 
-#include "predicate.hpp"
+#include "./predicate.hpp"
 #include "../forward.hpp"
 
 template<typename Type, typename... Args>

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "predicate.hpp"
-#include "indices_of_satisfying_predicate.hpp"
+#include "./predicate.hpp"
+#include "./indices_of_satisfying_predicate.hpp"
 #include "../type/predicate.hpp"
 #include "../type/modifier.hpp"
 #include "../type/decay.hpp"

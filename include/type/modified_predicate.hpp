@@ -1,9 +1,9 @@
 #pragma once
 
-#include "predicate.hpp"
-#include "modifier.hpp"
-#include "remove_reference.hpp"
-#include "remove_const.hpp"
+#include "./predicate.hpp"
+#include "./modifier.hpp"
+#include "./remove_reference.hpp"
+#include "./remove_const.hpp"
 
 namespace type {
 

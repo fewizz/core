@@ -1,6 +1,6 @@
 #pragma once
 
-#include "span.hpp"
+#include "./span.hpp"
 
 struct memory_span : span<uint8> {
 private:

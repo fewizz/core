@@ -8,7 +8,11 @@
 #include "./__range/contains.hpp"
 #include "./__range/copy.hpp"
 #include "./__range/iterator.hpp"
+#include "./__range/reverse_view.hpp"
 #include "./__range/split_view.hpp"
+#include "./__range/starts_with.hpp"
+#include "./__range/try_find_first_satisfying.hpp"
+#include "./__range/try_find_index_of_first_satisfying.hpp"
 #include "./__range/view_copied_elements_on_stack.hpp"
 #include "./__ranges/transform_view.hpp"
 #include "./__ranges/are_equal.hpp"
@@ -62,6 +66,9 @@ public:
 		return __ranges::are_equal(range_, forward<OtherRange>(other_range));
 	}
 
+	auto reverse_view() const { return __range::reverse_view{ range_ }; }
+	auto reverse_view()       { return __range::reverse_view{ range_ }; }
+
 	template<basic_range SplittersRange>
 	constexpr auto split_view(SplittersRange&& splitters_range) const {
 		__range::split_view{ range_, forward<SplittersRange>(splitters_range) };
@@ -78,6 +85,53 @@ public:
 	template<typename... Splitters>
 	constexpr auto split_view(Splitters&&... splitters)       {
 		__range::split_view{ range_, forward<Splitters>(splitters)... };
+	}
+
+	template<typename... Types>
+	constexpr bool starts_with(Types&&... range_or_elements) const {
+		return __range::starts_with(
+			range_, forward<Types>(range_or_elements)...
+		);
+	}
+
+	template<typename Handler>
+	constexpr auto try_find_first_satisfying(Handler&& handler) const {
+		return __range::try_find_first_satisfying(range_, handler);
+	}
+	template<typename Handler>
+	constexpr auto try_find_first_satisfying(Handler&& handler)       {
+		return __range::try_find_first_satisfying(range_, handler);
+	}
+
+	template<typename Handler>
+	constexpr auto try_find_last_satisfying(Handler&& handler) const {
+		return __range::try_find_first_satisfying(reverse_view(), handler);
+	}
+	template<typename Handler>
+	constexpr auto try_find_last_satisfying(Handler&& handler)       {
+		return __range::try_find_first_satisfying(reverse_view(), handler);
+	}
+
+	template<typename Handler>
+	constexpr auto try_find_index_of_first_satisfying(Handler&& handler) const {
+		return __range::try_find_index_of_first_satisfying(range_, handler);
+	}
+	template<typename Handler>
+	constexpr auto try_find_index_of_first_satisfying(Handler&& handler)       {
+		return __range::try_find_index_of_first_satisfying(range_, handler);
+	}
+
+	template<typename Handler>
+	constexpr auto try_find_index_of_last_satisfying(Handler&& handler) const {
+		return __range::try_find_index_of_first_satisfying(
+			__range::reverse_view{ range_ }, handler
+		);
+	}
+	template<typename Handler>
+	constexpr auto try_find_index_of_last_satisfying(Handler&& handler)       {
+		return __range::try_find_index_of_first_satisfying(
+			__range::reverse_view{ range_ }, handler
+		);
 	}
 
 	template<typename Handler>

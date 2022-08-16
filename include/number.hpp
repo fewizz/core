@@ -1,8 +1,8 @@
 #pragma once
 
-#include "decayed_same_as.hpp"
-#include "type/is_invokable_with.hpp"
-#include "types/are_exclusively_satisfying_predicates.hpp"
+#include "./decayed_same_as.hpp"
+#include "./type/is_invokable_with.hpp"
+#include "./types/are_exclusively_satisfying_predicates.hpp"
 
 class numer_base {
 	nuint value_; 

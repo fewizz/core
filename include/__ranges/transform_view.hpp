@@ -75,7 +75,7 @@ public:
 	constexpr auto sentinel()       { return range_sentinel(range_); }
 
 	constexpr auto size() const requires sized_range<Range> {
-		return size(range_);
+		return range_size(range_);
 	}
 
 	constexpr decltype(auto) operator [] (nuint index) const {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "modifier.hpp"
+#include "./modifier.hpp"
 #include "../integer.hpp"
 
 namespace type {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "predicate.hpp"
+#include "./predicate.hpp"
 
 template<typename Type>
 concept trivial = __is_trivial(Type);

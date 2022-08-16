@@ -51,7 +51,10 @@ public:
 
 	template<typename CastType>
 	constexpr span<CastType> cast() {
-		return span<CastType>{ (CastType*) ptr_, size_ };
+		return span<CastType> {
+			(CastType*) ptr_,
+			size_ * sizeof(CastType) / sizeof(Type)
+		};
 	}
 
 	constexpr span shrink(size_type size) { return span{ ptr_, size }; }
@@ -89,6 +92,9 @@ public:
 		constexpr it operator + (size_type n) const {
 			return it{ *this } += n;
 		}
+		constexpr it operator + (size_type n)       {
+			return it{ *this } += n;
+		}
 	
 		constexpr bool operator == (const it other) const {
 			return ptr_ == other.ptr_;
@@ -109,11 +115,11 @@ public:
 	constexpr const Type** elements_ptr() const { return ptr_; }
 	constexpr       Type** elements_ptr()       { return ptr_; }
 
-	constexpr       Type& operator [] (size_type index)       {
-		return *(ptr_ + index);
-	}
 	constexpr const Type& operator [] (size_type index) const {
-		return *(ptr_ + index);
+		return **(ptr_ + index);
+	}
+	constexpr       Type& operator [] (size_type index)       {
+		return **(ptr_ + index);
 	}
 
 };

@@ -110,4 +110,5 @@ namespace values {
 		using transform = values::of<Transformer::template for_value<Values>...>;
 
 	};
-}
+
+} // values

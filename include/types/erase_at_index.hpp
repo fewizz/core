@@ -1,6 +1,6 @@
 #pragma once
 
-#include "of.hpp"
+#include "./of.hpp"
 
 namespace types {
 

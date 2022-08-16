@@ -5,8 +5,8 @@
 #include "../__range/iterator.hpp"
 #include "../__range/sentinel.hpp"
 #include "../__iterator/basic.hpp"
-#include "./elements/of.hpp"
-#include "./array.hpp"
+#include "../elements/of.hpp"
+#include "../array.hpp"
 
 namespace __ranges {
 

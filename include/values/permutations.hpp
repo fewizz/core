@@ -1,9 +1,9 @@
 #pragma once
 
-#include "of.hpp"
-#include "at_index.hpp"
-#include "erase_at_index.hpp"
-#include "push_front.hpp"
+#include "./of.hpp"
+#include "./at_index.hpp"
+#include "./erase_at_index.hpp"
+#include "./push_front.hpp"
 #include "../types/combine_with.hpp"
 #include "../integer.hpp"
 
@@ -91,4 +91,4 @@ namespace values {
 
 	};
 
-}
+} // values

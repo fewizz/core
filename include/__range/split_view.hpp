@@ -1,9 +1,9 @@
 #pragma once
 
-#include "../__range/basic.hpp"
-#include "../__range/contains.hpp"
-#include "../__range/of_value_type_same_as.hpp"
-#include "../__range/default_sentinel.hpp"
+#include "./basic.hpp"
+#include "./contains.hpp"
+#include "./of_value_type_same_as.hpp"
+#include "./default_sentinel.hpp"
 #include "../__iterator_and_sentinel/to_range.hpp"
 #include "../array.hpp"
 

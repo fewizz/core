@@ -1,7 +1,7 @@
 #pragma once
 
-#include "of.hpp"
-#include "modifier.hpp"
+#include "./of.hpp"
+#include "./modifier.hpp"
 
 namespace type {
 

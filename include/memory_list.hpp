@@ -1,6 +1,5 @@
 #pragma once
 
-#include "./integer.hpp"
 #include "./exchange.hpp"
 #include "./placement_new.hpp"
 #include "./forward.hpp"
@@ -35,7 +34,7 @@ public:
 	constexpr memory_list& operator = (memory_list&& other) {
 		clear();
 		size_        = exchange(other.size_, 0);
-		memory_span_ = exhange(other.memory_span, memory_span{});
+		memory_span_ = exchange(other.memory_span_, memory_span{});
 		return *this;
 	}
 
@@ -76,7 +75,13 @@ public:
 		ValueType* v = new (memory_span_.elements_ptr() + size_)
 			ValueType{ forward<Args>(args)... };
 		++size_;
-		return v;
+		return *v;
+	}
+
+	template<typename... Args>
+	void emplace_at(nuint index, Args&&... args) {
+		(*this)[index] = new (memory_span_.elements_ptr() + index)
+			ValueType{ forward<Args>(args)... };
 	}
 
 	decltype(auto) back() const { return elements_ptr()[size() - 1]; }
@@ -84,12 +89,12 @@ public:
 
 	ValueType pop_back() requires move_constructible<ValueType> {
 		ValueType popped{ move(back()) };
-		elements_ptr()[--size_].~value_type();
+		elements_ptr()[--size_].~ValueType();
 		return popped;
 	}
 
 	void pop_back() requires (!move_constructible<ValueType>) {
-		elements_ptr()[--size_].~value_type();
+		elements_ptr()[--size_].~ValueType();
 	}
 
 	void fill(const ValueType& element) {
@@ -119,8 +124,20 @@ public:
 	      ValueType& operator * ()       { return **ptr_; }
 
 	auto& operator ++ () { ++ptr_; return *this; }
+	auto& operator -- () { --ptr_; return *this; }
 
 	auto& operator += (nuint n) { ptr_ += n; return *this; }
+	auto& operator -= (nuint n) { ptr_ -= n; return *this; }
+
+	auto operator + (nuint n) const {
+		reference_memory_list_iterator cpy = *this;
+		return cpy += n;
+	}
+
+	auto operator - (nuint n) const {
+		reference_memory_list_iterator cpy = *this;
+		return cpy -= n;
+	}
 
 	bool operator == (reference_memory_list_iterator it) const {
 		return ptr_ == it.ptr_;
@@ -135,9 +152,7 @@ template<typename RawValueType, typename SizeType>
 class memory_list<RawValueType&, SizeType> :
 	memory_list<remove_reference<RawValueType>*, SizeType>
 {
-	using base_type = memory_list<
-		remove_reference<RawValueType>*, SizeType
-	>;
+	using base_type = memory_list<RawValueType*, SizeType>;
 	using size_type = SizeType;
 	using iterator_type = reference_memory_list_iterator<RawValueType>;
 	using const_iterator_type =
@@ -169,6 +184,10 @@ public:
 	}
 	      RawValueType& operator [] (size_type index)       {
 		return *(iterator() + index);
+	}
+
+	void emplace_at(nuint index, RawValueType& value) {
+		base_type::operator[](index) = &value;
 	}
 
 	template<typename... Args>

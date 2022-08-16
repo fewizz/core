@@ -1,9 +1,9 @@
 #pragma once
 
-#include "./type/is_array.hpp"
-#include "./type/remove_const.hpp"
-#include "./type/is_same_as.hpp"
-#include "./type/remove_reference.hpp"
+#include "../type/is_array.hpp"
+#include "../type/remove_const.hpp"
+#include "../type/is_same_as.hpp"
+#include "../type/remove_reference.hpp"
 #include "../__iterator/basic.hpp"
 
 template<typename Type>

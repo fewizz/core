@@ -1,8 +1,8 @@
 #pragma once
 
-#include "type/is_trivial.hpp"
-#include "endianness.hpp"
-#include "integer.hpp"
+#include "./type/is_trivial.hpp"
+#include "./endianness.hpp"
+#include "./integer.hpp"
 
 template<
 	trivial Type, endianness Endianness = endianness::native, typename Iterator

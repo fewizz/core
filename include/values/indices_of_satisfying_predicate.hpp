@@ -1,6 +1,6 @@
 #pragma once
 
-#include "of.hpp"
+#include "./of.hpp"
 #include "../integer.hpp"
 #include "../value/predicate.hpp"
 
@@ -57,4 +57,4 @@ namespace values {
 	
 	};
 
-}
+} // values

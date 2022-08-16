@@ -1,22 +1,20 @@
 #pragma once
 
-#include "span.hpp"
+#include "./span.hpp"
 
 template<typename Type>
 class view_on_stack {
-	nuint m_count;
+	nuint count_;
 public:
 
-	using value_type = Type;
-
 	view_on_stack(nuint count) :
-		m_count{ count }
+		count_{ count }
 	{}
 
 	template<typename Handler>
-	decltype(auto) operator () (Handler&& handler) {
-		value_type storage[m_count];
-		return handler(span{ storage, m_count });
+	decltype(auto) operator () (Handler&& handler) const {
+		Type storage[count_];
+		return handler(span<Type>{ storage, count_ });
 	}
 
 };

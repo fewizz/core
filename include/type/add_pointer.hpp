@@ -1,8 +1,8 @@
 #pragma once
 
-#include "modifier.hpp"
-#include "of.hpp"
-#include "is_function.hpp"
+#include "./modifier.hpp"
+#include "./of.hpp"
+#include "./is_function.hpp"
 
 namespace type {
 

@@ -1,14 +1,14 @@
 #pragma once
 
-#include "sized.hpp"
-#include "integer.hpp"
+#include "./sized.hpp"
+#include "../integer.hpp"
 
 namespace __range {
 
 	struct size_t {
 
 		template<typename Type, nuint Size>
-		constexpr auto operator () (Type (&)[Size] ) const {
+		constexpr nuint operator () (Type (&)[Size] ) const {
 			return Size;
 		}
 

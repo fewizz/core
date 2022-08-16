@@ -1,6 +1,6 @@
 #pragma once
 
-#include "of.hpp"
+#include "./of.hpp"
 #include "../types/indices_of_satisfying_predicate.hpp"
 
 namespace elements {

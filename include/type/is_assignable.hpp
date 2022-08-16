@@ -3,7 +3,7 @@
 template<typename Type, typename WhatToAssign>
 concept assignable = __is_assignable(Type, WhatToAssign);
 
-#include "predicate.hpp"
+#include "./predicate.hpp"
 
 namespace type {
 

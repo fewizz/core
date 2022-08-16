@@ -1,8 +1,8 @@
 #pragma once
 
-#include "integer.hpp"
-#include "type/is_enum.hpp"
-#include "types/are_same.hpp"
+#include "./integer.hpp"
+#include "./type/is_enum.hpp"
+#include "./types/are_same.hpp"
 
 template<typename Enum>
 requires is_enum<Enum>

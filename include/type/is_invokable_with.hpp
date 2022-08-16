@@ -1,6 +1,6 @@
 #pragma once
 
-#include "predicate.hpp"
+#include "./predicate.hpp"
 
 template<typename Type, typename... Args>
 concept invocable_with = requires(Type&& t, Args&&... args) {

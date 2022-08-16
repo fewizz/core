@@ -1,7 +1,7 @@
 #pragma once
 
-#include "at_index.hpp"
-#include "of.hpp"
+#include "./at_index.hpp"
+#include "./of.hpp"
 #include "../types/indices_of_satisfying_predicate.hpp"
 #include "../types/at_indices.hpp"
 

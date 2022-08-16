@@ -1,7 +1,7 @@
 #pragma once
 
-#include "indices_of_satisfying_predicate.hpp"
-#include "count_of_satisfying_predicate.hpp"
+#include "./indices_of_satisfying_predicate.hpp"
+#include "./count_of_satisfying_predicate.hpp"
 #include "../values/first.hpp"
 
 namespace types {

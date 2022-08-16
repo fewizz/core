@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../integer.hpp"
 #include "./basic.hpp"
+#include "../integer.hpp"
 
 namespace __range {
 

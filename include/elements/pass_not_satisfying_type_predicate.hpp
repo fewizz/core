@@ -1,6 +1,6 @@
 #pragma once
 
-#include "pass_satisfying_type_predicate.hpp"
+#include "./pass_satisfying_type_predicate.hpp"
 #include "../type/predicate_negation.hpp"
 
 namespace elements {

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "indices_of_satisfying_predicate.hpp"
-#include "../value/is_equal_to.hpp"
+#include "../value/is_equals_to.hpp"
 
 namespace values {
 	
@@ -10,9 +10,9 @@ namespace values {
 
 		template<auto... Values>
 		using for_values = typename values::indices_of_satisfying_predicate<
-			value::is_equal_to<Value>
+			value::is_equals_to<Value>
 		>::template for_values<Values...>;
 
 	};
 
-}
+} // values

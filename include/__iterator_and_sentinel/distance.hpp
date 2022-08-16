@@ -17,7 +17,7 @@ constexpr nuint distance(Iterator iterator, Sentinel sentinel) {
 
 template<basic_iterator Iterator, typename Sentinel>
 requires requires(Iterator i, Sentinel s) { s - i; }
-constexpr auto distance(Iterator iterator, Sentinel sentinel) {
+constexpr nuint distance(Iterator iterator, Sentinel sentinel) {
 	return sentinel - iterator;
 }
 
