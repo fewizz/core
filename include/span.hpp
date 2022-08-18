@@ -9,17 +9,15 @@
 
 template<typename Type, unsigned_integer SizeType = nuint>
 struct span {
-	using size_type = SizeType;
-
 protected:
 	Type* ptr_;
-	size_type size_;
+	SizeType size_;
 public:
 
 	constexpr span() = default;
 
-	constexpr span(Type* ptr, size_type size) : ptr_{ ptr }, size_{ size } {}
-	constexpr span(size_type size, Type* ptr) : ptr_{ ptr }, size_{ size } {}
+	constexpr span(Type* ptr, SizeType size) : ptr_{ ptr }, size_{ size } {}
+	constexpr span(SizeType size, Type* ptr) : ptr_{ ptr }, size_{ size } {}
 
 	template<nuint Size>
 	constexpr span(Type (&array)[Size]) :
@@ -29,10 +27,10 @@ public:
 	// TODO contiguous range, range_size_type
 	template<sized_range Range>
 	constexpr span(Range&& range) :
-		ptr_{ range.elements_ptr() }, size_{ (size_type) range_size(range) }
+		ptr_{ range.elements_ptr() }, size_{ (SizeType) range_size(range) }
 	{}
 
-	constexpr size_type size() const { return size_; }
+	constexpr SizeType size() const { return size_; }
 
 	constexpr const Type* iterator() const { return ptr_; }
 	constexpr       Type* iterator()       { return ptr_; }
@@ -40,10 +38,10 @@ public:
 	constexpr const Type* sentinel() const { return ptr_ + size_; }
 	constexpr       Type* sentinel()       { return ptr_ + size_; }
 
-	constexpr       Type& operator [] (size_type index)       {
+	constexpr       Type& operator [] (SizeType index)       {
 		return ptr_[index];
 	}
-	constexpr const Type& operator [] (size_type index) const {
+	constexpr const Type& operator [] (SizeType index) const {
 		return ptr_[index];
 	}
 
@@ -58,7 +56,7 @@ public:
 		};
 	}
 
-	constexpr span shrink(size_type size) { return span{ ptr_, size }; }
+	constexpr span shrink(SizeType size) { return span{ ptr_, size }; }
 
 };
 

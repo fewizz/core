@@ -14,6 +14,7 @@
 #include "./__range/starts_with.hpp"
 #include "./__range/try_find_first_satisfying.hpp"
 #include "./__range/try_find_index_of_first_satisfying.hpp"
+#include "./__range/try_find_index_of_last_satisfying.hpp"
 #include "./__range/view_copied_elements_on_stack.hpp"
 #include "./__ranges/transform_view.hpp"
 #include "./__ranges/are_equal.hpp"
@@ -67,8 +68,19 @@ public:
 		return __ranges::are_equal(range_, forward<OtherRange>(other_range));
 	}
 
-	auto reverse_view() const { return __range::reverse_view{ range_ }; }
-	auto reverse_view()       { return __range::reverse_view{ range_ }; }
+	constexpr auto dereference_view() const {
+		return transform_view([](auto&& element){ return *element; });
+	}
+	constexpr auto dereference_view()       {
+		return transform_view([](auto&& element){ return *element; });
+	}
+
+	constexpr auto reverse_view() const {
+		return __range::reverse_view{ range_ };
+	}
+	constexpr auto reverse_view()       {
+		return __range::reverse_view{ range_ };
+	}
 
 	using size_type = range_size_type<Range>;
 
@@ -138,14 +150,14 @@ public:
 
 	template<typename Handler>
 	constexpr auto try_find_index_of_last_satisfying(Handler&& handler) const {
-		return __range::try_find_index_of_first_satisfying(
-			__range::reverse_view{ range_ }, forward<Handler>(handler)
+		return __range::try_find_index_of_last_satisfying(
+			range_, forward<Handler>(handler)
 		);
 	}
 	template<typename Handler>
 	constexpr auto try_find_index_of_last_satisfying(Handler&& handler)       {
-		return __range::try_find_index_of_first_satisfying(
-			__range::reverse_view{ range_ }, forward<Handler>(handler)
+		return __range::try_find_index_of_last_satisfying(
+			range_, forward<Handler>(handler)
 		);
 	}
 

@@ -9,32 +9,34 @@
 #include "./type/remove_const.hpp"
 #include "./type/is_move_constructible.hpp"
 
-template<typename ValueType, typename SizeType>
+template<typename ValueType, typename SizeType = nuint>
 struct memory_list {
 protected:
-	using size_type = SizeType;
-	SizeType size_ = 0;
-	memory_span memory_span_;
+	ValueType* ptr_      = nullptr;
+	SizeType   capacity_ = 0;
+	SizeType   size_     = 0;
 public:
 
 	constexpr memory_list() = default;
 
 	constexpr memory_list(memory_span memory_span) :
-		size_{ 0 },
-		memory_span_{ memory_span }
+		ptr_     { (ValueType*) memory_span.elements_ptr() },
+		capacity_{ (SizeType) (memory_span.size() / sizeof(ValueType)) }
 	{}
 
 	constexpr memory_list(memory_list&& other) :
-		size_       { exchange(other.size_, 0)                    },
-		memory_span_{ exchange(other.memory_span_, memory_span{}) }
+		ptr_      { exchange(other.ptr_,      nullptr) },
+		capacity_ { exchange(other.capacity_, 0)       },
+		size_     { exchange(other.size_,     0)       }
 	{}
 
 	constexpr memory_list(const memory_list&) = delete;
 
 	constexpr memory_list& operator = (memory_list&& other) {
 		clear();
-		size_        = exchange(other.size_, 0);
-		memory_span_ = exchange(other.memory_span_, memory_span{});
+		ptr_       = exchange(other.ptr_,       nullptr);
+		capacity_  = exchange(other.capacity_ , 0);
+		size_      = exchange(other.size_,      0);
 		return *this;
 	}
 
@@ -42,37 +44,26 @@ public:
 
 	constexpr ~memory_list() {
 		clear();
-		memory_span_ = {};
 	}
 
-	constexpr size_type size() const { return size_; }
-	constexpr size_type capacity() const {
-		return memory_span_.size() / sizeof(ValueType);
-	}
+	constexpr SizeType size()     const { return size_;     }
+	constexpr SizeType capacity() const { return capacity_; }
 
-	constexpr const ValueType* elements_ptr() const {
-		return (ValueType*) memory_span_.elements_ptr();
-	}
-	constexpr       ValueType* elements_ptr()       {
-		return (ValueType*) memory_span_.elements_ptr();
-	}
+	constexpr const ValueType* elements_ptr() const { return ptr_; }
+	constexpr       ValueType* elements_ptr()       { return ptr_; }
 
-	constexpr const ValueType* iterator() const { return elements_ptr(); }
-	constexpr       ValueType* iterator()       { return elements_ptr(); }
+	constexpr const ValueType* iterator() const { return ptr_; }
+	constexpr       ValueType* iterator()       { return ptr_; }
 
-	constexpr const ValueType* sentinel() const { return iterator() + size(); }
-	constexpr       ValueType* sentinel()       { return iterator() + size(); }
+	constexpr const ValueType* sentinel() const { return ptr_ + size_; }
+	constexpr       ValueType* sentinel()       { return ptr_ + size_; }
 
-	const ValueType& operator [] (size_type index) const {
-		return elements_ptr()[index];
-	}
-	      ValueType& operator [] (size_type index)       {
-		return elements_ptr()[index];
-	}
+	const ValueType& operator [] (SizeType index) const { return ptr_[index]; }
+	      ValueType& operator [] (SizeType index)       { return ptr_[index]; }
 
 	template<typename... Args>
 	ValueType& emplace_back(Args&&... args) {
-		ValueType* v = new (elements_ptr() + size_)
+		ValueType* v = new (ptr_ + size_)
 			ValueType{ forward<Args>(args)... };
 		++size_;
 		return *v;
@@ -80,25 +71,27 @@ public:
 
 	template<typename... Args>
 	void emplace_at(nuint index, Args&&... args) {
-		(*this)[index] = new (elements_ptr() + index)
+		(ptr_ + index)->~ValueType();
+		new (ptr_ + index)
 			ValueType{ forward<Args>(args)... };
 	}
 
-	decltype(auto) back() const { return elements_ptr()[size() - 1]; }
-	decltype(auto) back()       { return elements_ptr()[size() - 1]; }
+	ValueType&  back() const &  { return ptr_[size() - 1]; }
+	ValueType&  back()       &  { return ptr_[size() - 1]; }
 
-	ValueType pop_back() requires move_constructible<ValueType> {
+	ValueType pop_back() requires ( move_constructible<ValueType>) {
 		ValueType popped{ move(back()) };
-		elements_ptr()[--size_].~ValueType();
+		--size_;
+		ptr_[size_].~ValueType();
 		return popped;
 	}
-
-	void pop_back() requires (!move_constructible<ValueType>) {
-		elements_ptr()[--size_].~ValueType();
+	void      pop_back() requires (!move_constructible<ValueType>) {
+		--size_;
+		ptr_[size_].~ValueType();
 	}
 
 	void fill(const ValueType& element) {
-		while(size() < capacity()) {
+		while(size_ < capacity_) {
 			emplace_back(element);
 		}
 	}
@@ -111,7 +104,7 @@ public:
 
 };
 
-template<typename ValueType>
+template<typename ValueType, typename SizeType>
 class reference_memory_list_iterator {
 	ValueType** ptr_;
 public:
@@ -126,17 +119,21 @@ public:
 	auto& operator ++ () { ++ptr_; return *this; }
 	auto& operator -- () { --ptr_; return *this; }
 
-	auto& operator += (nuint n) { ptr_ += n; return *this; }
-	auto& operator -= (nuint n) { ptr_ -= n; return *this; }
+	auto& operator += (SizeType n) { ptr_ += n; return *this; }
+	auto& operator -= (SizeType n) { ptr_ -= n; return *this; }
 
-	auto operator + (nuint n) const {
+	auto operator + (SizeType n) const {
 		reference_memory_list_iterator cpy = *this;
 		return cpy += n;
 	}
 
-	auto operator - (nuint n) const {
+	auto operator - (SizeType n) const {
 		reference_memory_list_iterator cpy = *this;
 		return cpy -= n;
+	}
+
+	SizeType operator - (reference_memory_list_iterator other) const {
+		return (SizeType) (ptr_ - other.ptr_);
 	}
 
 	bool operator == (reference_memory_list_iterator it) const {
@@ -153,10 +150,13 @@ class memory_list<RawValueType&, SizeType> :
 	memory_list<remove_reference<RawValueType>*, SizeType>
 {
 	using base_type = memory_list<RawValueType*, SizeType>;
-	using size_type = SizeType;
-	using iterator_type = reference_memory_list_iterator<RawValueType>;
+	using iterator_type =
+		reference_memory_list_iterator<RawValueType, SizeType>;
 	using const_iterator_type =
-		reference_memory_list_iterator<const RawValueType>;
+		reference_memory_list_iterator<const RawValueType, SizeType>;
+
+protected:
+	using base_type::ptr_;
 public:
 
 	using base_type::base_type;
@@ -165,25 +165,17 @@ public:
 	using base_type::capacity;
 	using base_type::pop_back;
 
-	constexpr const_iterator_type iterator() const {
-		return base_type::elements_ptr();
-	}
-	constexpr       iterator_type iterator() {
-		return base_type::elements_ptr();
-	}
+	constexpr const_iterator_type iterator() const { return ptr_; }
+	constexpr       iterator_type iterator()       { return ptr_; }
 
-	constexpr const_iterator_type sentinel() const {
-		return iterator() += size();
-	}
-	constexpr       iterator_type sentinel()       {
-		return iterator() += size();
-	}
+	constexpr const_iterator_type sentinel() const { return ptr_ + size(); }
+	constexpr       iterator_type sentinel()       { return ptr_ + size(); }
 
-	const RawValueType& operator [] (size_type index) const {
-		return *(iterator() + index);
+	const RawValueType& operator [] (SizeType index) const {
+		return **(ptr_ + index);
 	}
-	      RawValueType& operator [] (size_type index)       {
-		return *(iterator() + index);
+	      RawValueType& operator [] (SizeType index)       {
+		return **(ptr_ + index);
 	}
 
 	void emplace_at(nuint index, RawValueType& value) {
@@ -200,8 +192,8 @@ public:
 		base_type::fill(&element);
 	}
 
-	const RawValueType& back() const { return *this[size() - 1]; }
-	      RawValueType& back()       { return *this[size() - 1]; }
+	const RawValueType& back() const { return *base_type::back(); }
+	      RawValueType& back()       { return *base_type::back(); }
 
 	RawValueType& pop_back() {
 		return *base_type::pop_back();
