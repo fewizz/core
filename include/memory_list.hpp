@@ -90,6 +90,13 @@ public:
 		ptr_[size_].~ValueType();
 	}
 
+	auto pop_back(SizeType count) {
+		while (count > 0) {
+			pop_back();
+			--count;
+		}
+	}
+
 	void fill(const ValueType& element) {
 		while(size_ < capacity_) {
 			emplace_back(element);
@@ -97,9 +104,7 @@ public:
 	}
 
 	void clear() {
-		while(size_ > 0) {
-			pop_back();
-		}
+		pop_back(size_);
 	}
 
 };
