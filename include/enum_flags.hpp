@@ -27,7 +27,8 @@ public:
 	}
 
 	constexpr bool get(Enum v) const {
-		return (value | (value_type) v) == value;
+		bool result = (value | (value_type) v) == value;
+		return result;
 	}
 
 	constexpr bool at(value_type index) const {

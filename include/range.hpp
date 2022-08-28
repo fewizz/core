@@ -7,9 +7,12 @@
 #include "./__range/basic.hpp"
 #include "./__range/contains.hpp"
 #include "./__range/copy.hpp"
+#include "./__range/filter_view.hpp"
+#include "./__range/flat_view.hpp"
 #include "./__range/iterator.hpp"
 #include "./__range/reverse_view.hpp"
 #include "./__range/size_type.hpp"
+#include "./__range/sized_view.hpp"
 #include "./__range/split_view.hpp"
 #include "./__range/starts_with.hpp"
 #include "./__range/try_find_first_satisfying.hpp"
@@ -68,6 +71,18 @@ public:
 		return __ranges::are_equal(range_, forward<OtherRange>(other_range));
 	}
 
+	template<typename Predicate>
+	constexpr auto filter_view(Predicate&& predicate) const {
+		return __range::filter_view{ range_, forward<Predicate>(predicate) };
+	}
+	template<typename Predicate>
+	constexpr auto filter_view(Predicate&& predicate)       {
+		return __range::filter_view{ range_, forward<Predicate>(predicate) };
+	}
+
+	constexpr auto flat_view() const { return __range::flat_view{ range_ }; }
+	constexpr auto flat_view()       { return __range::flat_view{ range_ }; }
+
 	constexpr auto dereference_view() const {
 		return transform_view([](auto&& element){ return *element; });
 	}
@@ -82,7 +97,8 @@ public:
 		return __range::reverse_view{ range_ };
 	}
 
-	using size_type = range_size_type<Range>;
+	constexpr auto sized_view() const { return __range::sized_view{ range_ }; }
+	constexpr auto sized_view()       { return __range::sized_view{ range_ }; }
 
 	template<basic_range SplittersRange>
 	constexpr auto split_view(SplittersRange&& splitters_range) const {
