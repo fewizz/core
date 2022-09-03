@@ -25,8 +25,8 @@ namespace elements {
 	template<typename... Types>
 	class one_of {
 		using storage_type = one_of_storage<Types...>;
-		storage_type storage_;
-		nuint current_{};
+		storage_type storage_{};
+		nuint current_;
 
 		template<typename Type>
 		static constexpr bool has_one_such_type =

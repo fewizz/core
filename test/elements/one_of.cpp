@@ -1,7 +1,12 @@
 #include <elements/one_of.hpp>
 #include <exchange.hpp>
 
-consteval void f() {
+consteval bool f() {
+	{
+		elements::one_of_storage<int, float> storage;
+		float f = 0;
+		storage.init<elements::one_of_storage_treat_type_as::value_type>(f);
+	}
 	{
 		elements::one_of<int, float> f{ 0.0F };
 		if(!f.is<float>()) throw;
@@ -12,7 +17,10 @@ consteval void f() {
 		i = 0.0F;
 		if(!i.is<float>()) throw;
 	}
+	return true;
 }
+
+// static_assert(f());
 
 nuint a_destructions;
 

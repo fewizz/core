@@ -18,8 +18,9 @@ test() {
 	if build/$1; then
 		echo "success"
 	else
-		echo "didn't pass"
-		exit 1
+		result=$?
+		echo "failure"
+		exit ${result}
 	fi
 }
 

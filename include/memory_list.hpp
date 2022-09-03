@@ -13,7 +13,7 @@ template<typename ValueType, typename SizeType = nuint>
 struct memory_list {
 protected:
 	ValueType* ptr_      = nullptr;
-	SizeType   capacity_ = 0;
+	SizeType   capacity_bytes_ = 0;
 	SizeType   size_     = 0;
 public:
 
@@ -21,22 +21,22 @@ public:
 
 	constexpr memory_list(memory_span memory_span) :
 		ptr_     { (ValueType*) memory_span.elements_ptr() },
-		capacity_{ (SizeType) (memory_span.size() / sizeof(ValueType)) }
+		capacity_bytes_{ (SizeType) memory_span.size() }
 	{}
 
 	constexpr memory_list(memory_list&& other) :
-		ptr_      { exchange(other.ptr_,      nullptr) },
-		capacity_ { exchange(other.capacity_, 0)       },
-		size_     { exchange(other.size_,     0)       }
+		ptr_            { exchange(other.ptr_,      nullptr) },
+		capacity_bytes_ { exchange(other.capacity_bytes_, 0)       },
+		size_           { exchange(other.size_,     0)       }
 	{}
 
 	constexpr memory_list(const memory_list&) = delete;
 
 	constexpr memory_list& operator = (memory_list&& other) {
 		clear();
-		ptr_       = exchange(other.ptr_,       nullptr);
-		capacity_  = exchange(other.capacity_ , 0);
-		size_      = exchange(other.size_,      0);
+		ptr_             = exchange(other.ptr_,       nullptr);
+		capacity_bytes_  = exchange(other.capacity_bytes_ , 0);
+		size_            = exchange(other.size_,            0);
 		return *this;
 	}
 
@@ -46,8 +46,14 @@ public:
 		clear();
 	}
 
+	constexpr ::memory_span memory_span() const {
+		return { (uint8*) ptr_, capacity_bytes_ };
+	}
+
 	constexpr SizeType size()     const { return size_;     }
-	constexpr SizeType capacity() const { return capacity_; }
+	constexpr SizeType capacity() const {
+		return capacity_bytes_ / sizeof(ValueType);
+	}
 
 	constexpr const ValueType* elements_ptr() const { return ptr_; }
 	constexpr       ValueType* elements_ptr()       { return ptr_; }
@@ -98,7 +104,7 @@ public:
 	}
 
 	void fill(const ValueType& element) {
-		while(size_ < capacity_) {
+		while(size_ < capacity()) {
 			emplace_back(element);
 		}
 	}
