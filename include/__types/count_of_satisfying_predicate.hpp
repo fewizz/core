@@ -2,24 +2,28 @@
 
 #include "./predicate.hpp"
 #include "./indices_of_satisfying_predicate.hpp"
-#include "../type/predicate.hpp"
-#include "../type/modifier.hpp"
-#include "../type/decay.hpp"
+#include "../__type/predicate.hpp"
+#include "../__type/modifier.hpp"
+#include "../__type/decay.hpp"
 
-namespace types {
+namespace __types {
 
-	template<type::predicate Predicate>
+	template<nuint N>
+	struct less : types_predicate_marker {
+	};
+
+	template<type_predicate Predicate>
 	struct count_of_satisfying_predicate {
 
 		template<typename... Types>
-		static constexpr nuint for_types =
-			/*types::indices_of_satisfying_predicate<Predicate>
-			::template for_types<Types...>
-			::size;*/
+		static constexpr nuint value =
 			(nuint(Predicate::template for_type<Types>) + ... + 0);
 
+		constexpr auto operator < (nuint n) const {
+			return less<n>{};
+		}
 		template<nuint N>
-		struct less : types::predicate_marker {
+		struct less : types_predicate_marker {
 
 			using affecting_predicate = Predicate;
 
@@ -36,7 +40,7 @@ namespace types {
 		};
 
 		template<nuint N>
-		struct greater : types::predicate_marker {
+		struct greater : types_predicate_marker {
 
 			using affecting_predicate = Predicate;
 
@@ -53,7 +57,7 @@ namespace types {
 		};
 
 		template<nuint N>
-		struct less_or_equals : types::predicate_marker {
+		struct less_or_equals : types_predicate_marker {
 
 			using affecting_predicate = Predicate;
 
@@ -70,7 +74,7 @@ namespace types {
 		};
 
 		template<nuint N>
-		struct greater_or_equals : types::predicate_marker {
+		struct greater_or_equals : types_predicate_marker {
 
 			using affecting_predicate = Predicate;
 
@@ -87,7 +91,7 @@ namespace types {
 		};
 	
 		template<nuint N>
-		struct equals : types::predicate_marker {
+		struct equals : types_predicate_marker {
 
 			using affecting_predicate = Predicate;
 

@@ -1,7 +1,8 @@
 #pragma once
 
+#include "./integer.hpp"
+#include "./type.hpp"
 #include "./values/of.hpp"
-#include "./type/remove_reference.hpp"
 #include "./types/are_same.hpp"
 #include "./types/first.hpp"
 
@@ -42,7 +43,7 @@ template<typename... Types>
 requires(sizeof...(Types) == 1 || types_are_same<Types...>)
 array(Types&&...)
 	-> array<
-		remove_reference<first_type<Types...>>,
+		__type::remove_reference<first_type<Types...>>,
 		sizeof...(Types)
 	>;
 

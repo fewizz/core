@@ -2,7 +2,7 @@
 
 #include "../values/of.hpp"
 
-namespace types {
+namespace __types {
 
 	template<typename... Types> 
 	struct of {
@@ -17,10 +17,10 @@ namespace types {
 		using pass_for_type_directly = Type<Types...>;
 
 		template<typename Transformer>
-		using transform = types::of<
+		using transform = __types::of<
 			typename Transformer::template for_type<Types>...
 		>;
 
 	};
 
-} // types
+}

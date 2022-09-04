@@ -1,13 +1,11 @@
 #pragma once
 
-#include "../type/of.hpp"
-
 namespace types {
 
 	class first {
 
 		template<typename FirstType, typename... RemainingTypes>
-		struct for_types_t : type::of<FirstType> {};
+		struct for_types_t { using type = FirstType; };
 
 	public:
 

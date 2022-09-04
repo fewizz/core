@@ -2,12 +2,12 @@
 
 #include "./one_of_storage.hpp"
 
-#include "../type/is_same_as.hpp"
-#include "../type/is_assignable.hpp"
-#include "../type/is_constructible_from.hpp"
-#include "../type/is_trivial.hpp"
-#include "../type/is_base.hpp"
-#include "../type/predicates_conjunction.hpp"
+#include "../__type/is_same_as.hpp"
+#include "../__type/is_assignable.hpp"
+#include "../__type/is_constructible_from.hpp"
+#include "../__type/is_trivial.hpp"
+#include "../__type/is_base.hpp"
+#include "../__type/predicates_conjunction.hpp"
 
 #include "../types/are_same.hpp"
 #include "../types/at_index.hpp"

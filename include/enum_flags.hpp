@@ -1,11 +1,11 @@
 #pragma once
 
 #include "./integer.hpp"
-#include "./type/is_enum.hpp"
+#include "./type.hpp"
 #include "./types/are_same.hpp"
 
 template<typename Enum>
-requires is_enum<Enum>
+requires type<Enum>::is_enum
 class enum_flags {
 	using value_type = uint_of_size_of<Enum>;
 	value_type value{};

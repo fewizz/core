@@ -2,15 +2,15 @@
 
 #include "./basic.hpp"
 #include "../integer.hpp"
-#include "../type/remove_const.hpp"
-#include "../type/remove_reference.hpp"
+#include "../__type/remove_const.hpp"
+#include "../__type/remove_reference.hpp"
 
 namespace __range {
 
 	struct iterator_t {
 
 		template<basic_range Range>
-		requires is_array<Range>
+		requires __type::is_array<Range>
 		constexpr auto operator () (Range&& o) const {
 			return o;
 		}

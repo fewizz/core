@@ -1,9 +1,7 @@
 #pragma once
 
 #include "./if_satisfies.hpp"
-#include "./type/predicate.hpp"
-#include "./type/of.hpp"
-#include "./types/are_same.hpp"
+#include "./__type/is_same_as.hpp"
 
 template<unsigned Bits>
 struct int_of_bits_type;
@@ -18,8 +16,8 @@ static_assert(sizeof(int8) == 1);
 using uint8 = unsigned char;
 static_assert(sizeof(uint8) == 1);
 
-template<> struct int_of_bits_type<8> : type::of<int8> {};
-template<> struct uint_of_bits_type<8> : type::of<uint8> {};
+template<> struct int_of_bits_type<8>  { using type = int8;  };
+template<> struct uint_of_bits_type<8> { using type = uint8; };
 
 // 16
 using int16 = signed short;
@@ -28,8 +26,8 @@ static_assert(sizeof(int16) == 2);
 using uint16 = unsigned short;
 static_assert(sizeof(uint16) == 2);
 
-template<> struct int_of_bits_type<16> : type::of<int16> {};
-template<> struct uint_of_bits_type<16> : type::of<uint16> {};
+template<> struct int_of_bits_type<16>  { using type = int16;  };
+template<> struct uint_of_bits_type<16> { using type = uint16; };
 
 // 32
 using int32 = signed int;
@@ -38,8 +36,8 @@ static_assert(sizeof(int32) == 4);
 using uint32 = unsigned int;
 static_assert(sizeof(uint32) == 4);
 
-template<> struct int_of_bits_type<32> : type::of<int32> {};
-template<> struct uint_of_bits_type<32> : type::of<uint32> {};
+template<> struct int_of_bits_type<32>  { using type = int32;  };
+template<> struct uint_of_bits_type<32> { using type = uint32; };
 
 // 64
 
@@ -57,8 +55,8 @@ using uint64 =
 
 static_assert(sizeof(uint64) == 8);
 
-template<> struct int_of_bits_type<64> : type::of<int64> {};
-template<> struct uint_of_bits_type<64> : type::of<uint64> {};
+template<> struct int_of_bits_type<64>  { using type = int64;  };
+template<> struct uint_of_bits_type<64> { using type = uint64; };
 
 using nuint = typename uint_of_bits_type<sizeof(void*)*8>::type;
 
@@ -72,13 +70,13 @@ template<typename Type>
 using uint_of_size_of = uint_of_bits<sizeof(Type) * 8>;
 
 template<typename Type>
-concept signed_integer = types_are_same<
+concept signed_integer = __type::is_same_as<
 	typename int_of_bits_type<sizeof(Type)*8>::type,
 	Type
 >;
 
 template<typename Type>
-concept unsigned_integer = types_are_same<
+concept unsigned_integer = __type::is_same_as<
 	typename uint_of_bits_type<sizeof(Type)*8>::type,
 	Type
 >;
@@ -86,27 +84,15 @@ concept unsigned_integer = types_are_same<
 template<typename Type>
 concept integer = signed_integer<Type> || unsigned_integer<Type>;
 
-namespace type {
+namespace __type {
 
-	struct is_signed_integer : type::predicate_marker {
+	template<typename Type>
+	constexpr inline bool is_signed_integer = signed_integer<Type>;
 	
-		template<typename Type>
-		static constexpr bool for_type = signed_integer<Type>;
-	
-	};
-	
-	struct is_unsigned_integer : type::predicate_marker {
-	
-		template<typename Type>
-		static constexpr bool for_type = unsigned_integer<Type>;
-	
-	};
-	
-	struct is_integer : type::predicate_marker {
-	
-		template<typename Type>
-		static constexpr bool for_type = integer<Type>;
-	
-	};
+	template<typename Type>
+	constexpr inline bool is_unsigned_integer = unsigned_integer<Type>;
+
+	template<typename Type>
+	constexpr inline bool is_integer = integer<Type>;
 
 }

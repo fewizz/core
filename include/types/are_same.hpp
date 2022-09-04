@@ -1,7 +1,6 @@
 #pragma once
 
 #include "./predicate.hpp"
-#include "../type/is_same_as.hpp"
 
 namespace types {
 

@@ -2,11 +2,11 @@
 
 #include "./of.hpp"
 #include "../values/of.hpp"
-#include "../type/predicate.hpp"
+#include "../__type/predicate.hpp"
 
-namespace types {
+namespace __types {
 
-	template<type::predicate Predicate>
+	template<type_predicate Predicate>
 	class indices_of_satisfying_predicate {
 
 		template<nuint CurrentIndex, nuint... Indices>
@@ -17,32 +17,28 @@ namespace types {
 
 			template<bool Current, bool... Remaining>
 			requires(Current)
-			struct remaining<Current, Remaining...> :
-				type::of<
+			struct remaining<Current, Remaining...> {
+				using type =
 					typename current_index_and_resulting_indices<
 						CurrentIndex + 1,
 						Indices..., CurrentIndex
 					>
-					::template remaining<Remaining...>::type
-				>
-			{};
+					::template remaining<Remaining...>::type;
+			};
 
 			template<bool Current, bool... Remaining>
 			requires(!Current)
-			struct remaining<Current, Remaining...> :
-				type::of<
+			struct remaining<Current, Remaining...> {
+				using type =
 					typename current_index_and_resulting_indices<
 						CurrentIndex + 1,
 						Indices...
 					>
-					::template remaining<Remaining...>::type
-				>
-			{};
+					::template remaining<Remaining...>::type;
+			};
 
 			template<>
-			struct remaining<> :
-				type::of<indices::of<Indices...>>
-			{};
+			struct remaining<> { using type = indices::of<Indices...>; };
 
 		};
 
@@ -57,4 +53,4 @@ namespace types {
 
 	};
 
-} // types
+} // __types

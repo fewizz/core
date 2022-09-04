@@ -1,12 +1,14 @@
-#include <type/is_same_as.hpp>
+#include <type.hpp>
 #include <integer.hpp>
 
 static_assert(
-	!type::is_same_as<uint32>::for_type<bool>
+	!type<uint32>::is_same_as<bool>
 );
 
 static_assert(
-	type::is_same_as<char>::for_type<char>
+	type<char>::is_same_as<char>
 );
+
+static_assert((!(is_same_as<int> && is_same_as<float>)).for_type<bool>());
 
 int main() {}
