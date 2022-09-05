@@ -7,15 +7,9 @@
 #include "../__type/is_constructible_from.hpp"
 #include "../__type/is_trivial.hpp"
 #include "../__type/is_base.hpp"
-#include "../__type/predicates_conjunction.hpp"
 
-#include "../types/are_same.hpp"
-#include "../types/at_index.hpp"
-#include "../types/index_of_satisfying_predicate.hpp"
-#include "../types/are_contain_satisfying_predicate.hpp"
-#include "../types/first.hpp"
+#include "../types.hpp"
 
-#include "../decayed_same_as.hpp"
 #include "../forward.hpp"
 #include "../placement_new.hpp"
 #include "../move.hpp"
@@ -30,15 +24,15 @@ namespace elements {
 
 		template<typename Type>
 		static constexpr bool has_one_such_type =
-			types::are_contain_one_satisfying_predicate<
-				type::is_same_as<Type>
-			>::template for_types<Types...>;
+			types<Types...>::template count_of_satisfying_predicate<
+				is_same_as<Type>
+			> == 1;
 
 		template<typename... Args>
 		static constexpr bool has_one_constructible_from =
-			types::are_contain_one_satisfying_predicate<
-				type::is_constructible_from<Args...>
-			>::template for_types<Types...>;
+			types<Types...>::template count_of_satisfying_predicate<
+				is_constructible_from<Args...>
+			> == 1;
 
 		template<typename... Args>
 		static constexpr nuint index_of_constructible_from_args =

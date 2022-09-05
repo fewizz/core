@@ -2,7 +2,7 @@
 
 #include "./of.hpp"
 
-namespace types {
+namespace __types {
 
 	template <nuint Index>
 	class erase_at_index {
@@ -15,13 +15,13 @@ namespace types {
 
 				template<typename CurrentValue, typename... TypesAfter>
 				requires(sizeof...(TypesAfter) > 0)
-				struct current_type_and_types_after
-					: type::of<
+				struct current_type_and_types_after {
+					using type =
 						typename types_before<TypesBefore..., CurrentValue>::
 						template current_type_index<CurrentIndex + 1>::
 						template current_type_and_types_after<TypesAfter...>
-						::type
-					>{};
+						::type;
+				};
 
 			};
 	
@@ -29,9 +29,9 @@ namespace types {
 			struct current_type_index<Index> {
 
 				template<typename CurrentValue, typename... TypesAfter>
-				struct current_type_and_types_after :
-					type::of<types::of<TypesBefore..., TypesAfter...>>
-				{};
+				struct current_type_and_types_after {
+					using type = __types::of<TypesBefore..., TypesAfter...>;
+				};
 
 			};
 
@@ -48,4 +48,4 @@ namespace types {
 
 	};
 
-} // types
+}

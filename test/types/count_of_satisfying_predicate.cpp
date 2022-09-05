@@ -1,11 +1,10 @@
-#include <types/count_of_satisfying_predicate.hpp>
-#include <type/is_same_as.hpp>
+#include <types.hpp>
+#include <type.hpp>
 
 static_assert(
-	types::count_of_satisfying_predicate<
-		type::is_same_as<int>
-	>::for_types<int, float, int, int, bool>
-	== 3
+	types<int, float, int, int, bool>::count_of_satisfying_predicate<
+		is_same_as<int>
+	> == 3
 );
 
 int main() {}

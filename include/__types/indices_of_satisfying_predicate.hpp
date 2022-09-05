@@ -6,7 +6,7 @@
 
 namespace __types {
 
-	template<type_predicate Predicate>
+	template<type_predicate auto Predicate>
 	class indices_of_satisfying_predicate {
 
 		template<nuint CurrentIndex, nuint... Indices>
@@ -48,7 +48,7 @@ namespace __types {
 		using for_types = typename
 			current_index_and_resulting_indices<0>::template
 			remaining<
-				Predicate::template for_type<Types>...
+				Predicate.template for_type<Types>()...
 			>::type;
 
 	};

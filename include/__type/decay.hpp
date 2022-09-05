@@ -10,27 +10,23 @@
 #include "./is_function.hpp"
 #include "./is_array.hpp"
 
-namespace __type {
-
-	template<typename Type>
-	using decay =
+template<typename Type>
+using decay =
+	typename if_satisfies<
+		__type::is_array<remove_reference<Type>>
+	>::template then<
+		remove_extent<remove_reference<Type>>
+	>
+	::template otherwise<
 		typename if_satisfies<
-			__type::is_array<__type::remove_reference<Type>>
-		>::template then<
-			__type::remove_extent<__type::remove_reference<Type>>
+			__type::is_function<remove_reference<Type>>
+		>
+		::template then<
+			__type::add_pointer<remove_reference<Type>>
 		>
 		::template otherwise<
-			typename if_satisfies<
-				__type::is_function<__type::remove_reference<Type>>
+			remove_volatile<
+				remove_const<remove_reference<Type>>
 			>
-			::template then<
-				__type::add_pointer<__type::remove_reference<Type>>
-			>
-			::template otherwise<
-				__type::remove_volatile<
-					__type::remove_const<__type::remove_reference<Type>>
-				>
-			>
-		>;
-
-}
+		>
+	>;

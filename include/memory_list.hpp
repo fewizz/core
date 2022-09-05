@@ -4,10 +4,7 @@
 #include "./placement_new.hpp"
 #include "./forward.hpp"
 #include "./memory_span.hpp"
-#include "./type/is_reference.hpp"
-#include "./type/remove_pointer.hpp"
-#include "./type/remove_const.hpp"
-#include "./type/is_move_constructible.hpp"
+#include "./type.hpp"
 
 template<typename ValueType, typename SizeType = nuint>
 struct memory_list {
@@ -158,7 +155,7 @@ public:
 
 template<typename RawValueType, typename SizeType>
 class memory_list<RawValueType&, SizeType> :
-	memory_list<remove_reference<RawValueType>*, SizeType>
+	memory_list<__type::remove_reference<RawValueType>*, SizeType>
 {
 	using base_type = memory_list<RawValueType*, SizeType>;
 	using iterator_type =

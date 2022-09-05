@@ -16,12 +16,17 @@
 #include "./__type/is_reference.hpp"
 #include "./__type/is_same_as.hpp"
 #include "./__type/is_trivial.hpp"
+#include "./__type/remove_const.hpp"
+#include "./__type/remove_extent.hpp"
+#include "./__type/remove_pointer.hpp"
+#include "./__type/remove_reference.hpp"
+#include "./__type/remove_volatile.hpp"
 
 template<typename Type>
 struct type {
 
 	using add_pointer = __type::add_pointer<Type>;
-	using decay = __type::decay<Type>;
+	using decay = decay<Type>;
 
 	template<typename WhatToAssign>
 	static constexpr bool is_addition_assignable
@@ -60,5 +65,15 @@ struct type {
 	static constexpr bool is_same_as = __type::is_same_as<Type, OtherType>;
 
 	static constexpr bool is_trivial = __type::is_trivial<Type>;
+
+	using remove_const = remove_const<Type>;
+
+	using remove_extent = remove_extent<Type>;
+
+	using remove_pointer = remove_pointer<Type>;
+
+	using remove_reference = remove_reference<Type>;
+
+	using remove_volatile = remove_volatile<Type>;
 
 };

@@ -1,10 +1,7 @@
 #pragma once
 
 #include "./__iterator_and_sentinel/distance.hpp"
-#include "./__type/remove_pointer.hpp"
-#include "./__type/remove_const.hpp"
-#include "./__type/is_pointer.hpp"
-#include "./__type/is_const.hpp"
+#include "type.hpp"
 
 enum class c_string_type {
 	known_size, unknown_size
@@ -84,9 +81,9 @@ c_string(const Type*, nuint size) -> c_string<
 
 template<typename Type>
 requires
-	__type::is_pointer<Type> &&
-	__type::is_const<__type::remove_pointer<Type>>
+	type<Type>::is_pointer &&
+	type<remove_pointer<Type>>::is_const
 c_string(Type) -> c_string<
 	c_string_type::unknown_size,
-	__type::remove_const<__type::remove_pointer<Type>>
+	remove_const<remove_pointer<Type>>
 >;

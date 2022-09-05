@@ -1,11 +1,10 @@
-#include <types/at_indices.hpp>
-#include <types/are_same.hpp>
+#include <types.hpp>
 
 static_assert(
-	types::are_same::for_types<
-		types::at_indices<1, 4>::template for_types<char, int, double, long, bool>,
-		types::of<int, bool>
-	>
+	types<
+		types<char, int, double, long, bool>::at_indices<1, 4>,
+		types<int, bool>
+	>::are_same
 );
 
 int main() {}

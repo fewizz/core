@@ -64,7 +64,7 @@ template<typename Type>
 span(Type*) -> span<Type>;
 
 template<basic_range Range>
-span(Range&&) -> span<__type::remove_reference<range_element_type<Range>>>;
+span(Range&&) -> span<remove_reference<range_element_type<Range>>>;
 
 template<typename Type, unsigned_integer SizeType>
 struct span<Type&, SizeType> {

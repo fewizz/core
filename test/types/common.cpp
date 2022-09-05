@@ -1,9 +1,7 @@
-#include <types/common.hpp>
-
-using namespace types;
+#include <types.hpp>
 
 static_assert(
-	same_as<common::for_types<int, int&, int&>, int>
+	same_as<types<int, int&, int&>::common, int>
 );
 
 int main() {}

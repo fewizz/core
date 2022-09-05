@@ -1,6 +1,6 @@
 #pragma once
 
-namespace types {
+namespace __types {
 
 	class first {
 
@@ -14,7 +14,7 @@ namespace types {
 
 	};
 
-} // types
+}
 
 template<typename... Types>
-using first_type = types::first::for_types<Types...>;
+using first_type = __types::first::for_types<Types...>;

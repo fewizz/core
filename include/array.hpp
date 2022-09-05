@@ -3,8 +3,7 @@
 #include "./integer.hpp"
 #include "./type.hpp"
 #include "./values/of.hpp"
-#include "./types/are_same.hpp"
-#include "./types/first.hpp"
+#include "./types.hpp"
 
 template<typename Type, nuint Size>
 struct array {

@@ -3,7 +3,7 @@
 #include "./of.hpp"
 #include "../integer.hpp"
 
-namespace types {
+namespace __types {
 
 	template<nuint Index>
 	struct at_index {
@@ -14,4 +14,4 @@ namespace types {
 
 	};
 
-} // types
+}

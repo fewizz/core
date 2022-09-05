@@ -3,6 +3,7 @@
 #include "./basic.hpp"
 #include "./iterator.hpp"
 #include "./sentinel.hpp"
+#include "../forward.hpp"
 
 namespace __range {
 

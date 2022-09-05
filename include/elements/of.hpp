@@ -1,10 +1,9 @@
 #pragma once
 
-#include "../types/of.hpp"
-#include "../types/at_index.hpp"
-#include "../types/count_of_satisfying_predicate.hpp"
-#include "../types/index_of_satisfying_predicate.hpp"
-#include "../type/is_same_as.hpp"
+#include "../__types/at_index.hpp"
+#include "../__types/count_of_satisfying_predicate.hpp"
+#include "../__types/index_of_satisfying_predicate.hpp"
+#include "../__type/is_same_as.hpp"
 #include "../values/of.hpp"
 #include "../forward.hpp"
 #include "../move.hpp"
@@ -59,25 +58,24 @@ namespace elements {
 	{
 		static constexpr nuint size = sizeof...(Types);
 		using indices = indices::from<0>::to<size>;
-		using types = types::of<Types...>;
+		using types = __types::of<Types...>;
 
 		template<typename Type>
 		static constexpr bool only_one_such_type =
-			::types::count_of_satisfying_predicate<
-				type::is_same_as<Type>
-			>::template
+			count_of_satisfying_predicate<
+				is_same_as<Type>
+			>.template
 			for_types<Types...> == 1;
 
 		template<typename Type>
 		static constexpr nuint type_index =
-			::types::index_of_satisfying_predicate<
-				type::is_same_as<Type>
-			>::template
-			for_types<Types...>;
+			__types::index_of_satisfying_predicate<
+				is_same_as<Type>
+			>::template for_types<Types...>;
 
 		template<nuint Index>
 		using type_at =
-			typename ::types::template
+			typename ::__types::template
 			at_index<Index>::template
 			for_types<Types...>;
 
@@ -229,5 +227,6 @@ struct std::tuple_size<elements::of<Types...>> {
 
 template<nuint Index, typename... Types>
 struct std::tuple_element<Index, elements::of<Types...>> {
-	using type = typename types::at_index<Index>::template for_types<Types...>;
+	using type = typename
+		__types::at_index<Index>::template for_types<Types...>;
 };

@@ -1,10 +1,9 @@
 #pragma once
 
-#include "../type/decay.hpp"
-#include "../type/of.hpp"
+#include "../__type/decay.hpp"
 #include "../expression_of_type.hpp"
 
-namespace types {
+namespace __types {
 
 	class common {
 
@@ -16,13 +15,13 @@ namespace types {
 
 		template<typename Type0, typename Type1>
 		static constexpr bool case_0 =
-				!same_as<Type0, decay<Type0>> ||
-				!same_as<Type1, decay<Type1>>;
+				!same_as<Type0, __type::decay<Type0>> ||
+				!same_as<Type1, __type::decay<Type1>>;
 
 		template<typename Type0, typename Type1>
 		requires case_0<Type0, Type1>
 		struct result<Type0, Type1> :
-			result<decay<Type0>, decay<Type1>>
+			result<__type::decay<Type0>, __type::decay<Type1>>
 		{};
 
 		template<typename Type0, typename Type1>
@@ -33,7 +32,7 @@ namespace types {
 				expression_of_type<Type0> : expression_of_type<Type1>;
 
 				requires requires() {
-					typename decay<decltype(
+					typename __type::decay<decltype(
 						false ?
 						expression_of_type<Type0> : expression_of_type<Type1>
 					)>;
@@ -42,11 +41,11 @@ namespace types {
 
 		template<typename Type0, typename Type1>
 		requires case_1<Type0, Type1>
-		struct result<Type0, Type1> : type::of<
-			decay<decltype(
+		struct result<Type0, Type1> {
+			using type = __type::decay<decltype(
 				false ? expression_of_type<Type0> : expression_of_type<Type1>
-			)>
-		>{};
+			)>;
+		};
 
 		template<typename Type0, typename Type1, typename... Types>
 		requires (sizeof...(Types) > 0) && requires() {

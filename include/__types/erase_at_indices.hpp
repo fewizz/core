@@ -4,7 +4,7 @@
 #include "../integer.hpp"
 #include "../values/are_contain_value.hpp"
 
-namespace types {
+namespace __types {
 
 	template<nuint... Indices>
 	class erase_at_indices {
@@ -32,27 +32,25 @@ namespace types {
 
 			template<typename... ResultingTypes>
 			requires(erase)
-			struct resulting_types<ResultingTypes...> :
-				type::of<
+			struct resulting_types<ResultingTypes...> {
+				using type =
 					typename index_and_remaining_types<
 						CurrentIndex + 1,
 						RemainingTypes...
 					>::template
-					resulting_types<ResultingTypes...>::type
-				>
-			{};
+					resulting_types<ResultingTypes...>::type;
+			};
 
 			template<typename... ResultingTypes>
 			requires(!erase)
-			struct resulting_types<ResultingTypes...> :
-				type::of<
+			struct resulting_types<ResultingTypes...> {
+				using type =
 					typename index_and_remaining_types<
 						CurrentIndex + 1,
 						RemainingTypes...
 					>:: template
-					resulting_types<ResultingTypes..., CurrentType>::type
-				>
-			{};
+					resulting_types<ResultingTypes..., CurrentType>::type;
+			};
 
 		};
 
@@ -60,7 +58,9 @@ namespace types {
 		struct index_and_remaining_types<CurrentIndex> {
 
 			template<typename... ResultingTypes>
-			struct resulting_types : type::of<types::of<ResultingTypes...>> {};
+			struct resulting_types {
+				using type = __types::of<ResultingTypes...>;
+			};
 
 		};
 

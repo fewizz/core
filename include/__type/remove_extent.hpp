@@ -10,7 +10,7 @@ namespace __type {
 	template<typename Type, nuint N>
 	struct remove_extent_t<Type[N]> { using type = Type; };
 
-	template<typename Type>
-	using remove_extent = typename remove_extent_t<Type>::type;
-
 }
+
+template<typename Type>
+using remove_extent = typename __type::remove_extent_t<Type>::type;
