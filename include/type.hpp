@@ -15,6 +15,7 @@
 #include "./__type/is_pointer.hpp"
 #include "./__type/is_reference.hpp"
 #include "./__type/is_same_as.hpp"
+#include "./__type/is_same_as_predicate.hpp"
 #include "./__type/is_trivial.hpp"
 #include "./__type/remove_const.hpp"
 #include "./__type/remove_extent.hpp"
@@ -32,7 +33,7 @@ struct type {
 	static constexpr bool is_addition_assignable
 		= addition_assignable<Type, WhatToAssign>;
 	
-	static constexpr bool is_array = __type::is_array<Type>;
+	static constexpr bool is_array = type_is_array<Type>;
 
 	template<typename WhatToAssign>
 	static constexpr bool is_assignable = assignable<Type, WhatToAssign>;

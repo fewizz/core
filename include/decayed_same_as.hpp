@@ -2,19 +2,10 @@
 
 #include "./decayed_satisfying_predicate.hpp"
 
-namespace type {
-
-	template<typename Type>
-	struct is_decayed_same_as :
-		type::is_decayed_satisfying_predicate<type::is_same_as<Type>>
-	{};
-
-	// alias
-
-	template<typename Type>
-	struct is_decayed : type::is_decayed_same_as<Type> {};
-
-}
+template<typename Type>
+struct is_decayed_same_as :
+	__type::is_decayed_satisfying_predicate<type::is_same_as<Type>>
+{};
 
 namespace types {
 

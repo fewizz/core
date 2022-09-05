@@ -2,7 +2,7 @@
 
 #include "./integer.hpp"
 #include "./type.hpp"
-#include "./values/of.hpp"
+#include "./__values/of.hpp"
 #include "./types.hpp"
 
 template<typename Type, nuint Size>
@@ -42,7 +42,7 @@ template<typename... Types>
 requires(sizeof...(Types) == 1 || types_are_same<Types...>)
 array(Types&&...)
 	-> array<
-		__type::remove_reference<first_type<Types...>>,
+		remove_reference<first_type<Types...>>,
 		sizeof...(Types)
 	>;
 

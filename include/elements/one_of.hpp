@@ -36,53 +36,49 @@ namespace elements {
 
 		template<typename... Args>
 		static constexpr nuint index_of_constructible_from_args =
-			types::index_of_satisfying_predicate<
-				type::is_constructible_from<Args...>
-			>::template for_types<Types...>;
+			types<Types...>::template index_of_satisfying_predicate<
+				is_constructible_from<Args...>
+			>;
 
 		template<typename Type>
 		static constexpr bool has_one_assignable_and_constructible_from =
-			types::are_contain_one_satisfying_predicate<
-				type::predicates_conjunction<
-					type::is_constructible_from<Type>,
-					type::is_assignable<Type>
-				>
-			>::template for_types<Types...>;
+			types<Types...>::template count_of_satisfying_predicate<
+				is_constructible_from<Type> && is_assignable<Type>
+			> == 1;
 
 		template<typename Type>
 		static constexpr nuint index_of_assignable_and_constructible_from =
-			types::index_of_satisfying_predicate<
-				type::predicates_conjunction<
-					type::is_constructible_from<Type>,
-					type::is_assignable<Type>
-				>
-			>::template for_types<Types...>;
+			types<Types...>::template index_of_satisfying_predicate<
+				is_constructible_from<Type> && is_assignable<Type>
+			>;
 
 	public:
 
 		template<nuint Index>
 		using type_at = typename
-			types::at_index<
+			types<Types...>::template at_index<
 				Index
-			>::template for_types<Types...>;
+			>;
 
 		template<typename Type>
 		static constexpr nuint type_index =
-			types::index_of_satisfying_predicate<
-				type::is_same_as<Type>
-			>::template for_types<Types...>;
+			types<Types...>::template index_of_satisfying_predicate<
+				is_same_as<Type>
+			>;
 
 		// constructor
 		template<typename Type>
 		//requires has_one_constructible_from<Args...>
-		requires types::are_contain_one_decayed_same_as<
-			decay<Type>
-		>::template for_types<Types...>
+		requires (
+			types<Types...>::template count_of_satisfying_predicate<
+				is_same_as<Type>.while_decayed
+			> == 1
+		)
 		constexpr one_of(Type&& arg) :
 			current_ {
-				types::index_of_decayed_same_as<
-					decay<Type>
-				>::template for_types<Types...>
+				types<Types...>::template indices_of_satisfying_predicate<
+					is_same_as<Type>.while_decayed
+				>
 			}
 		{
 			storage_.template init<one_of_storage_treat_type_as::value_type>(
@@ -118,9 +114,9 @@ namespace elements {
 				view_raw([&](auto& this_e) {
 					other.view_raw([&](auto& other_e) {
 						if constexpr(
-							type::is_assignable<
-								decltype(move(other_e))
-							>::template for_type<decltype(this_e)>
+							assignable<
+								decltype(this_e), decltype(move(other_e))
+							>
 						) {
 							this_e = move(other_e);
 						}
@@ -145,9 +141,9 @@ namespace elements {
 				view([&](auto& this_e) {
 					other.view([&](auto& other_e) {
 						if constexpr(
-							type::is_assignable<
-								decltype(other_e)
-							>::template for_type<decltype(this_e)>
+							assignable<
+								decltype(this_e), decltype(other_e)
+							>
 						) {
 							this_e = other_e;
 						}
@@ -173,9 +169,9 @@ namespace elements {
 			if(index == current_) {
 				view_raw([&](auto& element) {
 					if constexpr(
-						type::is_assignable<
-							TypeToAssign
-						>::template for_type<decltype(element)>
+						assignable<
+							decltype(element), TypeToAssign
+						>
 					) {
 						element = forward<TypeToAssign>(value);
 					}

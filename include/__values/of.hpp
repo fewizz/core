@@ -2,7 +2,7 @@
 
 #include "../integer.hpp"
 
-namespace values {
+namespace __values {
 
 	template<auto... Values>
 	struct of;
@@ -12,7 +12,7 @@ namespace values {
 namespace indices {
 
 	template<nuint... Values>
-	using of = values::of<Values...>;
+	using of = __values::of<Values...>;
 
 	template<nuint FromIndex>
 	class from {
@@ -67,7 +67,7 @@ namespace indices {
 
 		template<typename Type, Type... Values>
 		struct __integer_sequence {
-			using values = values::of<Values...>;
+			using values = __values::of<Values...>;
 		};
 
 		template<nuint ToIndex>
@@ -82,7 +82,7 @@ namespace indices {
 
 }
 
-namespace values {
+namespace __values {
 	
 	template<auto... Values>
 	struct of {
@@ -92,7 +92,8 @@ namespace values {
 		using indices = indices::from<0>::to<size>;
 
 		template<typename To>
-		static constexpr auto pass_for_value = To::template for_values<Values...>;
+		static constexpr auto pass_for_value =
+			To::template for_values<Values...>;
 
 		template<typename To>
 		using pass_for_type = typename To::template for_values<Values...>;
@@ -105,11 +106,10 @@ namespace values {
 		template<template<auto...> typename Type>
 		using pass_for_type_directly = Type<Values...>;
 
-		//template<template<auto> typename Transformer>
-		//using transform = values::of<Transformer<Values>::for_value ...>;
-
 		template<typename Transformer>
-		using transform = values::of<Transformer::template for_value<Values>...>;
+		using transform = __values::of<
+			Transformer::template for_value<Values>...
+		>;
 
 	};
 

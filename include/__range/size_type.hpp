@@ -7,4 +7,4 @@
 
 template<sized_range Range>
 using range_size_type
-	= __type::decay<decltype(range_size(expression_of_type<Range>))>;
+	= decay<decltype(range_size(expression_of_type<Range>))>;

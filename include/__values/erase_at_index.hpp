@@ -1,9 +1,9 @@
 #pragma once
 
-#include "../values/of.hpp"
+#include "../__values/of.hpp"
 #include "../integer.hpp"
 
-namespace values {
+namespace __values {
 
 	template <nuint Index>
 	class erase_at_index {
@@ -15,16 +15,15 @@ namespace values {
 			struct current_value_index {
 
 				template<auto CurrentValue, auto... ValuesAfter>
-				struct current_value_and_values_after :
-					type::of<
+				struct current_value_and_values_after {
+					using type =
 						typename values_before<
 							ValuesBefore...,
 							CurrentValue
 						>::template
 						current_value_index<CurrentIndex + 1>::template
-						current_value_and_values_after<ValuesAfter...>::type
-					>
-				{};
+						current_value_and_values_after<ValuesAfter...>::type;
+				};
 
 			};
 	
@@ -32,9 +31,9 @@ namespace values {
 			struct current_value_index<Index> {
 
 				template<auto CurrentValue, auto... ValuesAfter>
-				struct current_value_and_values_after :
-					type::of<values::of<ValuesBefore..., ValuesAfter...>>
-				{};
+				struct current_value_and_values_after {
+					using type = __values::of<ValuesBefore..., ValuesAfter...>;
+				};
 
 			};
 
@@ -51,4 +50,4 @@ namespace values {
 
 	}; // erase_at_index
 
-} // values
+}

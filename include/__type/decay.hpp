@@ -6,14 +6,13 @@
 #include "./remove_volatile.hpp"
 #include "./remove_const.hpp"
 #include "./add_pointer.hpp"
-#include "./add_pointer.hpp"
 #include "./is_function.hpp"
 #include "./is_array.hpp"
 
 template<typename Type>
 using decay =
 	typename if_satisfies<
-		__type::is_array<remove_reference<Type>>
+		type_is_array<remove_reference<Type>>
 	>::template then<
 		remove_extent<remove_reference<Type>>
 	>

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "./of_value_type_satisfying_predicate.hpp"
-#include "../type.hpp"
 
 template<typename Range, typename Value>
 concept range_of_value_type_same_as =

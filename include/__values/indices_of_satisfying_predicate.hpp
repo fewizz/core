@@ -2,11 +2,11 @@
 
 #include "./of.hpp"
 #include "../integer.hpp"
-#include "../value/predicate.hpp"
+#include "../__value/predicate.hpp"
 
-namespace values {
+namespace __values {
 
-	template<value::predicate Predicate>
+	template<value_predicate auto Predicate>
 	class indices_of_satisfying_predicate {
 
 		template<nuint CurrentIndex, nuint... ResultingIndices>
@@ -16,7 +16,7 @@ namespace values {
 			struct remaining_values;
 
 			template<auto CurrentValue, auto... RemainingValues>
-			requires(Predicate::template for_value<CurrentValue>)
+			requires(Predicate.template for_value<CurrentValue>())
 			struct remaining_values<CurrentValue, RemainingValues...> {
 				using type =
 					typename current_index_and_resulting_indices<
@@ -28,7 +28,7 @@ namespace values {
 			};
 
 			template<auto CurrentValue, auto... RemainingValues>
-			requires(!Predicate::template for_value<CurrentValue>)
+			requires(!Predicate.template for_value<CurrentValue>())
 			struct remaining_values<CurrentValue, RemainingValues...> {
 				using type =
 					typename current_index_and_resulting_indices<
@@ -55,4 +55,4 @@ namespace values {
 	
 	};
 
-} // values
+}

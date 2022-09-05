@@ -2,14 +2,14 @@
 
 #include "./of.hpp"
 
-namespace types {
+namespace __types {
 
 	template<typename... TypesToCombineWith>
 	struct combine_with {
 
 		template<typename... Types>
-		using for_types = types::of<Types..., TypesToCombineWith...>;
+		using for_types = __types::of<Types..., TypesToCombineWith...>;
 
 	};
 
-} // types
+}

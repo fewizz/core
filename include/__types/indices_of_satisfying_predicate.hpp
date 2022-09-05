@@ -1,7 +1,6 @@
 #pragma once
 
 #include "./of.hpp"
-#include "../values/of.hpp"
 #include "../__type/predicate.hpp"
 
 namespace __types {

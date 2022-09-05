@@ -100,7 +100,7 @@ constexpr inline bool operator == (
 
 template<
 	basic_range Range,
-	range_of<__type::decay<range_element_type<Range>>> SplittersRange
+	range_of<decay<range_element_type<Range>>> SplittersRange
 >
 struct split_view {
 private:
@@ -141,7 +141,7 @@ public:
 
 template<
 	basic_range Range,
-	range_of<__type::decay<range_element_type<Range>>> SplittersRange
+	range_of<decay<range_element_type<Range>>> SplittersRange
 >
 split_view(Range&&, SplittersRange&&) -> split_view<Range, SplittersRange>;
 

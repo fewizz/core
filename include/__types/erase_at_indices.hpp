@@ -2,7 +2,7 @@
 
 #include "./of.hpp"
 #include "../integer.hpp"
-#include "../values/are_contain_value.hpp"
+#include "../__values/contain_equal_to.hpp"
 
 namespace __types {
 
@@ -24,7 +24,7 @@ namespace __types {
 		> {
 
 			static constexpr bool erase =
-				values::are_contain_value<CurrentIndex>::template
+				__values::contain_equal_to<CurrentIndex>::template
 				for_values<Indices...>;
 
 			template<typename... ResultingTypes>

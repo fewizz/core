@@ -155,7 +155,7 @@ public:
 
 template<typename RawValueType, typename SizeType>
 class memory_list<RawValueType&, SizeType> :
-	memory_list<__type::remove_reference<RawValueType>*, SizeType>
+	memory_list<remove_reference<RawValueType>*, SizeType>
 {
 	using base_type = memory_list<RawValueType*, SizeType>;
 	using iterator_type =

@@ -2,7 +2,7 @@
 
 #include "../integer.hpp"
 
-namespace values {
+namespace __values {
 
 	// TODO rename, redo
 	struct permutations_parity {
@@ -28,4 +28,4 @@ namespace values {
 		static constexpr nuint for_indices = index<0, Indices...>::result;
 	};
 
-} // values
+}

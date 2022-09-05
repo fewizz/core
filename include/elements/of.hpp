@@ -4,7 +4,7 @@
 #include "../__types/count_of_satisfying_predicate.hpp"
 #include "../__types/index_of_satisfying_predicate.hpp"
 #include "../__type/is_same_as.hpp"
-#include "../values/of.hpp"
+#include "../__values/of.hpp"
 #include "../forward.hpp"
 #include "../move.hpp"
 

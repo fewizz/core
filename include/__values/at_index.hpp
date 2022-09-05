@@ -1,9 +1,8 @@
 #pragma once
 
-#include "../value/of.hpp"
 #include "../integer.hpp"
 
-namespace values {
+namespace __values {
 
 	template<nuint Index>
 	class at_index {
@@ -16,9 +15,9 @@ namespace values {
 			Index,
 			CurrentValue,
 			RemainingValues...
-		> :
-			value::of<CurrentValue>
-		{};
+		> {
+			static constexpr auto value = CurrentValue;
+		};
 
 		template<nuint CurrentIndex, auto CurrentValue, auto... RemainingValues>
 		requires(sizeof...(RemainingValues) > 0)
@@ -26,14 +25,13 @@ namespace values {
 			CurrentIndex,
 			CurrentValue,
 			RemainingValues...
-		> :
-			value::of<
+		> {
+			static constexpr auto value =
 				current_index_and_remaining_values<
 					CurrentIndex + 1,
 					RemainingValues...
-				>::value
-			>
-		{};
+				>::value;
+		};
 
 	public:
 
@@ -43,4 +41,4 @@ namespace values {
 
 	}; // at_index
 
-} // values
+}

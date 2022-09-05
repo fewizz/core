@@ -33,7 +33,7 @@ private:
 
 	using internal_type = typename
 		if_satisfies<value_type_is_reference>::template
-		then<__type::remove_reference<Type> *>::template
+		then<remove_reference<Type> *>::template
 		otherwise<Type>;
 
 	template<typename... Args>
@@ -41,7 +41,7 @@ private:
 		= value_type_is_reference ?
 			constructible_from<
 				internal_type,
-				__type::remove_reference<Args>*...
+				remove_reference<Args>*...
 			>
 			:
 			constructible_from<internal_type, Args...>;
@@ -62,16 +62,16 @@ public:
 #define INIT_ELEMENT(storage) \
 	if constexpr( \
 		TreatAs == one_of_storage_treat_type_as::value_type && \
-		__type::remove_reference<decltype(storage)>:: \
+		remove_reference<decltype(storage)>:: \
 			value_type_is_reference && \
-		__type::remove_reference<decltype(storage)>::template \
+		remove_reference<decltype(storage)>::template \
 			value_type_is_constructible_from<Args...> \
 	) { \
 		new (&(storage).element_) \
 			decltype((storage).element_)(&args...); \
 	} \
 	else if constexpr( \
-		__type::remove_reference<decltype(storage)>::template \
+		remove_reference<decltype(storage)>::template \
 			internal_type_is_constructible_from<Args...> \
 	) { \
 		new (&(storage).element_) \
@@ -80,7 +80,7 @@ public:
 
 #define INIT_NEXT(storage) \
 	new (&(storage).next_) \
-		typename __type::remove_reference<decltype(storage)>::next_type();
+		typename remove_reference<decltype(storage)>::next_type();
 
 #define INIT_ELEMENT_OR_NEXT(storage, required_index) \
 	if(index == required_index) { \
@@ -135,7 +135,7 @@ public:
 #define VIEW_ELEMENT(storage) \
 	if constexpr( \
 		TreatAs == one_of_storage_treat_type_as::value_type && \
-		__type::remove_reference<decltype(storage)>::value_type_is_reference \
+		remove_reference<decltype(storage)>::value_type_is_reference \
 	) { \
 		return handler(*(storage).element_); \
 	} \

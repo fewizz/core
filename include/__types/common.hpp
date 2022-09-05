@@ -15,13 +15,13 @@ namespace __types {
 
 		template<typename Type0, typename Type1>
 		static constexpr bool case_0 =
-				!same_as<Type0, __type::decay<Type0>> ||
-				!same_as<Type1, __type::decay<Type1>>;
+				!__is_same_as(Type0, decay<Type0>) ||
+				!__is_same_as(Type1, decay<Type1>);
 
 		template<typename Type0, typename Type1>
 		requires case_0<Type0, Type1>
 		struct result<Type0, Type1> :
-			result<__type::decay<Type0>, __type::decay<Type1>>
+			result<decay<Type0>, decay<Type1>>
 		{};
 
 		template<typename Type0, typename Type1>
@@ -32,7 +32,7 @@ namespace __types {
 				expression_of_type<Type0> : expression_of_type<Type1>;
 
 				requires requires() {
-					typename __type::decay<decltype(
+					typename decay<decltype(
 						false ?
 						expression_of_type<Type0> : expression_of_type<Type1>
 					)>;
@@ -42,7 +42,7 @@ namespace __types {
 		template<typename Type0, typename Type1>
 		requires case_1<Type0, Type1>
 		struct result<Type0, Type1> {
-			using type = __type::decay<decltype(
+			using type = decay<decltype(
 				false ? expression_of_type<Type0> : expression_of_type<Type1>
 			)>;
 		};

@@ -1,13 +1,11 @@
 #pragma once
 
-#include "../integer.hpp"
-
 namespace __type {
 
 	template<typename Type>
 	struct remove_extent_t          { using type = Type; };
 
-	template<typename Type, nuint N>
+	template<typename Type, auto N>
 	struct remove_extent_t<Type[N]> { using type = Type; };
 
 }

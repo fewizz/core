@@ -2,7 +2,7 @@
 
 #include "./integer.hpp"
 #include "./type.hpp"
-#include "./types/are_same.hpp"
+#include "./types.hpp"
 
 template<typename Enum>
 requires type<Enum>::is_enum

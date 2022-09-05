@@ -2,7 +2,7 @@
 
 #include "./indices_of_satisfying_predicate.hpp"
 #include "./count_of_satisfying_predicate.hpp"
-#include "../values/first.hpp"
+#include "../__values/first.hpp"
 
 namespace __types {
 
@@ -17,8 +17,8 @@ namespace __types {
 		static constexpr nuint for_types =
 			__types::indices_of_satisfying_predicate<Predicate>
 			::template for_types<Types...>
-			::template pass_for_value<values::first>;
+			::template pass_for_value<__values::first>;
 
 	};
 
-} // types
+}
