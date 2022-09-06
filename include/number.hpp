@@ -2,7 +2,7 @@
 
 #include "./decayed_same_as.hpp"
 #include "./type/is_invokable_with.hpp"
-#include "./types/are_exclusively_satisfying_predicates.hpp"
+#include "./types/exclusively_satisfy_predicates.hpp"
 
 class number_base {
 	nuint value_; 
@@ -16,7 +16,7 @@ public:
 
 template<typename... Args>
 requires(
-	types::are_exclusively_satisfying_predicates<
+	types::exclusively_satisfy_predicates<
 		types::are_contain_one_decayed_same_as<number_base>,
 		types::are_contain_one_decayed_satisfying_predicate<
 			type::is_integer

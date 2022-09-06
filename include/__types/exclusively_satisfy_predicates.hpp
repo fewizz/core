@@ -6,7 +6,7 @@
 namespace __types {
 
 	template<types_predicate auto... Predicates>
-	class are_exclusively_satisfying_predicates :
+	class exclusively_satisfy_predicates :
 		public types_predicate_marker
 	{
 

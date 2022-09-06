@@ -1,6 +1,6 @@
 #include <decayed_same_as.hpp>
 #include <elements/pass_not_satisfying_type_predicate.hpp>
-#include <types/are_exclusively_satisfying_predicates.hpp>
+#include <types/exclusively_satisfy_predicates.hpp>
 
 template<typename Type> struct w { Type value; };
 
@@ -10,7 +10,7 @@ constexpr auto f(Args&&... args) {
 }
 
 template<nuint Order, typename... Args>
-requires (Order == 2) && types::are_exclusively_satisfying_predicates<
+requires (Order == 2) && types::exclusively_satisfy_predicates<
 	types::are_contain_one_decayed<w<int>>,
 	types::are_contain_one_decayed<w<float>>
 >::for_types<Args...>

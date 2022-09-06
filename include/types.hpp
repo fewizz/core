@@ -2,9 +2,9 @@
 
 #include "./__types/predicate.hpp"
 
-#include "./__types/are_exclusively_satisfying_predicates.hpp"
+#include "./__types/exclusively_satisfy_predicates.hpp"
 #include "./__types/are_same.hpp"
-#include "./__types/are_satisfying_predicates.hpp"
+#include "./__types/satisfy_predicates.hpp"
 #include "./__types/at_index.hpp"
 #include "./__types/at_indices.hpp"
 #include "./__types/common.hpp"
@@ -18,15 +18,15 @@ template<typename... Types>
 struct types {
 
 	template</*types_predicate: crashes clang*/ auto... Predicates>
-	static constexpr bool are_exclusively_satisfying_predicates =
-		__types::are_exclusively_satisfying_predicates<Predicates...>::template
+	static constexpr bool exclusively_satisfy_predicates =
+		__types::exclusively_satisfy_predicates<Predicates...>::template
 		for_types<Types...>;
 
 	static constexpr bool are_same = types_are_same<Types...>;
 
 	template</*types_predicate: crashes clang*/ auto... Predicates>
-	static constexpr bool are_satisfying_predicates =
-		__types::are_satisfying_predicates<Predicates...>::template
+	static constexpr bool satisfy_predicates =
+		__types::satisfy_predicates<Predicates...>::template
 		for_types<Types...>;
 
 	template<nuint Index>

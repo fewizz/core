@@ -38,7 +38,7 @@ test types/common
 test types/erase_at_index
 test types/count_of_satisfying_predicate
 test types/indices_of_satisfying_predicate
-test types/are_exclusively_satisfying_predicates
+test types/exclusively_satisfy_predicates
 
 test values/of
 test values/permutations
