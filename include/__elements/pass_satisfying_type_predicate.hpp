@@ -1,18 +1,18 @@
 #pragma once
 
 #include "./at_index.hpp"
-#include "./of.hpp"
-#include "../types/indices_of_satisfying_predicate.hpp"
-#include "../types/at_indices.hpp"
+#include "../tuple.hpp"
+#include "../__types/indices_of_satisfying_predicate.hpp"
+#include "../__types/at_indices.hpp"
 
-namespace elements {
+namespace __elements {
 
-	template<type::predicate Predicate>
+	template<type_predicate auto Predicate>
 	struct pass_satisfying_type_predicate_t {
 
 		template<typename... Types>
 		struct acceptor {
-			elements::of<Types...> elements;
+			tuple<Types...> elements;
 
 			template<typename F>
 			constexpr decltype(auto) operator () (F&& f) const {
@@ -28,21 +28,21 @@ namespace elements {
 		template<typename... Types>
 		constexpr auto operator () (Types&&...elements) const {
 			using indices = typename
-				types::indices_of_satisfying_predicate<Predicate>::template
+				__types::indices_of_satisfying_predicate<Predicate>::template
 				for_types<Types...>;
 
 			using types = typename
 				indices::template
-				pass_for_type_directly<types::at_indices>::template
+				pass_for_type_directly<__types::at_indices>::template
 				for_types<Types...>;
 
 			return
 				[&]<nuint... Indices, typename... Types0>
-				(::indices::of<Indices...>, ::types::of<Types0...>) {
+				(::indices::of<Indices...>, ::__types::of<Types0...>) {
 				return acceptor<Types0...> {
 					{
 						forward<Types0>(
-							elements::at_index<Indices>(elements...)
+							__elements::at_index<Indices>(elements...)
 						)...
 					}
 				};
@@ -50,9 +50,9 @@ namespace elements {
 		}
 	};
 
-	template<type::predicate Predicate>
+	template<type_predicate auto Predicate>
 	inline constexpr auto pass_satisfying_type_predicate {
-		elements::pass_satisfying_type_predicate_t<Predicate>{}
+		__elements::pass_satisfying_type_predicate_t<Predicate>{}
 	};
 
-} // elements
+}

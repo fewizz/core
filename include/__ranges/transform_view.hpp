@@ -5,7 +5,6 @@
 #include "../__range/iterator.hpp"
 #include "../__range/sentinel.hpp"
 #include "../forward.hpp"
-#include "../type/decay.hpp"
 
 namespace __ranges {
 

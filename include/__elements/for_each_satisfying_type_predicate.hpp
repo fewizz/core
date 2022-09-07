@@ -1,22 +1,22 @@
 #pragma once
 
-#include "./of.hpp"
-#include "../types/indices_of_satisfying_predicate.hpp"
+#include "../tuple.hpp"
+#include "../__types/indices_of_satisfying_predicate.hpp"
 
-namespace elements {
+namespace __elements {
 
-	template<type::predicate Predicate>
+	template<type_predicate auto Predicate>
 	struct for_each_satisfying_type_predicate_t {
 
 		template<typename... Types>
 		struct acceptor {
-			elements::of<Types...> elements;
+			tuple<Types...> elements;
 
 			template<typename F>
 			void operator () (F&& f) {
 				elements.for_each(
 					forward<F>(f),
-					typename types::indices_of_satisfying_predicate<
+					typename __types::indices_of_satisfying_predicate<
 						Predicate
 					>::template for_types<Types...>{}
 				);
@@ -32,8 +32,9 @@ namespace elements {
 
 	};
 
-	template<type::predicate Predicate>
+	template<type_predicate auto Predicate>
 	inline constexpr auto for_each_satisfying_type_predicate {
-		elements::for_each_satisfying_type_predicate_t<Predicate>{}
+		__elements::for_each_satisfying_type_predicate_t<Predicate>{}
 	};
+
 }

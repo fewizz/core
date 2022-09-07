@@ -1,17 +1,20 @@
 #pragma once
 
-#include "./elements/none.hpp"
 #include "./variant.hpp"
 
+namespace __optional {
+	constexpr inline struct no_t{} no{};
+}
+
 template<typename Type>
-class optional : public variant<Type, elements::none> {
-	using base_type = variant<Type, elements::none>;
+class optional : public variant<Type, __optional::no_t> {
+	using base_type = variant<Type, __optional::no_t>;
 public:
 
 	using base_type::base_type;
 	using base_type::operator = ;
 
-	optional() : base_type{ elements::none{} } {}
+	optional() : base_type{ __optional::no } {}
 
 	bool has_value() const { return base_type::template is<Type>(); }
 
@@ -63,7 +66,7 @@ class optional<Type&> {
 	Type* ptr_;
 public:
 
-	optional(elements::none = {}) : ptr_{ nullptr } {}
+	optional() : ptr_{ nullptr } {}
 
 	optional(Type& element) : ptr_{ &element } {}
 

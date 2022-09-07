@@ -10,6 +10,7 @@
 #include "./__range/filter_view.hpp"
 #include "./__range/flat_view.hpp"
 #include "./__range/iterator.hpp"
+#include "./__range/of_value_type_same_as.hpp"
 #include "./__range/reverse_view.hpp"
 #include "./__range/size_type.hpp"
 #include "./__range/sized_view.hpp"

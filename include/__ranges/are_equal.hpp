@@ -5,15 +5,15 @@
 #include "../__range/iterator.hpp"
 #include "../__range/sentinel.hpp"
 #include "../__iterator/basic.hpp"
-#include "../elements/of.hpp"
+#include "../tuple.hpp"
 #include "../array.hpp"
 
 namespace __ranges {
 
 template<basic_range... Ranges>
 constexpr bool are_equal_unknown_size(Ranges&&... ranges) {
-	auto iterators = elements::of {
-		elements::of {
+	auto iterators = tuple {
+		tuple {
 			ranges.iterator(),
 			ranges.sentinel()
 		}...
@@ -76,8 +76,8 @@ constexpr bool are_equal_unknown_size(
 
 template<sized_range... Ranges>
 constexpr bool are_equal_known_size(Ranges&&... ranges) {
-	auto iterators = elements::of { ranges.iterator()... };
-	auto sizes = elements::of{ ranges.size()... };
+	auto iterators = tuple { ranges.iterator()... };
+	auto sizes = tuple { ranges.size()... };
 
 	if(!sizes.pass([](integer auto first, integer auto... others) {
 		return ((first == others) && ...);

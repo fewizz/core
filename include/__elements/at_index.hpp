@@ -1,10 +1,10 @@
 #pragma once
 
-#include "./of.hpp"
-#include "../type/decay.hpp"
+#include "../tuple.hpp"
+#include "../__type/decay.hpp"
 #include "../forward.hpp"
 
-namespace elements {
+namespace __elements {
 
 	template<nuint Index>
 	struct at_index_t {
@@ -12,7 +12,7 @@ namespace elements {
 		template<typename... Types>
 		constexpr decltype(auto)
 		operator () (Types&&... elements) const {
-			return elements::of {
+			return tuple {
 				forward<Types>(elements)...
 			}.template at<Index>();
 		}
@@ -254,6 +254,6 @@ namespace elements {
 	};
 
 	template<nuint Index>
-	inline constexpr auto at_index = elements::at_index_t<Index>{};
+	inline constexpr auto at_index = __elements::at_index_t<Index>{};
 
-} // elements
+}

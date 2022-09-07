@@ -3,6 +3,7 @@
 #include "./basic.hpp"
 #include "./element_type.hpp"
 #include "./__type/decay.hpp"
+#include "./__type/predicate.hpp"
 
 template<typename Range, auto Predicate>
 concept range_of_value_type_satisfying_predicate =
