@@ -73,10 +73,7 @@ namespace elements {
 			>::template for_types<Types...>;
 
 		template<nuint Index>
-		using type_at =
-			typename ::__types::template
-			at_index<Index>::template
-			for_types<Types...>;
+		using type_at = type_at_index<Index, Types...>;
 
 	private:
 
@@ -226,6 +223,5 @@ struct std::tuple_size<elements::of<Types...>> {
 
 template<nuint Index, typename... Types>
 struct std::tuple_element<Index, elements::of<Types...>> {
-	using type = typename
-		__types::at_index<Index>::template for_types<Types...>;
+	using type = type_at_index<Index, Types...>;
 };

@@ -8,7 +8,7 @@ namespace __types {
 	class common {
 
 		template<typename... Types>
-		struct result;
+		struct result{  };
 
 		template<typename Type>
 		struct result<Type> : result<Type, Type> {};
@@ -48,7 +48,7 @@ namespace __types {
 		};
 
 		template<typename Type0, typename Type1, typename... Types>
-		requires (sizeof...(Types) > 0) && requires() {
+		requires (sizeof...(Types) > 0) && requires {
 			typename result<Type0, Type1>::type;
 		}
 		struct result<Type0, Type1, Types...> :

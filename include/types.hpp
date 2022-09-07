@@ -15,7 +15,19 @@
 #include "./__types/indices_of_satisfying_predicate.hpp"
 
 template<typename... Types>
-struct types {
+struct common_if_have {
+	static constexpr bool have_common = false;
+};
+
+template<typename... Types>
+requires requires { typename __types::common::for_types<Types...>; }
+struct common_if_have<Types...> {
+	static constexpr bool have_common = true;
+	using common = __types::common::for_types<Types...>;
+};
+
+template<typename... Types>
+struct types : common_if_have<Types...> {
 
 	template</*types_predicate: crashes clang*/ auto... Predicates>
 	static constexpr bool exclusively_satisfy_predicates =
@@ -34,8 +46,6 @@ struct types {
 
 	template<nuint... Indices>
 	using at_indices = types<__type_pack_element<Indices, Types...>...>;
-
-	using common = __types::common::for_types<Types...>;
 
 	template<type_predicate auto Predicate>
 	static constexpr nuint count_of_satisfying_predicate

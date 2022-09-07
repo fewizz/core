@@ -70,10 +70,7 @@ namespace elements {
 	public:
 
 		template<nuint Index>
-		using type_at = typename
-			types<Types...>::template at_index<
-				Index
-			>;
+		using type_at = type_at_index<Index, Types...>;
 
 		template<typename Type>
 		static constexpr nuint type_index =
