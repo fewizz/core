@@ -1,6 +1,6 @@
 #pragma once
 
-#include "./elements/one_of.hpp"
+#include "./variant.hpp"
 
 template<typename Type>
 class unexpected {
@@ -9,7 +9,7 @@ class unexpected {
 
 template<typename Type, typename UnexpectedType>
 class expected {
-	elements::one_of<Type, UnexpectedType> one_of;
+	variant<Type, UnexpectedType> one_of;
 
 public:
 

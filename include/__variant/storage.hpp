@@ -8,21 +8,21 @@
 #include "../if_satisfies.hpp"
 #include "../forward.hpp"
 
-namespace elements {
+namespace __variant {
 
-enum class one_of_storage_treat_type_as {
+enum class treat_type_as {
 	internal_type, value_type
 };
 
 template<typename... Types>
-union one_of_storage {};
+union storage {};
 
 template<typename Type, typename... TailTypes>
-union one_of_storage<Type, TailTypes...> {
-private:
+union storage<Type, TailTypes...> {
 
+private:
 	template<typename... Types0>
-	friend union one_of_storage;
+	friend union __variant::storage;
 
 	using value_type = Type;
 
@@ -30,7 +30,7 @@ private:
 	static constexpr bool value_type_is_reference
 		= __type::is_reference<value_type>;
 
-	using next_type = one_of_storage<TailTypes...>;
+	using next_type = storage<TailTypes...>;
 
 	using internal_type = typename
 		if_satisfies<value_type_is_reference>::template
@@ -53,16 +53,16 @@ private:
 			internal_type,
 			Args...
 		>;
-public:
 
 	internal_type element_;
 	next_type next_;
+public:
 
-	constexpr one_of_storage() {}
+	constexpr storage() {}
 
 #define INIT_ELEMENT(storage) \
 	if constexpr( \
-		TreatAs == one_of_storage_treat_type_as::value_type && \
+		TreatAs == treat_type_as::value_type && \
 		remove_reference<decltype(storage)>:: \
 			value_type_is_reference && \
 		remove_reference<decltype(storage)>::template \
@@ -90,7 +90,7 @@ public:
 	} \
 	INIT_NEXT(storage)
 
-	template<one_of_storage_treat_type_as TreatAs, typename... Args>
+	template<treat_type_as TreatAs, typename... Args>
 	constexpr void init(nuint index, Args&&... args) {
 		if(index == 0) {
 			INIT_ELEMENT(*this)
@@ -117,7 +117,7 @@ public:
 	} \
 	DESTRUCT_NEXT(storage)
 
-	constexpr ~one_of_storage() {}
+	constexpr ~storage() {}
 
 	// trivial recursive destructor
 	constexpr void destruct(nuint index) {
@@ -135,7 +135,7 @@ public:
 
 #define VIEW_ELEMENT(storage) \
 	if constexpr( \
-		TreatAs == one_of_storage_treat_type_as::value_type && \
+		TreatAs == treat_type_as::value_type && \
 		remove_reference<decltype(storage)>::value_type_is_reference \
 	) { \
 		return handler(*(storage).element_); \
@@ -144,7 +144,7 @@ public:
 		return handler( (storage).element_); \
 	}
 
-	template<one_of_storage_treat_type_as TreatAs, typename Handler>
+	template<treat_type_as TreatAs, typename Handler>
 	constexpr decltype(auto) view(nuint index, Handler&& handler) {
 		if(index == 0) {
 			VIEW_ELEMENT(*this)
@@ -154,9 +154,9 @@ public:
 		);
 	}
 
-	template<one_of_storage_treat_type_as TreatAs, typename Handler>
+	template<treat_type_as TreatAs, typename Handler>
 	constexpr decltype(auto) view(nuint index, Handler&& handler) const {
-		return ((one_of_storage&)(*this)).template view<TreatAs>(
+		return ((storage&)(*this)).template view<TreatAs>(
 			index, [&]<typename E>(E&& element) -> decltype(auto) {
 				return handler((const E) element);
 			}
@@ -193,20 +193,20 @@ public:
 		return next_.template at<Index - 1>();
 	}
 
-	template<one_of_storage_treat_type_as TreatAs, typename... Args>
+	template<treat_type_as TreatAs, typename... Args>
 	requires(sizeof...(TailTypes) == 0)
 	constexpr void init(nuint, Args&&... args) {
 		INIT_ELEMENT(*this)
 	}
 
-	template<one_of_storage_treat_type_as TreatAs, typename... Args>
+	template<treat_type_as TreatAs, typename... Args>
 	requires(sizeof...(TailTypes) == 1)
 	constexpr void init(nuint index, Args&&... args) {
 		INIT_ELEMENT_OR_NEXT(*this, 0)
 		INIT_ELEMENT(next_)
 	}
 
-	template<one_of_storage_treat_type_as TreatAs, typename... Args>
+	template<treat_type_as TreatAs, typename... Args>
 	requires(sizeof...(TailTypes) == 2)
 	constexpr void init(nuint index, Args&&... args) {
 		INIT_ELEMENT_OR_NEXT(*this, 0)
@@ -214,7 +214,7 @@ public:
 		INIT_ELEMENT(next_.next_)
 	}
 
-	template<one_of_storage_treat_type_as TreatAs, typename... Args>
+	template<treat_type_as TreatAs, typename... Args>
 	requires(sizeof...(TailTypes) == 3)
 	constexpr void init(nuint index, Args&&... args) {
 		INIT_ELEMENT_OR_NEXT(*this, 0)
@@ -223,7 +223,7 @@ public:
 		INIT_ELEMENT(next_.next_.next_)
 	}
 
-	template<one_of_storage_treat_type_as TreatAs, typename... Args>
+	template<treat_type_as TreatAs, typename... Args>
 	requires(sizeof...(TailTypes) == 4)
 	constexpr void init(nuint index, Args&&... args) {
 		INIT_ELEMENT_OR_NEXT(*this, 0)
@@ -233,7 +233,7 @@ public:
 		INIT_ELEMENT(next_.next_.next_.next_)
 	}
 
-	template<one_of_storage_treat_type_as TreatAs, typename... Args>
+	template<treat_type_as TreatAs, typename... Args>
 	requires(sizeof...(TailTypes) == 5)
 	constexpr void init(nuint index, Args&&... args) {
 		INIT_ELEMENT_OR_NEXT(*this, 0)
@@ -244,7 +244,7 @@ public:
 		INIT_ELEMENT(next_.next_.next_.next_.next_)
 	}
 
-	template<one_of_storage_treat_type_as TreatAs, typename... Args>
+	template<treat_type_as TreatAs, typename... Args>
 	requires(sizeof...(TailTypes) == 6)
 	constexpr void init(nuint index, Args&&... args) {
 		INIT_ELEMENT_OR_NEXT(*this, 0)
@@ -256,7 +256,7 @@ public:
 		INIT_ELEMENT(next_.next_.next_.next_.next_.next_)
 	}
 
-	template<one_of_storage_treat_type_as TreatAs, typename... Args>
+	template<treat_type_as TreatAs, typename... Args>
 	requires(sizeof...(TailTypes) == 7)
 	constexpr void init(nuint index, Args&&... args) {
 		INIT_ELEMENT_OR_NEXT(*this, 0)
@@ -269,7 +269,7 @@ public:
 		INIT_ELEMENT(next_.next_.next_.next_.next_.next_.next_)
 	}
 
-	template<one_of_storage_treat_type_as TreatAs, typename... Args>
+	template<treat_type_as TreatAs, typename... Args>
 	requires(sizeof...(TailTypes) == 8)
 	constexpr void init(nuint index, Args&&... args) {
 		INIT_ELEMENT_OR_NEXT(*this, 0)
@@ -381,13 +381,13 @@ public:
 			next_.next_.next_.next_.next_.next_.next_.next_.next_)
 	}
 
-	template<one_of_storage_treat_type_as TreatAs, typename Handler>
+	template<treat_type_as TreatAs, typename Handler>
 	requires (sizeof...(TailTypes) == 0)
 	constexpr decltype(auto) view(nuint, Handler&& handler) {
 		VIEW_ELEMENT(*this)
 	}
 
-	template<one_of_storage_treat_type_as TreatAs, typename Handler>
+	template<treat_type_as TreatAs, typename Handler>
 	requires (sizeof...(TailTypes) == 1)
 	constexpr decltype(auto) view(nuint index, Handler&& handler) {
 		switch (index) {
@@ -397,7 +397,7 @@ public:
 		__builtin_unreachable();
 	}
 
-	template<one_of_storage_treat_type_as TreatAs, typename Handler>
+	template<treat_type_as TreatAs, typename Handler>
 	requires (sizeof...(TailTypes) == 2)
 	constexpr decltype(auto) view(nuint index, Handler&& handler) {
 		switch (index) {
@@ -408,7 +408,7 @@ public:
 		__builtin_unreachable();
 	}
 
-	template<one_of_storage_treat_type_as TreatAs, typename Handler>
+	template<treat_type_as TreatAs, typename Handler>
 	requires (sizeof...(TailTypes) == 3)
 	constexpr decltype(auto) view(nuint index, Handler&& handler) {
 		switch (index) {
@@ -420,7 +420,7 @@ public:
 		__builtin_unreachable();
 	}
 
-	template<one_of_storage_treat_type_as TreatAs, typename Handler>
+	template<treat_type_as TreatAs, typename Handler>
 	requires (sizeof...(TailTypes) == 4)
 	constexpr decltype(auto) view(nuint index, Handler&& handler) {
 		switch (index) {
@@ -433,7 +433,7 @@ public:
 		__builtin_unreachable();
 	}
 
-	template<one_of_storage_treat_type_as TreatAs, typename Handler>
+	template<treat_type_as TreatAs, typename Handler>
 	requires (sizeof...(TailTypes) == 5)
 	constexpr decltype(auto) view(nuint index, Handler&& handler) {
 		switch (index) {
@@ -447,7 +447,7 @@ public:
 		__builtin_unreachable();
 	}
 
-	template<one_of_storage_treat_type_as TreatAs, typename Handler>
+	template<treat_type_as TreatAs, typename Handler>
 	requires (sizeof...(TailTypes) == 6)
 	constexpr decltype(auto) view(nuint index, Handler&& handler) {
 		switch (index) {
@@ -462,7 +462,7 @@ public:
 		__builtin_unreachable();
 	}
 
-	template<one_of_storage_treat_type_as TreatAs, typename Handler>
+	template<treat_type_as TreatAs, typename Handler>
 	requires (sizeof...(TailTypes) == 7)
 	constexpr decltype(auto) view(nuint index, Handler&& handler) {
 		switch (index) {
@@ -478,7 +478,7 @@ public:
 		__builtin_unreachable();
 	}
 
-	template<one_of_storage_treat_type_as TreatAs, typename Handler>
+	template<treat_type_as TreatAs, typename Handler>
 	requires (sizeof...(TailTypes) == 8)
 	constexpr decltype(auto) view(nuint index, Handler&& handler) {
 		switch (index) {
@@ -496,7 +496,7 @@ public:
 		__builtin_unreachable();
 	}
 
-	template<one_of_storage_treat_type_as TreatAs, typename Handler>
+	template<treat_type_as TreatAs, typename Handler>
 	requires (sizeof...(TailTypes) == 9)
 	constexpr decltype(auto) view(nuint index, Handler&& handler) {
 		switch (index) {
@@ -528,4 +528,4 @@ public:
 
 };
 
-} // elements
+}

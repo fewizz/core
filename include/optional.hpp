@@ -1,11 +1,11 @@
 #pragma once
 
 #include "./elements/none.hpp"
-#include "./elements/one_of.hpp"
+#include "./variant.hpp"
 
 template<typename Type>
-class optional : public elements::one_of<Type, elements::none> {
-	using base_type = elements::one_of<Type, elements::none>;
+class optional : public variant<Type, elements::none> {
+	using base_type = variant<Type, elements::none>;
 public:
 
 	using base_type::base_type;

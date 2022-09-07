@@ -49,8 +49,8 @@ test types/exclusively_satisfy_predicates
 test values/of
 test values/permutations
 
-test elements/of
-test elements/one_of
+test tuple
+test variant
 test elements/at_index
 
 test expected

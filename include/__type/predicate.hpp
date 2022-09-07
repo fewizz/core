@@ -1,5 +1,7 @@
 #pragma once
 
+#include "./decay.hpp"
+
 struct type_predicate_marker {};
 
 template<typename Type>

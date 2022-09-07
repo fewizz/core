@@ -1,4 +1,4 @@
-#include <elements/of.hpp>
+#include <tuple.hpp>
 #include <move.hpp>
 
 struct a {
@@ -7,12 +7,12 @@ struct a {
 	constexpr a(const a&) = delete;
 };
 
-consteval elements::of<int, float, bool> some_elements() {
+consteval tuple<int, float, bool> some_elements() {
 	return { 1, 0.0F, false };
 }
 
 consteval int f() {
-	elements::of elems{ 0, 1.0F, a{} };
+	tuple elems{ 0, 1.0F, a{} };
 	[[maybe_unused]] auto elems1 = move(elems);
 
 	[[maybe_unused]] auto [ i, f, b ] = some_elements();

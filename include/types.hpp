@@ -42,7 +42,7 @@ struct types : common_if_have<Types...> {
 		for_types<Types...>;
 
 	template<nuint Index>
-	using at_index = __type_pack_element<Index, Types...>;
+	using at_index = type_at_index<Index, Types...>;
 
 	template<nuint... Indices>
 	using at_indices = types<__type_pack_element<Indices, Types...>...>;
