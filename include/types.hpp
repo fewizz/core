@@ -51,6 +51,11 @@ struct types {
 	using first = __types::first::for_types<Types...>;
 
 	template<type_predicate auto Predicate>
+	static constexpr nuint index_of_satisfying_predicate =
+		__types::index_of_satisfying_predicate<Predicate>::template
+		for_types<Types...>;
+
+	template<type_predicate auto Predicate>
 	using indices_of_satisfying_predicate = typename
 		__types::indices_of_satisfying_predicate<Predicate>::template
 		for_types<Types...>;

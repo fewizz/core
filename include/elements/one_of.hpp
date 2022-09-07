@@ -5,14 +5,17 @@
 #include "../__type/is_same_as.hpp"
 #include "../__type/is_assignable.hpp"
 #include "../__type/is_constructible_from.hpp"
+#include "../__type/is_list_constructible_from.hpp"
 #include "../__type/is_trivial.hpp"
 #include "../__type/is_base.hpp"
+#include "../__values/first.hpp"
 
 #include "../types.hpp"
 
 #include "../forward.hpp"
 #include "../placement_new.hpp"
 #include "../move.hpp"
+#include "../type.hpp"
 
 namespace elements {
 
@@ -35,9 +38,21 @@ namespace elements {
 			> == 1;
 
 		template<typename... Args>
-		static constexpr nuint index_of_constructible_from_args =
+		static constexpr bool has_one_list_constructible_from =
+			types<Types...>::template count_of_satisfying_predicate<
+				is_list_constructible_from<Args...>
+			> == 1;
+
+		template<typename... Args>
+		static constexpr nuint index_of_constructible_from =
 			types<Types...>::template index_of_satisfying_predicate<
 				is_constructible_from<Args...>
+			>;
+
+		template<typename... Args>
+		static constexpr nuint index_of_list_constructible_from =
+			types<Types...>::template index_of_satisfying_predicate<
+				is_list_constructible_from<Args...>
 			>;
 
 		template<typename Type>
@@ -68,17 +83,25 @@ namespace elements {
 
 		// constructor
 		template<typename Type>
-		//requires has_one_constructible_from<Args...>
+		requires has_one_constructible_from<Type>
+		constexpr one_of(Type&& arg) :
+			current_ {
+				index_of_constructible_from<Type>
+			}
+		{
+			storage_.template init<one_of_storage_treat_type_as::value_type>(
+				current_, forward<Type>(arg)
+			);
+		}
+
+		template<typename Type>
 		requires (
-			types<Types...>::template count_of_satisfying_predicate<
-				is_same_as<Type>.while_decayed
-			> == 1
+			!has_one_constructible_from<Type> &&
+			has_one_list_constructible_from<Type>
 		)
 		constexpr one_of(Type&& arg) :
 			current_ {
-				types<Types...>::template indices_of_satisfying_predicate<
-					is_same_as<Type>.while_decayed
-				>
+				index_of_list_constructible_from<Type>
 			}
 		{
 			storage_.template init<one_of_storage_treat_type_as::value_type>(
@@ -190,7 +213,7 @@ namespace elements {
 		template<typename Type>
 		requires (
 			!has_one_assignable_and_constructible_from<Type> &&
-			constructible_from<one_of, Type>
+			is_constructible_from<one_of, Type>
 		)
 		constexpr one_of& operator = (Type&& value) {
 			(*this) = one_of{ forward<Type>(value) };

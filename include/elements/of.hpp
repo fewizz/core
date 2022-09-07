@@ -3,7 +3,7 @@
 #include "../__types/at_index.hpp"
 #include "../__types/count_of_satisfying_predicate.hpp"
 #include "../__types/index_of_satisfying_predicate.hpp"
-#include "../__type/is_same_as.hpp"
+#include "../__type/is_same_as_predicate.hpp"
 #include "../__values/of.hpp"
 #include "../forward.hpp"
 #include "../move.hpp"
@@ -62,10 +62,9 @@ namespace elements {
 
 		template<typename Type>
 		static constexpr bool only_one_such_type =
-			count_of_satisfying_predicate<
+			(count_of_satisfying_predicate<
 				is_same_as<Type>
-			>.template
-			for_types<Types...> == 1;
+			> == 1).template for_type<Types...>();
 
 		template<typename Type>
 		static constexpr nuint type_index =

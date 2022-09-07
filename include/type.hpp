@@ -10,7 +10,8 @@
 #include "./__type/is_constructible_from.hpp"
 #include "./__type/is_enum.hpp"
 #include "./__type/is_function.hpp"
-#include "./__type/is_invocable_with.hpp"
+#include "./__type/is_invokable_with.hpp"
+#include "./__type/is_list_constructible_from.hpp"
 #include "./__type/is_move_constructible.hpp"
 #include "./__type/is_pointer.hpp"
 #include "./__type/is_reference.hpp"
@@ -52,11 +53,15 @@ struct type {
 	static constexpr bool is_function = __type::is_function<Type>;
 
 	template<typename... Args>
-	static constexpr bool is_invocable_with
-		= __type::is_invocable_with<Type, Args...>;
+	static constexpr bool is_invokable_with
+		= invokable_with<Type, Args...>;
+
+	template<typename... Args>
+	static constexpr bool is_list_constructible_from
+		= list_constructible_from<Type, Args...>;
 
 	static constexpr bool is_move_constructible
-		= __type::is_move_constructible<Type>;
+		= move_constructible<Type>;
 
 	static constexpr bool is_pointer = __type::is_pointer<Type>;
 

@@ -6,4 +6,4 @@
 template<typename Range>
 concept sized_range =
 	basic_range<Range> &&
-	(requires(Range& o) { o.size(); } || __type::is_array<Range>);
+	(requires(Range& o) { o.size(); } || type_is_array<Range>);

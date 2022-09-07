@@ -19,6 +19,6 @@ consteval int f() {
 	return 0;
 }
 
-int main() {
-	static_assert(f() == 0);
-}
+static_assert(f() == 0);
+
+int main() {}

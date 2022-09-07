@@ -5,23 +5,24 @@
 #include "./decay.hpp"
 
 template<typename Type>
+struct is_same_as_while_decayed_t :
+	type_predicate_extension<is_same_as_while_decayed_t<Type>>
+{
+	template<typename ThisType>
+	constexpr bool for_type() const {
+		return __is_same_as(decay<ThisType>, Type);
+	}
+};
+
+template<typename Type>
 struct is_same_as_t : type_predicate_extension<is_same_as_t<Type>> {
 
-	template<typename OtherType>
+	template<typename ThisType>
 	constexpr bool for_type() const {
-		return __is_same_as(Type, OtherType);
+		return __is_same_as(ThisType, Type);
 	}
 
-	struct while_decayed_t :
-		type_predicate_extension<while_decayed_t>
-	{
-		template<typename OtherType>
-		constexpr bool for_type() const {
-			return __is_same_as(decay<Type>, OtherType);
-		}
-	};
-
-	static constexpr while_decayed_t while_decayed{};
+	static constexpr is_same_as_while_decayed_t<Type> while_decayed{};
 
 };
 

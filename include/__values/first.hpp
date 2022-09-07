@@ -12,4 +12,4 @@ namespace __values {
 }
 
 template<auto FirstValue, auto... TailValues>
-static constexpr auto first_of_values = FirstValue;
+static constexpr auto first_value = FirstValue;

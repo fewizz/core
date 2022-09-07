@@ -6,6 +6,7 @@
 #include "../__types/first.hpp"
 #include "../integer.hpp"
 #include "../if_satisfies.hpp"
+#include "../forward.hpp"
 
 namespace elements {
 

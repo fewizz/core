@@ -3,10 +3,16 @@ test() {
 
 	mkdir --parents $(dirname build/$1)
 
+	declare -a additional_args
+
+	if [[ $OS != Windows_NT ]]; then
+		additional_args+=(-fsanitize=undefined)
+		additional_args+=(-fsanitize=memory)
+	fi
+
 	if ! clang++ \
 		--config ./compile_flags.txt \
-		-fsanitize=undefined \
-		-fsanitize=memory \
+		${additional_args[@]} \
 		-g \
 		-o build/$1 \
 		test/$1.cpp

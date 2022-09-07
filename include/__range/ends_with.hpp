@@ -5,8 +5,8 @@
 #include "../__ranges/are_equal.hpp"
 #include "../__iterator_and_sentinel/to_range.hpp"
 #include "../array.hpp"
-#include "../types/are_same.hpp"
-#include "../types/first.hpp"
+#include "../__types/are_same.hpp"
+#include "../__types/first.hpp"
 
 template<basic_range Range, basic_range OtherRange>
 constexpr bool range_ends_with(Range&& range, OtherRange&& other) {
