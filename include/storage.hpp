@@ -1,10 +1,11 @@
 #pragma once
 
 #include "./range.hpp"
+#include "./__range/extensions.hpp"
 #include "./__range/of_value_type_satisfying_predicate.hpp"
 
 template<typename Type>
-struct storage {
+struct storage : range_extensions<storage<Type>> {
 	alignas(Type) uint8 data[sizeof(Type)];
 
 	constexpr auto iterator() const { return data; }
@@ -53,3 +54,31 @@ using storage_element_type = typename
 template<typename StorageRange>
 concept storage_range =
 	range_of_value_type_satisfying_predicate<StorageRange, is_storage>;
+
+template<basic_iterator StorageIterator>
+class storage_object_iterator {
+	StorageIterator iterator_;
+public:
+
+	storage_object_iterator(StorageIterator iterator) : iterator_{ iterator } {}
+
+	auto& operator * () {
+		auto& storage = (*iterator_);
+		return (storage_element_type<decltype(storage)>&) storage.data;
+	}
+
+	auto& operator ++ () {
+		++iterator_;
+		return *this;
+	}
+
+	template<typename Sentinel>
+	friend bool operator == (storage_object_iterator ths, Sentinel sentinel) {
+		return ths.iterator_ == sentinel;
+	}
+	template<typename Sentinel>
+	friend bool operator == (Sentinel sentinel, storage_object_iterator ths) {
+		return ths.iterator_ == sentinel;
+	}
+
+};

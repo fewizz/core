@@ -4,25 +4,12 @@
 #include "./storage.hpp"
 #include "./placement_new.hpp"
 #include "./iterator_and_sentinel.hpp"
-
-template<basic_iterator StorageIterator>
-class list_iterator {
-	StorageIterator iterator_;
-public:
-
-	list_iterator(StorageIterator iterator) : iterator_{ iterator } {}
-
-	auto& operator * () {
-		auto& storage = (*iterator_);
-		return (storage_element_type<decltype(storage)>&) storage.data;
-	}
-
-};
+#include "./__range/extensions.hpp"
 
 template<
 	storage_range StorageRange
 >
-class list {
+class list : public range_extensions<list<StorageRange>> {
 	using element_type = storage_element_type<range_element_type<StorageRange>>;
 	StorageRange storage_range_;
 	range_iterator_type<StorageRange> storage_iterator_;
@@ -33,8 +20,15 @@ public:
 		storage_iterator_{ storage_range_.iterator() }
 	{}
 
-	auto iterator() const { return list_iterator{ storage_range_.iterator() }; }
-	auto iterator()       { return list_iterator{ storage_range_.iterator() }; }
+	auto iterator() const {
+		return storage_object_iterator{ storage_range_.iterator() };
+	}
+	auto iterator()       {
+		return storage_object_iterator{ storage_range_.iterator() };
+	}
+
+	auto sentinel() const { return storage_range_.sentinel(); }
+	auto sentinel()       { return storage_range_.sentinel(); }
 
 	template<typename... Args>
 	constexpr void emplace_back(Args&&... args) {

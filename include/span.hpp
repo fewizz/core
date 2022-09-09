@@ -6,9 +6,12 @@
 #include "./__range/size.hpp"
 #include "./__range/basic.hpp"
 #include "./__range/element_type.hpp"
+#include "./__range/extensions.hpp"
 
 template<typename Type, unsigned_integer SizeType = nuint>
-struct span {
+struct span :
+	range_extensions<span<Type, SizeType>>
+{
 protected:
 	Type* ptr_;
 	SizeType size_;

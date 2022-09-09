@@ -3,10 +3,11 @@
 #include "./integer.hpp"
 #include "./type.hpp"
 #include "./__values/of.hpp"
+#include "./__range/extensions.hpp"
 #include "./types.hpp"
 
 template<typename Type, nuint Size>
-struct array {
+struct array : range_extensions<array<Type, Size>> {
 	Type array_[Size];
 
 	constexpr nuint size() const {

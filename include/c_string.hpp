@@ -1,6 +1,7 @@
 #pragma once
 
 #include "./__iterator_and_sentinel/distance.hpp"
+#include "./__range/extensions.hpp"
 #include "type.hpp"
 
 enum class c_string_type {
@@ -14,7 +15,9 @@ struct c_string;
 struct c_string_sentinel{};
 
 template<typename Type>
-struct c_string<c_string_type::unknown_size, Type> {
+struct c_string<c_string_type::unknown_size, Type> :
+	range_extensions<c_string<c_string_type::unknown_size, Type>>
+{
 private:
 	const Type* ptr_;
 public:

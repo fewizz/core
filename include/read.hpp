@@ -1,7 +1,7 @@
 #pragma once
 
-#include "./type/is_trivial.hpp"
-#include "./type/decay.hpp"
+#include "./__type/is_trivial.hpp"
+#include "./__type/decay.hpp"
 #include "./endianness.hpp"
 #include "./integer.hpp"
 #include "./__iterator/element_type.hpp"
