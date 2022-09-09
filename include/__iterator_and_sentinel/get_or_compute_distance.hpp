@@ -6,7 +6,7 @@
 namespace __iterator_and_sentinel {
 
 template<basic_iterator Iterator, typename Sentinel>
-constexpr nuint distance(Iterator iterator, Sentinel sentinel) {
+constexpr nuint get_or_compute_distance(Iterator iterator, Sentinel sentinel) {
 	nuint distance = 0;
 	while(iterator != sentinel) {
 		++distance;
@@ -17,7 +17,7 @@ constexpr nuint distance(Iterator iterator, Sentinel sentinel) {
 
 template<basic_iterator Iterator, typename Sentinel>
 requires requires(Iterator i, Sentinel s) { s - i; }
-constexpr nuint distance(Iterator iterator, Sentinel sentinel) {
+constexpr nuint get_or_compute_distance(Iterator iterator, Sentinel sentinel) {
 	return sentinel - iterator;
 }
 

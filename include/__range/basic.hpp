@@ -8,8 +8,10 @@
 
 template<typename Type>
 concept basic_range =
-	(
-		requires(Type& o) { { o.iterator()  } -> basic_iterator; } &&
-		requires(Type& o) { o.sentinel(); }
-	) ||
+	requires(Type r) {
+		{ r.iterator()  } -> basic_iterator;
+		r.sentinel();
+		r.iterator() == r.sentinel();
+		r.iterator() != r.sentinel();
+	} ||
 	type_is_array<remove_reference<Type>>;

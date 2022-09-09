@@ -4,7 +4,7 @@
 #include "./contains.hpp"
 #include "./of_value_type_same_as.hpp"
 #include "./default_sentinel.hpp"
-#include "../__iterator_and_sentinel/to_range.hpp"
+#include "../__iterator_and_sentinel/as_range.hpp"
 #include "../array.hpp"
 
 namespace __range {
@@ -60,7 +60,7 @@ public:
 	}
 
 	constexpr auto operator * () const {
-		return __iterator_and_sentinel::to_range(iterator_, iterator_end_);
+		return __iterator_and_sentinel::as_range(iterator_, iterator_end_);
 	}
 
 	constexpr auto& operator ++ () {

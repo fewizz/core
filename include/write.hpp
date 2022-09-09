@@ -1,13 +1,15 @@
 #pragma once
 
-#include "./type/is_trivial.hpp"
-#include "./type/decay.hpp"
+#include "./__iterator/basic.hpp"
+#include "./__type/is_trivial.hpp"
+#include "./__type/decay.hpp"
 #include "./endianness.hpp"
 #include "./integer.hpp"
 #include "./__iterator/element_type.hpp"
 
 template<
-	trivial Type, endianness Endianness = endianness::native, typename Iterator
+	trivial Type, endianness Endianness = endianness::native,
+	basic_iterator Iterator
 >
 requires (sizeof(decay<iterator_element_type<Iterator>>) == 1)
 void write(Type value, Iterator&& iterator) {

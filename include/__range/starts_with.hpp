@@ -4,7 +4,7 @@
 #include "./size.hpp"
 #include "../array.hpp"
 #include "../__ranges/have_equal_size_and_elements.hpp"
-#include "../__iterator_and_sentinel/to_range.hpp"
+#include "../__iterator_and_sentinel/as_range.hpp"
 
 namespace __range {
 
@@ -14,7 +14,7 @@ namespace __range {
 		auto other_size = range_size(other);
 		if(size < other_size) return false;
 		return __ranges::have_equal_size_and_elements(
-			__iterator_and_sentinel::to_range(
+			__iterator_and_sentinel::as_range(
 				range.iterator(), range.iterator() + other_size
 			),
 			other

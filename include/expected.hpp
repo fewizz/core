@@ -2,11 +2,6 @@
 
 #include "./variant.hpp"
 
-template<typename Type>
-class unexpected {
-	
-};
-
 template<typename Type, typename UnexpectedType>
 class expected {
 	variant<Type, UnexpectedType> one_of;

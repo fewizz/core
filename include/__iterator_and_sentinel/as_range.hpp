@@ -37,7 +37,7 @@ public:
 };
 
 template<basic_iterator Iterator, typename Sentinel = default_sentinel>
-constexpr range_on_iterator_and_sentinel<Iterator, Sentinel> to_range(
+constexpr range_on_iterator_and_sentinel<Iterator, Sentinel> as_range(
 	Iterator iterator, Sentinel sentinel = {}
 ) {
 	return { iterator, sentinel };

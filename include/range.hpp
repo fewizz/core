@@ -21,7 +21,6 @@
 #include "./__range/try_find_index_of_last_satisfying.hpp"
 #include "./__range/view_copied_elements_on_stack.hpp"
 #include "./__ranges/transform_view.hpp"
-#include "./__ranges/are_equal.hpp"
 
 template<basic_range Range>
 struct range {
@@ -65,11 +64,6 @@ public:
 	template<basic_range OtherRange>
 	constexpr void copy_to(OtherRange&& other_range)       {
 		__range::copy{ range_ }.to( forward<OtherRange>(other_range) );
-	}
-
-	template<basic_range OtherRange>
-	constexpr bool equals_to(OtherRange&& other_range) const {
-		return __ranges::are_equal(range_, forward<OtherRange>(other_range));
 	}
 
 	template<typename Predicate>

@@ -1,8 +1,8 @@
 #pragma once
 
 #include "./__iterator/basic.hpp"
-#include "./__iterator_and_sentinel/distance.hpp"
-#include "./__iterator_and_sentinel/to_range.hpp"
+#include "./__iterator_and_sentinel/get_or_compute_distance.hpp"
+#include "./__iterator_and_sentinel/as_range.hpp"
 #include "./__range/iterator.hpp"
 #include "./__range/sentinel.hpp"
 
@@ -22,12 +22,14 @@ public:
 		iterator_{ iterator }, sentinel_{ sentinel }
 	{}
 
-	constexpr nuint distance() const {
-		return __iterator_and_sentinel::distance(iterator_, sentinel_);
+	constexpr nuint get_or_compute_distance() const {
+		return __iterator_and_sentinel::get_or_compute_distance(
+			iterator_, sentinel_
+		);
 	}
 
-	constexpr auto to_range() const {
-		return __iterator_and_sentinel::to_range(iterator_, sentinel_);
+	constexpr auto as_range() const {
+		return __iterator_and_sentinel::as_range(iterator_, sentinel_);
 	}
 
 };

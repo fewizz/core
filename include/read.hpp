@@ -5,9 +5,11 @@
 #include "./endianness.hpp"
 #include "./integer.hpp"
 #include "./__iterator/element_type.hpp"
+#include "./__iterator/basic.hpp"
 
 template<
-	trivial Type, endianness Endianness = endianness::native, typename Iterator
+	trivial Type, endianness Endianness = endianness::native,
+	basic_iterator Iterator
 >
 requires (sizeof(decay<iterator_element_type<Iterator>>) == 1)
 constexpr Type read(Iterator&& iterator) {

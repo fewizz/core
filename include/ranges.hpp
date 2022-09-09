@@ -1,22 +1,22 @@
 #pragma once
 
 #include "./__range/basic.hpp"
-#include "./__ranges/are_equal.hpp"
+#include "./__ranges/have_equal_size_and_elements.hpp"
 #include "./__ranges/concat_view.hpp"
 #include "./__ranges/transform_view.hpp"
-#include "./elements/of.hpp"
+#include "./tuple.hpp"
 
 template<basic_range... Ranges>
 struct ranges {
 private:
-	elements::of<Ranges...> ranges_;
+	tuple<Ranges...> ranges_;
 public:
 
 	ranges(Ranges&&... ranges) : ranges_{ forward<Ranges>(ranges)... } {}
 
-	constexpr bool are_equal() const {
+	constexpr bool have_equal_size_and_elements() const {
 		return ranges_.pass([](const Ranges&... ranges) {
-			return __ranges::are_equal(ranges...);
+			return __ranges::have_equal_size_and_elements(ranges...);
 		});
 	}
 
