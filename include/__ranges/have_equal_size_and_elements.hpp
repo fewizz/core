@@ -9,75 +9,6 @@
 
 namespace __ranges {
 
-template<basic_range... Ranges>
-constexpr bool have_equal_elements_and_size(Ranges&&... ranges) {
-	auto iterators = tuple {
-		tuple {
-			ranges.iterator(),
-			ranges.sentinel()
-		}...
-	};
-
-	return [&]<nuint... Indices>(
-		indices::of<Indices...> = indices::from<0>::to<sizeof...(Ranges)>{}
-	) {
-		while(true) {
-			bool ends[sizeof...(Ranges)] {
-				iterators.template at<Indices>.template at<0>() ==
-				iterators.template at<Indices>.template at<1>() ...
-			};
-
-			// all ended
-			if(ends.pass([](auto... ends){ return (ends && ...); })) {
-				return true;
-			}
-
-			// some of them ended, not all
-			if(ends.pass([](auto... ends){ return (ends || ...); })) {
-				return false;
-			}
-
-			bool elements_equal_to_first = iterators.pass(
-				[](auto first, auto... its) {
-					decltype(auto) first_element = *first.template at<0>();
-					return ((first_element == *its.template at<0>()) && ...);
-				}
-			);
-			if(!elements_equal_to_first) {
-				return false;
-			}
-
-			(++iterators.template at<Indices>.template at<0>() , ...);
-		}
-	}();
-}
-
-template<basic_range Range0, basic_range Range1>
-constexpr bool have_equal_elements_and_size(
-	Range0&& range0, Range1&& range1
-) {
-	basic_iterator auto i0 = range_iterator(range0);
-	               auto s0 = range_sentinel(range0);
-	basic_iterator auto i1 = range_iterator(range1);
-	               auto s1 = range_sentinel(range1);
-
-	while(true) {
-		bool e0 = i0 == s0;
-		bool e1 = i1 == s1;
-		if(e0 && e1) {
-			return true;
-		}
-		if(e0 || e1) {
-			return false;
-		}
-		if(*i0 != *i1) {
-			return false;
-		}
-		++i0;
-		++i1;
-	}
-}
-
 template<sized_range... Ranges>
 constexpr bool have_equal_size_and_elements(Ranges&&... ranges) {
 	auto iterators = tuple { ranges.iterator()... };
@@ -107,7 +38,7 @@ constexpr bool have_equal_size_and_elements(Ranges&&... ranges) {
 }
 
 template<sized_range Range0, sized_range Range1>
-constexpr bool have_equal_elements_and_size(
+constexpr bool have_equal_size_and_elements(
 	Range0&& range0, Range1&& range1
 ) {
 	integer auto s0 = range_size(range0);
@@ -128,16 +59,6 @@ constexpr bool have_equal_elements_and_size(
 	}
 
 	return true;
-}
-
-template<basic_range... Ranges>
-constexpr bool are_equal(Ranges&&... ranges) {
-	if constexpr((sized_range<Ranges> && ...)) {
-		return have_equal_size_and_elements(forward<Ranges>(ranges)...);
-	}
-	else {
-		return have_equal_elements_and_size(forward<Ranges>(ranges)...);
-	}
 }
 
 } // __ranges

@@ -13,14 +13,9 @@ class sized_view {
 	nuint size_;
 public:
 
-	constexpr sized_view(Range&& range) :
+	constexpr sized_view(Range&& range, nuint size) :
 		range_{ forward<Range>(range) },
-		size_ {
-			__iterator_and_sentinel::distance(
-				range_iterator(range_),
-				range_sentinel(range_)
-			)
-		}
+		size_ { size }
 	{}
 
 	constexpr nuint size() const { return size_; }
@@ -30,7 +25,6 @@ public:
 
 	constexpr auto sentinel() const { return range_sentinel(range_); }
 	constexpr auto sentinel()       { return range_sentinel(range_); }
-
 };
 
 template<basic_range Range>

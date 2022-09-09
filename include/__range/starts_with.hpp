@@ -3,7 +3,7 @@
 #include "./basic.hpp"
 #include "./size.hpp"
 #include "../array.hpp"
-#include "../__ranges/are_equal.hpp"
+#include "../__ranges/have_equal_size_and_elements.hpp"
 #include "../__iterator_and_sentinel/to_range.hpp"
 
 namespace __range {
@@ -13,7 +13,7 @@ namespace __range {
 		auto size       = range_size(range);
 		auto other_size = range_size(other);
 		if(size < other_size) return false;
-		return __ranges::are_equal(
+		return __ranges::have_equal_size_and_elements(
 			__iterator_and_sentinel::to_range(
 				range.iterator(), range.iterator() + other_size
 			),
