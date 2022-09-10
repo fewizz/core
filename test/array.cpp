@@ -39,4 +39,5 @@ static_assert(trivially_copyable<array<int, 3>>);
 
 int main() {
 	array a{ 0, 1, 2 };
+	if(a[0] != 0) return 1;
 }

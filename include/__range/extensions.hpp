@@ -7,8 +7,14 @@ template<typename Derived>
 struct range_extensions {
 
 private:
-	const Derived& range_() const { return (const Derived&) *this; }
-	      Derived& range_()       { return (      Derived&) *this; }
+	constexpr const Derived&
+	range_() const &  { return (const Derived&)  *this; }
+	constexpr       Derived&
+	range_()       &  { return (      Derived&)  *this; }
+	constexpr const Derived&&
+	range_() const && { return (const Derived&&) *this; }
+	constexpr       Derived&&
+	range_()       && { return (      Derived&&) *this; }
 public:
 
 	constexpr basic_iterator auto iterator() const {
@@ -32,9 +38,22 @@ public:
 		OtherRange&& other_range
 	) const;
 
+	constexpr auto flat_view() const &  ;
+	constexpr auto flat_view()       &  ;
+	constexpr auto flat_view() const && ;
+	constexpr auto flat_view()       && ;
+
 	auto size() const {
 		static_assert(sized_range<Derived>);
 		return sentinel() - iterator();
+	}
+
+	decltype(auto) operator [] (nuint index) const {
+		return *(iterator() + index);
+	}
+
+	decltype(auto) operator [] (nuint index) {
+		return *(iterator() + index);
 	}
 
 };

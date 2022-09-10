@@ -31,3 +31,22 @@ constexpr bool range_extensions<Derived>::have_size_and_elements_equals_to(
 		range_(), forward<OtherRange>(other_range)
 	);
 }
+
+#include "./flat_view.hpp"
+
+template<typename Derived>
+constexpr auto range_extensions<Derived>::flat_view() const &  {
+	return __range::flat_view{ range_() };
+}
+template<typename Derived>
+constexpr auto range_extensions<Derived>::flat_view()       &  {
+	return __range::flat_view{ range_() };
+}
+template<typename Derived>
+constexpr auto range_extensions<Derived>::flat_view() const && {
+	return __range::flat_view{ move(range_()) };
+}
+template<typename Derived>
+constexpr auto range_extensions<Derived>::flat_view()       && {
+	return __range::flat_view{ move(range_()) };
+}

@@ -27,13 +27,6 @@ public:
 	constexpr const Type* sentinel() const & { return array_ + Size; }
 	constexpr       Type* sentinel()       & { return array_ + Size; }
 
-	constexpr decltype(auto) operator [] (nuint index) const {
-		return array_[index];
-	}
-	constexpr decltype(auto) operator [] (nuint index) {
-		return array_[index];
-	}
-
 	template<typename F>
 	constexpr decltype(auto) pass(F&& f) const {
 		return [&]<nuint... Indices>(indices::of<Indices...>)
