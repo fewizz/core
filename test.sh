@@ -35,36 +35,6 @@ if [ ! -z $1 ]; then
 	exit
 fi
 
-test type/array_extent
-test type/is_same_as
-
-test types/are_same
-test types/at_indices
-test types/common
-test types/erase_at_index
-test types/count_of_satisfying_predicate
-test types/indices_of_satisfying_predicate
-test types/exclusively_satisfy_predicates
-
-test values/of
-test values/permutations
-
-test tuple
-test variant
-test elements/at_index
-
-test expected
-test ordered
-
-test iterators/to_range
-
-test range/element_type
-test range/value_type
-test range/begin_end
-test range/copy
-test range/starts_with
-
-test ranges/concat_view
-test ranges/split_view
-test ranges/transform_view
-test ranges/zip_view
+for testfile in `cd 'test' && find -type f && cd ..`; do
+	test "`dirname $testfile`/`basename $testfile .cpp`"
+done

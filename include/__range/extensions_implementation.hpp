@@ -20,14 +20,14 @@ constexpr void range_extensions<Derived>::copy_to(
 	__range::copy{ range_() }.to( forward<OtherRange>(other_range) );
 }
 
-#include "../__ranges/have_equal_size_and_elements.hpp"
+#include "../__ranges/have_equal_elements.hpp"
 
 template<typename Derived>
 template<basic_range OtherRange>
-constexpr bool range_extensions<Derived>::have_size_and_elements_equals_to(
+constexpr bool range_extensions<Derived>::have_elements_equal_to(
 	OtherRange&& other_range
 ) const {
-	return __ranges::have_equal_size_and_elements(
+	return __ranges::have_equal_elements(
 		range_(), forward<OtherRange>(other_range)
 	);
 }

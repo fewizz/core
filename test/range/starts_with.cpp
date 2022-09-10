@@ -1,9 +1,9 @@
-#include <range/starts_with.hpp>
+#include <__range/starts_with.hpp>
 #include <array.hpp>
 
 int main() {
 	char ch = 'a';
-	if(!range::starts{ array{'a', 'b', 'c'} }.with(ch, 'b')) {
+	if(!__range::starts_with(array{'a', 'b', 'c' }, array{ (char)ch, 'b' })) {
 		return 1;
 	}
 	return 0;

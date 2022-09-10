@@ -27,10 +27,10 @@ public:
 	}
 
 	const element_type* sentinel() const {
-		return (const element_type*) storage_range_.sentinel();
+		return (const element_type*) storage_iterator_;
 	}
 	      element_type* sentinel()       {
-		return (      element_type*) storage_range_.sentinel();
+		return (      element_type*) storage_iterator_;
 	}
 
 	template<typename... Args>

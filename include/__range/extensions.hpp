@@ -34,7 +34,7 @@ public:
 	constexpr void copy_to(OtherRange&& other_range) const;
 
 	template<basic_range OtherRange>
-	constexpr bool have_size_and_elements_equals_to(
+	constexpr bool have_elements_equal_to(
 		OtherRange&& other_range
 	) const;
 
@@ -43,16 +43,16 @@ public:
 	constexpr auto flat_view() const && ;
 	constexpr auto flat_view()       && ;
 
-	auto size() const {
+	constexpr auto size() const {
 		static_assert(sized_range<Derived>);
 		return sentinel() - iterator();
 	}
 
-	decltype(auto) operator [] (nuint index) const {
+	constexpr decltype(auto) operator [] (nuint index) const {
 		return *(iterator() + index);
 	}
 
-	decltype(auto) operator [] (nuint index) {
+	constexpr decltype(auto) operator [] (nuint index) {
 		return *(iterator() + index);
 	}
 
