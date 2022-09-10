@@ -19,27 +19,24 @@ public:
 		storage_iterator_{ storage_range_.iterator() }
 	{}
 
-	auto iterator() const {
-		return storage_object_iterator{ storage_range_.iterator() };
+	const element_type* iterator() const {
+		return (const element_type*) storage_range_.iterator();
 	}
-	auto iterator()       {
-		return storage_object_iterator{ storage_range_.iterator() };
+	      element_type* iterator()       {
+		return (      element_type*) storage_range_.iterator();
 	}
 
-	auto sentinel() const { return storage_range_.sentinel(); }
-	auto sentinel()       { return storage_range_.sentinel(); }
+	const element_type* sentinel() const {
+		return (const element_type*) storage_range_.sentinel();
+	}
+	      element_type* sentinel()       {
+		return (      element_type*) storage_range_.sentinel();
+	}
 
 	template<typename... Args>
 	constexpr void emplace_back(Args&&... args) {
 		new (storage_iterator_->data) element_type(forward<Args>(args)...);
 		++storage_iterator_;
-	}
-
-	constexpr auto size() {
-		return iterator_and_sentinel {
-			storage_range_.iterator(),
-			storage_iterator_
-		}.distance();
 	}
 
 };

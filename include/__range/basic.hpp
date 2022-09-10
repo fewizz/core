@@ -9,7 +9,7 @@
 template<typename Type>
 concept basic_range =
 	requires(Type r) {
-		{ r.iterator()  } -> basic_iterator;
+		{ r.iterator() } -> basic_iterator;
 		r.sentinel();
 		r.iterator() == r.sentinel();
 		r.iterator() != r.sentinel();

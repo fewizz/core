@@ -1,6 +1,6 @@
 #pragma once
 
-#include "./__iterator_and_sentinel/distance.hpp"
+#include "./__iterator_and_sentinel/get_or_compute_distance.hpp"
 #include "./__range/extensions.hpp"
 #include "type.hpp"
 
@@ -35,7 +35,11 @@ public:
 
 	constexpr c_string<c_string_type::known_size, Type> sized() const {
 		return {
-			ptr_, __iterator_and_sentinel::distance(iterator(), sentinel())
+			ptr_,
+			__iterator_and_sentinel::get_or_compute_distance(
+				iterator(),
+				sentinel()
+			)
 		};
 	}
 

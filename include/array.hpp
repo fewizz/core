@@ -8,7 +8,14 @@
 
 template<typename Type, nuint Size>
 struct array : range_extensions<array<Type, Size>> {
+private:
 	Type array_[Size];
+public:
+
+	template<typename... Args>
+	constexpr array(Args&&... args) :
+		array_{ forward<Args>(args)... }
+	{}
 
 	constexpr nuint size() const {
 		return Size;
@@ -19,9 +26,6 @@ struct array : range_extensions<array<Type, Size>> {
 
 	constexpr const Type* sentinel() const & { return array_ + Size; }
 	constexpr       Type* sentinel()       & { return array_ + Size; }
-
-	constexpr const Type* elements_ptr() const & { return array_; }
-	constexpr       Type* elements_ptr()       & { return array_; }
 
 	constexpr decltype(auto) operator [] (nuint index) const {
 		return array_[index];

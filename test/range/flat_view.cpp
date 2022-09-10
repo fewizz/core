@@ -1,6 +1,7 @@
 #pragma once
 
 #include <range.hpp>
+#include <array.hpp>
 #include <c_string.hpp>
 
 consteval bool f() {
@@ -22,7 +23,8 @@ consteval bool f() {
 			c_string{ "world" }, c_string{ "!" }
 		}};
 
-		range{ fv1 }.equals_to(c_string{ "Hello, world!" });
+		//fv1.have_size_and_elements_equals_to(c_string{ "Hello, world!" });
+		if(*fv1.iterator() != 'H') throw;
 	}
 
 	return true;

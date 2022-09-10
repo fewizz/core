@@ -22,6 +22,8 @@
 #include "./__range/view_copied_elements_on_stack.hpp"
 #include "./__ranges/transform_view.hpp"
 
+#include "./__range/extensions_implementation.hpp"
+
 template<basic_range Range>
 struct range {
 private:

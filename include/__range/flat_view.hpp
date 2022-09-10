@@ -4,6 +4,7 @@
 #include "./sentinel.hpp"
 #include "./element_type.hpp"
 #include "./default_sentinel.hpp"
+#include "./extensions.hpp"
 #include "../__iterator/basic.hpp"
 #include "../__iterator/element_type.hpp"
 
@@ -66,7 +67,9 @@ public:
 
 template<basic_range Range>
 requires basic_range<range_element_type<Range>>
-class flat_view {
+class flat_view :
+	public range_extensions<flat_view<Range>>
+{
 	Range range_;
 public:
 
