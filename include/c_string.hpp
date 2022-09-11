@@ -1,7 +1,7 @@
 #pragma once
 
 #include "./__iterator_and_sentinel/get_or_compute_distance.hpp"
-#include "./__range/extensions.hpp"
+#include "./range.hpp"
 #include "type.hpp"
 
 enum class c_string_type {
