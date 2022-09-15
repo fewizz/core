@@ -12,19 +12,20 @@ class optional_extensions {
 
 public:
 
-	bool has_value() const { return derived()->has_value(); }
+	bool has_value()    const { return  derived()->has_value(); }
+	bool has_no_value() const { return !derived()->has_value(); }
 
 	explicit operator bool () const { return has_value(); }
 
 	template<typename Handler>
-	const Derived& if_no_value(Handler&& handler) const {
-		if(!has_value()) { handler(); }
+	const Derived& if_has_no_value(Handler&& handler) const {
+		if(has_no_value()) { handler(); }
 		return derived();
 	}
 	template<typename Handler>
-	      Derived& if_no_value(Handler&& handler)       {
-		if(!has_value()) { handler(); }
-		return *this;
+	      Derived& if_has_no_value(Handler&& handler)       {
+		if(has_no_value()) { handler(); }
+		return derived();
 	}
 
 	decltype(auto) value() const requires single { return derived().value(); }
@@ -37,19 +38,19 @@ public:
 
 	template<typename Handler>
 	requires single
-	decltype(auto) if_has_value(Handler&& handler) const {
-		if(derived().has_value()) return handler(value());
+	decltype(auto) if_has_no_value(Handler&& handler) const {
+		if(derived().has_no_value()) return handler(value());
 	}
 	template<typename Handler>
 	requires single
 	decltype(auto) if_has_value(Handler&& handler)       {
-		if(derived().has_value()) return handler(value());
+		if(derived().has_no_value()) return handler(value());
 	}
 
 	template<typename Handler>
 	requires single
-	Derived& set_if_no_value(Handler&& handler) {
-		if(!derived().has_value()) {
+	Derived& set_if_has_no_value(Handler&& handler) {
+		if(derived().has_no_value()) {
 			*this = handler();
 		}
 		return derived();

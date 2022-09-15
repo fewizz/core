@@ -5,6 +5,7 @@
 #include "../__range/sentinel.hpp"
 #include "../__range/default_sentinel.hpp"
 #include "../__range/size.hpp"
+#include "../__range/extensions.hpp"
 #include "../__iterator/element_type.hpp"
 #include "../__iterator_and_sentinel/get_or_compute_distance.hpp"
 #include "../forward.hpp"
@@ -445,7 +446,7 @@ public:
 };
 
 template<basic_range... Ranges>
-class concat_view {
+class concat_view : range_extensions<concat_view<Ranges...>> {
 	tuple<Ranges...> ranges_;
 public:
 

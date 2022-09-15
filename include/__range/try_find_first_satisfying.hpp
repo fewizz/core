@@ -6,12 +6,12 @@
 
 namespace __range {
 
-	template<basic_range Range, typename Handler>
+	template<basic_range Range, typename Predicate>
 	constexpr optional<range_element_type<Range>> try_find_first_satisfying(
-		Range&& range, Handler&& handler
+		Range&& range, Predicate&& predicate
 	) {
 		for(decltype(auto) e : forward<Range>(range)) {
-			if(handler(e)) {
+			if(predicate(e)) {
 				return { e };
 			}
 		}

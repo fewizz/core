@@ -39,6 +39,16 @@ public:
 		++storage_iterator_;
 	}
 
+	constexpr auto capacity() const {
+		return range_size(storage_range_);
+	}
+
+	constexpr void fill(auto&& something) {
+		while(this->size() < capacity()) {
+			emplace_back(something);
+		}
+	}
+
 };
 
 template<storage_range StorageRange>

@@ -56,4 +56,13 @@ public:
 		return *(iterator() + index);
 	}
 
+	template<typename Handler>
+	decltype(auto) view_copied_elements_on_stack(Handler&& handler) const;
+
+	template<typename Handler>
+	decltype(auto) view_copied_elements_on_stack(Handler&& handler);
+
+	template<typename Predicate>
+	auto try_find_first_satisfying(Predicate&& predicate) const;
+
 };

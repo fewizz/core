@@ -59,6 +59,7 @@ template<> struct int_of_bits_type<64>  { using type = int64;  };
 template<> struct uint_of_bits_type<64> { using type = uint64; };
 
 using nuint = typename uint_of_bits_type<sizeof(void*)*8>::type;
+using nint = typename int_of_bits_type<sizeof(void*)*8>::type;
 
 template<nuint Bits>
 using int_of_bits = typename int_of_bits_type<Bits>::type;

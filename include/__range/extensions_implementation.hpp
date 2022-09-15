@@ -50,3 +50,41 @@ template<typename Derived>
 constexpr auto range_extensions<Derived>::flat_view()       && {
 	return __range::flat_view{ move(range_()) };
 }
+
+#include "./view_copied_elements_on_stack.hpp"
+
+template<typename Derived>
+template<typename Handler>
+decltype(auto)
+range_extensions<Derived>::view_copied_elements_on_stack(
+	Handler&& handler
+) const {
+	return __range::view_copied_elements_on_stack(
+		range_(),
+		forward<Handler>(handler)
+	);
+}
+template<typename Derived>
+template<typename Handler>
+decltype(auto)
+range_extensions<Derived>::view_copied_elements_on_stack(
+	Handler&& handler
+) {
+	return __range::view_copied_elements_on_stack(
+		range_(),
+		forward<Handler>(handler)
+	);
+}
+
+#include "./try_find_first_satisfying.hpp"
+
+template<typename Derived>
+template<typename Predicate>
+auto range_extensions<Derived>::try_find_first_satisfying(
+	Predicate&& predicate
+) const {
+	return __range::try_find_first_satisfying(
+		*this,
+		forward<Predicate>(predicate)
+	);
+}
