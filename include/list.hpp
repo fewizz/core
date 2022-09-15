@@ -19,18 +19,18 @@ public:
 		storage_iterator_{ storage_range_.iterator() }
 	{}
 
-	const element_type* iterator() const {
-		return (const element_type*) storage_range_.iterator();
+	const range_iterator_type<StorageRange> iterator() const {
+		return storage_range_.iterator();
 	}
-	      element_type* iterator()       {
-		return (      element_type*) storage_range_.iterator();
+	      range_iterator_type<StorageRange> iterator()       {
+		return storage_range_.iterator();
 	}
 
-	const element_type* sentinel() const {
-		return (const element_type*) storage_iterator_;
+	const range_sentinel_type<StorageRange> sentinel() const {
+		return storage_iterator_;
 	}
-	      element_type* sentinel()       {
-		return (      element_type*) storage_iterator_;
+	      range_sentinel_type<StorageRange> sentinel()       {
+		return storage_iterator_;
 	}
 
 	template<typename... Args>
@@ -39,7 +39,7 @@ public:
 		++storage_iterator_;
 	}
 
-	constexpr auto capacity() const {
+	constexpr range_size_type<StorageRange> capacity() const {
 		return range_size(storage_range_);
 	}
 

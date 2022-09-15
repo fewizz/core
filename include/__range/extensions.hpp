@@ -2,6 +2,7 @@
 
 #include "./extensions_declaration.hpp"
 #include "./sized.hpp"
+#include "./size_type.hpp"
 
 template<typename Derived>
 struct range_extensions {
@@ -45,7 +46,7 @@ public:
 
 	constexpr auto size() const {
 		static_assert(sized_range<Derived>);
-		return sentinel() - iterator();
+		return (range_size_type<Derived>) (sentinel() - iterator());
 	}
 
 	constexpr decltype(auto) operator [] (nuint index) const {
