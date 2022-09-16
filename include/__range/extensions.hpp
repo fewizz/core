@@ -49,6 +49,10 @@ public:
 		static_assert(sized_range<Derived>);
 		return (nuint)(sentinel() - iterator());
 	}
+	constexpr nuint size() {
+		static_assert(sized_range<Derived>);
+		return (nuint)(sentinel() - iterator());
+	}
 
 	constexpr decltype(auto) operator [] (nuint index) const {
 		return *(iterator() + index);

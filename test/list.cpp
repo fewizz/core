@@ -1,6 +1,14 @@
 #include <list.hpp>
 #include <array.hpp>
 
+static_assert(contiguous_iterator<storage<char>*>);
+static_assert(base_of<
+	contiguous_iterator_mark, storage_range_element_iterator<storage<char>*>
+>);
+static_assert(contiguous_iterator<
+	storage_range_element_iterator<storage<char>*>
+>);
+
 int main() {
 	array<storage<int>, 5> storage_range{};
 	list l{ storage_range };

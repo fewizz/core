@@ -11,6 +11,8 @@ template<
 class list : public range_extensions<list<StorageRange>> {
 	using element_type = storage_element_type<range_element_type<StorageRange>>;
 	using size_type = range_size_type<StorageRange>;
+	using iterator_type = range_iterator_type<StorageRange>;
+	using const_iterator_type = range_iterator_type<const StorageRange>;
 	StorageRange storage_range_{};
 	range_iterator_type<StorageRange> storage_iterator_;
 public:
@@ -22,11 +24,11 @@ public:
 		storage_iterator_{ storage_range_.iterator() }
 	{}
 
-	range_iterator_type<const StorageRange> iterator() const {
-		return storage_range_.iterator();
+	storage_range_element_iterator<const_iterator_type> iterator() const {
+		return storage_range_element_iterator{ storage_range_.iterator() };
 	}
-	range_iterator_type<StorageRange>       iterator()       {
-		return storage_range_.iterator();
+	storage_range_element_iterator<      iterator_type> iterator() {
+		return storage_range_element_iterator{ storage_range_.iterator() };
 	}
 
 	range_sentinel_type<const StorageRange> sentinel() const {
@@ -38,13 +40,13 @@ public:
 
 	template<typename... Args>
 	constexpr void emplace_back(Args&&... args) {
-		new (storage_iterator_->data) element_type(forward<Args>(args)...);
+		(*storage_iterator_).construct(forward<Args>(args)...);
 		++storage_iterator_;
 	}
 
 	constexpr void pop_back() {
-		((element_type*)storage_iterator_->data)->~element_type();
 		--storage_iterator_;
+		(*storage_iterator_).destruct();
 	}
 
 	constexpr size_type capacity() const {
