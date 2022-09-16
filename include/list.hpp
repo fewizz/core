@@ -10,26 +10,29 @@ template<
 >
 class list : public range_extensions<list<StorageRange>> {
 	using element_type = storage_element_type<range_element_type<StorageRange>>;
+	using size_type = range_size_type<StorageRange>;
 	StorageRange storage_range_;
 	range_iterator_type<StorageRange> storage_iterator_;
 public:
+
+	constexpr list() = default;
 
 	constexpr list(StorageRange&& storage_range) :
 		storage_range_{ forward<StorageRange>(storage_range) },
 		storage_iterator_{ storage_range_.iterator() }
 	{}
 
-	const range_iterator_type<StorageRange> iterator() const {
+	range_iterator_type<const StorageRange> iterator() const {
 		return storage_range_.iterator();
 	}
-	      range_iterator_type<StorageRange> iterator()       {
+	range_iterator_type<StorageRange>       iterator()       {
 		return storage_range_.iterator();
 	}
 
-	const range_sentinel_type<StorageRange> sentinel() const {
+	range_sentinel_type<const StorageRange> sentinel() const {
 		return storage_iterator_;
 	}
-	      range_sentinel_type<StorageRange> sentinel()       {
+	range_sentinel_type<StorageRange>       sentinel()       {
 		return storage_iterator_;
 	}
 
@@ -39,13 +42,35 @@ public:
 		++storage_iterator_;
 	}
 
-	constexpr range_size_type<StorageRange> capacity() const {
+	constexpr void pop_back() {
+		((element_type*)storage_iterator_->data)->~element_type();
+		--storage_iterator_;
+	}
+
+	constexpr size_type capacity() const {
 		return range_size(storage_range_);
 	}
 
-	constexpr void fill(auto&& something) {
+	constexpr size_type available() const {
+		return capacity() - this->size();
+	}
+
+	constexpr void fill_with(auto&& something) {
 		while(this->size() < capacity()) {
 			emplace_back(something);
+		}
+	}
+
+	template<basic_range Range>
+	constexpr void put_back_copied_elements_of(Range&& other) {
+		for(decltype(auto) e : other) {
+			emplace_back(forward<decltype(e)>(e));
+		}
+	}
+
+	void clear() {
+		while(this->size() > 0) {
+			pop_back();
 		}
 	}
 

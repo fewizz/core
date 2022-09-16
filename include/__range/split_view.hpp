@@ -5,13 +5,13 @@
 #include "./of_value_type_same_as.hpp"
 #include "./default_sentinel.hpp"
 #include "../__iterator_and_sentinel/as_range.hpp"
-#include "../array.hpp"
+#include "./array_without_extensions.hpp"
 
 namespace __range {
 
 template<
 	basic_iterator Iterator,
-	typename Sentinel,
+	basic_sentinel_of<Iterator> Sentinel,
 	basic_range SplittersRange
 >
 struct split_view_iterator {
@@ -116,7 +116,9 @@ public:
 	template<typename... Splitters>
 	constexpr split_view(Range&& range, Splitters&&... splitters) :
 		range_{ forward<Range>(range) },
-		splitters_range_{ array{ forward<Splitters>(splitters)... } }
+		splitters_range_{
+			array_without_extensions{ forward<Splitters>(splitters)... }
+		}
 	{}
 
 	constexpr auto iterator() {
@@ -150,6 +152,9 @@ template<
 	typename... Splitters
 >
 split_view(Range&&, Splitters&&... splitters)
-	-> split_view<Range, decltype(array{ forward<Splitters>(splitters)... })>;
+	-> split_view<
+		Range,
+		decltype(array_without_extensions{ forward<Splitters>(splitters)... })
+	>;
 
 } // __range

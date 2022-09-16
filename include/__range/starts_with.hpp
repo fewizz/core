@@ -2,7 +2,7 @@
 
 #include "./basic.hpp"
 #include "./size.hpp"
-#include "../array.hpp"
+#include "./array_without_extensions.hpp"
 #include "../__ranges/have_equal_size_and_elements.hpp"
 #include "../__iterator_and_sentinel/as_range.hpp"
 
@@ -22,9 +22,12 @@ namespace __range {
 	}
 
 	template<basic_range Range, typename... Elements>
-	requires requires(Elements&&... ts) { array{ ts... }; }
+	requires requires(Elements&&... ts) { array_without_extensions{ ts... }; }
 	constexpr bool starts_with(Range&& range, Elements&&... elements) {
-		return starts_with(forward<Range>(range), array{ elements... });
+		return starts_with(
+			forward<Range>(range),
+			array_without_extensions{ elements... }
+		);
 	}
 
 } // __range

@@ -13,7 +13,7 @@ public:
 	operator const nuint& () const & { return value_; }
 };
 
-template<integer Number, typename Handler>
+template<unsigned_integer Number, typename Handler>
 void for_each_digit_in_number(
 	Number number, number_base base, Handler&& handler
 ) {

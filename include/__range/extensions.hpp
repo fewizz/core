@@ -3,6 +3,7 @@
 #include "./extensions_declaration.hpp"
 #include "./sized.hpp"
 #include "./size_type.hpp"
+#include "../iterator_and_sentinel.hpp"
 
 template<typename Derived>
 struct range_extensions {
@@ -44,9 +45,9 @@ public:
 	constexpr auto flat_view() const && ;
 	constexpr auto flat_view()       && ;
 
-	constexpr auto size() const {
+	constexpr nuint size() const {
 		static_assert(sized_range<Derived>);
-		return (range_size_type<Derived>) (sentinel() - iterator());
+		return (nuint)(sentinel() - iterator());
 	}
 
 	constexpr decltype(auto) operator [] (nuint index) const {
@@ -65,5 +66,12 @@ public:
 
 	template<typename Predicate>
 	auto try_find_first_satisfying(Predicate&& predicate) const;
+
+	auto shrink_view(auto size) const {
+		return iterator_and_sentinel {
+			iterator(),
+			iterator() + size
+		}.as_range();
+	}
 
 };
