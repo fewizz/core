@@ -2,7 +2,6 @@
 
 int main() {
 	expected<int, float> f{0.0F};
-
-	int val = f;
+	[[maybe_unused]] int val = f;
 	++val;
 }

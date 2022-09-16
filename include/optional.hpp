@@ -7,13 +7,13 @@ class optional_extensions {
 	static constexpr bool single = sizeof...(Types) == 1;
 	using first = first_type<Types...>;
 
-	const Derived& derived() const { return (const Derived&)*this; }
-	      Derived& derived()       { return (      Derived&)*this; }
+	const Derived& derived() const { return (const Derived&) *this; }
+	      Derived& derived()       { return (      Derived&) *this; }
 
 public:
 
-	bool has_value()    const { return  derived()->has_value(); }
-	bool has_no_value() const { return !derived()->has_value(); }
+	bool has_value()    const { return  derived().has_value(); }
+	bool has_no_value() const { return !derived().has_value(); }
 
 	explicit operator bool () const { return has_value(); }
 
@@ -39,12 +39,16 @@ public:
 	template<typename Handler>
 	requires single
 	decltype(auto) if_has_no_value(Handler&& handler) const {
-		if(derived().has_no_value()) return handler(value());
+		if(derived().has_value()) {
+			return handler(value());
+		}
 	}
 	template<typename Handler>
 	requires single
 	decltype(auto) if_has_value(Handler&& handler)       {
-		if(derived().has_no_value()) return handler(value());
+		if(derived().has_value()) {
+			return handler(value());
+		}
 	}
 
 	template<typename Handler>
@@ -74,7 +78,6 @@ public:
 
 	using base_type::base_type;
 
-	//using base_type::operator = ;
 	template<typename... Args>
 	optional operator = (Args&&... args) {
 		base_type::operator = (forward<Args>(args)...);
@@ -98,16 +101,16 @@ public:
 		return !base_type::template is<__optional::no_t>();
 	}
 
-	decltype(auto) value() const requires single {
+	const first& value() const requires single {
 		return base_type::template get<first>();
 	}
-	decltype(auto) value()       requires single {
+	      first& value()       requires single {
 		return base_type::template get<first>();
 	}
 };
 
 template<typename Type>
-class optional<Type&> : public optional_extensions<optional<Type*>, Type>{
+class optional<Type&> : public optional_extensions<optional<Type*>, Type> {
 	Type* ptr_;
 public:
 
@@ -117,8 +120,8 @@ public:
 
 	bool has_value() const { return ptr_ != nullptr; }
 
-	decltype(auto) value() const { return *ptr_; }
-	decltype(auto) value()       { return *ptr_; }
+	const Type& value() const { return *ptr_; }
+	      Type& value()       { return *ptr_; }
 
 	const remove_reference<Type>* ptr() const { return ptr_; }
 	      remove_reference<Type>* ptr()       { return ptr_; }

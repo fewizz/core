@@ -27,6 +27,12 @@ public:
 
 	constexpr const Type* sentinel() const & { return array_ + Size; }
 	constexpr       Type* sentinel()       & { return array_ + Size; }
+
+	// for compatibility
+	constexpr const Type* begin() const & { return array_; }
+	constexpr       Type* begin()       & { return array_; }
+	constexpr const Type* end() const & { return array_ + Size; }
+	constexpr       Type* end()       & { return array_ + Size; }
 };
 
 template<typename... Types>

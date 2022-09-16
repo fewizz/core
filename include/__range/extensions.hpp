@@ -29,6 +29,12 @@ public:
 	constexpr auto sentinel() const { return range_sentinel(range_()); }
 	constexpr auto sentinel()       { return range_sentinel(range_()); }
 
+	// for compatibility
+	constexpr basic_iterator auto begin() const { return iterator(); }
+	constexpr basic_iterator auto begin()       { return iterator(); }
+	constexpr auto end() const { return sentinel(); }
+	constexpr auto end()       { return sentinel(); }
+
 	template<typename Element>
 	constexpr bool contains(Element&& element) const;
 

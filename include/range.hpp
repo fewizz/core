@@ -2,6 +2,7 @@
 
 #include "./__range/extensions_implementation.hpp"
 #include "./__range/contiguous.hpp"
+#include "./__range/of_value_type_satisfying_predicate.hpp"
 
 template<basic_range Range>
 class range : range_extensions<range<Range>> {
