@@ -11,11 +11,11 @@ template<
 class list : public range_extensions<list<StorageRange>> {
 	using element_type = storage_element_type<range_element_type<StorageRange>>;
 	using size_type = range_size_type<StorageRange>;
-	StorageRange storage_range_;
+	StorageRange storage_range_{};
 	range_iterator_type<StorageRange> storage_iterator_;
 public:
 
-	constexpr list() = default;
+	constexpr list() : storage_iterator_{ storage_range_.iterator() } {}
 
 	constexpr list(StorageRange&& storage_range) :
 		storage_range_{ forward<StorageRange>(storage_range) },
