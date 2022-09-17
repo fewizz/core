@@ -2,6 +2,7 @@
 
 #include "./sized.hpp"
 #include "./size.hpp"
+#include "./extensions.hpp"
 #include "../__iterator/basic.hpp"
 #include "../forward.hpp"
 
@@ -13,38 +14,50 @@ private:
 	Iterator iterator_;
 public:
 
-	reverse_view_iterator(Iterator iterator) : iterator_{ iterator } {}
+	constexpr reverse_view_iterator(Iterator iterator) : iterator_{ iterator } {}
 
-	decltype(auto) operator * () {
+	constexpr decltype(auto) operator * () const {
+		Iterator cpy = iterator_;
+		--cpy;
+		return *cpy;
+	}
+	constexpr decltype(auto) operator * () {
 		Iterator cpy = iterator_;
 		--cpy;
 		return *cpy;
 	}
 
-	reverse_view_iterator& operator ++ () {
-		--iterator_;
-		return *this;
+	constexpr auto& operator ++ () { --iterator_; return *this; }
+	constexpr auto& operator -- () { ++iterator_; return *this; }
+	constexpr auto& operator += (nuint n) { iterator_ -= n; return *this; }
+	constexpr auto& operator -= (nuint n) { iterator_ += n; return *this; }
+
+	constexpr bool operator == (reverse_view_iterator other) const {
+		return iterator_ == other.iterator_;
 	}
 
-	bool operator == (reverse_view_iterator other) const {
-		return other.iterator_ == iterator_;
-	}
+	friend constexpr bool operator == (
+		reverse_view_iterator a, Iterator b
+	) { return a.iterator_ == b; }
+	friend constexpr bool operator == (
+		Iterator a, reverse_view_iterator b
+	) { return a == b.iterator_; }
 
-	bool operator != (reverse_view_iterator other) const {
-		return other.iterator_ != iterator_;
+	constexpr auto operator + (nuint n) const {
+		return reverse_view_iterator{ *this } += n;
 	}
 
 };
 
 template<sized_range Range>
-struct reverse_view {
+struct reverse_view : range_extensions<reverse_view<Range>> {
 private:
 	Range range_;
 public:
 
-	reverse_view(Range&& range): range_{ forward<Range>(range) } {}
+	constexpr reverse_view(Range&& range): range_{ forward<Range>(range) } {}
 
-	auto iterator() {
+	constexpr auto iterator() {
 		auto it   = range_iterator(range_);
 		auto size = range_size(range_);
 		// avoid applying non-zero offset  to null pointer
@@ -53,14 +66,14 @@ public:
 		};
 	}
 
-	auto sentinel() {
+	constexpr auto sentinel() {
 		return reverse_view_iterator {
 			range_iterator(range_)
 		};
 	}
 
-	auto size() {
-		return range_.size();
+	constexpr auto size() {
+		return range_size(range_);
 	}
 
 };

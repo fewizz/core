@@ -20,8 +20,9 @@
 template<typename... Types>
 class variant {
 	using storage_type = __variant::storage<Types...>;
+	using index_type = uint_for_states_count<sizeof...(Types)>;
 	storage_type storage_{};
-	nuint current_;
+	index_type current_;
 
 	template<typename Type>
 	static constexpr bool has_one_such_type =
@@ -67,7 +68,7 @@ class variant {
 
 public:
 
-	template<nuint Index>
+	template<index_type Index>
 	using type_at = type_at_index<Index, Types...>;
 
 	template<typename Type>

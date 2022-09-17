@@ -30,7 +30,7 @@ public:
 	// TODO contiguous range, range_size_type
 	template<sized_range Range>
 	constexpr span(Range&& range) :
-		ptr_{ range.elements_ptr() }, size_{ (SizeType) range_size(range) }
+		ptr_{ range.iterator() }, size_{ (SizeType) range_size(range) }
 	{}
 
 	constexpr SizeType size() const { return size_; }
@@ -47,9 +47,6 @@ public:
 	constexpr const Type& operator [] (SizeType index) const {
 		return ptr_[index];
 	}
-
-	constexpr       Type* elements_ptr()       { return ptr_; }
-	constexpr const Type* elements_ptr() const { return ptr_; }
 
 	template<typename CastType>
 	constexpr span<CastType> cast() {
@@ -113,9 +110,6 @@ public:
 
 	constexpr it sentinel() const { return { ptr_ + size_ }; }
 	constexpr it sentinel()       { return { ptr_ + size_ }; }
-
-	constexpr const Type** elements_ptr() const { return ptr_; }
-	constexpr       Type** elements_ptr()       { return ptr_; }
 
 	constexpr const Type& operator [] (size_type index) const {
 		return **(ptr_ + index);

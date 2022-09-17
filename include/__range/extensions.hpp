@@ -3,7 +3,6 @@
 #include "./extensions_declaration.hpp"
 #include "./sized.hpp"
 #include "./size_type.hpp"
-#include "../iterator_and_sentinel.hpp"
 
 template<typename Derived>
 struct range_extensions {
@@ -51,6 +50,34 @@ public:
 	constexpr auto flat_view() const && ;
 	constexpr auto flat_view()       && ;
 
+	constexpr auto dereference_view() const &  ;
+	constexpr auto dereference_view()       &  ;
+	constexpr auto dereference_view() const && ;
+	constexpr auto dereference_view()       && ;
+
+	constexpr auto reverse_view() const &  ;
+	constexpr auto reverse_view()       &  ;
+	constexpr auto reverse_view() const && ;
+	constexpr auto reverse_view()       && ;
+
+	template<typename Predicate>
+	constexpr auto filter_view(Predicate&&) const &  ;
+	template<typename Predicate>
+	constexpr auto filter_view(Predicate&&)       &  ;
+	template<typename Predicate>
+	constexpr auto filter_view(Predicate&&) const && ;
+	template<typename Predicate>
+	constexpr auto filter_view(Predicate&&)       && ;
+
+	template<typename Predicate>
+	constexpr auto transform_view(Predicate&&) const &  ;
+	template<typename Predicate>
+	constexpr auto transform_view(Predicate&&)       &  ;
+	template<typename Predicate>
+	constexpr auto transform_view(Predicate&&) const && ;
+	template<typename Predicate>
+	constexpr auto transform_view(Predicate&&)       && ;
+
 	constexpr nuint size() const {
 		static_assert(sized_range<Derived>);
 		return (nuint)(sentinel() - iterator());
@@ -77,11 +104,15 @@ public:
 	template<typename Predicate>
 	auto try_find_first_satisfying(Predicate&& predicate) const;
 
-	auto shrink_view(auto size) const {
-		return iterator_and_sentinel {
-			iterator(),
-			iterator() + size
-		}.as_range();
-	}
+	template<typename Predicate>
+	auto try_find_last_satisfying(Predicate&& predicate) const;
+
+	template<typename Predicate>
+	auto try_find_index_of_first_satisfying(Predicate&& predicate) const;
+
+	template<typename Predicate>
+	auto try_find_index_of_last_satisfying(Predicate&& predicate) const;
+
+	auto shrink_view(auto size) const;
 
 };

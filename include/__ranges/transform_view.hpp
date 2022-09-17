@@ -4,6 +4,7 @@
 #include "../__range/basic.hpp"
 #include "../__range/iterator.hpp"
 #include "../__range/sentinel.hpp"
+#include "../__range/extensions.hpp"
 #include "../forward.hpp"
 
 namespace __ranges {
@@ -61,7 +62,9 @@ constexpr bool operator == (
 }
 
 template<typename Function, basic_range Range>
-class transform_view<Function, Range> {
+class transform_view<Function, Range> :
+	public range_extensions<transform_view<Function, Range>>
+{
 	Range range_;
 	Function function_;
 public:

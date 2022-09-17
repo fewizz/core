@@ -5,7 +5,7 @@
 #include "./__range/of_value_type_satisfying_predicate.hpp"
 
 template<basic_range Range>
-class range : range_extensions<range<Range>> {
+class range : public range_extensions<range<Range>> {
 	Range range_;
 public:
 
@@ -18,3 +18,6 @@ public:
 	constexpr auto sentinel()       { return range_sentinel(range_); }
 
 };
+
+template<basic_range Range>
+range(Range&&) -> range<Range>;

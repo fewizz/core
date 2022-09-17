@@ -97,3 +97,20 @@ namespace __type {
 	constexpr inline bool is_integer = integer<Type>;
 
 }
+
+template<uint64 StatesCount>
+requires(StatesCount <= (uint64{0} - uint64{1}))
+using uint_for_states_count = typename
+	if_satisfies<(StatesCount <= (uint64{ 1 } << 8))>::template
+	then<uint8>::template
+	otherwise<
+		typename if_satisfies<(StatesCount <= (uint64{ 1 } << 16))>::template
+		then<uint16>::template
+		otherwise<
+			typename if_satisfies<(StatesCount <= (uint64{ 1 } << 32))>::template
+			then<uint32>::template
+			otherwise<
+				uint64
+			>
+		>
+	>;

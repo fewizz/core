@@ -4,6 +4,7 @@
 #include "./default_sentinel.hpp"
 #include "./iterator.hpp"
 #include "./sentinel.hpp"
+#include "./extensions.hpp"
 #include "../__iterator/basic.hpp"
 #include "../__iterator/element_type.hpp"
 
@@ -52,7 +53,7 @@ public:
 };
 
 template<basic_range Range, typename Predicate>
-class filter_view {
+class filter_view : public range_extensions<filter_view<Range, Predicate>> {
 	Range range_;
 	Predicate predicate_;
 public:

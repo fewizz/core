@@ -6,12 +6,12 @@
 #include "../__type/remove_reference.hpp"
 #include "../__iterator/basic.hpp"
 
-template<typename Type>
+template<typename RangeType>
 concept basic_range =
-	requires(Type r) {
+	requires(RangeType r) {
 		{ r.iterator() } -> basic_iterator;
 		r.sentinel();
 		r.iterator() == r.sentinel();
 		r.iterator() != r.sentinel();
 	} ||
-	type_is_array<remove_reference<Type>>;
+	type_is_array<remove_reference<RangeType>>;

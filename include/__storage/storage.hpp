@@ -2,6 +2,7 @@
 
 #include "../__range/extensions.hpp"
 #include "../forward.hpp"
+#include "../move.hpp"
 
 template<typename Type>
 struct storage : range_extensions<storage<Type>> {
@@ -14,11 +15,23 @@ struct storage : range_extensions<storage<Type>> {
 	constexpr auto sentinel()       { return data + sizeof(Type); }
 
 	template<typename... Args>
-	void construct(Args&&... args) {
-		new (data) Type(forward<Args>(args)...);
+	Type& construct(Args&&... args) {
+		Type* ptr = new (data) Type(forward<Args>(args)...);
+		return *ptr;
 	}
 
 	void destruct() {
 		((Type*)data)->~Type();
 	}
+
+	Type&& move() {
+		Type& e = *(Type*)data;
+		return ::move(e);
+	}
+
+	const Type&  get() const &  { return *(Type*)data; }
+	      Type&  get()       &  { return *(Type*)data; }
+
+	const Type&& get() const && { return move(); }
+	      Type&& get()       && { return move(); }
 };

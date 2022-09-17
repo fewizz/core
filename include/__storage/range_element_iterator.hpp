@@ -6,10 +6,18 @@
 #include "../__iterator/contiguous.hpp"
 
 template<basic_iterator Iterator>
+struct storage_range_element_iterator;
+
+template<basic_iterator Iterator>
 class storage_range_element_iterator_base {
 	Iterator iterator_;
+	using Derived = storage_range_element_iterator<Iterator>;
 	using storage_type = iterator_element_type<Iterator>;
 	using element_type = storage_element_type<storage_type>;
+
+	const Derived& derived() const { return (const Derived&) *this; }
+	      Derived& derived()       { return (      Derived&) *this; }
+
 public:
 
 	storage_range_element_iterator_base(
@@ -25,10 +33,8 @@ public:
 		return *(      element_type*) &s;
 	}
 
-	storage_range_element_iterator_base& operator ++ () {
-		++iterator_;
-		return *this;
-	}
+	Derived& operator ++ () { ++iterator_; return derived(); }
+	Derived& operator -- () { --iterator_; return derived(); }
 
 	bool operator == (storage_range_element_iterator_base other) const {
 		return iterator_ == other.iterator_;
@@ -42,15 +48,8 @@ public:
 		Iterator i1, storage_range_element_iterator_base i0
 	) { return i0.iterator_ == i1; }
 
-	storage_range_element_iterator_base& operator += (nuint n) {
-		iterator_ += n;
-		return *this;
-	}
-
-	storage_range_element_iterator_base& operator -= (nuint n) {
-		iterator_ -= n;
-		return *this;
-	}
+	Derived& operator += (nuint n) { iterator_ += n; return derived(); }
+	Derived& operator -= (nuint n) { iterator_ -= n; return derived(); }
 
 	friend nuint operator - (
 		storage_range_element_iterator_base i0,
@@ -61,13 +60,13 @@ public:
 		storage_range_element_iterator_base i, nuint n
 	) { return storage_range_element_iterator_base{i} -= n; }
 
-	friend storage_range_element_iterator_base operator + (
-		storage_range_element_iterator_base i, nuint n
-	) { return storage_range_element_iterator_base{i} += n; }
+	friend Derived operator + (Derived i, nuint n) {
+		return Derived{ i } += n;
+	}
 
-	friend storage_range_element_iterator_base operator + (
-		nuint n, storage_range_element_iterator_base i
-	) { return storage_range_element_iterator_base{i} += n; }
+	friend Derived operator + (nuint n, Derived i) {
+		return Derived{i} += n;
+	}
 
 };
 

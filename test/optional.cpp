@@ -17,4 +17,11 @@ int main() {
 		if(!o.is<float>()) return 6;
 		if(o.get<float>() != 4.0F) return 7;
 	}
+	{
+		int a = 54;
+		optional<int&> o = a;
+		a = 42;
+		if(o.has_no_value()) return 8;
+		if(o.value() != 42) return 9;
+	}
 }

@@ -4,6 +4,7 @@
 #include "./placement_new.hpp"
 #include "./iterator_and_sentinel.hpp"
 #include "./__range/extensions.hpp"
+#include "./__type/is_move_constructible.hpp"
 
 template<
 	storage_range StorageRange
@@ -21,8 +22,15 @@ public:
 
 	constexpr list(StorageRange&& storage_range) :
 		storage_range_{ forward<StorageRange>(storage_range) },
-		storage_iterator_{ storage_range_.iterator() }
+		storage_iterator_{ range_iterator(storage_range_) }
 	{}
+
+	constexpr auto& operator = (StorageRange&& storage_range) {
+		clear();
+		storage_range_ = move(storage_range);
+		storage_iterator_ = range_iterator(storage_range_);
+		return *this;
+	}
 
 	storage_range_element_iterator<const_iterator_type> iterator() const {
 		return storage_range_element_iterator{ storage_range_.iterator() };
@@ -31,23 +39,43 @@ public:
 		return storage_range_element_iterator{ storage_range_.iterator() };
 	}
 
-	range_sentinel_type<const StorageRange> sentinel() const {
-		return storage_iterator_;
-	}
-	range_sentinel_type<StorageRange>       sentinel()       {
-		return storage_iterator_;
+	auto sentinel() const { return storage_iterator_; }
+	auto sentinel()       { return storage_iterator_; }
+
+	template<typename... Args>
+	constexpr element_type& emplace_back(Args&&... args) {
+		return (*(storage_iterator_++)).construct(forward<Args>(args)...);
 	}
 
 	template<typename... Args>
-	constexpr void emplace_back(Args&&... args) {
-		(*storage_iterator_).construct(forward<Args>(args)...);
-		++storage_iterator_;
+	constexpr void emplace_at(size_type index, Args&&... args) {
+		auto& s = *(range_iterator(storage_range_) + index);
+		s.destruct();
+		s.construct(forward<Args>(args)...);
 	}
 
-	constexpr void pop_back() {
+	constexpr element_type
+	pop_back() requires move_constructible<element_type> {
+		--storage_iterator_;
+		element_type e = (*storage_iterator_).move();
+		(*storage_iterator_).destruct();
+		return e;
+	}
+	constexpr void
+	pop_back() requires (!move_constructible<element_type>) {
 		--storage_iterator_;
 		(*storage_iterator_).destruct();
 	}
+
+	constexpr void pop_back(nuint n) {
+		while(n > 0) {
+			pop_back();
+			--n;
+		}
+	}
+
+	auto& back() const & { return (*(storage_iterator_ - 1)).get(); }
+	auto& back()       & { return (*(storage_iterator_ - 1)).get(); }
 
 	constexpr size_type capacity() const {
 		return range_size(storage_range_);
@@ -65,7 +93,7 @@ public:
 
 	template<basic_range Range>
 	constexpr void put_back_copied_elements_of(Range&& other) {
-		for(decltype(auto) e : other) {
+		for(auto& e : other) {
 			emplace_back(forward<decltype(e)>(e));
 		}
 	}

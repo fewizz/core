@@ -4,12 +4,15 @@
 #include "../__iterator/basic.hpp"
 #include "../__range/iterator.hpp"
 #include "../__range/sentinel.hpp"
+#include "../__range/extensions.hpp"
 #include "../__range/default_sentinel.hpp"
 
 namespace __iterator_and_sentinel {
 
 template<basic_iterator Iterator, typename Sentinel>
-class range_on_iterator_and_sentinel {
+class range_on_iterator_and_sentinel :
+	public range_extensions<range_on_iterator_and_sentinel<Iterator, Sentinel>>
+{
 	Iterator iterator_;
 	Sentinel sentinel_;
 public:
@@ -21,8 +24,10 @@ public:
 		sentinel_{ sentinel }
 	{}
 
-	constexpr Iterator iterator() const { return iterator_; }
-	constexpr Sentinel sentinel() const { return sentinel_; }
+	constexpr Iterator iterator() const { return iterator_;  }
+	constexpr Iterator begin()    const { return iterator(); }
+	constexpr Sentinel sentinel() const { return sentinel_;  }
+	constexpr Sentinel end()      const { return sentinel(); }
 
 	constexpr decltype(auto) operator [] (nuint index) const {
 		return iterator_[index];
