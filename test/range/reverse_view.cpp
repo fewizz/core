@@ -1,5 +1,3 @@
-#pragma once
-
 #include <__range/reverse_view.hpp>
 #include <__range/element_type.hpp>
 #include <array.hpp>

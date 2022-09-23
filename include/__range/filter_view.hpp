@@ -33,9 +33,8 @@ public:
 		skip();
 	}
 
-	constexpr element_type operator * () {
-		return *iterator_;
-	}
+	constexpr decltype(auto) operator * () const { return *iterator_; }
+	constexpr decltype(auto) operator * ()       { return *iterator_; }
 
 	constexpr filter_view_iterator& operator ++ () {
 		++iterator_;

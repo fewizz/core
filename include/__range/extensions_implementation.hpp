@@ -16,7 +16,7 @@ template<typename Derived>
 template<basic_range OtherRange>
 constexpr void range_extensions<Derived>::copy_to(
 	OtherRange&& other_range
-) const {
+) const & {
 	__range::copy{ range_() }.to( forward<OtherRange>(other_range) );
 }
 
@@ -89,6 +89,27 @@ constexpr auto range_extensions<Derived>::reverse_view()       && {
 	return __range::reverse_view{ move(range_()) };
 }
 
+#include "./sized_view.hpp"
+
+template<typename Derived>
+constexpr auto range_extensions<Derived>::sized_view() const &  {
+	return __range::sized_view{ range_(), get_or_compute_size() };
+}
+template<typename Derived>
+constexpr auto range_extensions<Derived>::sized_view()       &  {
+	return __range::sized_view{ range_(), get_or_compute_size() };
+}
+template<typename Derived>
+constexpr auto range_extensions<Derived>::sized_view() const && {
+	auto size = get_or_compute_size();
+	return __range::sized_view{ move(range_()), size };
+}
+template<typename Derived>
+constexpr auto range_extensions<Derived>::sized_view()       && {
+	auto size = get_or_compute_size();
+	return __range::sized_view{ move(range_()), size };
+}
+
 #include "./filter_view.hpp"
 
 template<typename Derived> template<typename Predicate>
@@ -134,10 +155,9 @@ template<typename Handler>
 decltype(auto)
 range_extensions<Derived>::view_copied_elements_on_stack(
 	Handler&& handler
-) const {
+) const  &  {
 	return __range::view_copied_elements_on_stack(
-		range_(),
-		forward<Handler>(handler)
+		range_(), forward<Handler>(handler)
 	);
 }
 template<typename Derived>
@@ -145,10 +165,29 @@ template<typename Handler>
 decltype(auto)
 range_extensions<Derived>::view_copied_elements_on_stack(
 	Handler&& handler
-) {
+)        &  {
 	return __range::view_copied_elements_on_stack(
-		range_(),
-		forward<Handler>(handler)
+		move(range_()), forward<Handler>(handler)
+	);
+}
+template<typename Derived>
+template<typename Handler>
+decltype(auto)
+range_extensions<Derived>::view_copied_elements_on_stack(
+	Handler&& handler
+) const  && {
+	return __range::view_copied_elements_on_stack(
+		move(range_()), forward<Handler>(handler)
+	);
+}
+template<typename Derived>
+template<typename Handler>
+decltype(auto)
+range_extensions<Derived>::view_copied_elements_on_stack(
+	Handler&& handler
+)        && {
+	return __range::view_copied_elements_on_stack(
+		move(range_()), forward<Handler>(handler)
 	);
 }
 
@@ -160,7 +199,7 @@ auto range_extensions<Derived>::try_find_first_satisfying(
 	Predicate&& predicate
 ) const {
 	return __range::try_find_first_satisfying(
-		*this,
+		range_(),
 		forward<Predicate>(predicate)
 	);
 }
@@ -184,7 +223,7 @@ auto range_extensions<Derived>::try_find_index_of_first_satisfying(
 	Predicate&& predicate
 ) const {
 	return __range::try_find_index_of_first_satisfying(
-		*this,
+		range_(),
 		forward<Predicate>(predicate)
 	);
 }
@@ -197,7 +236,7 @@ auto range_extensions<Derived>::try_find_index_of_last_satisfying(
 	Predicate&& predicate
 ) const {
 	return __range::try_find_index_of_last_satisfying(
-		*this,
+		range_(),
 		forward<Predicate>(predicate)
 	);
 }
@@ -210,4 +249,27 @@ auto range_extensions<Derived>::shrink_view(auto size) const {
 		iterator(),
 		iterator() + size
 	}.as_range();
+}
+
+#include "./starts_with.hpp"
+
+template<typename Derived>
+template<typename... With>
+bool range_extensions<Derived>::starts_with(With&&... with) const & {
+	return __range::starts_with(range_(), forward<With>(with)...);
+}
+
+#include "./ends_with.hpp"
+
+template<typename Derived>
+template<typename... With>
+bool range_extensions<Derived>::ends_with(With&&... with) const & {
+	return __range::ends_with(range_(), forward<With>(with)...);
+}
+
+template<typename Derived>
+nuint range_extensions<Derived>::get_or_compute_size() const {
+	return iterator_and_sentinel {
+		iterator(), sentinel()
+	}.get_or_compute_distance();
 }

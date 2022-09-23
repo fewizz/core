@@ -38,7 +38,7 @@ public:
 	constexpr bool contains(Element&& element) const;
 
 	template<basic_range OtherRange>
-	constexpr void copy_to(OtherRange&& other_range) const;
+	constexpr void copy_to(OtherRange&& other_range) const &;
 
 	template<basic_range OtherRange>
 	constexpr bool have_elements_equal_to(
@@ -59,6 +59,11 @@ public:
 	constexpr auto reverse_view()       &  ;
 	constexpr auto reverse_view() const && ;
 	constexpr auto reverse_view()       && ;
+
+	constexpr auto sized_view() const &  ;
+	constexpr auto sized_view()       &  ;
+	constexpr auto sized_view() const && ;
+	constexpr auto sized_view()       && ;
 
 	template<typename Predicate>
 	constexpr auto filter_view(Predicate&&) const &  ;
@@ -96,10 +101,13 @@ public:
 	}
 
 	template<typename Handler>
-	decltype(auto) view_copied_elements_on_stack(Handler&& handler) const;
-
+	decltype(auto) view_copied_elements_on_stack(Handler&& handler) const & ;
 	template<typename Handler>
-	decltype(auto) view_copied_elements_on_stack(Handler&& handler);
+	decltype(auto) view_copied_elements_on_stack(Handler&& handler)       & ;
+	template<typename Handler>
+	decltype(auto) view_copied_elements_on_stack(Handler&& handler) const &&;
+	template<typename Handler>
+	decltype(auto) view_copied_elements_on_stack(Handler&& handler)       &&;
 
 	template<typename Predicate>
 	auto try_find_first_satisfying(Predicate&& predicate) const;
@@ -114,5 +122,13 @@ public:
 	auto try_find_index_of_last_satisfying(Predicate&& predicate) const;
 
 	auto shrink_view(auto size) const;
+
+	template<typename... With>
+	bool starts_with(With&&... with) const &;
+
+	template<typename... With>
+	bool ends_with(With&&... with) const &;
+
+	nuint get_or_compute_size() const;
 
 };

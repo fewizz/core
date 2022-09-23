@@ -12,6 +12,8 @@ private:
 	Type array_[Size];
 public:
 
+	static constexpr bool is_borrowed_range = false;
+
 	template<typename... Args>
 	constexpr array(Args&&... args) :
 		array_{ forward<Args>(args)... }

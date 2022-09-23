@@ -55,7 +55,7 @@ public:
 	requires single
 	Derived& set_if_has_no_value(Handler&& handler) {
 		if(derived().has_no_value()) {
-			*this = handler();
+			derived() = handler();
 		}
 		return derived();
 	}
@@ -110,13 +110,15 @@ public:
 };
 
 template<typename Type>
-class optional<Type&> : public optional_extensions<optional<Type*>, Type> {
+class optional<Type&> : public optional_extensions<optional<Type&>, Type> {
 	Type* ptr_;
 public:
 
 	optional() : ptr_{ nullptr } {}
 
 	optional(Type& element) : ptr_{ &element } {}
+
+	optional& operator = (Type& element) { ptr_ = &element; return *this; }
 
 	bool has_value() const { return ptr_ != nullptr; }
 

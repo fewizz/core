@@ -5,6 +5,8 @@
 #include "./element_type.hpp"
 #include "./default_sentinel.hpp"
 #include "./extensions.hpp"
+#include "./borrowed.hpp"
+#include "../optional.hpp"
 #include "../__iterator/basic.hpp"
 #include "../__iterator/element_type.hpp"
 
@@ -40,15 +42,14 @@ public:
 		sentinel_{ sentinel }
 	{
 		if(iterator_ != sentinel) {
-			internal_iterator_ = range_iterator(*iterator);
-			internal_sentinel_ = range_sentinel(*iterator);
+			internal_iterator_ = range_iterator(*iterator_);
+			internal_sentinel_ = range_sentinel(*iterator_);
 			skip_empty();
 		}
 	}
 
-	constexpr decltype(auto) operator * () {
-		return *internal_iterator_;
-	}
+	constexpr decltype(auto) operator * () const { return *internal_iterator_; }
+	constexpr decltype(auto) operator * ()       { return *internal_iterator_; }
 
 	constexpr flat_view_iterator& operator ++ () {
 		++internal_iterator_;
@@ -66,14 +67,18 @@ public:
 };
 
 template<basic_range Range>
-requires basic_range<range_element_type<Range>>
 class flat_view :
 	public range_extensions<flat_view<Range>>
 {
 	Range range_;
 public:
 
-	constexpr flat_view(Range&& range) : range_{ forward<Range>(range) } {}
+	static constexpr bool is_borrowed_range = borrowed_range<Range>;
+
+	constexpr flat_view(Range&& range)
+	requires borrowed_range<range_element_type<Range>> :
+		range_{ forward<Range>(range) }
+	{}
 
 	constexpr auto iterator() const {
 		return flat_view_iterator {
@@ -86,8 +91,8 @@ public:
 		};
 	}
 
-	constexpr auto sentinel() const { return default_sentinel{}; }
-	constexpr auto sentinel()       { return default_sentinel{}; }
+	constexpr default_sentinel sentinel() const { return {}; }
+	constexpr default_sentinel sentinel()       { return {}; }
 };
 
 template<basic_range Range>

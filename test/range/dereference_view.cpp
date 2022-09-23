@@ -1,5 +1,3 @@
-#pragma once
-
 #include <__range/dereference_view.hpp>
 #include <array.hpp>
 

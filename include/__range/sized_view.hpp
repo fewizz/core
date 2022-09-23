@@ -1,16 +1,20 @@
 #pragma once
 
+#include "./borrowed.hpp"
 #include "./basic.hpp"
 #include "./iterator.hpp"
 #include "./sentinel.hpp"
+#include "./extensions.hpp"
 
 namespace __range {
 
 template<basic_range Range>
-class sized_view {
+class sized_view : public range_extensions<sized_view<Range>> {
 	Range range_;
 	nuint size_;
 public:
+
+	static constexpr bool is_borrowed_range = borrowed_range<Range>;
 
 	constexpr sized_view(Range&& range, nuint size) :
 		range_{ forward<Range>(range) },

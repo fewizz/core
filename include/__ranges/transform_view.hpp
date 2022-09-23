@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../__range/borrowed.hpp"
 #include "../__range/size.hpp"
 #include "../__range/basic.hpp"
 #include "../__range/iterator.hpp"
@@ -28,10 +29,10 @@ public:
 
 	constexpr Iterator iterator_copy() { return iterator_; }
 
-	constexpr decltype(auto) operator * ()       {
+	constexpr decltype(auto) operator * () const {
 		return function_(*iterator_);
 	}
-	constexpr decltype(auto) operator * () const {
+	constexpr decltype(auto) operator * ()       {
 		return function_(*iterator_);
 	}
 
@@ -39,27 +40,21 @@ public:
 		++iterator_; return *this;
 	}
 
+	template<typename Sentinel>
+	friend constexpr bool operator == (
+		transform_view_iterator tvi, Sentinel sentinel
+	) { return tvi.iterator_copy() == sentinel; }
+
+	template<typename Sentinel>
+	friend constexpr bool operator == (
+		Sentinel sentinel, transform_view_iterator tvi
+	) { return tvi.iterator_copy() == sentinel; }
+
 };
 
 template<typename Function, typename Iterator>
 transform_view_iterator(Iterator, Function&)
 	-> transform_view_iterator<Function, Iterator>;
-
-template<typename Function, typename Iterator, typename Sentinel>
-constexpr bool operator == (
-	transform_view_iterator<Iterator, Function> tvi,
-	Sentinel sentinel
-) {
-	return tvi.iterator_copy() == sentinel;
-}
-
-template<typename Function, typename Iterator, typename Sentinel>
-constexpr bool operator == (
-	Sentinel sentinel,
-	transform_view_iterator<Iterator, Function> tvi
-) {
-	return tvi.iterator_copy() == sentinel;
-}
 
 template<typename Function, basic_range Range>
 class transform_view<Function, Range> :
@@ -68,6 +63,13 @@ class transform_view<Function, Range> :
 	Range range_;
 	Function function_;
 public:
+
+	static constexpr bool is_borrowed_range = borrowed_range<
+		Range
+		//decltype(
+		//	expression_of_type<Function>(*range_iterator(range_))
+		//)
+	>;
 
 	constexpr transform_view(Range&& range, Function&& function) :
 		range_{ forward<Range>(range) },

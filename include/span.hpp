@@ -17,6 +17,8 @@ protected:
 	SizeType size_;
 public:
 
+	static constexpr bool is_borrowed_range = true;
+
 	constexpr span() = default;
 
 	constexpr span(Type* ptr, SizeType size) : ptr_{ ptr }, size_{ size } {}

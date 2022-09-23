@@ -30,6 +30,8 @@ private:
 	const Type* ptr_;
 public:
 
+	static constexpr bool is_borrowed_range = true;
+
 	constexpr c_string(const Type* ptr) : ptr_{ ptr } {}
 
 	constexpr const Type*       iterator() const { return ptr_; }

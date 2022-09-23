@@ -209,7 +209,7 @@ public:
 	template<typename Type>
 	requires (
 		!has_one_assignable_and_constructible_from<Type> &&
-		is_constructible_from<variant, Type>
+		constructible_from<variant, Type>
 	)
 	constexpr variant& operator = (Type&& value) {
 		(*this) = variant(forward<Type>(value));

@@ -8,6 +8,7 @@
 #include "../__range/extensions.hpp"
 #include "../__iterator/element_type.hpp"
 #include "../__iterator_and_sentinel/get_or_compute_distance.hpp"
+#include "../__iterator/random_access.hpp"
 #include "../forward.hpp"
 #include "../tuple.hpp"
 #include "../__types/common.hpp"
@@ -358,21 +359,23 @@ class concat_view_iterator {
 				[&]<nuint Index>(auto& pair) {
 					return [&]<nuint... Indices>(indices::of<Indices...>) {
 						nuint len = (
-							__iterator_and_sentinel::get_or_compute_distance(
-								it(other.pairs_.template at<Indices>()),
-								end(other.pairs_.template at<Indices>())
+							(
+								end(other.pairs_.template at<Indices>()) -
+								it(other.pairs_.template at<Indices>())
 							)
 							+ ... + 0
 						);
-						len +=
-							__iterator_and_sentinel::get_or_compute_distance(
-								it(other.pairs_.template at<Index>()),
-								it(pair)
-							);
+						len += it(pair) - it(other.pairs_.template at<Index>());
 						return len;
 					}(typename indices::from<OtherIndex>::template to<Index>{});
 				}
 			);
+		});
+	}
+
+	constexpr nuint dist() const {
+		return pairs_.pass([&](auto&... pairs) {
+			return ((end(pairs) - it(pairs)) + ...);
 		});
 	}
 
@@ -414,7 +417,15 @@ public:
 	}
 
 	constexpr auto operator - (concat_view_iterator other) const {
+		static_assert((random_access_iterator<pair_iterator_type<Pairs>> && ...));
 		return dist(other);
+	}
+
+	friend constexpr auto operator - (
+		default_sentinel, concat_view_iterator it
+	) {
+		static_assert((random_access_iterator<pair_iterator_type<Pairs>> && ...));
+		return it.dist();
 	}
 
 	constexpr bool operator == (concat_view_iterator other) const {
@@ -446,7 +457,7 @@ public:
 };
 
 template<basic_range... Ranges>
-class concat_view : range_extensions<concat_view<Ranges...>> {
+class concat_view : public range_extensions<concat_view<Ranges...>> {
 	tuple<Ranges...> ranges_;
 public:
 
