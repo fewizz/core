@@ -9,9 +9,7 @@
 #include "./__range/extensions.hpp"
 
 template<typename Type, unsigned_integer SizeType = nuint>
-struct span :
-	range_extensions<span<Type, SizeType>>
-{
+struct span : range_extensions<span<Type, SizeType>> {
 protected:
 	Type* ptr_;
 	SizeType size_;
@@ -69,7 +67,7 @@ template<basic_range Range>
 span(Range&&) -> span<remove_reference<range_element_type<Range>>>;
 
 template<typename Type, unsigned_integer SizeType>
-struct span<Type&, SizeType> {
+struct span<Type&, SizeType> : range_extensions<span<Type&, SizeType>> {
 	using size_type = SizeType;
 private:
 	Type**    ptr_;

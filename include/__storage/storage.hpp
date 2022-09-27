@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../__range/extensions.hpp"
+#include "../__type/is_constructible_from.hpp"
 #include "../forward.hpp"
 #include "../move.hpp"
 
@@ -15,6 +16,7 @@ struct storage : range_extensions<storage<Type>> {
 	constexpr auto sentinel()       { return data + sizeof(Type); }
 
 	template<typename... Args>
+	requires constructible_from<Type, Args...>
 	Type& construct(Args&&... args) {
 		Type* ptr = new (data) Type(forward<Args>(args)...);
 		return *ptr;

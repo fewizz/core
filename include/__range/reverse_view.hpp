@@ -72,7 +72,7 @@ public:
 		};
 	}
 
-	constexpr auto size() {
+	constexpr auto size() const requires sized_range<Range> {
 		return range_size(range_);
 	}
 

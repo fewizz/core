@@ -13,9 +13,15 @@ namespace __range {
 		}
 
 		template<sized_range Range>
-		requires requires(Range& r) { r.size(); }
+		requires requires(Range r) { r.size(); }
 		constexpr auto operator () (Range&& range) const {
 			return range.size();
+		}
+
+		template<sized_range Range>
+		requires (!requires(Range r) { r.size(); })
+		constexpr nuint operator () (Range&& range) const {
+			return range.sentinel() - range.iterator();
 		}
 
 	};

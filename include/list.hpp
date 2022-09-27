@@ -77,6 +77,10 @@ public:
 	auto& back() const & { return (*(storage_iterator_ - 1)).get(); }
 	auto& back()       & { return (*(storage_iterator_ - 1)).get(); }
 
+	constexpr size_type size() const {
+		return storage_iterator_ - range_iterator(storage_range_);
+	}
+
 	constexpr size_type capacity() const {
 		return range_size(storage_range_);
 	}

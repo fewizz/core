@@ -72,6 +72,10 @@ public:
 	constexpr auto sentinel() const { return range_sentinel(range_); }
 	constexpr auto sentinel()       { return range_sentinel(range_); }
 
+	constexpr auto size() const requires sized_range<Range> {
+		return range_size(range_);
+	}
+
 };
 
 template<basic_range Range>

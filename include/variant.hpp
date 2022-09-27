@@ -189,7 +189,8 @@ public:
 			view_raw([&](auto& element) {
 				if constexpr(
 					assignable<
-						decltype(element), TypeToAssign
+						decltype(element),
+						decltype(forward<TypeToAssign>(value))
 					>
 				) {
 					element = forward<TypeToAssign>(value);

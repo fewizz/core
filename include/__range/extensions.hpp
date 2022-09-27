@@ -4,7 +4,7 @@
 #include "./sized.hpp"
 #include "./size_type.hpp"
 
-template<typename Derived>
+template<typename Derived, range_extensions_options Options>
 struct range_extensions {
 
 private:
@@ -82,15 +82,6 @@ public:
 	constexpr auto transform_view(Predicate&&) const && ;
 	template<typename Predicate>
 	constexpr auto transform_view(Predicate&&)       && ;
-
-	constexpr nuint size() const {
-		static_assert(sized_range<Derived>);
-		return (nuint)(sentinel() - iterator());
-	}
-	constexpr nuint size() {
-		static_assert(sized_range<Derived>);
-		return (nuint)(sentinel() - iterator());
-	}
 
 	constexpr decltype(auto) operator [] (nuint index) const {
 		return *(iterator() + index);

@@ -8,7 +8,9 @@ consteval bool f() {
 
 	array<int*, 3> ptrs_array{ &a, &b, &c };
 	dereference_view d{ ptrs_array };
+
 	static_assert(basic_range<decltype(d)>);
+	static_assert(sized_range<decltype(d)>);
 
 	if(d.size() != 3) throw;
 

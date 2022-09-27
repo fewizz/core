@@ -2,7 +2,7 @@
 
 #include "./basic.hpp"
 #include "./contains.hpp"
-#include "./of_value_type_same_as.hpp"
+#include "./of_element_type_same_as.hpp"
 #include "./default_sentinel.hpp"
 #include "../__iterator_and_sentinel/as_range.hpp"
 #include "./array_without_extensions.hpp"
@@ -100,7 +100,7 @@ constexpr inline bool operator == (
 
 template<
 	basic_range Range,
-	range_of<decay<range_element_type<Range>>> SplittersRange
+	range_of_decayed<decay<range_element_type<Range>>> SplittersRange
 >
 struct split_view {
 private:
