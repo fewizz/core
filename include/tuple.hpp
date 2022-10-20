@@ -34,9 +34,11 @@ struct tuple<indices::of<Indices...>, Types...> :
 
 	template<typename Type>
 	static constexpr bool only_one_such_type =
-		(count_of_satisfying_predicate<
-			is_same_as<Type>
-		> == 1).template for_type<Types...>();
+		(
+			count_of_satisfying_predicate<
+				is_same_as<Type>
+			> == 1
+		).template for_types<Types...>();
 
 	template<typename Type>
 	static constexpr nuint type_index =
@@ -84,23 +86,18 @@ public:
 	constexpr decltype(auto) at() const {
 		return get_from_storage<Index>(this);
 	}
-
 	template<nuint Index>
-	constexpr decltype(auto) at() {
+	constexpr decltype(auto) at()       {
 		return get_from_storage<Index>(this);
 	}
 
 	template<typename Type>
 	requires only_one_such_type<Type>
-	constexpr const Type& get() const {
-		return at<type_index<Type>>();
-	}
+	constexpr const Type& get() const { return at<type_index<Type>>(); }
 
 	template<typename Type>
 	requires only_one_such_type<Type>
-	constexpr Type& get() {
-		return at<type_index<Type>>();
-	}
+	constexpr       Type& get()       { return at<type_index<Type>>(); }
 
 	template<typename F>
 	constexpr void for_each(F&& f) const {
