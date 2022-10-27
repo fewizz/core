@@ -1,6 +1,7 @@
 #pragma once
 
 #include "./storage.hpp"
+#include "./exchange.hpp"
 #include "./placement_new.hpp"
 #include "./iterator_and_sentinel.hpp"
 #include "./__range/extensions.hpp"
@@ -25,11 +26,29 @@ public:
 		storage_iterator_{ range_iterator(storage_range_) }
 	{}
 
+	constexpr list(list&& other) :
+		storage_range_{ move(other.storage_range_) },
+		storage_iterator_{ exchange(other.storage_iterator_, iterator_type{}) }
+	{}
+
+	constexpr list& operator = (list&& other) {
+		storage_range_ = move(other.storage_range_);
+		storage_iterator_ = exchange(other.storage_iterator_, iterator_type{});
+		return *this;
+	}
+
 	constexpr auto& operator = (StorageRange&& storage_range) {
 		clear();
 		storage_range_ = move(storage_range);
 		storage_iterator_ = range_iterator(storage_range_);
 		return *this;
+	}
+
+	constexpr const StorageRange& storage_range() const {
+		return storage_range_;
+	}
+	constexpr       StorageRange& storage_range()       {
+		return storage_range_;
 	}
 
 	storage_range_element_iterator<const_iterator_type> iterator() const {

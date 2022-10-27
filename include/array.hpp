@@ -25,7 +25,6 @@ public:
 
 	constexpr const Type* iterator() const & { return array_; }
 	constexpr       Type* iterator()       & { return array_; }
-
 	constexpr const Type* sentinel() const & { return array_ + Size; }
 	constexpr       Type* sentinel()       & { return array_ + Size; }
 
