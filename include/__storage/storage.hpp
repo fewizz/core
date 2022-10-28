@@ -10,10 +10,7 @@ struct storage : range_extensions<storage<Type>> {
 	alignas(Type) uint8 data[sizeof(Type)];
 
 	constexpr auto iterator() const { return data; }
-	constexpr auto iterator()       { return data; }
-
 	constexpr auto sentinel() const { return data + sizeof(Type); }
-	constexpr auto sentinel()       { return data + sizeof(Type); }
 
 	template<typename... Args>
 	requires constructible_from<Type, Args...>
@@ -27,7 +24,7 @@ struct storage : range_extensions<storage<Type>> {
 	}
 
 	Type&& move() {
-		Type& e = *(Type*)data;
+		Type& e = *(Type*) data;
 		return ::move(e);
 	}
 

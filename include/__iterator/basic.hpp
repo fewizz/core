@@ -5,5 +5,5 @@
 
 template<typename Type>
 concept basic_iterator =
-	requires(Type& o) { *o; } &&
+	requires(Type o) { *o; } &&
 	requires(remove_const<remove_reference<Type>>& o) { ++o; };

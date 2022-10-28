@@ -6,6 +6,7 @@
 #include "./iterator_and_sentinel.hpp"
 #include "./__range/extensions.hpp"
 #include "./__type/is_move_constructible.hpp"
+#include "./__iterator/sentinel.hpp"
 
 template<
 	storage_range StorageRange
@@ -13,13 +14,17 @@ template<
 class list : public range_extensions<list<StorageRange>> {
 	using element_type = storage_element_type<range_element_type<StorageRange>>;
 	using size_type = range_size_type<StorageRange>;
-	using iterator_type = range_iterator_type<StorageRange>;
-	using const_iterator_type = range_iterator_type<const StorageRange>;
+	using storage_iterator_type = range_iterator_type<StorageRange>;
+	using storage_const_iterator_type = range_iterator_type<const StorageRange>;
+	using iterator_type = storage_range_element_iterator<storage_iterator_type>;
+	using const_iterator_type = storage_range_element_iterator<
+		storage_const_iterator_type
+	>;
 	StorageRange storage_range_{};
-	range_iterator_type<StorageRange> storage_iterator_;
+	range_iterator_type<StorageRange> storage_iterator_{};
 public:
 
-	constexpr list() : storage_iterator_{ storage_range_.iterator() } {}
+	constexpr list() = default;
 
 	constexpr list(StorageRange&& storage_range) :
 		storage_range_{ forward<StorageRange>(storage_range) },
@@ -28,21 +33,21 @@ public:
 
 	constexpr list(list&& other) :
 		storage_range_{ move(other.storage_range_) },
-		storage_iterator_{ exchange(other.storage_iterator_, iterator_type{}) }
+		storage_iterator_{ exchange(other.storage_iterator_, storage_iterator_type{}) }
 	{}
 
 	constexpr list& operator = (list&& other) {
 		storage_range_ = move(other.storage_range_);
-		storage_iterator_ = exchange(other.storage_iterator_, iterator_type{});
+		storage_iterator_ = exchange(other.storage_iterator_, storage_iterator_type{});
 		return *this;
 	}
 
-	constexpr auto& operator = (StorageRange&& storage_range) {
+	/*constexpr auto& operator = (StorageRange&& storage_range) {
 		clear();
 		storage_range_ = move(storage_range);
 		storage_iterator_ = range_iterator(storage_range_);
 		return *this;
-	}
+	}*/
 
 	constexpr const StorageRange& storage_range() const {
 		return storage_range_;
@@ -51,15 +56,19 @@ public:
 		return storage_range_;
 	}
 
-	storage_range_element_iterator<const_iterator_type> iterator() const {
-		return storage_range_element_iterator{ storage_range_.iterator() };
+	const_iterator_type iterator() const {
+		return { storage_range_.iterator() };
 	}
-	storage_range_element_iterator<      iterator_type> iterator() {
-		return storage_range_element_iterator{ storage_range_.iterator() };
+	iterator_type iterator() {
+		return { storage_range_.iterator() };
 	}
 
-	auto sentinel() const { return storage_iterator_; }
-	auto sentinel()       { return storage_iterator_; }
+	sentinel_for<const_iterator_type> auto sentinel() const {
+		return storage_iterator_;
+	}
+	sentinel_for<iterator_type>       auto sentinel()       {
+		return storage_iterator_;
+	}
 
 	template<typename... Args>
 	constexpr element_type& emplace_back(Args&&... args) {
@@ -76,7 +85,7 @@ public:
 	constexpr element_type
 	pop_back() requires move_constructible<element_type> {
 		--storage_iterator_;
-		element_type e = (*storage_iterator_).move();
+		auto&& e = (*storage_iterator_).move();
 		(*storage_iterator_).destruct();
 		return e;
 	}

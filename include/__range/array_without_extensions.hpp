@@ -18,9 +18,7 @@ public:
 		array_{ forward<Args>(args)... }
 	{}
 
-	constexpr nuint size() const {
-		return Size;
-	}
+	constexpr nuint size() const { return Size;}
 
 	constexpr const Type* iterator() const & { return array_; }
 	constexpr       Type* iterator()       & { return array_; }

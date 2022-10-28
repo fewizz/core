@@ -13,8 +13,8 @@ protected:
 
 public:
 
-	      UnderlyingType& underlying()       { return value_; }
 	const UnderlyingType& underlying() const { return value_; }
+	      UnderlyingType& underlying()       { return value_; }
 
 };
 

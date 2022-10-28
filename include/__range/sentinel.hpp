@@ -32,10 +32,3 @@ template<basic_range Range>
 constexpr auto end(Range&& range) {
 	return range_sentinel(range);
 }
-
-template<typename Sentinel, typename Iterator>
-concept basic_sentinel_of =
-	basic_iterator<Iterator> &&
-	requires(Sentinel s, Iterator i) {
-		s == i; s != i;
-	};

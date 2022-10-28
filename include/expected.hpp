@@ -27,16 +27,14 @@ public:
 	constexpr const UnexpectedType& get_unexpected() const {
 		return one_of.template get<UnexpectedType>();
 	}
-
-	constexpr UnexpectedType& get_unexpected() {
+	constexpr       UnexpectedType& get_unexpected()       {
 		return one_of.template get<UnexpectedType>();
 	}
 
 	constexpr const Type& get_expected() const {
 		return one_of.template get<Type>();
 	}
-
-	constexpr Type& get_expected() {
+	constexpr       Type& get_expected()       {
 		return one_of.template get<Type>();
 	}
 

@@ -5,13 +5,14 @@
 #include "./of_element_type_same_as.hpp"
 #include "./default_sentinel.hpp"
 #include "../__iterator_and_sentinel/as_range.hpp"
+#include "../__iterator/sentinel.hpp"
 #include "./array_without_extensions.hpp"
 
 namespace __range {
 
 template<
 	basic_iterator Iterator,
-	basic_sentinel_of<Iterator> Sentinel,
+	sentinel_for<Iterator> Sentinel,
 	basic_range SplittersRange
 >
 struct split_view_iterator {

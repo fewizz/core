@@ -20,17 +20,17 @@ class storage_range_element_iterator_base {
 
 public:
 
-	storage_range_element_iterator_base(
-		Iterator iterator
-	) : iterator_{ iterator } {}
+	storage_range_element_iterator_base(Iterator iterator) :
+		iterator_{ iterator }
+	{}
 
 	decltype(auto) operator * () const {
-		auto& s = *iterator_;
-		return *(const element_type*) &s;
+		const storage_type& s = *iterator_;
+		return s.get();
 	}
 	decltype(auto) operator * () {
-		auto& s = *iterator_;
-		return *(      element_type*) &s;
+		      storage_type& s = *iterator_;
+		return s.get();
 	}
 
 	Derived& operator ++ () { ++iterator_; return derived(); }
