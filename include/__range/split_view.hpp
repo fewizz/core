@@ -6,7 +6,7 @@
 #include "./default_sentinel.hpp"
 #include "../__iterator_and_sentinel/as_range.hpp"
 #include "../__iterator/sentinel.hpp"
-#include "./array_without_extensions.hpp"
+#include "../__array/without_extensions.hpp"
 
 namespace __range {
 

@@ -271,8 +271,8 @@ auto range_extensions<Derived, Options>::try_find_index_of_last_satisfying(
 template<typename Derived, range_extensions_options Options>
 auto range_extensions<Derived, Options>::shrink_view(auto size) const {
 	return iterator_and_sentinel {
-		iterator(),
-		iterator() + size
+		_iterator(),
+		_iterator() + size
 	}.as_range();
 }
 
@@ -295,6 +295,6 @@ bool range_extensions<Derived, Options>::ends_with(With&&... with) const & {
 template<typename Derived, range_extensions_options Options>
 nuint range_extensions<Derived, Options>::get_or_compute_size() const {
 	return iterator_and_sentinel {
-		iterator(), sentinel()
+		_iterator(), _sentinel()
 	}.get_or_compute_distance();
 }

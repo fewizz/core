@@ -14,5 +14,5 @@ concept borrowed_range =
 			} &&
 			Type::is_borrowed_range
 		) ||
-		__type::is_reference<Type>
+		type_is_reference<Type>
 	);

@@ -1,1 +1,1 @@
-replacement for standard library, usable in `freestanding` environment
+kind of standard library, usable in `freestanding` environment

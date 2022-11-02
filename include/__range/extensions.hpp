@@ -16,23 +16,23 @@ private:
 	range_() const && { return (const Derived&&) *this; }
 	constexpr       Derived&&
 	range_()       && { return (      Derived&&) *this; }
+
+	constexpr basic_iterator auto _iterator() const {
+		return range_iterator(range_());
+	}
+	constexpr basic_iterator auto _iterator()       {
+		return range_iterator(range_());
+	}
+	constexpr auto _sentinel() const { return range_sentinel(range_()); }
+	constexpr auto _sentinel()       { return range_sentinel(range_()); }
+
 public:
 
-	constexpr basic_iterator auto iterator() const {
-		return range_iterator(range_());
-	}
-	constexpr basic_iterator auto iterator()       {
-		return range_iterator(range_());
-	}
-
-	constexpr auto sentinel() const { return range_sentinel(range_()); }
-	constexpr auto sentinel()       { return range_sentinel(range_()); }
-
 	// for compatibility
-	constexpr basic_iterator auto begin() const { return iterator(); }
-	constexpr basic_iterator auto begin()       { return iterator(); }
-	constexpr auto end() const { return sentinel(); }
-	constexpr auto end()       { return sentinel(); }
+	constexpr basic_iterator auto begin() const { return _iterator(); }
+	constexpr basic_iterator auto begin()       { return _iterator(); }
+	constexpr auto end() const { return _sentinel(); }
+	constexpr auto end()       { return _sentinel(); }
 
 	template<typename Element>
 	constexpr bool contains(Element&& element) const;
@@ -84,11 +84,11 @@ public:
 	constexpr auto transform_view(Predicate&&)       && ;
 
 	constexpr decltype(auto) operator [] (nuint index) const {
-		return *(iterator() + index);
+		return *(_iterator() + index);
 	}
 
 	constexpr decltype(auto) operator [] (nuint index) {
-		return *(iterator() + index);
+		return *(_iterator() + index);
 	}
 
 	template<typename Handler>
