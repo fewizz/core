@@ -13,10 +13,10 @@ template<
 >
 requires (sizeof(decay<iterator_element_type<Iterator>>) == 1)
 constexpr Type read(Iterator&& iterator) {
-	alignas(Type) uint8 storage[sizeof(Type)];
+	alignas(Type) uint1a storage[sizeof(Type)];
 
 	for(nuint byte_index = 0; byte_index < sizeof(Type); ++byte_index) {
-		uint8 b = *iterator++;
+		uint1a b = *iterator++;
 		nuint index =
 			endianness::native != Endianness ?
 			sizeof(Type) - 1 - byte_index :

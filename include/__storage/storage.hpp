@@ -7,7 +7,7 @@
 
 template<typename Type>
 struct storage : range_extensions<storage<Type>> {
-	alignas(Type) uint8 data[sizeof(Type)];
+	alignas(Type) uint1a data[sizeof(Type)];
 
 	constexpr auto iterator() const { return data; }
 	constexpr auto sentinel() const { return data + sizeof(Type); }

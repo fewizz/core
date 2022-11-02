@@ -82,4 +82,4 @@ template<basic_range Range>
 requires type_is_pointer<decay<range_element_type<Range>>>
 dereference_view(Range&&) -> dereference_view<Range>;
 
-}
+} // __range

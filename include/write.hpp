@@ -15,6 +15,6 @@ requires (sizeof(decay<iterator_element_type<Iterator>>) == 1)
 void write(Type value, Iterator&& iterator) {
 	for(nuint i = 0; i < sizeof(Type); ++i) {
 		nuint i0 = Endianness != endianness::native ? sizeof(Type) - i - 1 : i;
-		*iterator++ = ((uint8*) &value)[i0];
+		*iterator++ = ((uint1a*) &value)[i0];
 	}
 }
