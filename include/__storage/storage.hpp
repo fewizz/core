@@ -28,9 +28,10 @@ struct storage : range_extensions<storage<Type>> {
 		return ::move(e);
 	}
 
-	const Type&  get() const &  { return *(Type*)data; }
-	      Type&  get()       &  { return *(Type*)data; }
+	const Type&  get() const &  { return *(Type*) data; }
+	      Type&  get()       &  { return *(Type*) data; }
 
 	const Type&& get() const && { return move(); }
 	      Type&& get()       && { return move(); }
+
 };

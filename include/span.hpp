@@ -65,12 +65,12 @@ span(Type*) -> span<Type>;
 template<contiguous_range Range>
 span(Range&&) -> span<remove_reference<range_element_type<Range>>>;
 
-template<typename Type, unsigned_integer SizeType>
-struct span<Type&, SizeType> : range_extensions<span<Type&, SizeType>> {
-	using size_type = SizeType;
+template<typename Type, unsigned_integer IndexType>
+struct span<Type&, IndexType> : range_extensions<span<Type&, IndexType>> {
+	using index_type = IndexType;
 private:
 	Type**    ptr_;
-	size_type size_;
+	index_type size_;
 public:
 	
 	class it {
@@ -83,14 +83,14 @@ public:
 
 		constexpr it& operator ++ () { ++ptr_; return *this; }
 
-		constexpr it& operator += (size_type n) {
+		constexpr it& operator += (index_type n) {
 			ptr_ += n; return *this;
 		}
 	
-		constexpr it operator + (size_type n) const {
+		constexpr it operator + (index_type n) const {
 			return it{ *this } += n;
 		}
-		constexpr it operator + (size_type n)       {
+		constexpr it operator + (index_type n)       {
 			return it{ *this } += n;
 		}
 	
@@ -99,14 +99,14 @@ public:
 		}
 	};
 
-	constexpr span(Type** ptr, size_type size) : ptr_{ ptr }, size_{ size } {}
+	constexpr span(Type** ptr, index_type size) : ptr_{ ptr }, size_{ size } {}
 
-	constexpr size_type size() const { return size_; }
+	constexpr index_type size() const { return size_; }
 
 	constexpr it iterator() const { return { ptr_ }; }
 	constexpr it sentinel() const { return { ptr_ + size_ }; }
 
-	constexpr Type& operator [] (size_type index) const {
+	constexpr Type& operator [] (index_type index) const {
 		return **(ptr_ + index);
 	}
 

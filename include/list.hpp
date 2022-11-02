@@ -13,7 +13,6 @@ template<
 >
 class list : public range_extensions<list<StorageRange>> {
 	using element_type = storage_element_type<range_element_type<StorageRange>>;
-	using size_type = range_size_type<StorageRange>;
 	using storage_iterator_type = range_iterator_type<StorageRange>;
 	using storage_const_iterator_type = range_iterator_type<const StorageRange>;
 	using iterator_type = storage_range_element_iterator<storage_iterator_type>;
@@ -76,7 +75,7 @@ public:
 	}
 
 	template<typename... Args>
-	constexpr void emplace_at(size_type index, Args&&... args) {
+	constexpr void emplace_at(auto index, Args&&... args) {
 		auto& s = *(range_iterator(storage_range_) + index);
 		s.destruct();
 		s.construct(forward<Args>(args)...);
@@ -105,15 +104,15 @@ public:
 	auto& back() const & { return (*(storage_iterator_ - 1)).get(); }
 	auto& back()       & { return (*(storage_iterator_ - 1)).get(); }
 
-	constexpr size_type size() const {
+	constexpr auto size() const {
 		return storage_iterator_ - range_iterator(storage_range_);
 	}
 
-	constexpr size_type capacity() const {
+	constexpr auto capacity() const {
 		return range_size(storage_range_);
 	}
 
-	constexpr size_type available() const {
+	constexpr auto available() const {
 		return capacity() - this->size();
 	}
 
