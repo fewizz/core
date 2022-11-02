@@ -6,5 +6,5 @@
 #include "../__type/decay.hpp"
 
 template<sized_range Range>
-using range_size_type
+using range_element_index_type
 	= decay<decltype(range_size(expression_of_type<Range>))>;

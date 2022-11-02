@@ -2,7 +2,7 @@
 
 #include "./extensions_declaration.hpp"
 #include "./sized.hpp"
-#include "./size_type.hpp"
+#include "./element_index_type.hpp"
 
 template<typename Derived, range_extensions_options Options>
 struct range_extensions {

@@ -2,7 +2,7 @@
 
 #include "./basic.hpp"
 #include "./element_type.hpp"
-#include "./size_type.hpp"
+#include "./element_index_type.hpp"
 #include "../optional.hpp"
 
 namespace __range {
@@ -23,11 +23,11 @@ namespace __range {
 	}
 
 	template<sized_range Range, typename Handler>
-	constexpr optional<range_size_type<Range>>
+	constexpr optional<range_element_index_type<Range>>
 	try_find_index_of_first_satisfying(
 		Range&& range, Handler&& handler
 	) {
-		range_size_type<Range> index = 0;
+		range_element_index_type<Range> index = 0;
 		for(decltype(auto) e : forward<Range>(range)) {
 			if(handler(e)) {
 				return { index };

@@ -2,18 +2,18 @@
 
 #include "./size.hpp"
 #include "./element_type.hpp"
-#include "./size_type.hpp"
+#include "./element_index_type.hpp"
 #include "./reverse_view.hpp"
 #include "../optional.hpp"
 
 namespace __range {
 
 	template<sized_range Range, typename Handler>
-	constexpr optional<range_size_type<Range>>
+	constexpr optional<range_element_index_type<Range>>
 	try_find_index_of_last_satisfying(
 		Range&& range, Handler&& handler
 	) {
-		range_size_type<Range> remaining = range_size(range);
+		range_element_index_type<Range> remaining = range_size(range);
 
 		auto beginning = range_iterator(range);
 		auto it = beginning + remaining;
@@ -22,7 +22,7 @@ namespace __range {
 			--it;
 
 			if(handler(*it)) {
-				return { (range_size_type<Range>) (it - beginning) };
+				return { (range_element_index_type<Range>) (it - beginning) };
 			}
 		}
 		return {};
