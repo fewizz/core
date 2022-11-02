@@ -19,11 +19,13 @@ class list : public range_extensions<list<StorageRange>> {
 	using const_iterator_type = storage_range_element_iterator<
 		storage_const_iterator_type
 	>;
-	StorageRange storage_range_{};
-	range_iterator_type<StorageRange> storage_iterator_{};
+	StorageRange storage_range_;
+	storage_iterator_type storage_iterator_;
 public:
 
-	constexpr list() = default;
+	constexpr list() :
+		storage_range_{}, storage_iterator_{ storage_range_.iterator() }
+	{}
 
 	constexpr list(StorageRange&& storage_range) :
 		storage_range_{ forward<StorageRange>(storage_range) },
@@ -32,12 +34,16 @@ public:
 
 	constexpr list(list&& other) :
 		storage_range_{ move(other.storage_range_) },
-		storage_iterator_{ exchange(other.storage_iterator_, storage_iterator_type{}) }
+		storage_iterator_{
+			exchange(other.storage_iterator_, storage_iterator_type{})
+		}
 	{}
 
 	constexpr list& operator = (list&& other) {
 		storage_range_ = move(other.storage_range_);
-		storage_iterator_ = exchange(other.storage_iterator_, storage_iterator_type{});
+		storage_iterator_ = exchange(
+			other.storage_iterator_, storage_iterator_type{}
+		);
 		return *this;
 	}
 
@@ -48,11 +54,9 @@ public:
 		return *this;
 	}*/
 
-	constexpr const StorageRange& storage_range() const {
-		return storage_range_;
-	}
-	constexpr       StorageRange& storage_range()       {
-		return storage_range_;
+	constexpr StorageRange move_storage_range() {
+		storage_iterator_ = {};
+		return move(storage_range_);
 	}
 
 	const_iterator_type iterator() const {
@@ -104,15 +108,15 @@ public:
 	auto& back() const & { return (*(storage_iterator_ - 1)).get(); }
 	auto& back()       & { return (*(storage_iterator_ - 1)).get(); }
 
-	constexpr auto size() const {
+	constexpr nuint size() const {
 		return storage_iterator_ - range_iterator(storage_range_);
 	}
 
-	constexpr auto capacity() const {
+	constexpr nuint capacity() const {
 		return range_size(storage_range_);
 	}
 
-	constexpr auto available() const {
+	constexpr nuint available() const {
 		return capacity() - this->size();
 	}
 

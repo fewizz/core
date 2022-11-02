@@ -16,7 +16,7 @@ namespace __integer {
 }
 
 template<uint1a Bits>
-using int_of_bits = uint_of_atoms<
+using int_of_bits =  int_of_atoms<
 	__integer::div_without_rem<Bits, bits_per_atom>
 >;
 
