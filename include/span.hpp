@@ -12,8 +12,8 @@
 template<typename Type, unsigned_integer SizeType = nuint>
 struct span : range_extensions<span<Type, SizeType>> {
 protected:
-	Type* ptr_;
-	SizeType size_;
+	Type* ptr_ = nullptr;
+	SizeType size_ = 0;
 public:
 
 	static constexpr bool is_borrowed_range = true;

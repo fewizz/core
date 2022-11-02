@@ -24,7 +24,7 @@ class list : public range_extensions<list<StorageRange>> {
 public:
 
 	constexpr list() :
-		storage_range_{}, storage_iterator_{ storage_range_.iterator() }
+		storage_range_{}, storage_iterator_{ range_iterator(storage_range_) }
 	{}
 
 	constexpr list(StorageRange&& storage_range) :
@@ -34,42 +34,45 @@ public:
 
 	constexpr list(list&& other) :
 		storage_range_{ move(other.storage_range_) },
-		storage_iterator_{
-			exchange(other.storage_iterator_, storage_iterator_type{})
-		}
+		storage_iterator_{ exchange(
+				other.storage_iterator_,
+				range_iterator(other.storage_range_)
+		)}
 	{}
 
 	constexpr list& operator = (list&& other) {
+		clear();
 		storage_range_ = move(other.storage_range_);
 		storage_iterator_ = exchange(
-			other.storage_iterator_, storage_iterator_type{}
+			other.storage_iterator_, range_iterator(other.storage_range_)
 		);
 		return *this;
 	}
 
-	/*constexpr auto& operator = (StorageRange&& storage_range) {
+	constexpr list& operator = (StorageRange&& storage_range) {
 		clear();
 		storage_range_ = move(storage_range);
 		storage_iterator_ = range_iterator(storage_range_);
 		return *this;
-	}*/
+	}
 
 	constexpr StorageRange move_storage_range() {
-		storage_iterator_ = {};
-		return move(storage_range_);
+		StorageRange moved = move(this->storage_range_);
+		storage_iterator_ = range_iterator(this->storage_range_);
+		return move(moved);
 	}
 
 	const_iterator_type iterator() const {
-		return { storage_range_.iterator() };
+		return { range_iterator(storage_range_) };
 	}
-	iterator_type iterator() {
-		return { storage_range_.iterator() };
+	      iterator_type iterator()       {
+		return { range_iterator(storage_range_) };
 	}
 
 	sentinel_for<const_iterator_type> auto sentinel() const {
 		return storage_iterator_;
 	}
-	sentinel_for<iterator_type>       auto sentinel()       {
+	sentinel_for<      iterator_type> auto sentinel()       {
 		return storage_iterator_;
 	}
 

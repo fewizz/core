@@ -2,12 +2,31 @@
 
 #include "../__range/extensions.hpp"
 #include "../__type/is_constructible_from.hpp"
+#include "../__type/is_trivial.hpp"
 #include "../forward.hpp"
 #include "../move.hpp"
 
 template<typename Type>
 struct storage : range_extensions<storage<Type>> {
 	alignas(Type) uint1a data[sizeof(Type)];
+
+	storage() = default;
+
+	storage(const storage& ) = delete;
+	storage(      storage&&) = delete;
+
+	template<typename Type0>
+	requires(same_as<Type0, Type> && trivial<Type>)
+	storage(Type t0) {
+		data = t0.data;
+	}
+
+	template<typename Type0>
+	requires(same_as<Type0, Type> && trivial<Type>)
+	storage& operator = (Type t0) {
+		data = t0.data;
+		return *this;
+	}
 
 	constexpr auto iterator() const { return data; }
 	constexpr auto sentinel() const { return data + sizeof(Type); }
