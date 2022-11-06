@@ -34,6 +34,32 @@ public:
 	constexpr auto end() const { return _sentinel(); }
 	constexpr auto end()       { return _sentinel(); }
 
+	template<typename Handler>
+	void for_each_indexed(Handler handler)       & {
+		using index_type = range_element_index_type<Derived>;
+		index_type i{};
+		for(auto& e : range_()) {
+			handler(e, i); ++i;
+		}
+	}
+	template<typename Handler>
+	void for_each_indexed(Handler handler) const & {
+		using index_type = range_element_index_type<Derived>;
+		index_type i{};
+		for(auto& e : range_()) {
+			handler(e, i); ++i;
+		}
+	}
+
+	template<typename Handler>
+	void for_each_index(Handler handler) const {
+		using index_type = range_element_index_type<Derived>;
+		auto size = range_size(range_());
+		for(index_type i{}; i < size; ++i) {
+			handler(i);
+		}
+	}
+
 	template<typename Element>
 	constexpr bool contains(Element&& element) const;
 

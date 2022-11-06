@@ -36,3 +36,14 @@ using uint32 = uint_of_bits<32>;
 
 using  int64 =  int_of_bits<64>;
 using uint64 = uint_of_bits<64>;
+
+template<typename Type>
+constexpr inline nuint bits_in = bits_per_atom * atoms_in<Type>;
+
+template<nuint Atoms>
+requires((Atoms * bits_per_atom) % 8 == 0)
+constexpr inline nuint bytes_in_atoms = (Atoms * bits_per_atom) / 8;
+
+template<typename Type>
+requires(bits_in<Type> % 8 == 0)
+constexpr inline nuint bytes_in = bits_in<Type> / 8;

@@ -77,6 +77,9 @@ using  nint =  int_of_atoms<sizeof(void*)>;
 // native unsigned integer type of sizeof(void*)) atoms
 using nuint = uint_of_atoms<sizeof(void*)>;
 
+template<typename Type>
+constexpr inline nuint atoms_in = sizeof(Type);
+
 constexpr inline uint1a bits_per_atom = [] {
 	// now all v's bits are 1
 	uint1a v = uint1a{ 0 } - uint1a{ 1 };
@@ -90,10 +93,10 @@ constexpr inline uint1a bits_per_atom = [] {
 }();
 
 template<typename Type>
-using  int_of_size_of =  int_of_atoms<sizeof(Type)>;
+using  int_of_size_of =  int_of_atoms<atoms_in<Type>>;
 
 template<typename Type>
-using uint_of_size_of = uint_of_atoms<sizeof(Type)>;
+using uint_of_size_of = uint_of_atoms<atoms_in<Type>>;
 
 template<typename Type>
 concept signed_integer = __type::is_same_as<
