@@ -238,6 +238,13 @@ public:
 	}
 
 	template<typename Handler>
+	decltype(auto) view_type(Handler&& handler) const {
+		return view([&]<typename Type>(const Type&) -> decltype(auto) {
+			return handler.template operator () <Type> ();
+		});
+	}
+
+	template<typename Handler>
 	decltype(auto) view_raw(Handler&& handler) const {
 		return storage_.view_raw(current_, move(handler));
 	}
