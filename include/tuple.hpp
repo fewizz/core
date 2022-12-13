@@ -34,16 +34,13 @@ struct tuple<indices::of<Indices...>, Types...> :
 
 	template<typename Type>
 	static constexpr bool only_one_such_type =
-		(
-			count_of_satisfying_predicate<
-				is_same_as<Type>
-			> == 1
-		).template for_types<Types...>();
+		(count_of_satisfying_predicate<is_same_as<Type>> == 1)
+		.template for_types<Types...>();
 
-	template<typename Type>
-	static constexpr nuint type_index =
+	template<auto TypePredicate>
+	static constexpr nuint type_index_satisfying_predicate =
 		__types::index_of_satisfying_predicate<
-			is_same_as<Type>
+			TypePredicate
 		>::template for_types<Types...>;
 
 	template<nuint Index>
@@ -52,28 +49,40 @@ struct tuple<indices::of<Indices...>, Types...> :
 private:
 
 	template<nuint Index, typename Type>
-	constexpr auto&
-	get_from_storage(const __tuple::element_storage<Index, Type>* ptr) const {
-		return ptr->get();
+	constexpr auto& get_from_storage(
+		const __tuple::element_storage<Index, Type>* ptr
+	) const & {
+		return ptr->get0();
+	}
+	template<nuint Index, typename Type>
+	constexpr auto& get_from_storage(
+		      __tuple::element_storage<Index, Type>* ptr
+	)      & {
+		return ptr->get0();
+	}
+	template<nuint Index, typename Type>
+	constexpr auto& get_from_storage(
+		const __tuple::element_storage<Index, Type>* ptr
+	) const && {
+		return ::move(ptr->get0());
+	}
+	template<nuint Index, typename Type>
+	constexpr auto& get_from_storage(
+		      __tuple::element_storage<Index, Type>* ptr
+	)      && {
+		return ::move(ptr->get0());
 	}
 
 	template<nuint Index, typename Type>
-	constexpr auto&
-	get_from_storage(__tuple::element_storage<Index, Type>* ptr) {
-		return ptr->get();
-	}
-
-	template<nuint Index, typename Type>
-	constexpr decltype(auto)
-	forward_from_storage(
+	constexpr decltype(auto) forward_from_storage(
 		const __tuple::element_storage<Index, Type>* ptr
 	) const {
 		return ptr->forward();
 	}
-
 	template<nuint Index, typename Type>
-	constexpr decltype(auto)
-	forward_from_storage(__tuple::element_storage<Index, Type>* ptr) {
+	constexpr decltype(auto) forward_from_storage(
+		      __tuple::element_storage<Index, Type>* ptr
+	) {
 		return ptr->forward();
 	}
 public:
@@ -83,55 +92,99 @@ public:
 	{}
 
 	template<nuint Index>
-	constexpr decltype(auto) at() const {
+	constexpr auto& get_at() const  &  {
 		return get_from_storage<Index>(this);
 	}
 	template<nuint Index>
-	constexpr decltype(auto) at()       {
+	constexpr auto& get_at()        &  {
 		return get_from_storage<Index>(this);
+	}
+	template<nuint Index>
+	constexpr auto&& get_at() const && {
+		return move(get_from_storage<Index>(this));
+	}
+	template<nuint Index>
+	constexpr auto&& get_at()       && {
+		return move(get_from_storage<Index>(this));
+	}
+
+	template<auto TypePredicate>
+	constexpr auto&  get_satisfying_predicate() const & {
+		return get_at<type_index_satisfying_predicate<TypePredicate>>();
+	}
+	template<auto TypePredicate>
+	constexpr auto&  get_satisfying_predicate()       & {
+		return get_at<type_index_satisfying_predicate<TypePredicate>>();
+	}
+	template<auto TypePredicate>
+	constexpr auto&& get_satisfying_predicate() const && {
+		return move(get_at<type_index_satisfying_predicate<TypePredicate>>());
+	}
+	template<auto TypePredicate>
+	constexpr auto&& get_satisfying_predicate()       && {
+		return move(get_at<type_index_satisfying_predicate<TypePredicate>>());
 	}
 
 	template<typename Type>
 	requires only_one_such_type<Type>
-	constexpr const Type& get() const { return at<type_index<Type>>(); }
-
+	constexpr const Type&  get_same_as() const & {
+		return get_satisfying_predicate<is_same_as<Type>>();
+	}
 	template<typename Type>
 	requires only_one_such_type<Type>
-	constexpr       Type& get()       { return at<type_index<Type>>(); }
+	constexpr       Type&  get_same_as()       & {
+		return get_satisfying_predicate<is_same_as<Type>>();
+	}
+	template<typename Type>
+	requires only_one_such_type<Type>
+	constexpr const Type&& get_same_as() const && {
+		return move(get_satisfying_predicate<is_same_as<Type>>());
+	}
+	template<typename Type>
+	requires only_one_such_type<Type>
+	constexpr       Type&& get_same_as()       && {
+		return move(get_satisfying_predicate<is_same_as<Type>>());
+	}
 
 	template<typename F>
 	constexpr void for_each(F&& f) const {
-		(f(at<Indices>()) , ...);
+		(f(get_at<Indices>()) , ...);
 	}
-	
 	template<typename F>
 	constexpr void for_each(F&& f) {
-		(f(at<Indices>()) , ...);
+		(f(get_at<Indices>()) , ...);
 	}
 
 	template<typename F, nuint... OtherIndices>
 	constexpr void for_each(F&& f, ::indices::of<OtherIndices...>) const {
-		(f(at<OtherIndices>()) , ...);
+		(f(get_at<OtherIndices>()) , ...);
 	}
 	
 	template<typename F, nuint... OtherIndices>
 	constexpr void for_each(F&& f, ::indices::of<OtherIndices...>) {
-		(f(at<OtherIndices>()) , ...);
+		(f(get_at<OtherIndices>()) , ...);
 	}
 
 	constexpr decltype(auto) pass(auto&& f) const {
-		return f(at<Indices>()...);
+		return f(get_at<Indices>()...);
+	}
+	constexpr decltype(auto) pass(auto&& f) {
+		return f(get_at<Indices>()...);
 	}
 
-	constexpr decltype(auto) pass(auto&& f) {
-		return f(at<Indices>()...);
+	template<typename F, nuint... OtherIndices>
+	constexpr decltype(auto) pass(F&& f, ::indices::of<OtherIndices...>) const {
+		return f(get_at<OtherIndices>()...);
+	}
+	template<typename F, nuint... OtherIndices>
+	constexpr decltype(auto) pass(F&& f, ::indices::of<OtherIndices...>)       {
+		return f(get_at<OtherIndices>()...);
 	}
 
 	template<nuint Index>
 	constexpr decltype(auto) forward() const {
 		return forward_from_storage<Index>(this);
 	}
-
 	template<nuint Index>
 	constexpr decltype(auto) forward() {
 		return forward_from_storage<Index>(this);
@@ -151,28 +204,28 @@ tuple(Types&&... ts) -> tuple<Types...>;
 
 template<nuint Index, typename... Types>
 constexpr auto&& get(tuple<Types...>&& elems) {
-	return elems.template at<Index>();
+	return elems.template get_at<Index>();
 }
 
 template<nuint Index, typename... Types>
 constexpr auto&& get(const tuple<Types...>&& elems) {
-	return elems.template at<Index>();
+	return elems.template get_at<Index>();
 }
 
 template<nuint Index, typename... Types>
 constexpr auto& get(tuple<Types...>& elems) {
-	return elems.template at<Index>();
+	return elems.template get_at<Index>();
 }
 
 template<nuint Index, typename... Types>
 constexpr auto&& get(const tuple<Types...>& elems) {
-	return elems.template at<Index>();
+	return elems.template get_at<Index>();
 }
 
 template<typename... Types>
 constexpr inline bool operator == (
-const tuple<Types...>& e0,
-const tuple<Types...>& e1
+	const tuple<Types...>& e0,
+	const tuple<Types...>& e1
 ) {
 	return e0.pass([&](auto&... e0) {
 		return e1.pass([&](auto&... e1) {

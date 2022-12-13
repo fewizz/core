@@ -14,7 +14,7 @@ int main() {
 			[](int* ptr) { return *ptr == 45; }
 		);
 
-		if(!ptr.has_value() || *(ptr.value()) != 45) {
+		if(!ptr.has_value() || *(ptr.get()) != 45) {
 			return 1;
 		}
 	}
@@ -32,7 +32,7 @@ int main() {
 			[](s& s) { return s.i == 7; }
 		);
 
-		if(!o.has_value() || o.value().i != 7) {
+		if(!o.has_value() || o.get().i != 7) {
 			return 2;
 		}
 	}

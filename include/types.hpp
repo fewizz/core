@@ -29,14 +29,14 @@ struct common_if_have<Types...> {
 template<typename... Types>
 struct types : common_if_have<Types...> {
 
-	template</*types_predicate: crashes clang*/ auto... Predicates>
+	template</*types_predicate*/ auto... Predicates>
 	static constexpr bool exclusively_satisfy_predicates =
 		__types::exclusively_satisfy_predicates<Predicates...>::template
 		for_types<Types...>;
 
 	static constexpr bool are_same = types_are_same<Types...>;
 
-	template</*types_predicate: crashes clang*/ auto... Predicates>
+	template</*types_predicate*/ auto... Predicates>
 	static constexpr bool satisfy_predicates =
 		__types::satisfy_predicates<Predicates...>::template
 		for_types<Types...>;

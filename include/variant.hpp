@@ -17,6 +17,14 @@
 #include "./move.hpp"
 #include "./type.hpp"
 
+/*
+
+variant<typename... Types>
+
+
+
+*/
+
 template<typename... Types>
 class variant {
 	using storage_type = __variant::storage<Types...>;
@@ -24,45 +32,51 @@ class variant {
 	storage_type storage_{};
 	index_type current_;
 
-	template<typename Type>
-	static constexpr bool has_one_such_type =
+	template<auto TypePredicate>
+	static constexpr nuint count_of_satisfying_predicate =
 		types<Types...>::template count_of_satisfying_predicate<
-			is_same_as<Type>
-		> == 1;
+			TypePredicate
+		>;
+
+	template<auto TypePredicate>
+	static constexpr nuint index_of_satisfying_predicate =
+		types<Types...>::template index_of_satisfying_predicate<
+			TypePredicate
+		>;
+
+	template<typename Type>
+	static constexpr bool has_one_same_as =
+		count_of_satisfying_predicate<is_same_as<Type>> == 1;
+
+	template<typename Type>
+	static constexpr nuint index_of_same_as =
+		index_of_satisfying_predicate<is_same_as<Type>>;
 
 	template<typename... Args>
 	static constexpr bool has_one_constructible_from =
-		types<Types...>::template count_of_satisfying_predicate<
-			is_constructible_from<Args...>
-		> == 1;
-
-	template<typename... Args>
-	static constexpr bool has_one_list_constructible_from =
-		types<Types...>::template count_of_satisfying_predicate<
-			is_list_constructible_from<Args...>
-		> == 1;
+		count_of_satisfying_predicate<is_constructible_from<Args...>> == 1;
 
 	template<typename... Args>
 	static constexpr nuint index_of_constructible_from =
-		types<Types...>::template index_of_satisfying_predicate<
-			is_constructible_from<Args...>
-		>;
+		index_of_satisfying_predicate<is_constructible_from<Args...>>;
+
+	template<typename... Args>
+	static constexpr bool has_one_list_constructible_from =
+		count_of_satisfying_predicate<is_list_constructible_from<Args...>> == 1;
 
 	template<typename... Args>
 	static constexpr nuint index_of_list_constructible_from =
-		types<Types...>::template index_of_satisfying_predicate<
-			is_list_constructible_from<Args...>
-		>;
+		index_of_satisfying_predicate<is_list_constructible_from<Args...>>;
 
 	template<typename Type>
 	static constexpr bool has_one_assignable_and_constructible_from =
-		types<Types...>::template count_of_satisfying_predicate<
+		count_of_satisfying_predicate<
 			is_constructible_from<Type> && is_assignable<Type>
 		> == 1;
 
 	template<typename Type>
 	static constexpr nuint index_of_assignable_and_constructible_from =
-		types<Types...>::template index_of_satisfying_predicate<
+		index_of_satisfying_predicate<
 			is_constructible_from<Type> && is_assignable<Type>
 		>;
 
@@ -70,12 +84,6 @@ public:
 
 	template<index_type Index>
 	using type_at = type_at_index<Index, Types...>;
-
-	template<typename Type>
-	static constexpr nuint type_index =
-		types<Types...>::template index_of_satisfying_predicate<
-			is_same_as<Type>
-		>;
 
 	// constructor
 	template<typename Type>
@@ -85,8 +93,8 @@ public:
 			index_of_constructible_from<Type>
 		}
 	{
-		storage_.template init<__variant::treat_type_as::value_type>(
-			current_, forward<Type>(arg)
+		storage_.template create<__variant::treat_type_as::value_type>(
+			current_, ::forward<Type>(arg)
 		);
 	}
 
@@ -100,8 +108,8 @@ public:
 			index_of_list_constructible_from<Type>
 		}
 	{
-		storage_.template init<__variant::treat_type_as::value_type>(
-			current_, forward<Type>(arg)
+		storage_.template create<__variant::treat_type_as::value_type>(
+			current_, ::forward<Type>(arg)
 		);
 	}
 
@@ -110,7 +118,7 @@ public:
 		current_ { other.current_ }
 	{
 		other.view([&](auto& element) {
-			storage_.template init<
+			storage_.template create<
 				__variant::treat_type_as::internal_type
 			>(other.current_, element);
 		});
@@ -121,9 +129,9 @@ public:
 		current_ { other.current_ }
 	{
 		other.view([&](auto& element) {
-			storage_.template init<
+			storage_.template create<
 				__variant::treat_type_as::value_type
-			>(current_, move(element));
+			>(current_, ::move(element));
 		});
 	}
 
@@ -134,21 +142,21 @@ public:
 				other.view_raw([&](auto& other_e) {
 					if constexpr(
 						assignable<
-							decltype(this_e), decltype(move(other_e))
+							decltype(this_e), decltype(::move(other_e))
 						>
 					) {
-						this_e = move(other_e);
+						this_e = ::move(other_e);
 					}
 				});
 			});
 		}
 		else {
-			storage_.destruct(current_);
+			storage_.destroy(current_);
 			current_ = other.current_;
 			other.view_raw([&](auto& element) {
-				storage_.template init<
+				storage_.template create<
 					__variant::treat_type_as::internal_type
-				>(current_, move(element));
+				>(current_, ::move(element));
 			});
 		}
 		return *this;
@@ -170,7 +178,7 @@ public:
 			});
 		}
 		else {
-			storage_.destruct(current_);
+			storage_.destroy(current_);
 			current_ = other.current_;
 			other.view_raw([&](auto& element) {
 				storage_.init_raw(current_, element);
@@ -190,19 +198,19 @@ public:
 				if constexpr(
 					assignable<
 						decltype(element),
-						decltype(forward<TypeToAssign>(value))
+						decltype(::forward<TypeToAssign>(value))
 					>
 				) {
-					element = forward<TypeToAssign>(value);
+					element = ::forward<TypeToAssign>(value);
 				}
 			});
 		}
 		else {
-			storage_.destruct(current_);
+			storage_.destroy(current_);
 			current_ = index;
-			storage_.template init<
+			storage_.template create<
 				__variant::treat_type_as::value_type
-			>(index, forward<TypeToAssign>(value));
+			>(index, ::forward<TypeToAssign>(value));
 		}
 		return *this;
 	}
@@ -213,12 +221,12 @@ public:
 		constructible_from<variant, Type>
 	)
 	constexpr variant& operator = (Type&& value) {
-		(*this) = variant(forward<Type>(value));
+		(*this) = variant(::forward<Type>(value));
 		return *this;
 	}
 
 	constexpr ~variant() {
-		storage_.destruct(current_);
+		storage_.destroy(current_);
 	}
 
 	template<typename Handler>
@@ -226,7 +234,7 @@ public:
 		return storage_.template view<
 			__variant::treat_type_as::value_type
 		>(
-			current_, move(handler)
+			current_, ::move(handler)
 		);
 	}
 
@@ -234,7 +242,7 @@ public:
 	decltype(auto) view(Handler&& handler) {
 		return storage_.template view<
 			__variant::treat_type_as::value_type
-		>(current_, move(handler));
+		>(current_, ::move(handler));
 	}
 
 	template<typename Handler>
@@ -246,63 +254,83 @@ public:
 
 	template<typename Handler>
 	decltype(auto) view_raw(Handler&& handler) const {
-		return storage_.view_raw(current_, move(handler));
+		return storage_.view_raw(current_, ::move(handler));
 	}
 
 	template<typename Handler>
 	decltype(auto) view_raw(Handler&& handler) {
 		return storage_.template view<
 			__variant::treat_type_as::internal_type
-		>(current_, move(handler));
+		>(current_, ::move(handler));
 	}
 
 	template<typename Type>
-	constexpr bool is() const {
-		return current_ == type_index<Type>;
+	requires has_one_same_as<Type>
+	constexpr bool is_same_as() const {
+		return current_ == index_of_same_as<Type>;
 	}
 
 	template<nuint Index>
-	constexpr type_at<Index>& at() & {
-		return storage_.template at<Index>();
+	constexpr const type_at<Index>&  get_at() const & {
+		return storage_.template get_at<Index>();
 	}
-
 	template<nuint Index>
-	constexpr const type_at<Index>& at() const & {
-		return storage_.template at<Index>();
+	constexpr       type_at<Index>&  get_at()       & {
+		return storage_.template get_at<Index>();
 	}
-
 	template<nuint Index>
-	constexpr type_at<Index>&& at() && {
-		return move(storage_.template at<Index>());
+	constexpr const type_at<Index>&& get_at() const && {
+		return move(storage_.template get_at<Index>());
 	}
-
 	template<nuint Index>
-	constexpr const type_at<Index>&& at() const && {
-		return move(storage_.template at<Index>());
+	constexpr       type_at<Index>&& get_at()       && {
+		return move(storage_.template get_at<Index>());
+	}
+
+	template<auto TypePredicate>
+	constexpr const auto&  get_satisfying_predicate() const & {
+		return storage_.template get_at<
+			index_of_satisfying_predicate<TypePredicate>
+		>();
+	}
+	template<auto TypePredicate>
+	constexpr       auto&  get_satisfying_predicate()       & {
+		return storage_.template get_at<
+			index_of_satisfying_predicate<TypePredicate>
+		>();
+	}
+	template<auto TypePredicate>
+	constexpr const auto&& get_satisfying_predicate() const && {
+		return move(storage_.template get_at<
+			index_of_satisfying_predicate<TypePredicate>
+		>());
+	}
+	template<auto TypePredicate>
+	constexpr       auto&& get_satisfying_predicate()       && {
+		return move(storage_.template get_at<
+			index_of_satisfying_predicate<TypePredicate>
+		>());
 	}
 
 	template<typename Type>
-	requires has_one_such_type<Type>
-	constexpr const Type& get() const & {
-		return at<type_index<Type>>();
+	requires has_one_same_as<Type>
+	constexpr const auto&  get_same_as() const & {
+		return get_satisfying_predicate<::is_same_as<Type>>();
 	}
-
 	template<typename Type>
-	requires has_one_such_type<Type>
-	constexpr Type& get() & {
-		return at<type_index<Type>>();
+	requires has_one_same_as<Type>
+	constexpr       auto&  get_same_as()       & {
+		return get_satisfying_predicate<::is_same_as<Type>>();
 	}
-
 	template<typename Type>
-	requires has_one_such_type<Type>
-	constexpr const Type&& get() const && {
-		return move(at<type_index<Type>>());
+	requires has_one_same_as<Type>
+	constexpr const auto&& get_same_as() const && {
+		return move(get_satisfying_predicate<::is_same_as<Type>>());
 	}
-
 	template<typename Type>
-	requires has_one_such_type<Type>
-	constexpr Type&& get() && {
-		return move(at<type_index<Type>>());
+	requires has_one_same_as<Type>
+	constexpr       auto&& get_same_as()       && {
+		return move(get_satisfying_predicate<::is_same_as<Type>>());
 	}
 
 };

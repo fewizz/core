@@ -28,33 +28,39 @@ public:
 		return derived();
 	}
 
-	decltype(auto) value() const requires single { return derived().value(); }
-	decltype(auto) value()       requires single { return derived().value(); }
+	const first&  get() const &  requires single { return derived().get(); }
+	      first&  get()       &  requires single { return derived().get(); }
+	const first&& get() const && requires single {
+		return move(derived().get());
+	}
+	      first&& get()       && requires single {
+		return move(derived().get());
+	}
 
-	const remove_reference<first>*
-	operator -> () const requires single { return &value(); }
-	      remove_reference<first>*
-	operator -> ()       requires single { return &value(); }
+	const first*
+	operator -> () const & requires single { return &get(); }
+	      first*
+	operator -> ()       & requires single { return &get(); }
 
 	template<typename Handler>
 	requires single
-	decltype(auto) if_has_no_value(Handler&& handler) const {
-		if(derived().has_value()) {
-			return handler(value());
+	decltype(auto) if_has_value(Handler&& handler) const {
+		if(has_value()) {
+			return handler(get());
 		}
 	}
 	template<typename Handler>
 	requires single
 	decltype(auto) if_has_value(Handler&& handler)       {
-		if(derived().has_value()) {
-			return handler(value());
+		if(has_value()) {
+			return handler(get());
 		}
 	}
 
 	template<typename Handler>
 	requires single
-	Derived& set_if_has_no_value(Handler&& handler) {
-		if(derived().has_no_value()) {
+	Derived& set_if_has_no_value(Handler&& handler) & {
+		if(has_no_value()) {
 			derived() = handler();
 		}
 		return derived();
@@ -87,8 +93,8 @@ public:
 
 	optional() : base_type{ __optional::no } {}
 
-	using base_type::get;
-	using base_type::is;
+	using base_type::get_same_as;
+	using base_type::is_same_as;
 
 	template<typename Handler>
 	decltype(auto) view(Handler&& handler) const {
@@ -99,14 +105,20 @@ public:
 	}
 
 	bool has_value() const {
-		return !base_type::template is<__optional::no_t>();
+		return !base_type::template is_same_as<__optional::no_t>();
 	}
 
-	const first& value() const requires single {
-		return base_type::template get<first>();
+	const first&  get() const &  requires single {
+		return base_type::template get_same_as<first>();
 	}
-	      first& value()       requires single {
-		return base_type::template get<first>();
+	      first&  get()       &  requires single {
+		return base_type::template get_same_as<first>();
+	}
+	const first&& get() const && requires single {
+		return move(base_type::template get_same_as<first>());
+	}
+	      first&& get()       && requires single {
+		return move(base_type::template get_same_as<first>());
 	}
 };
 
@@ -123,10 +135,12 @@ public:
 
 	bool has_value() const { return ptr_ != nullptr; }
 
-	const Type& value() const { return *ptr_; }
-	      Type& value()       { return *ptr_; }
+	const Type&  get() const &  { return *ptr_; }
+	      Type&  get()       &  { return *ptr_; }
+	const Type&& get() const && { return move(*ptr_); }
+	      Type&& get()       && { return move(*ptr_); }
 
-	const remove_reference<Type>* ptr() const { return ptr_; }
-	      remove_reference<Type>* ptr()       { return ptr_; }
+	const remove_reference<Type>* ptr() const & { return ptr_; }
+	      remove_reference<Type>* ptr()       & { return ptr_; }
 
 };

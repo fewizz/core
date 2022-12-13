@@ -8,6 +8,22 @@
 #include "../if_satisfies.hpp"
 #include "../forward.hpp"
 
+/*
+
+__variant::storage<typename... Types> - extended union, used in ::variant
+
+	storage() - default constructor
+
+	void create(index, args) - creates object at index with args
+
+	void destroy(index) - destroys object at index
+
+	decltype(auto) view(nuint index, Handler&& handler)
+
+	decltype(auto) get_at<Index>()
+
+*/
+
 namespace __variant {
 
 enum class treat_type_as {
@@ -60,7 +76,7 @@ public:
 
 	constexpr storage() {}
 
-#define INIT_ELEMENT(storage) \
+#define CREATE_ELEMENT(storage) \
 	if constexpr( \
 		TreatAs == treat_type_as::value_type && \
 		remove_reference<decltype(storage)>:: \
@@ -79,55 +95,55 @@ public:
 			decltype((storage).element_)(forward<Args>(args)...); \
 	}
 
-#define INIT_NEXT(storage) \
+#define CREATE_NEXT(storage) \
 	new (&(storage).next_) \
 		typename remove_reference<decltype(storage)>::next_type();
 
-#define INIT_ELEMENT_OR_NEXT(storage, required_index) \
+#define CREATE_ELEMENT_OR_NEXT(storage, required_index) \
 	if(index == required_index) { \
-		INIT_ELEMENT(storage) \
+		CREATE_ELEMENT(storage) \
 		return; \
 	} \
-	INIT_NEXT(storage)
+	CREATE_NEXT(storage)
 
 	template<treat_type_as TreatAs, typename... Args>
-	constexpr void init(nuint index, Args&&... args) {
+	constexpr void create(nuint index, Args&&... args) {
 		if(index == 0) {
-			INIT_ELEMENT(*this)
+			CREATE_ELEMENT(*this)
 			return;
 		}
 		if constexpr(has_next) {
-			INIT_NEXT(*this)
-			next_.template init<TreatAs>(index - 1, forward<Args>(args)...);
+			CREATE_NEXT(*this)
+			next_.template create<TreatAs>(index - 1, forward<Args>(args)...);
 			return;
 		}
 		__builtin_unreachable();
 	}
 
-#define DESTRUCT_ELEMENT(storage) \
+#define DESTROY_ELEMENT(storage) \
 	(storage).element_.~decltype((storage).element_)();
 
-#define DESTRUCT_NEXT(storage) \
+#define DESTROY_NEXT(storage) \
 	(storage).next_.~decltype((storage).next_)();
 
-#define DESTRUCT_ELEMENT_OR_NEXT(storage, required_index) \
+#define DESTROY_ELEMENT_OR_NEXT(storage, required_index) \
 	if(index == required_index) { \
-		DESTRUCT_ELEMENT(storage) \
+		DESTROY_ELEMENT(storage) \
 		return; \
 	} \
-	DESTRUCT_NEXT(storage)
+	DESTROY_NEXT(storage)
 
 	constexpr ~storage() {}
 
-	// trivial recursive destructor
-	constexpr void destruct(nuint index) {
+	// recursive destructor
+	constexpr void destroy(nuint index) {
 		if(index == 0) {
-			DESTRUCT_ELEMENT(*this)
+			DESTROY_ELEMENT(*this)
 			return;
 		}
 		if constexpr(has_next) {
-			next_.destruct(index - 1);
-			DESTRUCT_NEXT(*this)
+			next_.destroy(index - 1);
+			DESTROY_NEXT(*this)
 			return;
 		}
 		__builtin_unreachable();
@@ -164,220 +180,228 @@ public:
 	}
 
 	template<nuint Index> requires (Index == 0)
-	constexpr const auto& at() const {
-		if constexpr (value_type_is_reference) {
-			return *element_;
-		}
-		else {
-			return element_;
-		}
+	constexpr const auto& get_at() const & {
+		if constexpr (value_type_is_reference) { return *element_; }
+		else { return element_; }
 	}
-
 	template<nuint Index> requires (Index == 0)
-	constexpr auto& at() {
-		if constexpr (value_type_is_reference) {
-			return *element_;
-		}
-		else {
-			return element_;
-		}
+	constexpr       auto& get_at()       & {
+		if constexpr (value_type_is_reference) { return *element_; }
+		else { return element_; }
+	}
+	template<nuint Index> requires (Index == 0)
+	constexpr const auto&& get_at() const && {
+		if constexpr (value_type_is_reference) { return *element_; }
+		else { return move(element_); }
+	}
+	template<nuint Index> requires (Index == 0)
+	constexpr       auto&& get_at()       && {
+		if constexpr (value_type_is_reference) { return *element_; }
+		else { return move(element_); }
 	}
 
 	template<nuint Index> requires (Index > 0 && has_next)
-	constexpr const auto& at() const {
-		return next_.template at<Index - 1>();
+	constexpr const auto& get_at() const & {
+		return next_.template get_at<Index - 1>();
 	}
-
 	template<nuint Index> requires (Index > 0 && has_next)
-	constexpr auto& at() {
-		return next_.template at<Index - 1>();
+	constexpr       auto& get_at()       & {
+		return next_.template get_at<Index - 1>();
+	}
+	template<nuint Index> requires (Index > 0 && has_next)
+	constexpr const auto&& get_at() const && {
+		return move(next_.template get_at<Index - 1>());
+	}
+	template<nuint Index> requires (Index > 0 && has_next)
+	constexpr       auto&& get_at()       && {
+		return move(next_.template get_at<Index - 1>());
 	}
 
 	template<treat_type_as TreatAs, typename... Args>
 	requires(sizeof...(TailTypes) == 0)
-	constexpr void init(nuint, Args&&... args) {
-		INIT_ELEMENT(*this)
+	constexpr void create(nuint, Args&&... args) {
+		CREATE_ELEMENT(*this)
 	}
 
 	template<treat_type_as TreatAs, typename... Args>
 	requires(sizeof...(TailTypes) == 1)
-	constexpr void init(nuint index, Args&&... args) {
-		INIT_ELEMENT_OR_NEXT(*this, 0)
-		INIT_ELEMENT(next_)
+	constexpr void create(nuint index, Args&&... args) {
+		CREATE_ELEMENT_OR_NEXT(*this, 0)
+		CREATE_ELEMENT(next_)
 	}
 
 	template<treat_type_as TreatAs, typename... Args>
 	requires(sizeof...(TailTypes) == 2)
-	constexpr void init(nuint index, Args&&... args) {
-		INIT_ELEMENT_OR_NEXT(*this, 0)
-		INIT_ELEMENT_OR_NEXT(next_, 1)
-		INIT_ELEMENT(next_.next_)
+	constexpr void create(nuint index, Args&&... args) {
+		CREATE_ELEMENT_OR_NEXT(*this, 0)
+		CREATE_ELEMENT_OR_NEXT(next_, 1)
+		CREATE_ELEMENT(next_.next_)
 	}
 
 	template<treat_type_as TreatAs, typename... Args>
 	requires(sizeof...(TailTypes) == 3)
-	constexpr void init(nuint index, Args&&... args) {
-		INIT_ELEMENT_OR_NEXT(*this, 0)
-		INIT_ELEMENT_OR_NEXT(next_, 1)
-		INIT_ELEMENT_OR_NEXT(next_.next_, 2)
-		INIT_ELEMENT(next_.next_.next_)
+	constexpr void create(nuint index, Args&&... args) {
+		CREATE_ELEMENT_OR_NEXT(*this, 0)
+		CREATE_ELEMENT_OR_NEXT(next_, 1)
+		CREATE_ELEMENT_OR_NEXT(next_.next_, 2)
+		CREATE_ELEMENT(next_.next_.next_)
 	}
 
 	template<treat_type_as TreatAs, typename... Args>
 	requires(sizeof...(TailTypes) == 4)
-	constexpr void init(nuint index, Args&&... args) {
-		INIT_ELEMENT_OR_NEXT(*this, 0)
-		INIT_ELEMENT_OR_NEXT(next_, 1)
-		INIT_ELEMENT_OR_NEXT(next_.next_, 2)
-		INIT_ELEMENT_OR_NEXT(next_.next_.next_, 3)
-		INIT_ELEMENT(next_.next_.next_.next_)
+	constexpr void create(nuint index, Args&&... args) {
+		CREATE_ELEMENT_OR_NEXT(*this, 0)
+		CREATE_ELEMENT_OR_NEXT(next_, 1)
+		CREATE_ELEMENT_OR_NEXT(next_.next_, 2)
+		CREATE_ELEMENT_OR_NEXT(next_.next_.next_, 3)
+		CREATE_ELEMENT(next_.next_.next_.next_)
 	}
 
 	template<treat_type_as TreatAs, typename... Args>
 	requires(sizeof...(TailTypes) == 5)
-	constexpr void init(nuint index, Args&&... args) {
-		INIT_ELEMENT_OR_NEXT(*this, 0)
-		INIT_ELEMENT_OR_NEXT(next_, 1)
-		INIT_ELEMENT_OR_NEXT(next_.next_, 2)
-		INIT_ELEMENT_OR_NEXT(next_.next_.next_, 3)
-		INIT_ELEMENT_OR_NEXT(next_.next_.next_.next_, 4)
-		INIT_ELEMENT(next_.next_.next_.next_.next_)
+	constexpr void create(nuint index, Args&&... args) {
+		CREATE_ELEMENT_OR_NEXT(*this, 0)
+		CREATE_ELEMENT_OR_NEXT(next_, 1)
+		CREATE_ELEMENT_OR_NEXT(next_.next_, 2)
+		CREATE_ELEMENT_OR_NEXT(next_.next_.next_, 3)
+		CREATE_ELEMENT_OR_NEXT(next_.next_.next_.next_, 4)
+		CREATE_ELEMENT(next_.next_.next_.next_.next_)
 	}
 
 	template<treat_type_as TreatAs, typename... Args>
 	requires(sizeof...(TailTypes) == 6)
-	constexpr void init(nuint index, Args&&... args) {
-		INIT_ELEMENT_OR_NEXT(*this, 0)
-		INIT_ELEMENT_OR_NEXT(next_, 1)
-		INIT_ELEMENT_OR_NEXT(next_.next_, 2)
-		INIT_ELEMENT_OR_NEXT(next_.next_.next_, 3)
-		INIT_ELEMENT_OR_NEXT(next_.next_.next_.next_, 4)
-		INIT_ELEMENT_OR_NEXT(next_.next_.next_.next_.next_, 5)
-		INIT_ELEMENT(next_.next_.next_.next_.next_.next_)
+	constexpr void create(nuint index, Args&&... args) {
+		CREATE_ELEMENT_OR_NEXT(*this, 0)
+		CREATE_ELEMENT_OR_NEXT(next_, 1)
+		CREATE_ELEMENT_OR_NEXT(next_.next_, 2)
+		CREATE_ELEMENT_OR_NEXT(next_.next_.next_, 3)
+		CREATE_ELEMENT_OR_NEXT(next_.next_.next_.next_, 4)
+		CREATE_ELEMENT_OR_NEXT(next_.next_.next_.next_.next_, 5)
+		CREATE_ELEMENT(next_.next_.next_.next_.next_.next_)
 	}
 
 	template<treat_type_as TreatAs, typename... Args>
 	requires(sizeof...(TailTypes) == 7)
-	constexpr void init(nuint index, Args&&... args) {
-		INIT_ELEMENT_OR_NEXT(*this, 0)
-		INIT_ELEMENT_OR_NEXT(next_, 1)
-		INIT_ELEMENT_OR_NEXT(next_.next_, 2)
-		INIT_ELEMENT_OR_NEXT(next_.next_.next_, 3)
-		INIT_ELEMENT_OR_NEXT(next_.next_.next_.next_, 4)
-		INIT_ELEMENT_OR_NEXT(next_.next_.next_.next_.next_, 5)
-		INIT_ELEMENT_OR_NEXT(next_.next_.next_.next_.next_.next_, 6)
-		INIT_ELEMENT(next_.next_.next_.next_.next_.next_.next_)
+	constexpr void create(nuint index, Args&&... args) {
+		CREATE_ELEMENT_OR_NEXT(*this, 0)
+		CREATE_ELEMENT_OR_NEXT(next_, 1)
+		CREATE_ELEMENT_OR_NEXT(next_.next_, 2)
+		CREATE_ELEMENT_OR_NEXT(next_.next_.next_, 3)
+		CREATE_ELEMENT_OR_NEXT(next_.next_.next_.next_, 4)
+		CREATE_ELEMENT_OR_NEXT(next_.next_.next_.next_.next_, 5)
+		CREATE_ELEMENT_OR_NEXT(next_.next_.next_.next_.next_.next_, 6)
+		CREATE_ELEMENT(next_.next_.next_.next_.next_.next_.next_)
 	}
 
 	template<treat_type_as TreatAs, typename... Args>
 	requires(sizeof...(TailTypes) == 8)
-	constexpr void init(nuint index, Args&&... args) {
-		INIT_ELEMENT_OR_NEXT(*this, 0)
-		INIT_ELEMENT_OR_NEXT(next_, 1)
-		INIT_ELEMENT_OR_NEXT(next_.next_, 2)
-		INIT_ELEMENT_OR_NEXT(next_.next_.next_, 3)
-		INIT_ELEMENT_OR_NEXT(next_.next_.next_.next_, 4)
-		INIT_ELEMENT_OR_NEXT(next_.next_.next_.next_.next_, 5)
-		INIT_ELEMENT_OR_NEXT(next_.next_.next_.next_.next_.next_, 6)
-		INIT_ELEMENT_OR_NEXT(next_.next_.next_.next_.next_.next_.next_, 7)
-		INIT_ELEMENT(next_.next_.next_.next_.next_.next_.next_.next_)
+	constexpr void create(nuint index, Args&&... args) {
+		CREATE_ELEMENT_OR_NEXT(*this, 0)
+		CREATE_ELEMENT_OR_NEXT(next_, 1)
+		CREATE_ELEMENT_OR_NEXT(next_.next_, 2)
+		CREATE_ELEMENT_OR_NEXT(next_.next_.next_, 3)
+		CREATE_ELEMENT_OR_NEXT(next_.next_.next_.next_, 4)
+		CREATE_ELEMENT_OR_NEXT(next_.next_.next_.next_.next_, 5)
+		CREATE_ELEMENT_OR_NEXT(next_.next_.next_.next_.next_.next_, 6)
+		CREATE_ELEMENT_OR_NEXT(next_.next_.next_.next_.next_.next_.next_, 7)
+		CREATE_ELEMENT(next_.next_.next_.next_.next_.next_.next_.next_)
 	}
 
-	constexpr void destruct(nuint) requires(sizeof...(TailTypes) == 0) {
-		DESTRUCT_ELEMENT(*this)
+	constexpr void destroy(nuint) requires(sizeof...(TailTypes) == 0) {
+		DESTROY_ELEMENT(*this)
 	}
 
-	constexpr void destruct(nuint index)
+	constexpr void destroy(nuint index)
 	requires(sizeof...(TailTypes) == 1) {
-		DESTRUCT_ELEMENT_OR_NEXT(*this, 0)
-		DESTRUCT_ELEMENT(next_)
+		DESTROY_ELEMENT_OR_NEXT(*this, 0)
+		DESTROY_ELEMENT(next_)
 	}
 
-	constexpr void destruct(nuint index)
+	constexpr void destroy(nuint index)
 	requires(sizeof...(TailTypes) == 2) {
-		DESTRUCT_ELEMENT_OR_NEXT(*this, 0)
-		DESTRUCT_ELEMENT_OR_NEXT(next_, 1)
-		DESTRUCT_ELEMENT(next_.next_)
+		DESTROY_ELEMENT_OR_NEXT(*this, 0)
+		DESTROY_ELEMENT_OR_NEXT(next_, 1)
+		DESTROY_ELEMENT(next_.next_)
 	}
 
-	constexpr void destruct(nuint index)
+	constexpr void destroy(nuint index)
 	requires(sizeof...(TailTypes) == 3) {
-		DESTRUCT_ELEMENT_OR_NEXT(*this, 0)
-		DESTRUCT_ELEMENT_OR_NEXT(next_, 1)
-		DESTRUCT_ELEMENT_OR_NEXT(next_.next_, 2)
-		DESTRUCT_ELEMENT(next_.next_.next_)
+		DESTROY_ELEMENT_OR_NEXT(*this, 0)
+		DESTROY_ELEMENT_OR_NEXT(next_, 1)
+		DESTROY_ELEMENT_OR_NEXT(next_.next_, 2)
+		DESTROY_ELEMENT(next_.next_.next_)
 	}
 
-	constexpr void destruct(nuint index)
+	constexpr void destroy(nuint index)
 	requires(sizeof...(TailTypes) == 4) {
-		DESTRUCT_ELEMENT_OR_NEXT(*this, 0)
-		DESTRUCT_ELEMENT_OR_NEXT(next_, 1)
-		DESTRUCT_ELEMENT_OR_NEXT(next_.next_, 2)
-		DESTRUCT_ELEMENT_OR_NEXT(next_.next_.next_, 3)
-		DESTRUCT_ELEMENT(next_.next_.next_.next_)
+		DESTROY_ELEMENT_OR_NEXT(*this, 0)
+		DESTROY_ELEMENT_OR_NEXT(next_, 1)
+		DESTROY_ELEMENT_OR_NEXT(next_.next_, 2)
+		DESTROY_ELEMENT_OR_NEXT(next_.next_.next_, 3)
+		DESTROY_ELEMENT(next_.next_.next_.next_)
 	}
 
-	constexpr void destruct(nuint index)
+	constexpr void destroy(nuint index)
 	requires(sizeof...(TailTypes) == 5) {
-		DESTRUCT_ELEMENT_OR_NEXT(*this, 0)
-		DESTRUCT_ELEMENT_OR_NEXT(next_, 1)
-		DESTRUCT_ELEMENT_OR_NEXT(next_.next_, 2)
-		DESTRUCT_ELEMENT_OR_NEXT(next_.next_.next_, 3)
-		DESTRUCT_ELEMENT_OR_NEXT(next_.next_.next_.next_, 4)
-		DESTRUCT_ELEMENT(next_.next_.next_.next_.next_)
+		DESTROY_ELEMENT_OR_NEXT(*this, 0)
+		DESTROY_ELEMENT_OR_NEXT(next_, 1)
+		DESTROY_ELEMENT_OR_NEXT(next_.next_, 2)
+		DESTROY_ELEMENT_OR_NEXT(next_.next_.next_, 3)
+		DESTROY_ELEMENT_OR_NEXT(next_.next_.next_.next_, 4)
+		DESTROY_ELEMENT(next_.next_.next_.next_.next_)
 	}
 
-	constexpr void destruct(nuint index)
+	constexpr void destroy(nuint index)
 	requires(sizeof...(TailTypes) == 6) {
-		DESTRUCT_ELEMENT_OR_NEXT(*this, 0)
-		DESTRUCT_ELEMENT_OR_NEXT(next_, 1)
-		DESTRUCT_ELEMENT_OR_NEXT(next_.next_, 2)
-		DESTRUCT_ELEMENT_OR_NEXT(next_.next_.next_, 3)
-		DESTRUCT_ELEMENT_OR_NEXT(next_.next_.next_.next_, 4)
-		DESTRUCT_ELEMENT_OR_NEXT(next_.next_.next_.next_.next_, 5)
-		DESTRUCT_ELEMENT(next_.next_.next_.next_.next_.next_)
+		DESTROY_ELEMENT_OR_NEXT(*this, 0)
+		DESTROY_ELEMENT_OR_NEXT(next_, 1)
+		DESTROY_ELEMENT_OR_NEXT(next_.next_, 2)
+		DESTROY_ELEMENT_OR_NEXT(next_.next_.next_, 3)
+		DESTROY_ELEMENT_OR_NEXT(next_.next_.next_.next_, 4)
+		DESTROY_ELEMENT_OR_NEXT(next_.next_.next_.next_.next_, 5)
+		DESTROY_ELEMENT(next_.next_.next_.next_.next_.next_)
 	}
 
-	constexpr void destruct(nuint index)
+	constexpr void destroy(nuint index)
 	requires(sizeof...(TailTypes) == 7) {
-		DESTRUCT_ELEMENT_OR_NEXT(*this, 0)
-		DESTRUCT_ELEMENT_OR_NEXT(next_, 1)
-		DESTRUCT_ELEMENT_OR_NEXT(next_.next_, 2)
-		DESTRUCT_ELEMENT_OR_NEXT(next_.next_.next_, 3)
-		DESTRUCT_ELEMENT_OR_NEXT(next_.next_.next_.next_, 4)
-		DESTRUCT_ELEMENT_OR_NEXT(next_.next_.next_.next_.next_, 5)
-		DESTRUCT_ELEMENT_OR_NEXT(next_.next_.next_.next_.next_.next_, 6)
-		DESTRUCT_ELEMENT(next_.next_.next_.next_.next_.next_.next_)
+		DESTROY_ELEMENT_OR_NEXT(*this, 0)
+		DESTROY_ELEMENT_OR_NEXT(next_, 1)
+		DESTROY_ELEMENT_OR_NEXT(next_.next_, 2)
+		DESTROY_ELEMENT_OR_NEXT(next_.next_.next_, 3)
+		DESTROY_ELEMENT_OR_NEXT(next_.next_.next_.next_, 4)
+		DESTROY_ELEMENT_OR_NEXT(next_.next_.next_.next_.next_, 5)
+		DESTROY_ELEMENT_OR_NEXT(next_.next_.next_.next_.next_.next_, 6)
+		DESTROY_ELEMENT(next_.next_.next_.next_.next_.next_.next_)
 	}
 
-	constexpr void destruct(nuint index)
+	constexpr void destroy(nuint index)
 	requires(sizeof...(TailTypes) == 8) {
-		DESTRUCT_ELEMENT_OR_NEXT(*this, 0)
-		DESTRUCT_ELEMENT_OR_NEXT(next_, 1)
-		DESTRUCT_ELEMENT_OR_NEXT(next_.next_, 2)
-		DESTRUCT_ELEMENT_OR_NEXT(next_.next_.next_, 3)
-		DESTRUCT_ELEMENT_OR_NEXT(next_.next_.next_.next_, 4)
-		DESTRUCT_ELEMENT_OR_NEXT(next_.next_.next_.next_.next_, 5)
-		DESTRUCT_ELEMENT_OR_NEXT(next_.next_.next_.next_.next_.next_, 6)
-		DESTRUCT_ELEMENT_OR_NEXT(
+		DESTROY_ELEMENT_OR_NEXT(*this, 0)
+		DESTROY_ELEMENT_OR_NEXT(next_, 1)
+		DESTROY_ELEMENT_OR_NEXT(next_.next_, 2)
+		DESTROY_ELEMENT_OR_NEXT(next_.next_.next_, 3)
+		DESTROY_ELEMENT_OR_NEXT(next_.next_.next_.next_, 4)
+		DESTROY_ELEMENT_OR_NEXT(next_.next_.next_.next_.next_, 5)
+		DESTROY_ELEMENT_OR_NEXT(next_.next_.next_.next_.next_.next_, 6)
+		DESTROY_ELEMENT_OR_NEXT(
 			next_.next_.next_.next_.next_.next_.next_, 7)
-		DESTRUCT_ELEMENT(next_.next_.next_.next_.next_.next_.next_.next_)
+		DESTROY_ELEMENT(next_.next_.next_.next_.next_.next_.next_.next_)
 	}
 
-	constexpr void destruct(nuint index)
+	constexpr void destroy(nuint index)
 	requires(sizeof...(TailTypes) == 9) {
-		DESTRUCT_ELEMENT_OR_NEXT(*this, 0)
-		DESTRUCT_ELEMENT_OR_NEXT(next_, 1)
-		DESTRUCT_ELEMENT_OR_NEXT(next_.next_, 2)
-		DESTRUCT_ELEMENT_OR_NEXT(next_.next_.next_, 3)
-		DESTRUCT_ELEMENT_OR_NEXT(next_.next_.next_.next_, 4)
-		DESTRUCT_ELEMENT_OR_NEXT(next_.next_.next_.next_.next_, 5)
-		DESTRUCT_ELEMENT_OR_NEXT(next_.next_.next_.next_.next_.next_, 6)
-		DESTRUCT_ELEMENT_OR_NEXT(
+		DESTROY_ELEMENT_OR_NEXT(*this, 0)
+		DESTROY_ELEMENT_OR_NEXT(next_, 1)
+		DESTROY_ELEMENT_OR_NEXT(next_.next_, 2)
+		DESTROY_ELEMENT_OR_NEXT(next_.next_.next_, 3)
+		DESTROY_ELEMENT_OR_NEXT(next_.next_.next_.next_, 4)
+		DESTROY_ELEMENT_OR_NEXT(next_.next_.next_.next_.next_, 5)
+		DESTROY_ELEMENT_OR_NEXT(next_.next_.next_.next_.next_.next_, 6)
+		DESTROY_ELEMENT_OR_NEXT(
 			next_.next_.next_.next_.next_.next_.next_, 7)
-		DESTRUCT_ELEMENT_OR_NEXT(
+		DESTROY_ELEMENT_OR_NEXT(
 			next_.next_.next_.next_.next_.next_.next_.next_, 8)
-		DESTRUCT_ELEMENT(
+		DESTROY_ELEMENT(
 			next_.next_.next_.next_.next_.next_.next_.next_.next_)
 	}
 
@@ -518,13 +542,13 @@ public:
 
 #undef VIEW_ELEMENT
 
-#undef INIT_ELEMENT
-#undef INIT_NEXT
-#undef INIT_ELEMENT_OR_NEXT
+#undef CREATE_ELEMENT
+#undef CREATE_NEXT
+#undef CREATE_ELEMENT_OR_NEXT
 
-#undef DESTRUCT_ELEMENT
-#undef DESTRUCT_NEXT
-#undef DESTRUCT_ELEMENT_OR_NEXT
+#undef DESTROY_ELEMENT
+#undef DESTROY_NEXT
+#undef DESTROY_ELEMENT_OR_NEXT
 
 };
 

@@ -20,14 +20,14 @@ struct count_of_satisfying_predicate_t {
 		static constexpr auto affecting_predicate = Predicate;
 
 		template<typename... Types>
-		using indices_of_affected_types =
-			typename __types::indices_of_satisfying_predicate<Predicate>::template
+		using indices_of_affected_types = typename
+			__types::indices_of_satisfying_predicate<Predicate>::template
 			for_types<Types...>;
 
 		template<typename... Types>
 		constexpr bool for_types() const {
 			return count_of_satisfying_predicate_t<Predicate>::
-			for_types<Types...> < n;
+				for_types<Types...> < n;
 		}
 
 	};
@@ -42,14 +42,14 @@ struct count_of_satisfying_predicate_t {
 		static constexpr auto affecting_predicate = Predicate;
 
 		template<typename... Types>
-		using indices_of_affected_types =
-			typename __types::indices_of_satisfying_predicate<Predicate>::template
+		using indices_of_affected_types = typename
+			__types::indices_of_satisfying_predicate<Predicate>::template
 			for_types<Types...>;
 
 		template<typename... Types>
 		constexpr bool for_types() const {
 			return count_of_satisfying_predicate_t<Predicate>::
-			for_types<Types...> > n;
+				for_types<Types...> > n;
 		};
 
 	};
@@ -64,14 +64,14 @@ struct count_of_satisfying_predicate_t {
 		static constexpr auto affecting_predicate = Predicate;
 
 		template<typename... Types>
-		using indices_of_affected_types =
-			typename __types::indices_of_satisfying_predicate<Predicate>::template
+		using indices_of_affected_types = typename
+			__types::indices_of_satisfying_predicate<Predicate>::template
 			for_types<Types...>;
 
 		template<typename... Types>
 		constexpr bool for_types() const {
 			return count_of_satisfying_predicate_t<Predicate>::
-			for_types<Types...> <= n;
+				for_types<Types...> <= n;
 		}
 
 	};
@@ -86,14 +86,14 @@ struct count_of_satisfying_predicate_t {
 		static constexpr auto affecting_predicate = Predicate;
 
 		template<typename... Types>
-		using indices_of_affected_types =
-			typename __types::indices_of_satisfying_predicate<Predicate>::template
+		using indices_of_affected_types = typename
+			__types::indices_of_satisfying_predicate<Predicate>::template
 			for_types<Types...>;
 
 		template<typename... Types>
 		constexpr bool for_types() const {
 			return count_of_satisfying_predicate_t<Predicate>::
-			for_types<Types...> >= n;
+				for_types<Types...> >= n;
 		}
 
 	};
@@ -108,14 +108,14 @@ struct count_of_satisfying_predicate_t {
 		static constexpr auto affecting_predicate = Predicate;
 
 		template<typename... Types>
-		using indices_of_affected_types =
-			typename __types::indices_of_satisfying_predicate<Predicate>::template
+		using indices_of_affected_types = typename
+			__types::indices_of_satisfying_predicate<Predicate>::template
 			for_types<Types...>;
 
 		template<typename... Types>
 		constexpr bool for_types() const {
 			return count_of_satisfying_predicate_t<Predicate>::
-			for_types<Types...> == n;
+				for_types<Types...> == n;
 		}
 
 	};

@@ -82,4 +82,6 @@ struct type {
 
 	using remove_volatile = remove_volatile<Type>;
 
+	using remove_reference_and_const = ::remove_const<remove_reference>;
+
 };

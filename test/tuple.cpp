@@ -1,5 +1,6 @@
 #include <tuple.hpp>
 #include <move.hpp>
+#include <expression_of_type.hpp>
 
 struct a {
 	constexpr a() = default;
@@ -20,5 +21,18 @@ consteval int f() {
 }
 
 static_assert(f() == 0);
+
+static_assert(
+	same_as<
+		decltype(expression_of_type<tuple<int, int&>>.forward<0>()),
+		int&&
+	>
+);
+static_assert(
+	same_as<
+		decltype(expression_of_type<tuple<int, int&>>.forward<1>()),
+		int&
+	>
+);
 
 int main() {}

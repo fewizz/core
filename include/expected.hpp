@@ -25,17 +25,17 @@ public:
 	}
 
 	constexpr const UnexpectedType& get_unexpected() const {
-		return one_of.template get<UnexpectedType>();
+		return one_of.template get_same_as<UnexpectedType>();
 	}
 	constexpr       UnexpectedType& get_unexpected()       {
-		return one_of.template get<UnexpectedType>();
+		return one_of.template get_same_as<UnexpectedType>();
 	}
 
 	constexpr const Type& get_expected() const {
-		return one_of.template get<Type>();
+		return one_of.template get_same_as<Type>();
 	}
 	constexpr       Type& get_expected()       {
-		return one_of.template get<Type>();
+		return one_of.template get_same_as<Type>();
 	}
 
 	constexpr operator Type& () {

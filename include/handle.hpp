@@ -26,7 +26,7 @@ protected:
 };
 
 template<typename Type>
-struct handle final : handle_interface<Type> {
+struct handle : handle_interface<Type> {
 	using underlying_type = typename handle_underlying_t<Type>::type;
 
 protected:

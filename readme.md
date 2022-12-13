@@ -1,1 +1,1 @@
-kind of standard library, usable in `freestanding` environment
+header-only library usable in `freestanding` environment

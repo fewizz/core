@@ -14,13 +14,11 @@ public:
 		element_{ ::forward<Type>(element) }
 	{}
 
-	constexpr auto& get() const {
-		return element_;
-	}
-
-	constexpr auto& get() {
-		return element_;
-	}
+	// get0 instead of get, to disambiguate structured binding
+	constexpr const Type&  get0() const &  { return element_; }
+	constexpr       Type&  get0()       &  { return element_; }
+	constexpr const Type&& get0() const && { return move(element_); }
+	constexpr       Type&& get0()       && { return move(element_); }
 
 	constexpr decltype(auto) forward() const {
 		return ::forward<Type>(element_);
