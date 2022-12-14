@@ -14,4 +14,4 @@ template<typename Type, typename... OtherTypes>
 concept same_as_any = (same_as<Type, OtherTypes> || ...);
 
 template<typename Type, typename OtherType>
-concept not_same_as = !same_as<Type, OtherType>; // genious
+concept not_same_as = !same_as<Type, OtherType>;
