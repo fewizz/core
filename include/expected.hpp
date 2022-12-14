@@ -17,11 +17,11 @@ public:
 	{}
 
 	constexpr bool is_unexpected () const {
-		return one_of.template is<UnexpectedType>();
+		return one_of.template is_same_as<UnexpectedType>();
 	}
 
 	constexpr bool is_expected () const {
-		return one_of.template is<Type>();
+		return one_of.template is_same_as<Type>();
 	}
 
 	constexpr const UnexpectedType& get_unexpected() const {

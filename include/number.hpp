@@ -42,3 +42,6 @@ struct number {
 	}
 
 };
+
+template<typename Type>
+number(Type) -> number<Type>;

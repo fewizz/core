@@ -22,14 +22,3 @@ namespace __stream {
 
 template<typename WriteType>
 inline constexpr __stream::write_t<WriteType> stream_write{};
-
-/* template<
-	trivial Type, endianness Endianness = endianness::native,
-	atom_output_stream Stream
->
-void write(Type value, Stream&& iterator) {
-	for(nuint i = 0; i < sizeof(Type); ++i) {
-		nuint i0 = Endianness != endianness::native ? sizeof(Type) - i - 1 : i;
-		*iterator++ = ((uint1a*) &value)[i0];
-	}
-} */
