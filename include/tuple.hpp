@@ -54,7 +54,7 @@ struct tuple<indices::of<Indices...>, Types...> :
 private:
 
 	template<nuint Index, typename Type>
-	constexpr       Type&  get_from_storage(
+	constexpr const Type&  get_from_storage(
 		const __tuple::element_storage<Index, Type>* ptr
 	) const & {
 		return ptr->get0();
