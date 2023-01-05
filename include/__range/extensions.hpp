@@ -67,7 +67,7 @@ public:
 	constexpr void copy_to(OtherRange&& other_range) const &;
 
 	template<basic_range OtherRange>
-	constexpr bool have_elements_equal_to(
+	constexpr bool has_equal_size_and_elements(
 		OtherRange&& other_range
 	) const;
 

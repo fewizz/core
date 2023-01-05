@@ -46,41 +46,46 @@ struct tuple<indices::of<Indices...>, Types...> :
 	template<nuint Index>
 	using type_at = type_at_index<Index, Types...>;
 
+	template<auto TypePredicate>
+	using type_satisfying_predicate = type_at<
+		type_index_satisfying_predicate<TypePredicate>
+	>;
+
 private:
 
 	template<nuint Index, typename Type>
-	constexpr auto& get_from_storage(
+	constexpr       Type&  get_from_storage(
 		const __tuple::element_storage<Index, Type>* ptr
 	) const & {
 		return ptr->get0();
 	}
 	template<nuint Index, typename Type>
-	constexpr auto& get_from_storage(
+	constexpr       Type&  get_from_storage(
 		      __tuple::element_storage<Index, Type>* ptr
 	)      & {
 		return ptr->get0();
 	}
 	template<nuint Index, typename Type>
-	constexpr auto& get_from_storage(
+	constexpr const Type&& get_from_storage(
 		const __tuple::element_storage<Index, Type>* ptr
 	) const && {
-		return ::move(ptr->get0());
+		return ptr->forward();
 	}
 	template<nuint Index, typename Type>
-	constexpr auto& get_from_storage(
+	constexpr       Type&& get_from_storage(
 		      __tuple::element_storage<Index, Type>* ptr
 	)      && {
-		return ::move(ptr->get0());
+		return ptr->forward();
 	}
 
 	template<nuint Index, typename Type>
-	constexpr decltype(auto) forward_from_storage(
+	constexpr const Type&& forward_from_storage(
 		const __tuple::element_storage<Index, Type>* ptr
 	) const {
 		return ptr->forward();
 	}
 	template<nuint Index, typename Type>
-	constexpr decltype(auto) forward_from_storage(
+	constexpr       Type&& forward_from_storage(
 		      __tuple::element_storage<Index, Type>* ptr
 	) {
 		return ptr->forward();
@@ -92,58 +97,58 @@ public:
 	{}
 
 	template<nuint Index>
-	constexpr auto& get_at() const  &  {
+	constexpr const type_at<Index>&  get_at() const  &  {
 		return get_from_storage<Index>(this);
 	}
 	template<nuint Index>
-	constexpr auto& get_at()        &  {
+	constexpr       type_at<Index>&  get_at()        &  {
 		return get_from_storage<Index>(this);
 	}
 	template<nuint Index>
-	constexpr auto&& get_at() const && {
-		return move(get_from_storage<Index>(this));
+	constexpr const type_at<Index>&& get_at() const && {
+		return forward_from_storage<Index>(this);
 	}
 	template<nuint Index>
-	constexpr auto&& get_at()       && {
-		return move(get_from_storage<Index>(this));
+	constexpr       type_at<Index>&& get_at()       && {
+		return forward_from_storage<Index>(this);
 	}
 
 	template<auto TypePredicate>
-	constexpr auto&  get_satisfying_predicate() const & {
+	constexpr decltype(auto) get_satisfying_predicate() const &  {
 		return get_at<type_index_satisfying_predicate<TypePredicate>>();
 	}
 	template<auto TypePredicate>
-	constexpr auto&  get_satisfying_predicate()       & {
+	constexpr decltype(auto) get_satisfying_predicate()       &  {
 		return get_at<type_index_satisfying_predicate<TypePredicate>>();
 	}
 	template<auto TypePredicate>
-	constexpr auto&& get_satisfying_predicate() const && {
-		return move(get_at<type_index_satisfying_predicate<TypePredicate>>());
+	constexpr decltype(auto) get_satisfying_predicate() const && {
+		return get_at<type_index_satisfying_predicate<TypePredicate>>();
 	}
 	template<auto TypePredicate>
-	constexpr auto&& get_satisfying_predicate()       && {
-		return move(get_at<type_index_satisfying_predicate<TypePredicate>>());
+	constexpr decltype(auto) get_satisfying_predicate()       && {
+		return get_at<type_index_satisfying_predicate<TypePredicate>>();
 	}
 
 	template<typename Type>
 	requires only_one_such_type<Type>
-	constexpr const Type&  get_same_as() const & {
+	constexpr decltype(auto) get_same_as() const &  {
 		return get_satisfying_predicate<is_same_as<Type>>();
 	}
 	template<typename Type>
 	requires only_one_such_type<Type>
-	constexpr       Type&  get_same_as()       & {
+	constexpr decltype(auto) get_same_as()       &  {
 		return get_satisfying_predicate<is_same_as<Type>>();
 	}
 	template<typename Type>
 	requires only_one_such_type<Type>
-	constexpr const Type&& get_same_as() const && {
-		return move(get_satisfying_predicate<is_same_as<Type>>());
+	constexpr decltype(auto) get_same_as() const && {
+		return get_satisfying_predicate<is_same_as<Type>>();
 	}
 	template<typename Type>
 	requires only_one_such_type<Type>
-	constexpr       Type&& get_same_as()       && {
-		return move(get_satisfying_predicate<is_same_as<Type>>());
+	constexpr decltype(auto) get_same_as()       && {
+		return get_satisfying_predicate<is_same_as<Type>>();
 	}
 
 	template<typename F>

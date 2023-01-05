@@ -8,6 +8,7 @@
 #include "./__types/at_index.hpp"
 #include "./__types/at_indices.hpp"
 #include "./__types/common.hpp"
+#include "./__types/contain_satisfying_predicate.hpp"
 #include "./__types/count_of_satisfying_predicate.hpp"
 #include "./__types/erase_at_index.hpp"
 #include "./__types/first.hpp"

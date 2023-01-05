@@ -17,15 +17,19 @@ public:
 	// get0 instead of get, to disambiguate structured binding
 	constexpr const Type&  get0() const &  { return element_; }
 	constexpr       Type&  get0()       &  { return element_; }
-	constexpr const Type&& get0() const && { return move(element_); }
-	constexpr       Type&& get0()       && { return move(element_); }
-
-	constexpr decltype(auto) forward() const {
-		return ::forward<Type>(element_);
+	constexpr const Type&& get0() const && {
+		return forward<const Type>(element_);
+	}
+	constexpr       Type&& get0()       && {
+		return forward<      Type>(element_);
 	}
 
-	constexpr decltype(auto) forward() {
-		return ::forward<Type>(element_);
+	constexpr const Type&& forward() const {
+		return ::forward<const Type>(element_);
+	}
+
+	constexpr       Type&& forward() {
+		return ::forward<      Type>(element_);
 	}
 
 };

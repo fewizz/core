@@ -6,6 +6,7 @@
 #include "./__type/is_array.hpp"
 #include "./__type/is_assignable.hpp"
 #include "./__type/is_base.hpp"
+#include "./__type/is_basic_range.hpp"
 #include "./__type/is_const.hpp"
 #include "./__type/is_constructible_from.hpp"
 #include "./__type/is_enum.hpp"
@@ -41,6 +42,8 @@ struct type {
 
 	template<typename Derived>
 	static constexpr bool is_base_of = base_of<Type, Derived>;
+
+	static constexpr bool is_basic_range = basic_range<Type>;
 
 	static constexpr bool is_const = __type::is_const<Type>;
 

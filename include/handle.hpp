@@ -17,12 +17,13 @@ struct handle_interface_base {
 protected:
 	using underlying_type = typename handle_underlying_t<Type>::type;
 
-	constexpr underlying_type underlying()       {
+	constexpr const underlying_type& underlying() const & {
+		return ((const handle<Type>*)this)->underlying();
+	}
+
+	constexpr       underlying_type& underlying() &       {
 		return ((      handle<Type>*)this)->underlying();
 	}
-	constexpr underlying_type underlying() const {
-		return ((const handle<Type>*)this)->underlying();
-	}	
 };
 
 template<typename Type>

@@ -9,7 +9,7 @@ static_assert(
 	>
 );
 
-/*static_assert(
+static_assert(
 	types<int, int, float>::exclusively_satisfy_predicates<
 		count_of_satisfying_predicate<
 			is_same_as<int>.while_decayed
@@ -18,9 +18,9 @@ static_assert(
 			is_same_as<float>.while_decayed
 		> == 1
 	>
-);*/
+);
 
-/*static_assert(
+static_assert(
 	! types<int, int, float, float>::exclusively_satisfy_predicates<
 		count_of_satisfying_predicate<
 			is_same_as<int>.while_decayed
@@ -40,8 +40,8 @@ concept contain_two_bools_and_int =
 		count_of_satisfying_predicate<
 			is_same_as<int>.while_decayed
 		> == 1
-	>;*/
+	>;
 
-//static_assert(contain_two_bools_and_int<bool, int, bool>);
+static_assert(contain_two_bools_and_int<bool, int, bool>);
 
 int main() {}

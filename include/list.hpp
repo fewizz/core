@@ -23,6 +23,10 @@ class list : public range_extensions<list<StorageRange>> {
 	storage_iterator_type storage_iterator_;
 public:
 
+	constexpr ~list() {
+		//clear();
+	}
+
 	constexpr list() :
 		storage_range_{}, storage_iterator_{ range_iterator(storage_range_) }
 	{}
@@ -56,7 +60,12 @@ public:
 		return *this;
 	}
 
-	constexpr StorageRange move_storage_range() {
+	constexpr remove_reference<StorageRange>& storage_range() & {
+		return this->storage_range_;
+	}
+
+	constexpr StorageRange move_storage_range()
+	requires (!type_is_reference<StorageRange>) {
 		StorageRange moved = move(this->storage_range_);
 		storage_iterator_ = range_iterator(this->storage_range_);
 		return move(moved);

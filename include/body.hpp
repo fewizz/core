@@ -23,10 +23,8 @@ public:
 		}
 	}
 
-	::handle<Type>* operator -> () {
-		return &soul_handle_;
-	}
-
+	const ::handle<Type>* operator -> () const { return &soul_handle_; }
+	      ::handle<Type>* operator -> ()       { return &soul_handle_; }
 
 	constexpr void destroy() {
 		do_destroy();
