@@ -36,7 +36,7 @@ struct numbers : array<Type, Size> {
 };
 
 template<typename... Types>
-requires(sizeof...(Types) == 1 || types_are_same<Types...>)
+requires(sizeof...(Types) == 1 || types_are_same<remove_reference<Types>...>)
 numbers(Types&&...)
 	-> numbers<
 		remove_reference<first_type<Types...>>,

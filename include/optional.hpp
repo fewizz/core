@@ -18,23 +18,33 @@ public:
 	explicit operator bool () const { return has_value(); }
 
 	template<typename Handler>
-	const Derived& if_has_no_value(Handler&& handler) const {
+	const Derived&  if_has_no_value(Handler&& handler) const &  {
 		if(has_no_value()) { handler(); }
 		return derived();
 	}
 	template<typename Handler>
-	      Derived& if_has_no_value(Handler&& handler)       {
+	      Derived&  if_has_no_value(Handler&& handler)       &  {
 		if(has_no_value()) { handler(); }
 		return derived();
+	}
+	template<typename Handler>
+	const Derived&& if_has_no_value(Handler&& handler) const && {
+		if(has_no_value()) { handler(); }
+		return move(derived());
+	}
+	template<typename Handler>
+	      Derived&& if_has_no_value(Handler&& handler)       && {
+		if(has_no_value()) { handler(); }
+		return move(derived());
 	}
 
 	const first&  get() const &  requires single { return derived().get(); }
 	      first&  get()       &  requires single { return derived().get(); }
 	const first&& get() const && requires single {
-		return move(derived().get());
+		return move(derived()).get();
 	}
 	      first&& get()       && requires single {
-		return move(derived().get());
+		return move(derived()).get();
 	}
 
 	const first*
@@ -45,16 +55,12 @@ public:
 	template<typename Handler>
 	requires single
 	decltype(auto) if_has_value(Handler&& handler) const {
-		if(has_value()) {
-			return handler(get());
-		}
+		if(has_value()) { return handler(get()); }
 	}
 	template<typename Handler>
 	requires single
 	decltype(auto) if_has_value(Handler&& handler)       {
-		if(has_value()) {
-			return handler(get());
-		}
+		if(has_value()) { return handler(get()); }
 	}
 
 	template<typename Handler>
@@ -114,11 +120,12 @@ public:
 	      first&  get()       &  requires single {
 		return base_type::template get_same_as<first>();
 	}
+
 	const first&& get() const && requires single {
-		return move(base_type::template get_same_as<first>());
+		return move(*this).template get_same_as<first>();
 	}
 	      first&& get()       && requires single {
-		return move(base_type::template get_same_as<first>());
+		return move(*this).template get_same_as<first>();
 	}
 };
 
@@ -135,10 +142,11 @@ public:
 
 	bool has_value() const { return ptr_ != nullptr; }
 
-	const Type&  get() const &  { return *ptr_; }
-	      Type&  get()       &  { return *ptr_; }
-	const Type&& get() const && { return move(*ptr_); }
-	      Type&& get()       && { return move(*ptr_); }
+	const Type&  get() const { return *ptr_; }
+	      Type&  get()       { return *ptr_; }
+
+	const Type&& forward() const { return ::forward<const Type>(*ptr_); }
+	      Type&& forward()       { return ::forward<      Type>(*ptr_); }
 
 	const remove_reference<Type>* ptr() const & { return ptr_; }
 	      remove_reference<Type>* ptr()       & { return ptr_; }

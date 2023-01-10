@@ -3,6 +3,7 @@
 #include "./__types/at_index.hpp"
 #include "./__types/count_of_satisfying_predicate.hpp"
 #include "./__types/index_of_satisfying_predicate.hpp"
+#include "./__type/is_range_of.hpp"
 #include "./__type/is_same_as_predicate.hpp"
 #include "./__values/of.hpp"
 #include "./forward.hpp"
@@ -97,58 +98,117 @@ public:
 	{}
 
 	template<nuint Index>
-	constexpr const type_at<Index>&  get_at() const  &  {
+	constexpr const type_at<Index>&  get_at() const &  {
 		return get_from_storage<Index>(this);
 	}
 	template<nuint Index>
-	constexpr       type_at<Index>&  get_at()        &  {
+	constexpr       type_at<Index>&  get_at()       &  {
 		return get_from_storage<Index>(this);
 	}
 	template<nuint Index>
 	constexpr const type_at<Index>&& get_at() const && {
-		return forward_from_storage<Index>(this);
+		return move(*this).get_from_storage<Index>(this);
 	}
 	template<nuint Index>
 	constexpr       type_at<Index>&& get_at()       && {
-		return forward_from_storage<Index>(this);
+		return move(*this).get_from_storage<Index>(this);
 	}
 
 	template<auto TypePredicate>
-	constexpr decltype(auto) get_satisfying_predicate() const &  {
+	constexpr const type_satisfying_predicate<TypePredicate>&
+	get_satisfying_predicate() const &  {
 		return get_at<type_index_satisfying_predicate<TypePredicate>>();
 	}
 	template<auto TypePredicate>
-	constexpr decltype(auto) get_satisfying_predicate()       &  {
+	constexpr       type_satisfying_predicate<TypePredicate>&
+	get_satisfying_predicate()       &  {
 		return get_at<type_index_satisfying_predicate<TypePredicate>>();
 	}
+
 	template<auto TypePredicate>
-	constexpr decltype(auto) get_satisfying_predicate() const && {
-		return get_at<type_index_satisfying_predicate<TypePredicate>>();
+	constexpr const type_satisfying_predicate<TypePredicate>&&
+	get_satisfying_predicate() const && {
+		return move(*this).template
+			get_at<type_index_satisfying_predicate<TypePredicate>>();
 	}
 	template<auto TypePredicate>
-	constexpr decltype(auto) get_satisfying_predicate()       && {
-		return get_at<type_index_satisfying_predicate<TypePredicate>>();
+	constexpr       type_satisfying_predicate<TypePredicate>&&
+	get_satisfying_predicate()       && {
+		return move(*this).template
+			get_at<type_index_satisfying_predicate<TypePredicate>>();
 	}
 
 	template<typename Type>
 	requires only_one_such_type<Type>
-	constexpr decltype(auto) get_same_as() const &  {
+	constexpr const type_satisfying_predicate<is_same_as<Type>>&
+	get_same_as() const &  {
 		return get_satisfying_predicate<is_same_as<Type>>();
 	}
 	template<typename Type>
 	requires only_one_such_type<Type>
-	constexpr decltype(auto) get_same_as()       &  {
+	constexpr       type_satisfying_predicate<is_same_as<Type>>&
+	get_same_as()       &  {
 		return get_satisfying_predicate<is_same_as<Type>>();
 	}
 	template<typename Type>
 	requires only_one_such_type<Type>
-	constexpr decltype(auto) get_same_as() const && {
-		return get_satisfying_predicate<is_same_as<Type>>();
+	constexpr const type_satisfying_predicate<is_same_as<Type>>&&
+	get_same_as() const {
+		return move(*this).template
+			get_satisfying_predicate<is_same_as<Type>>();
 	}
 	template<typename Type>
 	requires only_one_such_type<Type>
-	constexpr decltype(auto) get_same_as()       && {
-		return get_satisfying_predicate<is_same_as<Type>>();
+	constexpr       type_satisfying_predicate<is_same_as<Type>>&&
+	forward_same_as()       {
+		return move(*this).template
+			forward_satisfying_predicate<is_same_as<Type>>();
+	}
+
+	template<typename Type>
+	constexpr const type_satisfying_predicate<is_same_as<Type>.while_decayed>&
+	get_decayed_same_as() const &  {
+		return get_satisfying_predicate<is_same_as<Type>.while_decayed>();
+	}
+	template<typename Type>
+	constexpr       type_satisfying_predicate<is_same_as<Type>.while_decayed>&
+	get_decayed_same_as()       &  {
+		return get_satisfying_predicate<is_same_as<Type>.while_decayed>();
+	}
+	template<typename Type>
+	constexpr const type_satisfying_predicate<is_same_as<Type>.while_decayed>&&
+	get_decayed_same_as() const && {
+		return move(*this).template
+			get_satisfying_predicate<is_same_as<Type>.while_decayed>();
+	}
+	template<typename Type>
+	constexpr       type_satisfying_predicate<is_same_as<Type>.while_decayed>&&
+	forward_decayed_same_as()       {
+		return move(*this).template
+			get_satisfying_predicate<is_same_as<Type>.while_decayed>();
+	}
+
+	template<typename Type>
+	constexpr const type_satisfying_predicate<is_range_of<Type>>&
+	get_range_of() const &  {
+		return get_satisfying_predicate<is_range_of<Type>>();
+	}
+	template<typename Type>
+	constexpr const type_satisfying_predicate<is_range_of<Type>>&
+	get_range_of()       &  {
+		return get_satisfying_predicate<is_range_of<Type>>();
+	}
+	template<typename Type>
+	constexpr const type_satisfying_predicate<is_range_of<Type>>&&
+	get_range_of() const && {
+		return move(*this).template
+			get_satisfying_predicate<is_range_of<Type>>();
+	}
+	template<typename Type>
+	constexpr const type_satisfying_predicate<is_range_of<Type>>&
+	get_range_of()       && {
+		return move(*this).template
+			get_satisfying_predicate<is_range_of<Type>>();
 	}
 
 	template<typename F>
@@ -186,21 +246,12 @@ public:
 		return f(get_at<OtherIndices>()...);
 	}
 
-	template<nuint Index>
-	constexpr decltype(auto) forward() const {
-		return forward_from_storage<Index>(this);
-	}
-	template<nuint Index>
-	constexpr decltype(auto) forward() {
-		return forward_from_storage<Index>(this);
-	}
-
 	constexpr decltype(auto) forward(auto&& f) const {
-		return f(forward_from_storage<Indices>(this)...);
+		return f(forward_at<Indices>()...);
 	}
 
 	constexpr decltype(auto) forward(auto&& f) {
-		return f(forward_from_storage<Indices>(this)...);
+		return f(forward_at<Indices>()...);
 	}
 };
 

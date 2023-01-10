@@ -18,10 +18,10 @@ public:
 	constexpr const Type&  get0() const &  { return element_; }
 	constexpr       Type&  get0()       &  { return element_; }
 	constexpr const Type&& get0() const && {
-		return forward<const Type>(element_);
+		return ::forward<const Type>(element_);
 	}
 	constexpr       Type&& get0()       && {
-		return forward<      Type>(element_);
+		return ::forward<      Type>(element_);
 	}
 
 	constexpr const Type&& forward() const {

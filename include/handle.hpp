@@ -39,9 +39,24 @@ protected:
 
 public:
 
+	constexpr handle() : underlying_{ invalid_underlying } {}
+
 	constexpr handle(underlying_type underlying) :
 		underlying_{ underlying }
 	{}
+
+	constexpr handle(handle&& other) :
+		underlying_{ exchange(other.underlying_, invalid_underlying) }
+	{}
+
+	constexpr handle(const handle& other) :
+		underlying_{ other.underlying_ }
+	{}
+
+	handle& operator = (handle&& other) {
+		underlying_ = exchange(other.underlying_, invalid_underlying);
+		return *this;
+	}
 
 	constexpr const underlying_type& underlying() const { return underlying_; }
 	constexpr       underlying_type& underlying()       { return underlying_; }

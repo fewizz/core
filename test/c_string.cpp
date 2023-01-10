@@ -7,7 +7,7 @@ static_assert(contiguous_range<c_string_of_unknown_size>);
 
 consteval bool f() {
 	c_string str{ "Hi!" };
-	if(!str.have_elements_equal_to(array{ 'H', 'i', '!' })) throw;
+	if(!str.has_equal_size_and_elements(array{ 'H', 'i', '!' })) throw;
 
 	str = c_string{ "No." };
 

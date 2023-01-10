@@ -28,6 +28,17 @@ struct array_without_extensions {
 			return f((*this)[Indices]...);
 		}(indices::from<0>::to<Size>{});
 	}
+
+	constexpr bool operator == (const array_without_extensions& other) const {
+		const Type* it_0 = iterator();
+		const Type* it_1 = other.iterator();
+
+		for(nuint i = 0; i < Size; ++i) {
+			if(*it_0 != *it_1) return false;
+		}
+
+		return true;
+	}
 };
 
 template<typename... Types>

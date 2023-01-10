@@ -17,14 +17,6 @@
 #include "./move.hpp"
 #include "./type.hpp"
 
-/*
-
-variant<typename... Types>
-
-
-
-*/
-
 template<typename... Types>
 class variant {
 	using storage_type = __variant::storage<Types...>;
@@ -43,6 +35,10 @@ class variant {
 		types<Types...>::template index_of_satisfying_predicate<
 			TypePredicate
 		>;
+
+	template<auto TypePredicate>
+	using type_satisfying_predicate
+		= type_at_index<index_of_satisfying_predicate<TypePredicate>, Types...>;
 
 	template<typename Type>
 	static constexpr bool has_one_same_as =
@@ -280,36 +276,40 @@ public:
 	}
 	template<nuint Index>
 	constexpr const type_at<Index>&& get_at() const && {
-		return move(storage_.template get_at<Index>());
+		return move(storage_).template get_at<Index>();
 	}
 	template<nuint Index>
 	constexpr       type_at<Index>&& get_at()       && {
-		return move(storage_.template get_at<Index>());
+		return move(storage_).template get_at<Index>();
 	}
 
 	template<auto TypePredicate>
-	constexpr const auto&  get_satisfying_predicate() const & {
+	constexpr const type_satisfying_predicate<TypePredicate>&
+	get_satisfying_predicate() const & {
 		return storage_.template get_at<
 			index_of_satisfying_predicate<TypePredicate>
 		>();
 	}
 	template<auto TypePredicate>
-	constexpr       auto&  get_satisfying_predicate()       & {
+	constexpr       type_satisfying_predicate<TypePredicate>&
+	get_satisfying_predicate()       & {
 		return storage_.template get_at<
 			index_of_satisfying_predicate<TypePredicate>
 		>();
 	}
 	template<auto TypePredicate>
-	constexpr const auto&& get_satisfying_predicate() const && {
-		return move(storage_.template get_at<
+	constexpr const type_satisfying_predicate<TypePredicate>&&
+	get_satisfying_predicate() const && {
+		return move(storage_).template get_at<
 			index_of_satisfying_predicate<TypePredicate>
-		>());
+		>();
 	}
 	template<auto TypePredicate>
-	constexpr       auto&& get_satisfying_predicate()       && {
-		return move(storage_.template get_at<
+	constexpr       type_satisfying_predicate<TypePredicate>&&
+	get_satisfying_predicate()       && {
+		return move(storage_).template get_at<
 			index_of_satisfying_predicate<TypePredicate>
-		>());
+		>();
 	}
 
 	template<typename Type>

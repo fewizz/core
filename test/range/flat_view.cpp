@@ -39,7 +39,7 @@ constexpr bool f() {
 			c_string{ "world" }, c_string{ "!" }
 		}.flat_view();
 
-		fv.have_elements_equal_to(c_string{ "Hello, world!" });
+		fv.has_equal_size_and_elements(c_string{ "Hello, world!" });
 		if(*fv.iterator() != 'H') throw;
 	}
 

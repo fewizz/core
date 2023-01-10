@@ -24,13 +24,25 @@ static_assert(f() == 0);
 
 static_assert(
 	same_as<
-		decltype(expression_of_type<tuple<int, int&>>.forward<0>()),
+		decltype(expression_of_type<tuple<int, int&>>.get_at<0>()),
+		int&
+	>
+);
+static_assert(
+	same_as<
+		decltype(move(expression_of_type<tuple<int, int&>>.get_at<0>())),
 		int&&
 	>
 );
 static_assert(
 	same_as<
-		decltype(expression_of_type<tuple<int, int&>>.forward<1>()),
+		decltype(expression_of_type<tuple<int, int&>>.get_at<1>()),
+		int&
+	>
+);
+static_assert(
+	same_as<
+		decltype(move(expression_of_type<tuple<int, int&>>).get_at<1>()),
 		int&
 	>
 );

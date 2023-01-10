@@ -10,6 +10,8 @@
 #include "./__types/common.hpp"
 #include "./__types/contain_satisfying_predicate.hpp"
 #include "./__types/count_of_satisfying_predicate.hpp"
+#include "./__types/count_of_decayed_same_as.hpp"
+#include "./__types/count_of_range_of.hpp"
 #include "./__types/erase_at_index.hpp"
 #include "./__types/first.hpp"
 #include "./__types/index_of_satisfying_predicate.hpp"
@@ -53,13 +55,22 @@ struct types : common_if_have<Types...> {
 		= ::count_of_satisfying_predicate<Predicate>.template
 		for_types<Types...>;
 
+	template<typename Type>
+	static constexpr nuint count_of_decayed_same_as
+		= count_of_satisfying_predicate<is_same_as<Type>.while_decayed>;
+
+	template<typename Type>
+	static constexpr nuint count_of_range_of
+		= count_of_satisfying_predicate<is_range_of<Type>>;
+
 	template<nuint Index>
 	using erase_at_index = typename
 		__types::erase_at_index<Index>::template
 		for_types<Types...>::template
 		pass_for_type_directly<types>;
 
-	using first = __types::first::for_types<Types...>;
+	template<typename... Types0>
+	using first = __types::first::for_types<Types..., Types0...>;
 
 	template<type_predicate auto Predicate>
 	static constexpr nuint index_of_satisfying_predicate =

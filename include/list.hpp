@@ -140,8 +140,8 @@ public:
 
 	template<basic_range Range>
 	constexpr void put_back_copied_elements_of(Range&& other) {
-		for(auto& e : other) {
-			emplace_back(forward<decltype(e)>(e));
+		for(decltype(auto) e : other) {
+			emplace_back(e);
 		}
 	}
 

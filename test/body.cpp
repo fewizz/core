@@ -15,7 +15,7 @@ template<>
 struct handle_interface<something> {};
 
 template<>
-constexpr void body<something>::do_destroy() {
+void body<something>::do_destroy() {
 	soul_handle_.underlying()->i = -1;
 }
 

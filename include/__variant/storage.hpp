@@ -4,9 +4,11 @@
 #include "../__type/is_reference.hpp"
 #include "../__type/remove_reference.hpp"
 #include "../__types/first.hpp"
+#include "../__types/at_index.hpp"
 #include "../integer.hpp"
 #include "../if_satisfies.hpp"
 #include "../forward.hpp"
+#include "../move.hpp"
 
 /*
 
@@ -41,6 +43,9 @@ private:
 	friend union __variant::storage;
 
 	using value_type = Type;
+
+	template<nuint Index>
+	using type_at = type_at_index<Index, Type, TailTypes...>;
 
 	static constexpr bool has_next = sizeof...(TailTypes) > 0;
 	static constexpr bool value_type_is_reference
@@ -180,41 +185,41 @@ public:
 	}
 
 	template<nuint Index> requires (Index == 0)
-	constexpr const auto& get_at() const & {
+	constexpr const Type& get_at() const & {
 		if constexpr (value_type_is_reference) { return *element_; }
 		else { return element_; }
 	}
 	template<nuint Index> requires (Index == 0)
-	constexpr       auto& get_at()       & {
+	constexpr       Type& get_at()       & {
 		if constexpr (value_type_is_reference) { return *element_; }
 		else { return element_; }
 	}
 	template<nuint Index> requires (Index == 0)
-	constexpr const auto&& get_at() const && {
+	constexpr const Type&& get_at() const && {
 		if constexpr (value_type_is_reference) { return *element_; }
-		else { return move(element_); }
+		else { return forward<Type>(element_); }
 	}
 	template<nuint Index> requires (Index == 0)
-	constexpr       auto&& get_at()       && {
+	constexpr       Type&& get_at()       && {
 		if constexpr (value_type_is_reference) { return *element_; }
-		else { return move(element_); }
+		else { return forward<Type>(element_); }
 	}
 
 	template<nuint Index> requires (Index > 0 && has_next)
-	constexpr const auto& get_at() const & {
+	constexpr const type_at<Index>& get_at() const & {
 		return next_.template get_at<Index - 1>();
 	}
 	template<nuint Index> requires (Index > 0 && has_next)
-	constexpr       auto& get_at()       & {
+	constexpr       type_at<Index>& get_at()       & {
 		return next_.template get_at<Index - 1>();
 	}
 	template<nuint Index> requires (Index > 0 && has_next)
-	constexpr const auto&& get_at() const && {
-		return move(next_.template get_at<Index - 1>());
+	constexpr const type_at<Index>&& get_at() const && {
+		return move(*this).next_.template get_at<Index - 1>();
 	}
 	template<nuint Index> requires (Index > 0 && has_next)
-	constexpr       auto&& get_at()       && {
-		return move(next_.template get_at<Index - 1>());
+	constexpr       type_at<Index>&& get_at()       && {
+		return move(*this).next_.template get_at<Index - 1>();
 	}
 
 	template<treat_type_as TreatAs, typename... Args>

@@ -24,4 +24,12 @@ int main() {
 		if(o.has_no_value()) return 8;
 		if(o.get() != 42) return 9;
 	}
+	{
+		int i = 1;
+		int& ref = optional<int&>{ i }.get();
+		if(ref != 1) return 10;
+	}
+	{
+		if(optional<int>{ 0 }.get() != 0) return 11;
+	}
 }
