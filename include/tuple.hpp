@@ -107,11 +107,11 @@ public:
 	}
 	template<nuint Index>
 	constexpr const type_at<Index>&& get_at() const && {
-		return move(*this).get_from_storage<Index>(this);
+		return move(*this).template get_from_storage<Index>(this);
 	}
 	template<nuint Index>
 	constexpr       type_at<Index>&& get_at()       && {
-		return move(*this).get_from_storage<Index>(this);
+		return move(*this).template get_from_storage<Index>(this);
 	}
 
 	template<auto TypePredicate>

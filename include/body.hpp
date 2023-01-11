@@ -19,11 +19,14 @@ public:
 	body(body&& other) :
 		soul_handle_{ move(other.soul_handle_) }
 	{}
+	body(const body& other) = delete;
 
 	body& operator = (body&& other) {
 		soul_handle_ = move(other.soul_handle_);
 		return *this;
 	}
+
+	body& operator = (const body& other) = delete;
 
 	~body() {
 		if(soul_handle_.is_valid()) {
