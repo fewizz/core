@@ -13,7 +13,7 @@ public:
 
 	template<typename Handler>
 	decltype(auto) operator () (Handler&& handler) const {
-		Type storage[count_];
+		Type storage[count_ == 0 ? 1 : count_];
 		return handler(span<Type>{ storage, count_ });
 	}
 

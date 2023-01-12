@@ -10,9 +10,9 @@ class body {
 
 public:
 
-	body() {}
+	body() : soul_handle_{} {}
 
-	body(typename handle<Type>::underlying_type underlying) :
+	explicit body(typename handle<Type>::underlying_type underlying) :
 		soul_handle_{ underlying }
 	{}
 
