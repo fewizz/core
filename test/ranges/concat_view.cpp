@@ -2,7 +2,7 @@
 #include <array.hpp>
 #include <c_string.hpp>
 
-consteval bool f_i() {
+consteval bool f_0() {
 	{
 		[[maybe_unused]] __ranges::concat_view v {
 			c_string{ "" }, array{ -1, -10, -10000 }
@@ -60,10 +60,14 @@ consteval bool f_i() {
 	if(*(v2.iterator() + 3) != 's') throw;
 	if(*(v2.iterator() + 4) != 'i') throw;
 	if((v2.iterator() + 5) != v2.sentinel()) throw;
-
 	return true;
 }
 
-static_assert(f_i());
+static_assert(f_0());
 
-int main() {}
+int main() {
+	__ranges::concat_view v2 {
+		array{ 'a' }, c_string{ "ka" }, c_string{ "s" }, array{ 'i' }
+	};
+	if(v2.size() != 5) throw;
+}

@@ -3,6 +3,7 @@
 #include "./extensions_declaration.hpp"
 #include "./sized.hpp"
 #include "./element_index_type.hpp"
+#include "../loop_action.hpp"
 
 template<typename Derived, range_extensions_options Options>
 struct range_extensions {
@@ -39,7 +40,15 @@ public:
 		using index_type = range_element_index_type<Derived>;
 		index_type i{};
 		for(auto& e : range_()) {
-			handler(e, i); ++i;
+			if constexpr(same_as<decltype(handler(e, i)), loop_action>) {
+				if(handler(e, i) == loop_action::stop) {
+					break;
+				}
+			}
+			else {
+				handler(e, i);
+			}
+			++i;
 		}
 	}
 	template<typename Handler>
@@ -47,7 +56,14 @@ public:
 		using index_type = range_element_index_type<Derived>;
 		index_type i{};
 		for(auto& e : range_()) {
-			handler(e, i); ++i;
+			if constexpr(same_as<decltype(handler(e, i)), loop_action>) {
+				if(handler(e, i) == loop_action::stop) {
+					break;
+				}
+			}
+			else {
+				handler(e, i);
+			}
 		}
 	}
 
@@ -144,8 +160,8 @@ public:
 	bool starts_with(With&&... with) const &;
 
 	template<typename... With>
-	bool ends_with(With&&... with) const &;
+	constexpr bool ends_with(With&&... with) const &;
 
-	nuint get_or_compute_size() const;
+	constexpr nuint get_or_compute_size() const;
 
 };

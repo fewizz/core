@@ -192,7 +192,7 @@ range_extensions<Derived, Options>::view_copied_elements_on_stack(
 	Handler&& handler
 )        &  {
 	return __range::view_copied_elements_on_stack(
-		move(range_()), forward<Handler>(handler)
+		range_(), forward<Handler>(handler)
 	);
 }
 template<typename Derived, range_extensions_options Options>
@@ -288,12 +288,14 @@ bool range_extensions<Derived, Options>::starts_with(With&&... with) const & {
 
 template<typename Derived, range_extensions_options Options>
 template<typename... With>
-bool range_extensions<Derived, Options>::ends_with(With&&... with) const & {
+constexpr bool
+range_extensions<Derived, Options>::ends_with(With&&... with) const & {
 	return __range::ends_with(range_(), forward<With>(with)...);
 }
 
 template<typename Derived, range_extensions_options Options>
-nuint range_extensions<Derived, Options>::get_or_compute_size() const {
+constexpr nuint
+range_extensions<Derived, Options>::get_or_compute_size() const {
 	return iterator_and_sentinel {
 		_iterator(), _sentinel()
 	}.get_or_compute_distance();

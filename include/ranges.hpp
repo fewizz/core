@@ -12,7 +12,9 @@ private:
 	tuple<Ranges...> ranges_;
 public:
 
-	ranges(Ranges&&... ranges) : ranges_{ forward<Ranges>(ranges)... } {}
+	constexpr ranges(Ranges&&... ranges) :
+		ranges_{ forward<Ranges>(ranges)... }
+	{}
 
 	constexpr bool have_equal_size_and_elements() const {
 		return ranges_.pass([](const Ranges&... ranges) {
@@ -26,7 +28,7 @@ public:
 		});
 	}
 	constexpr auto concat_view() {
-		return ranges_.pass([](Ranges&... ranges) {
+		return ranges_.pass([](      Ranges&... ranges) {
 			return __ranges::concat_view{ ranges... };
 		});
 	}

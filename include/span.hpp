@@ -20,6 +20,7 @@ public:
 
 	constexpr span() {};
 
+	constexpr span(Type* ptr) : ptr_{ ptr }, size_{ 1 } {}
 	constexpr span(Type* ptr, SizeType size) : ptr_{ ptr }, size_{ size } {}
 
 	template<nuint Size>

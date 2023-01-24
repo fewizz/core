@@ -4,21 +4,23 @@
 #include <exchange.hpp>
 
 template<typename Type>
-class body {
+struct body_base {};
 
+template<typename Type>
+class body : public body_base<Type> {
+	using underlying_type = typename handle<Type>::underlying_type;
 	handle<Type> soul_handle_{};
 
 public:
 
-	body() : soul_handle_{} {}
+	using body_base<Type>::body_base;
 
-	explicit body(typename handle<Type>::underlying_type underlying) :
-		soul_handle_{ underlying }
-	{}
+	body() {}
 
-	body(body&& other) :
-		soul_handle_{ move(other.soul_handle_) }
-	{}
+	body(handle<Type> handle) : soul_handle_{ handle } {}
+	explicit body(underlying_type underlying) : soul_handle_{ underlying } {}
+
+	body(body&& other) : soul_handle_{ move(other.soul_handle_) } {}
 	body(const body& other) = delete;
 
 	body& operator = (body&& other) {
@@ -33,6 +35,8 @@ public:
 			destroy();
 		}
 	}
+
+	handle<Type> handle() const { return soul_handle_; }
 
 	const ::handle<Type>* operator -> () const { return &soul_handle_; }
 	      ::handle<Type>* operator -> ()       { return &soul_handle_; }

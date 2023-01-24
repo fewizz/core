@@ -211,6 +211,29 @@ public:
 			get_satisfying_predicate<is_range_of<Type>>();
 	}
 
+	template<typename Type>
+	constexpr const type_satisfying_predicate<is_range_of_decayed<Type>>&
+	get_range_of_decayed() const &  {
+		return get_satisfying_predicate<is_range_of_decayed<Type>>();
+	}
+	template<typename Type>
+	constexpr const type_satisfying_predicate<is_range_of_decayed<Type>>&
+	get_range_of_decayed()       &  {
+		return get_satisfying_predicate<is_range_of_decayed<Type>>();
+	}
+	template<typename Type>
+	constexpr const type_satisfying_predicate<is_range_of_decayed<Type>>&&
+	get_range_of_decayed() const && {
+		return move(*this).template
+			get_satisfying_predicate<is_range_of_decayed<Type>>();
+	}
+	template<typename Type>
+	constexpr const type_satisfying_predicate<is_range_of_decayed<Type>>&
+	get_range_of_decayed()       && {
+		return move(*this).template
+			get_satisfying_predicate<is_range_of_decayed<Type>>();
+	}
+
 	template<typename F>
 	constexpr void for_each(F&& f) const {
 		(f(get_at<Indices>()) , ...);
@@ -233,7 +256,7 @@ public:
 	constexpr decltype(auto) pass(auto&& f) const {
 		return f(get_at<Indices>()...);
 	}
-	constexpr decltype(auto) pass(auto&& f) {
+	constexpr decltype(auto) pass(auto&& f)       {
 		return f(get_at<Indices>()...);
 	}
 

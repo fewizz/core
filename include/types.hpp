@@ -63,6 +63,10 @@ struct types : common_if_have<Types...> {
 	static constexpr nuint count_of_range_of
 		= count_of_satisfying_predicate<is_range_of<Type>>;
 
+	template<typename Type>
+	static constexpr nuint count_of_range_of_decayed
+		= count_of_satisfying_predicate<is_range_of_decayed<Type>>;
+
 	template<nuint Index>
 	using erase_at_index = typename
 		__types::erase_at_index<Index>::template
