@@ -3,8 +3,10 @@
 #include "./__types/at_index.hpp"
 #include "./__types/count_of_satisfying_predicate.hpp"
 #include "./__types/index_of_satisfying_predicate.hpp"
+#include "./__types/indices_of_satisfying_predicate.hpp"
 #include "./__type/is_range_of.hpp"
 #include "./__type/is_same_as_predicate.hpp"
+#include "./__type/is_invokable_with.hpp"
 #include "./__values/of.hpp"
 #include "./forward.hpp"
 #include "./move.hpp"
@@ -194,7 +196,7 @@ public:
 		return get_satisfying_predicate<is_range_of<Type>>();
 	}
 	template<typename Type>
-	constexpr const type_satisfying_predicate<is_range_of<Type>>&
+	constexpr       type_satisfying_predicate<is_range_of<Type>>&
 	get_range_of()       &  {
 		return get_satisfying_predicate<is_range_of<Type>>();
 	}
@@ -205,7 +207,7 @@ public:
 			get_satisfying_predicate<is_range_of<Type>>();
 	}
 	template<typename Type>
-	constexpr const type_satisfying_predicate<is_range_of<Type>>&
+	constexpr       type_satisfying_predicate<is_range_of<Type>>&&
 	get_range_of()       && {
 		return move(*this).template
 			get_satisfying_predicate<is_range_of<Type>>();
@@ -217,7 +219,7 @@ public:
 		return get_satisfying_predicate<is_range_of_decayed<Type>>();
 	}
 	template<typename Type>
-	constexpr const type_satisfying_predicate<is_range_of_decayed<Type>>&
+	constexpr       type_satisfying_predicate<is_range_of_decayed<Type>>&
 	get_range_of_decayed()       &  {
 		return get_satisfying_predicate<is_range_of_decayed<Type>>();
 	}
@@ -228,10 +230,33 @@ public:
 			get_satisfying_predicate<is_range_of_decayed<Type>>();
 	}
 	template<typename Type>
-	constexpr const type_satisfying_predicate<is_range_of_decayed<Type>>&
+	constexpr       type_satisfying_predicate<is_range_of_decayed<Type>>&&
 	get_range_of_decayed()       && {
 		return move(*this).template
 			get_satisfying_predicate<is_range_of_decayed<Type>>();
+	}
+
+	template<typename... Args>
+	constexpr const type_satisfying_predicate<is_invokablew_with<Args...>>&
+	get_invokable_with() const &  {
+		return get_satisfying_predicate<is_invokablew_with<Args...>>();
+	}
+	template<typename... Args>
+	constexpr       type_satisfying_predicate<is_invokablew_with<Args...>>&
+	get_invokable_with()       &  {
+		return get_satisfying_predicate<is_invokablew_with<Args...>>();
+	}
+	template<typename... Args>
+	constexpr const type_satisfying_predicate<is_invokablew_with<Args...>>&&
+	get_invokable_with() const && {
+		return move(*this).template
+			get_satisfying_predicate<is_invokablew_with<Args...>>();
+	}
+	template<typename... Args>
+	constexpr       type_satisfying_predicate<is_invokablew_with<Args...>>&&
+	get_invokable_with()       && {
+		return move(*this).template
+			get_satisfying_predicate<is_invokablew_with<Args...>>();
 	}
 
 	template<typename F>
@@ -267,6 +292,27 @@ public:
 	template<typename F, nuint... OtherIndices>
 	constexpr decltype(auto) pass(F&& f, ::indices::of<OtherIndices...>)       {
 		return f(get_at<OtherIndices>()...);
+	}
+
+	template<auto TypePredicate, typename Handler>
+	constexpr decltype(auto)
+	pass_satisfying_predicate(Handler&& handler) const {
+		return pass(
+			::forward<Handler>(handler),
+			typename __types::indices_of_satisfying_predicate<
+				TypePredicate
+			>::template for_types<Types...>{}
+		);
+	}
+	template<auto TypePredicate, typename Handler>
+	constexpr decltype(auto)
+	pass_satisfying_predicate(Handler&& handler)       {
+		return pass(
+			::forward<Handler>(handler),
+			typename __types::indices_of_satisfying_predicate<
+				TypePredicate
+			>::template for_types<Types...>{}
+		);
 	}
 
 	constexpr decltype(auto) forward(auto&& f) const {

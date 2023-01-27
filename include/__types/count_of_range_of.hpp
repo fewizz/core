@@ -1,7 +1,5 @@
 #pragma once
 
-#pragma once
-
 #include "./count_of_satisfying_predicate.hpp"
 #include "../__type/is_range_of.hpp"
 

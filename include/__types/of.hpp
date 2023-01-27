@@ -8,6 +8,7 @@ namespace __types {
 	struct of {
 		static constexpr nuint size = sizeof...(Types);
 		static constexpr bool is_empty = size == 0;
+
 		using indices = ::indices::from<0>::to<size>;
 
 		template<typename To>

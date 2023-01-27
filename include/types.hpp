@@ -1,7 +1,6 @@
 #pragma once
 
 #include "./__types/predicate.hpp"
-
 #include "./__types/exclusively_satisfy_predicates.hpp"
 #include "./__types/are_same.hpp"
 #include "./__types/satisfy_predicates.hpp"
@@ -12,6 +11,7 @@
 #include "./__types/count_of_satisfying_predicate.hpp"
 #include "./__types/count_of_decayed_same_as.hpp"
 #include "./__types/count_of_range_of.hpp"
+#include "./__types/count_of_invokable_with.hpp"
 #include "./__types/erase_at_index.hpp"
 #include "./__types/first.hpp"
 #include "./__types/index_of_satisfying_predicate.hpp"
@@ -56,6 +56,10 @@ struct types : common_if_have<Types...> {
 		for_types<Types...>;
 
 	template<typename Type>
+	static constexpr nuint count_of_same_as
+		= count_of_satisfying_predicate<is_same_as<Type>>;
+
+	template<typename Type>
 	static constexpr nuint count_of_decayed_same_as
 		= count_of_satisfying_predicate<is_same_as<Type>.while_decayed>;
 
@@ -66,6 +70,10 @@ struct types : common_if_have<Types...> {
 	template<typename Type>
 	static constexpr nuint count_of_range_of_decayed
 		= count_of_satisfying_predicate<is_range_of_decayed<Type>>;
+
+	template<typename... Args>
+	static constexpr nuint count_of_invokable_with
+		= count_of_satisfying_predicate<is_invokablew_with<Args...>>;
 
 	template<nuint Index>
 	using erase_at_index = typename

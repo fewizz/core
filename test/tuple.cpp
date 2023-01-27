@@ -14,9 +14,19 @@ consteval tuple<int, float, bool> some_elements() {
 
 consteval int f() {
 	tuple elems{ 0, 1.0F, a{} };
+
+	{
+		bool passed = false;
+		elems.pass_satisfying_predicate<is_same_as<float>>([&](float) {
+			passed = true;
+		});
+		if(!passed) throw;
+	}
+
 	[[maybe_unused]] auto elems1 = move(elems);
 
 	[[maybe_unused]] auto [ i, f, b ] = some_elements();
+
 	return 0;
 }
 
