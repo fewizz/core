@@ -58,6 +58,11 @@ public:
 		return *this;
 	}
 
+	handle& operator = (const handle& other) {
+		underlying_ = other.underlying_;
+		return *this;
+	}
+
 	constexpr const underlying_type& underlying() const { return underlying_; }
 	constexpr       underlying_type& underlying()       { return underlying_; }
 

@@ -41,6 +41,10 @@ struct number {
 		return value_ < Type{} ? -value_ : value_;
 	}
 
+	Type clamp(Type min, Type max) const {
+		return value_ < min ? min : value_ > max ? max : value_;
+	}
+
 };
 
 template<typename Type>
