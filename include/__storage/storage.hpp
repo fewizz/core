@@ -3,10 +3,12 @@
 #include "../__range/extensions.hpp"
 #include "../__type/is_constructible_from.hpp"
 #include "../__type/is_trivial.hpp"
+#include "../__type/is_reference.hpp"
 #include "../forward.hpp"
 #include "../move.hpp"
 
 template<typename Type>
+requires (!type_is_reference<Type>)
 struct storage : range_extensions<storage<Type>> {
 	alignas(Type) uint1a data[sizeof(Type)];
 
@@ -30,6 +32,13 @@ struct storage : range_extensions<storage<Type>> {
 
 	constexpr auto iterator() const { return data; }
 	constexpr auto sentinel() const { return data + sizeof(Type); }
+
+	template<typename OtherType>
+	requires (sizeof(Type) == sizeof(OtherType))
+	constexpr storage<OtherType>& cast() {
+		this->~storage();
+		return *new ((storage<OtherType>*) this) storage<OtherType>();
+	}
 
 	template<typename... Args>
 	requires constructible_from<Type, Args...>

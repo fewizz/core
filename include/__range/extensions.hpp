@@ -116,14 +116,14 @@ public:
 	template<typename Predicate>
 	constexpr auto filter_view(Predicate&&)       && ;
 
-	template<typename Predicate>
-	constexpr auto transform_view(Predicate&&) const &  ;
-	template<typename Predicate>
-	constexpr auto transform_view(Predicate&&)       &  ;
-	template<typename Predicate>
-	constexpr auto transform_view(Predicate&&) const && ;
-	template<typename Predicate>
-	constexpr auto transform_view(Predicate&&)       && ;
+	template<typename F>
+	constexpr auto transform_view(F&&) const &  ;
+	template<typename F>
+	constexpr auto transform_view(F&&)       &  ;
+	template<typename F>
+	constexpr auto transform_view(F&&) const && ;
+	template<typename F>
+	constexpr auto transform_view(F&&)       && ;
 
 	constexpr decltype(auto) operator [] (nuint index) const {
 		return *(_iterator() + index);
