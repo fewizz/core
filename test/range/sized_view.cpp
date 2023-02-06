@@ -16,3 +16,5 @@ static_assert(
 		c_string{ "BCDEF" }
 	}.concat_view().sized_view().size() == 6
 );
+
+int main() {}

@@ -33,13 +33,6 @@ struct storage : range_extensions<storage<Type>> {
 	constexpr auto iterator() const { return data; }
 	constexpr auto sentinel() const { return data + sizeof(Type); }
 
-	template<typename OtherType>
-	requires (sizeof(Type) == sizeof(OtherType))
-	constexpr storage<OtherType>& cast() {
-		this->~storage();
-		return *new ((storage<OtherType>*) this) storage<OtherType>();
-	}
-
 	template<typename... Args>
 	requires constructible_from<Type, Args...>
 	Type& construct(Args&&... args) {

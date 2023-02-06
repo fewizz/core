@@ -64,6 +64,7 @@ public:
 			else {
 				handler(e, i);
 			}
+			++i;
 		}
 	}
 
