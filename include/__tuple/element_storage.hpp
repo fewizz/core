@@ -10,6 +10,8 @@ class element_storage {
 	Type element_;
 public:
 
+	constexpr element_storage() {}
+
 	constexpr element_storage(Type&& element) :
 		element_{ ::forward<Type>(element) }
 	{}

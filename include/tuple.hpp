@@ -21,7 +21,9 @@ struct tuple : tuple<indices::from<0>::to<sizeof...(Types)>, Types...> {
 	using base_type = tuple<indices::from<0>::to<sizeof...(Types)>, Types...>;
 	//using base_type::base_type; // TODO crashes clangd
 
-	constexpr tuple(Types... elements) :
+	constexpr tuple() : base_type{} {}
+
+	constexpr tuple(Types... elements) requires(sizeof...(Types) > 0) :
 		base_type(forward<Types>(elements)...)
 	{}
 
@@ -95,7 +97,11 @@ private:
 	}
 public:
 
-	constexpr tuple(Types... values) :
+	constexpr tuple() :
+		__tuple::element_storage<Indices, Types>()...
+	{}
+
+	constexpr tuple(Types... values) requires(sizeof...(Types) > 0) :
 		__tuple::element_storage<Indices, Types>(::forward<Types>(values))...
 	{}
 
