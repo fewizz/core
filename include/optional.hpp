@@ -131,10 +131,13 @@ public:
 
 template<typename Type>
 class optional<Type&> : public optional_extensions<optional<Type&>, Type> {
-	Type* ptr_;
+	Type* ptr_ = nullptr;
 public:
 
-	optional() : ptr_{ nullptr } {}
+	optional() = default;
+	~optional() {
+		ptr_ = nullptr;
+	}
 
 	optional(Type& element) : ptr_{ &element } {}
 

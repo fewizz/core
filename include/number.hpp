@@ -45,6 +45,14 @@ struct number {
 		return value_ < min ? min : value_ > max ? max : value_;
 	}
 
+	Type align(Type alignment) {
+		Type rem = value_ % alignment;
+		if(rem == 0) {
+			return value_;
+		}
+		return value_ + (alignment - rem);
+	}
+
 };
 
 template<typename Type>
