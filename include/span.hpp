@@ -100,6 +100,7 @@ public:
 		}
 	};
 
+	constexpr span() : ptr_{ nullptr }, size_{ 0 } {}
 	constexpr span(Type** ptr, index_type size) : ptr_{ ptr }, size_{ size } {}
 
 	constexpr index_type size() const { return size_; }

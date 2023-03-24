@@ -5,6 +5,7 @@
 #include "./__range/of_element_type_same_as.hpp"
 #include "./__range/of_element_type_satisfying_predicate.hpp"
 #include "./__range/element_type.hpp"
+#include "./__range/size_type.hpp"
 
 template<basic_range Range>
 class range : public range_extensions<range<Range>> {
