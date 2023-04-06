@@ -135,16 +135,21 @@ class concat_view_iterator {
 		__builtin_unreachable();
 	}
 
+	// TODO use deducing this
 	template<nuint FromIndex = 0, typename Handler>
 	constexpr decltype(auto) current_pair_with_index(Handler&& handler) const {
-		return ((concat_view_iterator&) *this)
-			.current_pair_with_index<FromIndex>(
-				[&]<nuint Index, typename PairType>(PairType& pair)
-				-> decltype(auto) {
-					return handler.template
-						operator () <Index>((const PairType&) pair);
-				}
+		if(FromIndex == index_) {
+			return handler.template operator () <FromIndex>(
+				pairs_.template get_at<FromIndex>()
 			);
+		}
+		if constexpr(has_next<FromIndex>) {
+			return current_pair_with_index<FromIndex + 1>(
+				forward<Handler>(handler)
+			);
+		}
+		// ???
+		__builtin_unreachable();
 	}
 
 	template<nuint FromIndex = 0, typename Handler>

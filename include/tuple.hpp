@@ -284,11 +284,19 @@ public:
 		(f(get_at<OtherIndices>()) , ...);
 	}
 
-	constexpr decltype(auto) pass(auto&& f) const {
+	constexpr decltype(auto) pass(auto&& f) const & {
 		return f(get_at<Indices>()...);
 	}
-	constexpr decltype(auto) pass(auto&& f)       {
+	constexpr decltype(auto) pass(auto&& f)       & {
 		return f(get_at<Indices>()...);
+	}
+
+	constexpr decltype(auto) forward(auto&& f) const {
+		return f(move(*this).template get_at<Indices>()...);
+	}
+
+	constexpr decltype(auto) forward(auto&& f) {
+		return f(move(*this).template get_at<Indices>()...);
 	}
 
 	template<typename F, nuint... OtherIndices>
@@ -319,14 +327,6 @@ public:
 				TypePredicate
 			>::template for_types<Types...>{}
 		);
-	}
-
-	constexpr decltype(auto) forward(auto&& f) const {
-		return f(forward_at<Indices>()...);
-	}
-
-	constexpr decltype(auto) forward(auto&& f) {
-		return f(forward_at<Indices>()...);
 	}
 };
 

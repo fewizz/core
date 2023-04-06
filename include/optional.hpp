@@ -134,7 +134,7 @@ class optional<Type&> : public optional_extensions<optional<Type&>, Type> {
 	Type* ptr_ = nullptr;
 public:
 
-	optional() = default;
+	optional() {};
 	~optional() {
 		ptr_ = nullptr;
 	}

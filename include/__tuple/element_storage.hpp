@@ -19,6 +19,7 @@ public:
 	// get0 instead of get, to disambiguate structured binding
 	constexpr const Type&  get0() const &  { return element_; }
 	constexpr       Type&  get0()       &  { return element_; }
+
 	constexpr const Type&& get0() const && {
 		return ::forward<const Type>(element_);
 	}

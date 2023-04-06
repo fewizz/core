@@ -22,19 +22,30 @@ public:
 		});
 	}
 
-	constexpr auto concat_view() const {
+	constexpr auto concat_view() const & {
 		return ranges_.pass([](const Ranges&... ranges) {
 			return __ranges::concat_view{ ranges... };
 		});
 	}
-	constexpr auto concat_view() {
+	constexpr auto concat_view() & {
 		return ranges_.pass([](      Ranges&... ranges) {
 			return __ranges::concat_view{ ranges... };
 		});
 	}
+
+	constexpr auto concat_view() const && {
+		return ranges_.forward([](const Ranges&&... ranges) {
+			return __ranges::concat_view{ forward<Ranges>(ranges)... };
+		});
+	}
+	constexpr auto concat_view() && {
+		return ranges_.forward([](      Ranges&&... ranges) {
+			return __ranges::concat_view{ forward<Ranges>(ranges)... };
+		});
+	}
 	
 	template<typename Function>
-	constexpr auto transform_view(Function&& function) const {
+	constexpr auto transform_view(Function&& function) const & {
 		return ranges_.pass([&](const Ranges&... ranges) {
 			return __ranges::transform_view {
 				forward<Function>(function), ranges...
@@ -42,10 +53,27 @@ public:
 		});
 	}
 	template<typename Function>
-	constexpr auto transform_view(Function&& function)       {
+	constexpr auto transform_view(Function&& function)       & {
 		return ranges_.pass([&](Ranges&... ranges) {
 			return __ranges::transform_view {
 				forward<Function>(function), ranges...
+			};
+		});
+	}
+
+	template<typename Function>
+	constexpr auto transform_view(Function&& function) const && {
+		return ranges_.forward([&](const Ranges&&... ranges) {
+			return __ranges::transform_view {
+				forward<Function>(function), forward<Ranges>(ranges)...
+			};
+		});
+	}
+	template<typename Function>
+	constexpr auto transform_view(Function&& function)       && {
+		return ranges_.forward([&](Ranges&&... ranges) {
+			return __ranges::transform_view {
+				forward<Function>(function), forward<Ranges>(ranges)...
 			};
 		});
 	}

@@ -17,6 +17,14 @@
 #include "./move.hpp"
 #include "./type.hpp"
 
+template<nuint Index>
+struct variant_index_t{
+	constexpr operator nuint () const { return Index; }
+};
+
+template<nuint Index>
+static constexpr variant_index_t<Index> variant_index{};
+
 template<typename... Types>
 class variant {
 	using storage_type = __variant::storage<Types...>;
@@ -106,6 +114,16 @@ public:
 	{
 		storage_.template create<__variant::treat_type_as::value_type>(
 			current_, ::forward<Type>(arg)
+		);
+	}
+
+	template<nuint Index, typename... Args>
+	requires constructible_from<type_at_index<Index, Types...>, Args...>
+	constexpr variant(variant_index_t<Index>, Args&&... args) :
+		current_ { Index }
+	{
+		storage_.template create<__variant::treat_type_as::value_type>(
+			current_, ::forward<Args>(args)...
 		);
 	}
 
@@ -258,6 +276,10 @@ public:
 		return storage_.template view<
 			__variant::treat_type_as::internal_type
 		>(current_, ::move(handler));
+	}
+
+	constexpr nuint index() const {
+		return current_;
 	}
 
 	template<typename Type>

@@ -125,4 +125,8 @@ int main() {
 		variant<c> x = move(c0);
 		if(!c0.moved_out) throw;
 	}
+
+	{
+		variant<int, float> what{ variant_index<0>, 0.0F };
+	}
 }

@@ -19,6 +19,10 @@ public:
 	static constexpr bool is_borrowed_range = true;
 
 	constexpr span() {};
+	constexpr ~span() {
+		ptr_ = nullptr;
+		size_ = 0;
+	}
 
 	constexpr span(Type* ptr) : ptr_{ ptr }, size_{ 1 } {}
 	constexpr span(Type* ptr, SizeType size) : ptr_{ ptr }, size_{ size } {}
@@ -58,6 +62,10 @@ public:
 		return { ptr_, size };
 	}
 
+	constexpr span<const Type> const_elements() {
+		return { ptr_, size_ };
+	}
+
 };
 
 template<typename Type>
@@ -70,8 +78,8 @@ template<typename Type, unsigned_integer IndexType>
 struct span<Type&, IndexType> : range_extensions<span<Type&, IndexType>> {
 	using index_type = IndexType;
 private:
-	Type**    ptr_;
-	index_type size_;
+	Type**    ptr_ = nullptr;
+	index_type size_ = 0;
 public:
 	
 	class it {
@@ -102,6 +110,10 @@ public:
 
 	constexpr span() : ptr_{ nullptr }, size_{ 0 } {}
 	constexpr span(Type** ptr, index_type size) : ptr_{ ptr }, size_{ size } {}
+	constexpr ~span() {
+		ptr_ = nullptr;
+		size_ = 0;
+	}
 
 	constexpr index_type size() const { return size_; }
 

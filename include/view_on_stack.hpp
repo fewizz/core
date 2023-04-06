@@ -13,8 +13,13 @@ public:
 
 	template<typename Handler>
 	decltype(auto) operator () (Handler&& handler) const {
-		Type storage[count_ == 0 ? 1 : count_];
-		return handler(span<Type>{ storage, count_ });
+		if(count_ > 0) {
+			Type storage[count_];
+			return handler(span<Type>{ storage, count_ });
+		}
+		else {
+			return handler(span<Type>{});
+		}
 	}
 
 };
