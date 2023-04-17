@@ -1,6 +1,7 @@
 #pragma once
 
 #include "./variant.hpp"
+#include "./forward.hpp"
 
 template<typename Unexpected>
 class unexpected {
@@ -72,6 +73,27 @@ public:
 	}
 	constexpr       Type&& get_expected()       && {
 		return move(*this).one_of.template get_at<expected_index>();
+	}
+
+	constexpr const Type&
+	get() const &  requires same_as<Type, UnexpectedType> {
+		return is_expected() ? get_expected() : get_unexpected();
+	}
+	constexpr       Type&
+	get()       &  requires same_as<Type, UnexpectedType> {
+		return is_expected() ? get_expected() : get_unexpected();
+	}
+	constexpr const Type&&
+	get() const && requires same_as<Type, UnexpectedType> {
+		return is_expected() ?
+			move(*this).get_expected() :
+			move(*this).get_unexpected();
+	}
+	constexpr       Type&&
+	get()       && requires same_as<Type, UnexpectedType> {
+		return is_expected() ?
+			move(*this).get_expected() :
+			move(*this).get_unexpected();
 	}
 
 	template<typename Handler>
