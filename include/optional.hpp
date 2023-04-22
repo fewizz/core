@@ -30,26 +30,26 @@ public:
 	template<typename Handler>
 	const Derived&& if_has_no_value(Handler&& handler) const && {
 		if(has_no_value()) { handler(); }
-		return move(derived());
+		return ::move(derived());
 	}
 	template<typename Handler>
 	      Derived&& if_has_no_value(Handler&& handler)       && {
 		if(has_no_value()) { handler(); }
-		return move(derived());
+		return ::move(derived());
 	}
 
 	const first&  get() const &  requires single { return derived().get(); }
 	      first&  get()       &  requires single { return derived().get(); }
 	const first&& get() const && requires single {
-		return move(derived()).get();
+		return ::move(derived()).get();
 	}
 	      first&& get()       && requires single {
-		return move(derived()).get();
+		return ::move(derived()).get();
 	}
 
-	const first*
+	const remove_reference<first>*
 	operator -> () const & requires single { return &get(); }
-	      first*
+	      remove_reference<first>*
 	operator -> ()       & requires single { return &get(); }
 
 	template<typename Handler>
@@ -120,12 +120,18 @@ public:
 	      first&  get()       &  requires single {
 		return base_type::template get_same_as<first>();
 	}
-
 	const first&& get() const && requires single {
-		return move(*this).template get_same_as<first>();
+		return ::move(*this).template get_same_as<first>();
 	}
 	      first&& get()       && requires single {
-		return move(*this).template get_same_as<first>();
+		return ::move(*this).template get_same_as<first>();
+	}
+
+	const remove_reference<first>&& move() const requires single {
+		return ::move(*this).template get_same_as<first>();
+	}
+	      remove_reference<first>&& move()       requires single {
+		return ::move(*this).template get_same_as<first>();
 	}
 };
 
@@ -151,7 +157,7 @@ public:
 	const Type&& forward() const { return ::forward<const Type>(*ptr_); }
 	      Type&& forward()       { return ::forward<      Type>(*ptr_); }
 
-	const remove_reference<Type>* ptr() const & { return ptr_; }
-	      remove_reference<Type>* ptr()       & { return ptr_; }
+	const Type* ptr() const & { return ptr_; }
+	      Type* ptr()       & { return ptr_; }
 
 };
