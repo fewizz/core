@@ -50,7 +50,7 @@ struct types : common_if_have<Types...> {
 	template<nuint... Indices>
 	using at_indices = types<__type_pack_element<Indices, Types...>...>;
 
-	template<type_predicate auto Predicate>
+	template</*type_predicate*/ auto Predicate>
 	static constexpr nuint count_of_satisfying_predicate
 		= ::count_of_satisfying_predicate<Predicate>.template
 		for_types<Types...>;
@@ -84,12 +84,12 @@ struct types : common_if_have<Types...> {
 	template<typename... Types0>
 	using first = __types::first::for_types<Types..., Types0...>;
 
-	template<type_predicate auto Predicate>
+	template</*type_predicate*/ auto Predicate>
 	static constexpr nuint index_of_satisfying_predicate =
 		__types::index_of_satisfying_predicate<Predicate>::template
 		for_types<Types...>;
 
-	template<type_predicate auto Predicate>
+	template</*type_predicate*/ auto Predicate>
 	using indices_of_satisfying_predicate = typename
 		__types::indices_of_satisfying_predicate<Predicate>::template
 		for_types<Types...>;

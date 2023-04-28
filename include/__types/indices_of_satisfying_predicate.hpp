@@ -5,7 +5,7 @@
 
 namespace __types {
 
-	template<type_predicate auto Predicate>
+	template</*type_predicate*/ auto Predicate>
 	class indices_of_satisfying_predicate {
 
 		template<nuint CurrentIndex, nuint... Indices>

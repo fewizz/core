@@ -59,7 +59,7 @@ struct count_of_satisfying_predicate_t {
 	}
 
 	struct less_than_or_equals_to : types_predicate_marker {
-		nuint n ;
+		nuint n;
 
 		static constexpr auto affecting_predicate = Predicate;
 
