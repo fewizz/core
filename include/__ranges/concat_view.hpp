@@ -12,7 +12,6 @@
 #include "../forward.hpp"
 #include "../tuple.hpp"
 #include "../__types/common.hpp"
-#include "../expression_of_type.hpp"
 
 namespace __ranges {
 
@@ -154,23 +153,25 @@ class concat_view_iterator {
 
 	template<nuint FromIndex = 0, typename Handler>
 	constexpr decltype(auto) current_pair(Handler&& handler) const {
-		return current_pair_with_index([&]<nuint Index>(auto& pair) {
+		return current_pair_with_index([&]<nuint Index>(auto& pair)
+		-> decltype(auto) {
 			return handler(pair);
 		});
 	}
 
 	template<nuint FromIndex = 0, typename Handler>
 	constexpr decltype(auto) current_pair(Handler&& handler) {
-		return current_pair_with_index([&]<nuint Index>(auto& pair) {
+		return current_pair_with_index([&]<nuint Index>(auto& pair)
+		-> decltype(auto) {
 			return handler(pair);
 		});
 	}
 
-	static constexpr basic_iterator decltype(auto) it(auto& pair) {
+	static constexpr basic_iterator auto& it(auto& pair) {
 		return pair.template get_at<0>();
 	}
 
-	static constexpr decltype(auto) end(auto& pair) {
+	static constexpr auto& end(auto& pair) {
 		return pair.template get_at<1>();
 	}
 

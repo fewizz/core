@@ -1,4 +1,4 @@
 #pragma once
 
 template<typename Type>
-static Type&& expression_of_type = {};
+Type expression_of_type();

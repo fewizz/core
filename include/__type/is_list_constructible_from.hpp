@@ -20,6 +20,6 @@ struct is_list_constructible_from_t :
 
 };
 
-template<typename... Args>
-constexpr inline is_list_constructible_from_t<Args...>
+template<typename Type, typename... Args>
+constexpr inline is_list_constructible_from_t<Type, Args...>
 	is_list_constructible_from{};

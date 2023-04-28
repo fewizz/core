@@ -28,7 +28,9 @@ inline constexpr __range::iterator_t range_iterator {};
 #include "../expression_of_type.hpp"
 
 template<basic_range Range>
-using range_iterator_type = decltype(range_iterator(expression_of_type<Range>));
+using range_iterator_type = decltype(
+	range_iterator(expression_of_type<Range>())
+);
 
 template<basic_range Range>
 constexpr auto begin(Range&& range) {

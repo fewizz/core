@@ -26,7 +26,9 @@ inline constexpr __range::sentinel_t range_sentinel {};
 #include "../expression_of_type.hpp"
 
 template<basic_range Range>
-using range_sentinel_type = decltype(range_sentinel(expression_of_type<Range>));
+using range_sentinel_type = decltype(
+	range_sentinel(expression_of_type<Range>())
+);
 
 template<basic_range Range>
 constexpr auto end(Range&& range) {

@@ -5,6 +5,16 @@ static_assert(
 	same_as<types<int, int&, int&>::common, int>
 );
 
+static_assert(
+	types<int, int&>::have_common &&
+	same_as<types<int, int&>::common, int>
+);
+
+static_assert(
+	types<int&, int&>::have_common &&
+	same_as<types<int&, int&>::common, int&>
+);
+
 struct a{};
 
 static_assert(

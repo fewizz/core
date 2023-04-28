@@ -18,7 +18,7 @@ struct overloaded : Types... {
 
 		template<typename... Args>
 		using original_return_type = decltype(
-			original_(forward<Args>(expression_of_type<Args>)...)
+			original_(forward<Args>(expression_of_type<Args>())...)
 		);
 
 		template<typename... Args>

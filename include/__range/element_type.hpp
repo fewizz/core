@@ -7,5 +7,5 @@
 
 template<basic_range Range>
 using range_element_type = iterator_element_type<
-	decltype(range_iterator(expression_of_type<Range>))
+	decltype(range_iterator(expression_of_type<Range>()))
 >;

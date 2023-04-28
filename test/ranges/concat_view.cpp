@@ -13,6 +13,11 @@ consteval bool f_0() {
 		array{ 0, 1, 2, 3 }, array{ -1, -10, -10000 }
 	};
 
+	static_assert(same_as<
+		decltype(*v.iterator()),
+		int&
+	>);
+
 	auto it = v.iterator();
 
 	if(v.size() != 7) throw;

@@ -66,9 +66,6 @@ public:
 
 	static constexpr bool is_borrowed_range = borrowed_range<
 		Range
-		//decltype(
-		//	expression_of_type<Function>(*range_iterator(range_))
-		//)
 	>;
 
 	constexpr transform_view(Range&& range, Function&& function) :

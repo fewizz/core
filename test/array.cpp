@@ -7,18 +7,18 @@
 
 static_assert(
 	basic_iterator<
-		decltype(range_iterator(expression_of_type<array<int, 3>>))
+		decltype(range_iterator(expression_of_type<array<int, 3>>()))
 	>
 );
 static_assert(
 	random_access_iterator<
-		decltype(range_iterator(expression_of_type<array<int, 3>>))
+		decltype(range_iterator(expression_of_type<array<int, 3>>()))
 	>
 );
 
 static_assert(
 	contiguous_iterator<
-		decltype(range_iterator(expression_of_type<array<int, 3>>))
+		decltype(range_iterator(expression_of_type<array<int, 3>>()))
 	>
 );
 

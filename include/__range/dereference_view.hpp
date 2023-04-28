@@ -50,6 +50,10 @@ public:
 		return a - b.iterator_;
 	}
 
+	dereference_iterator operator - (nuint n) {
+		return {iterator_ - n};
+	}
+
 };
 
 template<basic_range Range>
