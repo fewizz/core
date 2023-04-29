@@ -3,7 +3,8 @@
 
 static_assert(contiguous_iterator<storage<char>*>);
 static_assert(base_of<
-	contiguous_iterator_mark, storage_range_element_iterator<storage<char>*>
+	storage_range_element_iterator<storage<char>*>,
+	contiguous_iterator_mark
 >);
 static_assert(contiguous_iterator<
 	storage_range_element_iterator<storage<char>*>

@@ -91,8 +91,8 @@ public:
 	using base_type::base_type;
 
 	template<typename Arg>
-	requires assignable<base_type, Arg>
-	optional operator = (Arg&& args) {
+	requires assignable<base_type, Arg&&>
+	optional& operator = (Arg&& args) {
 		base_type::operator = (forward<Arg>(args));
 		return *this;
 	}

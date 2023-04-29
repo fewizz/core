@@ -5,4 +5,4 @@
 struct input_stream_mark {};
 
 template<typename Type>
-concept input_stream = base_of<input_stream_mark, Type>;
+concept input_stream = base_of<Type, input_stream_mark>;

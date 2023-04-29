@@ -7,8 +7,8 @@ struct output_stream_mark {};
 
 template<typename Type>
 concept output_stream = base_of<
-	output_stream_mark,
-	remove_const<remove_reference<Type>>
+	remove_const<remove_reference<Type>>,
+	output_stream_mark
 >;
 
 namespace __stream {

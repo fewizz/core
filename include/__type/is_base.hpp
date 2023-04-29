@@ -2,7 +2,7 @@
 
 #include "./predicate.hpp"
 
-template<typename BaseType, typename Type>
+template<typename Type, typename BaseType>
 concept base_of = __is_base_of(BaseType, Type);
 
 template<typename BaseType>

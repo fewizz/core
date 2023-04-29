@@ -32,4 +32,13 @@ int main() {
 	{
 		if(optional<int>{ 0 }.get() != 0) return 11;
 	}
+	{
+		struct a{
+			~a() {}
+		};
+		optional<a> o{};
+		if(o.has_value()) return 12;
+		o = a{};
+		if(o.has_no_value()) return 13;
+	}
 }

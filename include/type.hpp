@@ -40,8 +40,8 @@ struct type {
 	template<typename WhatToAssign>
 	static constexpr bool is_assignable = assignable<Type, WhatToAssign>;
 
-	template<typename Derived>
-	static constexpr bool is_base_of = base_of<Type, Derived>;
+	template<typename BaseType>
+	static constexpr bool is_base_of = base_of<Type, BaseType>;
 
 	static constexpr bool is_basic_range = basic_range<Type>;
 
