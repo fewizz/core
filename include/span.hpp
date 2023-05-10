@@ -62,7 +62,7 @@ public:
 		return { ptr_, size };
 	}
 
-	constexpr span<const Type> const_elements() {
+	constexpr span<const Type> const_elements() const {
 		return { ptr_, size_ };
 	}
 

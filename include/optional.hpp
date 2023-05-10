@@ -92,8 +92,8 @@ public:
 
 	template<typename Arg>
 	requires assignable<base_type, Arg&&>
-	optional& operator = (Arg&& args) {
-		base_type::operator = (forward<Arg>(args));
+	optional& operator = (Arg&& arg) {
+		base_type::operator = (forward<Arg>(arg));
 		return *this;
 	}
 
