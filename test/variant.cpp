@@ -22,35 +22,8 @@ consteval bool f() {
 
 // static_assert(f());
 
-nuint a_destructions;
-
-struct a {
-	int i;
-	a(int i) : i{i} {}
-	~a() { ++a_destructions; }
-};
-
-nuint b_destructions;
-
-struct b {
-	float f;
-	b(float f) : f{f} {}
-	~b() { ++b_destructions; }
-};
-
-struct c {
-	bool moved_out;
-
-	c() {
-		moved_out = false;
-	}
-
-	c(c&& other) {
-		other.moved_out = true;
-	}
-};
-
 int main() {
+
 	{
 		variant<int, nuint> e{ nuint{ 666666666666 } };
 		auto copy = e;
@@ -75,12 +48,33 @@ int main() {
 	}
 
 	{
+		struct a {
+			int i;
+			nuint& a_destructions;
+			a(int i, nuint& a_destructions) :
+				i{i}, a_destructions{a_destructions}
+			{}
+			~a() { ++a_destructions; }
+		};
+
+		struct b {
+			float f;
+			nuint& b_destructions;
+			b(float f, nuint& b_destructions) :
+				f{f}, b_destructions{ b_destructions }
+			{}
+			~b() { ++b_destructions; }
+		};
+
+		nuint a_destructions;
+		nuint b_destructions;
+
 		{
-			variant<a, b> es{ a{ 4 } };
+			variant<a, b> es{ a{ 4, a_destructions } };
 			if(!es.is_same_as<a>()) throw;
 			if(es.get_same_as<a>().i != 4) throw;
 
-			es = b{ 4.0F };
+			es = b{ 4.0F, b_destructions };
 
 			if(!es.is_same_as<b>()) throw;
 			if(es.get_same_as<b>().f != 4.0) throw;
@@ -121,6 +115,17 @@ int main() {
 	}
 
 	{
+		struct c {
+			bool moved_out;
+
+			c() {
+				moved_out = false;
+			}
+
+			c(c&& other) {
+				other.moved_out = true;
+			}
+		};
 		c c0{};
 		variant<c> x = move(c0);
 		if(!c0.moved_out) throw;
@@ -128,5 +133,21 @@ int main() {
 
 	{
 		variant<int, float> what{ variant_index<0>, 0.0F };
+	}
+
+	{
+		static bool destroyed = false;
+
+		struct check_destroy {
+			~check_destroy() {
+				destroyed = true;
+			}
+		};
+
+		{
+			variant<int, check_destroy>{ check_destroy{} };
+		}
+
+		if(!destroyed) throw;
 	}
 }

@@ -148,6 +148,9 @@ public:
 	auto try_find_first_satisfying(Predicate&& predicate) const;
 
 	template<typename Predicate>
+	auto try_find_first_satisfying(Predicate&& predicate);
+
+	template<typename Predicate>
 	requires reversable_range<Derived>
 	auto try_find_last_satisfying(Predicate&& predicate) const;
 

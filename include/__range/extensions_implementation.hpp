@@ -231,6 +231,17 @@ auto range_extensions<Derived, Options>::try_find_first_satisfying(
 
 template<typename Derived, range_extensions_options Options>
 template<typename Predicate>
+auto range_extensions<Derived, Options>::try_find_first_satisfying(
+	Predicate&& predicate
+) {
+	return __range::try_find_first_satisfying(
+		range_(),
+		forward<Predicate>(predicate)
+	);
+}
+
+template<typename Derived, range_extensions_options Options>
+template<typename Predicate>
 requires reversable_range<Derived>
 auto range_extensions<Derived, Options>::try_find_last_satisfying(
 	Predicate&& predicate

@@ -1,14 +1,8 @@
 #include <list.hpp>
 #include <array.hpp>
 
-static_assert(contiguous_iterator<storage<char>*>);
-static_assert(base_of<
-	storage_range_element_iterator<storage<char>*>,
-	contiguous_iterator_mark
->);
-static_assert(contiguous_iterator<
-	storage_range_element_iterator<storage<char>*>
->);
+static_assert(contiguous_iterator<storage<int>*>);
+static_assert(contiguous_iterator<storage_of_size_and_alignment<1, 1>*>);
 
 int main() {
 	{
@@ -17,12 +11,12 @@ int main() {
 
 		if(l.size() != 0) return 1;
 
-		l.emplace_back(42);
+		l.emplace_back<int>(42);
 
 		if(l.size() != 1) return 2;
 		if(*l.iterator() != 42) return 3;
-		if(l[0] != 42) return 4;
-		if(!l.contains(42)) return 5;
+		if(l.as_span()[0] != 42) return 4;
+		if(!l.as_span().contains(42)) return 5;
 	}
 	{
 		int a = 0, b = 1;

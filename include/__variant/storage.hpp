@@ -77,6 +77,7 @@ private:
 
 	internal_type element_;
 	next_type next_;
+
 public:
 
 	constexpr storage() {}
@@ -98,6 +99,9 @@ public:
 	) { \
 		new (&(storage).element_) \
 			decltype((storage).element_)(forward<Args>(args)...); \
+	} \
+	else { \
+		__builtin_unreachable(); \
 	}
 
 #define CREATE_NEXT(storage) \
@@ -310,104 +314,6 @@ public:
 		CREATE_ELEMENT_OR_NEXT(next_.next_.next_.next_.next_.next_, 6)
 		CREATE_ELEMENT_OR_NEXT(next_.next_.next_.next_.next_.next_.next_, 7)
 		CREATE_ELEMENT(next_.next_.next_.next_.next_.next_.next_.next_)
-	}
-
-	constexpr void destroy(nuint) requires(sizeof...(TailTypes) == 0) {
-		DESTROY_ELEMENT(*this)
-	}
-
-	constexpr void destroy(nuint index)
-	requires(sizeof...(TailTypes) == 1) {
-		DESTROY_ELEMENT_OR_NEXT(*this, 0)
-		DESTROY_ELEMENT(next_)
-	}
-
-	constexpr void destroy(nuint index)
-	requires(sizeof...(TailTypes) == 2) {
-		DESTROY_ELEMENT_OR_NEXT(*this, 0)
-		DESTROY_ELEMENT_OR_NEXT(next_, 1)
-		DESTROY_ELEMENT(next_.next_)
-	}
-
-	constexpr void destroy(nuint index)
-	requires(sizeof...(TailTypes) == 3) {
-		DESTROY_ELEMENT_OR_NEXT(*this, 0)
-		DESTROY_ELEMENT_OR_NEXT(next_, 1)
-		DESTROY_ELEMENT_OR_NEXT(next_.next_, 2)
-		DESTROY_ELEMENT(next_.next_.next_)
-	}
-
-	constexpr void destroy(nuint index)
-	requires(sizeof...(TailTypes) == 4) {
-		DESTROY_ELEMENT_OR_NEXT(*this, 0)
-		DESTROY_ELEMENT_OR_NEXT(next_, 1)
-		DESTROY_ELEMENT_OR_NEXT(next_.next_, 2)
-		DESTROY_ELEMENT_OR_NEXT(next_.next_.next_, 3)
-		DESTROY_ELEMENT(next_.next_.next_.next_)
-	}
-
-	constexpr void destroy(nuint index)
-	requires(sizeof...(TailTypes) == 5) {
-		DESTROY_ELEMENT_OR_NEXT(*this, 0)
-		DESTROY_ELEMENT_OR_NEXT(next_, 1)
-		DESTROY_ELEMENT_OR_NEXT(next_.next_, 2)
-		DESTROY_ELEMENT_OR_NEXT(next_.next_.next_, 3)
-		DESTROY_ELEMENT_OR_NEXT(next_.next_.next_.next_, 4)
-		DESTROY_ELEMENT(next_.next_.next_.next_.next_)
-	}
-
-	constexpr void destroy(nuint index)
-	requires(sizeof...(TailTypes) == 6) {
-		DESTROY_ELEMENT_OR_NEXT(*this, 0)
-		DESTROY_ELEMENT_OR_NEXT(next_, 1)
-		DESTROY_ELEMENT_OR_NEXT(next_.next_, 2)
-		DESTROY_ELEMENT_OR_NEXT(next_.next_.next_, 3)
-		DESTROY_ELEMENT_OR_NEXT(next_.next_.next_.next_, 4)
-		DESTROY_ELEMENT_OR_NEXT(next_.next_.next_.next_.next_, 5)
-		DESTROY_ELEMENT(next_.next_.next_.next_.next_.next_)
-	}
-
-	constexpr void destroy(nuint index)
-	requires(sizeof...(TailTypes) == 7) {
-		DESTROY_ELEMENT_OR_NEXT(*this, 0)
-		DESTROY_ELEMENT_OR_NEXT(next_, 1)
-		DESTROY_ELEMENT_OR_NEXT(next_.next_, 2)
-		DESTROY_ELEMENT_OR_NEXT(next_.next_.next_, 3)
-		DESTROY_ELEMENT_OR_NEXT(next_.next_.next_.next_, 4)
-		DESTROY_ELEMENT_OR_NEXT(next_.next_.next_.next_.next_, 5)
-		DESTROY_ELEMENT_OR_NEXT(next_.next_.next_.next_.next_.next_, 6)
-		DESTROY_ELEMENT(next_.next_.next_.next_.next_.next_.next_)
-	}
-
-	constexpr void destroy(nuint index)
-	requires(sizeof...(TailTypes) == 8) {
-		DESTROY_ELEMENT_OR_NEXT(*this, 0)
-		DESTROY_ELEMENT_OR_NEXT(next_, 1)
-		DESTROY_ELEMENT_OR_NEXT(next_.next_, 2)
-		DESTROY_ELEMENT_OR_NEXT(next_.next_.next_, 3)
-		DESTROY_ELEMENT_OR_NEXT(next_.next_.next_.next_, 4)
-		DESTROY_ELEMENT_OR_NEXT(next_.next_.next_.next_.next_, 5)
-		DESTROY_ELEMENT_OR_NEXT(next_.next_.next_.next_.next_.next_, 6)
-		DESTROY_ELEMENT_OR_NEXT(
-			next_.next_.next_.next_.next_.next_.next_, 7)
-		DESTROY_ELEMENT(next_.next_.next_.next_.next_.next_.next_.next_)
-	}
-
-	constexpr void destroy(nuint index)
-	requires(sizeof...(TailTypes) == 9) {
-		DESTROY_ELEMENT_OR_NEXT(*this, 0)
-		DESTROY_ELEMENT_OR_NEXT(next_, 1)
-		DESTROY_ELEMENT_OR_NEXT(next_.next_, 2)
-		DESTROY_ELEMENT_OR_NEXT(next_.next_.next_, 3)
-		DESTROY_ELEMENT_OR_NEXT(next_.next_.next_.next_, 4)
-		DESTROY_ELEMENT_OR_NEXT(next_.next_.next_.next_.next_, 5)
-		DESTROY_ELEMENT_OR_NEXT(next_.next_.next_.next_.next_.next_, 6)
-		DESTROY_ELEMENT_OR_NEXT(
-			next_.next_.next_.next_.next_.next_.next_, 7)
-		DESTROY_ELEMENT_OR_NEXT(
-			next_.next_.next_.next_.next_.next_.next_.next_, 8)
-		DESTROY_ELEMENT(
-			next_.next_.next_.next_.next_.next_.next_.next_.next_)
 	}
 
 	template<treat_type_as TreatAs, typename Handler>

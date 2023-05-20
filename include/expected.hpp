@@ -7,7 +7,7 @@ template<typename Unexpected>
 class unexpected {
 	Unexpected value_;
 public:
-	unexpected(Unexpected&& value) : value_ { value } {}
+	unexpected(Unexpected&& value) : value_ { forward<Unexpected>(value) } {}
 	Unexpected& ref() { return value_; }
 };
 
@@ -33,11 +33,11 @@ public:
 	template<typename PossibleExpectedType>
 	requires same_as<Type, UnexpectedType>
 	constexpr expected(PossibleExpectedType&& expected) :
-		one_of{ expected_index, ::forward<Type>(expected) }
+		one_of{ expected_index, ::forward<PossibleExpectedType>(expected) }
 	{}
 
 	template<typename PossibleUnexpectedType>
-	constexpr expected(unexpected<PossibleUnexpectedType> unexpected) :
+	constexpr expected(unexpected<PossibleUnexpectedType>&& unexpected) :
 		one_of{ unexpected_index, ::forward<UnexpectedType>(unexpected.ref()) }
 	{}
 

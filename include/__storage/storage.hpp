@@ -7,50 +7,79 @@
 #include "../forward.hpp"
 #include "../move.hpp"
 
-template<typename Type>
-requires (!type_is_reference<Type>)
-struct storage : range_extensions<storage<Type>> {
-	alignas(Type) uint1a data[sizeof(Type)];
+template<nuint Size, nuint Alignment>
+struct storage_of_size_and_alignment : range_extensions<uint1a> {
+	alignas(Alignment) uint1a data[Size];
 
-	storage() = default;
-
-	storage(const storage& ) = delete;
-	storage(      storage&&) = delete;
-
-	template<typename Type0>
-	requires(same_as<Type0, Type> && trivial<Type>)
-	storage(Type t0) {
-		data = t0.data;
-	}
-
-	template<typename Type0>
-	requires(same_as<Type0, Type> && trivial<Type>)
-	storage& operator = (Type t0) {
-		data = t0.data;
-		return *this;
-	}
+	template<typename Type>
+	static constexpr bool storable =
+		Size >= sizeof(Type) &&
+		Alignment % alignof(Type) == 0;
 
 	constexpr auto iterator() const { return data; }
-	constexpr auto sentinel() const { return data + sizeof(Type); }
+	constexpr auto sentinel() const { return data + Size; }
 
-	template<typename... Args>
-	requires constructible_from<Type, Args...>
+	template<typename Type, typename... Args>
+	requires
+		constructible_from<Type, Args...> &&
+		storable<Type>
 	Type& construct(Args&&... args) {
 		Type* ptr = new (data) Type(forward<Args>(args)...);
 		return *ptr;
 	}
 
+	template<typename Type>
+	requires storable<Type>
 	void destruct() {
 		((Type*)data)->~Type();
 	}
 
+	template<typename Type>
+	requires storable<Type>
 	Type&& move() {
 		Type& e = *(Type*) data;
 		return ::move(e);
 	}
 
+	template<typename Type>
+	requires storable<Type>
 	const Type&  get() const &  { return *(Type*) data; }
+	template<typename Type>
+	requires storable<Type>
 	      Type&  get()       &  { return *(Type*) data; }
+
+	template<typename Type>
+	requires storable<Type>
+	const Type&& get() const && { return move(); }
+	template<typename Type>
+	requires storable<Type>
+	      Type&& get()       && { return move(); }
+
+};
+
+template<typename Type>
+struct storage : storage_of_size_and_alignment<sizeof(Type), alignof(Type)> {
+	using base_type
+		= storage_of_size_and_alignment<sizeof(Type), alignof(Type)>;
+	using type = Type;
+
+	template<typename... Args>
+	Type& construct(Args&&... args) {
+		Type* ptr = new (base_type::data) Type(forward<Args>(args)...);
+		return *ptr;
+	}
+
+	void destruct() {
+		((Type*) base_type::data)->~Type();
+	}
+
+	Type&& move() {
+		Type& e = *(Type*) base_type::data;
+		return ::move(e);
+	}
+
+	const Type&  get() const &  { return *(Type*) base_type::data; }
+	      Type&  get()       &  { return *(Type*) base_type::data; }
 
 	const Type&& get() const && { return move(); }
 	      Type&& get()       && { return move(); }

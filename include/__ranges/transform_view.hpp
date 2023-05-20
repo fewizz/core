@@ -40,6 +40,17 @@ public:
 		++iterator_; return *this;
 	}
 
+	constexpr transform_view_iterator& operator += (nuint n) {
+		iterator_ += n;
+		return *this;
+	}
+
+	constexpr transform_view_iterator operator + (nuint n) {
+		transform_view_iterator cpy{ *this };
+		cpy += n;
+		return *this;
+	}
+
 	template<typename Sentinel>
 	friend constexpr bool operator == (
 		transform_view_iterator tvi, Sentinel sentinel
