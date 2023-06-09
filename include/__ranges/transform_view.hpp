@@ -51,6 +51,15 @@ public:
 		return *this;
 	}
 
+	constexpr nuint operator - (transform_view_iterator o) const {
+		__builtin_assume(iterator_ > o.iterator_);
+		return iterator_ - o.iterator_;
+	}
+
+	constexpr bool operator == (
+		transform_view_iterator other
+	) const { return other.iterator_ == iterator_; }
+
 	template<typename Sentinel>
 	friend constexpr bool operator == (
 		transform_view_iterator tvi, Sentinel sentinel

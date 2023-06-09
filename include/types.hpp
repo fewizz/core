@@ -81,6 +81,19 @@ struct types : common_if_have<Types...> {
 		for_types<Types...>::template
 		pass_for_type_directly<types>;
 
+private:
+	template<typename... Types0>
+	struct erase_first_t {
+		using type = void;
+	};
+	template<typename Type, typename... OtherTypes>
+	struct erase_first_t<Type, OtherTypes...> {
+		using type = types<OtherTypes...>;
+	};
+public:
+
+	using erase_first = erase_first_t<Types...>::type;
+
 	template<typename... Types0>
 	using first = __types::first::for_types<Types..., Types0...>;
 
@@ -93,5 +106,27 @@ struct types : common_if_have<Types...> {
 	using indices_of_satisfying_predicate = typename
 		__types::indices_of_satisfying_predicate<Predicate>::template
 		for_types<Types...>;
+
+	template<typename Predicate, typename Handler, typename DefaultHandler>
+	decltype(auto) static inline
+	constexpr view_first_satisfying_predicate_or_default(
+		Predicate&& predicate,
+		Handler&& handler,
+		DefaultHandler&& default_handler
+	) {
+		using frst = first<>;
+		if(predicate.template operator () <frst> ()) {
+			return handler.template operator () <frst>();
+		}
+		if constexpr(sizeof...(Types) > 1) {
+			return erase_first::view_first_satisfying_predicate_or_default(
+				forward<Predicate>(predicate),
+				forward<Handler>(handler),
+				forward<DefaultHandler>(default_handler)
+			);
+		}
+
+		return default_handler();
+	}
 
 };

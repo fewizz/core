@@ -146,6 +146,7 @@ public:
 
 	// recursive destructor
 	constexpr void destroy(nuint index) {
+		__builtin_assume(index < 1 + sizeof...(TailTypes));
 		if(index == 0) {
 			DESTROY_ELEMENT(*this)
 			return;
@@ -171,21 +172,30 @@ public:
 
 	template<treat_type_as TreatAs, typename Handler>
 	constexpr decltype(auto) view(nuint index, Handler&& handler) {
+		__builtin_assume(index < 1 + sizeof...(TailTypes));
 		if(index == 0) {
 			VIEW_ELEMENT(*this)
 		}
-		return next_.template view<TreatAs>(
-			index - 1, forward<Handler>(handler)
-		);
+		if constexpr(sizeof...(TailTypes) > 0) {
+			return next_.template view<TreatAs>(
+				index - 1, forward<Handler>(handler)
+			);
+		}
+		__builtin_unreachable();
 	}
 
 	template<treat_type_as TreatAs, typename Handler>
 	constexpr decltype(auto) view(nuint index, Handler&& handler) const {
-		return ((storage&)(*this)).template view<TreatAs>(
-			index, [&]<typename E>(E&& element) -> decltype(auto) {
-				return handler((const E) element);
-			}
-		);
+		__builtin_assume(index < 1 + sizeof...(TailTypes));
+		if(index == 0) {
+			VIEW_ELEMENT(*this)
+		}
+		if constexpr(sizeof...(TailTypes) > 0) {
+			return next_.template view<TreatAs>(
+				index - 1, forward<Handler>(handler)
+			);
+		}
+		__builtin_unreachable();
 	}
 
 	template<nuint Index> requires (Index == 0)

@@ -25,7 +25,7 @@ constexpr inline struct is_storage_t : type_predicate_extension<is_storage_t> {
 } is_storage{};
 
 constexpr inline struct is_storage_of_specified_size_and_alignment_t
-	: type_predicate_extension<is_storage_t>
+	: type_predicate_extension<is_storage_of_specified_size_and_alignment_t>
 {
 
 	template<typename Type>

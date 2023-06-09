@@ -30,11 +30,11 @@ public:
 	constexpr Sentinel end()      const { return sentinel(); }
 
 	constexpr decltype(auto) operator [] (nuint index) const {
-		return iterator_[index];
+		return *(iterator_ + index);
 	}
 
 	constexpr decltype(auto) operator [] (nuint index) {
-		return iterator_[index];
+		return *(iterator_ + index);
 	}
 
 	// TODO if contiguous

@@ -20,7 +20,7 @@ class list<StorageRange> : public range_extensions<list<StorageRange>> {
 	using storage_type = remove_reference<remove_const<
 		range_element_type<StorageRange>
 	>>;
-	using value_type = storage_type::type;
+	using value_type = typename storage_type::type;
 
 	StorageRange storage_range_;
 	storage_iterator_type sentinel_;
@@ -123,7 +123,7 @@ public:
 		storage_type s = (*sentinel_);
 		value_type&& e = s.move();
 		s.destruct();
-		return e;
+		return move(e);
 	}
 	constexpr void
 	pop_back() requires (!move_constructible<value_type>) {

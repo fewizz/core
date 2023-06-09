@@ -32,6 +32,7 @@ class concat_view_iterator {
 
 	template<nuint FromIndex = 0, typename Handler>
 	constexpr decltype(auto) current_pair_with_index(Handler&& handler) {
+		__builtin_assume(index_ < sizeof...(Pairs));
 		if(FromIndex == index_) {
 			return handler.template operator () <FromIndex>(
 				pairs_.template get_at<FromIndex>()
@@ -42,7 +43,23 @@ class concat_view_iterator {
 				forward<Handler>(handler)
 			);
 		}
-		// ???
+		__builtin_unreachable();
+	}
+
+		// TODO use deducing this
+	template<nuint FromIndex = 0, typename Handler>
+	constexpr decltype(auto) current_pair_with_index(Handler&& handler) const {
+		__builtin_assume(index_ < sizeof...(Pairs));
+		if(FromIndex == index_) {
+			return handler.template operator () <FromIndex>(
+				pairs_.template get_at<FromIndex>()
+			);
+		}
+		if constexpr(has_next<FromIndex>) {
+			return current_pair_with_index<FromIndex + 1>(
+				forward<Handler>(handler)
+			);
+		}
 		__builtin_unreachable();
 	}
 
@@ -131,23 +148,6 @@ class concat_view_iterator {
 			case FromIndex + 5: return handler.template operator()
 				<FromIndex + 5>(pairs_.template get_at<FromIndex + 5>());
 		}
-		__builtin_unreachable();
-	}
-
-	// TODO use deducing this
-	template<nuint FromIndex = 0, typename Handler>
-	constexpr decltype(auto) current_pair_with_index(Handler&& handler) const {
-		if(FromIndex == index_) {
-			return handler.template operator () <FromIndex>(
-				pairs_.template get_at<FromIndex>()
-			);
-		}
-		if constexpr(has_next<FromIndex>) {
-			return current_pair_with_index<FromIndex + 1>(
-				forward<Handler>(handler)
-			);
-		}
-		// ???
 		__builtin_unreachable();
 	}
 
