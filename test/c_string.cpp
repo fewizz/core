@@ -2,8 +2,8 @@
 #include <array.hpp>
 #include <__range/sized.hpp>
 
-static_assert(!sized_range<c_string_of_unknown_size>);
-static_assert(contiguous_range<c_string_of_unknown_size>);
+static_assert(!sized_range<c_string_of_unknown_size<char>>);
+static_assert(contiguous_range<c_string_of_unknown_size<char>>);
 
 consteval bool f() {
 	c_string str{ "Hi!" };

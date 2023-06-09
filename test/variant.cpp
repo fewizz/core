@@ -66,8 +66,8 @@ int main() {
 			~b() { ++b_destructions; }
 		};
 
-		nuint a_destructions;
-		nuint b_destructions;
+		nuint a_destructions = 0;
+		nuint b_destructions = 0;
 
 		{
 			variant<a, b> es{ a{ 4, a_destructions } };

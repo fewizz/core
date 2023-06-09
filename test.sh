@@ -35,6 +35,6 @@ if [ ! -z $1 ]; then
 	exit
 fi
 
-for testfile in `cd 'test' && find -type f && cd ..`; do
+for testfile in `cd 'test' && find -type f -name "*.cpp" && cd ..`; do
 	test "`dirname $testfile`/`basename $testfile .cpp`"
 done

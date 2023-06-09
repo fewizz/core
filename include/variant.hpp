@@ -203,19 +203,25 @@ public:
 
 	// assignment operator
 	template<typename TypeToAssign>
-	requires has_one_assignable_and_constructible_from<TypeToAssign>
+	requires has_one_constructible_from<TypeToAssign>
 	constexpr variant& operator = (TypeToAssign&& value) {
 		nuint index =
-			index_of_assignable_and_constructible_from<TypeToAssign>;
+			index_of_constructible_from<TypeToAssign>;
 		if(index == current_) {
-			view_raw([&](auto& element) {
+			view_raw([&]<typename ElementType>(ElementType& element) {
 				if constexpr(
 					assignable<
-						decltype(element),
+						ElementType,
 						decltype(::forward<TypeToAssign>(value))
 					>
 				) {
 					element = ::forward<TypeToAssign>(value);
+				}
+				else if constexpr(
+					constructible_from<ElementType, TypeToAssign&&>
+				){
+					element.~ElementType();
+					new (&element) ElementType(::forward<TypeToAssign>(value));
 				}
 			});
 		}
@@ -229,7 +235,7 @@ public:
 		return *this;
 	}
 
-	template<typename Type>
+	/*template<typename Type>
 	requires (
 		!has_one_assignable_and_constructible_from<Type> &&
 		constructible_from<variant, Type>
@@ -237,7 +243,7 @@ public:
 	constexpr variant& operator = (Type&& value) {
 		(*this) = variant(::forward<Type>(value));
 		return *this;
-	}
+	}*/
 
 	constexpr ~variant() {
 		storage_.destroy(current_);

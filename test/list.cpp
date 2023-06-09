@@ -15,8 +15,8 @@ int main() {
 
 		if(l.size() != 1) return 2;
 		if(*l.iterator() != 42) return 3;
-		if(l.as_span()[0] != 42) return 4;
-		if(!l.as_span().contains(42)) return 5;
+		if(l[0] != 42) return 4;
+		if(!l.contains(42)) return 5;
 	}
 	{
 		int a = 0, b = 1;
