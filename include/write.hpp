@@ -17,3 +17,34 @@ void write(Type value, Iterator&& iterator) {
 		*iterator++ = ((uint1a*) &value)[i0];
 	}
 }
+
+// swapped arguments
+template<
+	trivial Type, endianness Endianness = endianness::native,
+	basic_iterator Iterator
+>
+requires (sizeof(decay<iterator_element_type<Iterator>>) == 1)
+void write(Iterator&& iterator, Type value) {
+	write<Type, Endianness, Iterator>(value, forward<Iterator>(iterator));
+}
+
+template<
+	endianness Endianness,
+	trivial Type,
+	basic_iterator Iterator
+>
+requires (sizeof(decay<iterator_element_type<Iterator>>) == 1)
+void write(Type value, Iterator&& iterator) {
+	write<Type, Endianness, Iterator>(value, forward<Iterator>(iterator));
+}
+
+// swapped arguments
+template<
+	endianness Endianness,
+	trivial Type,
+	basic_iterator Iterator
+>
+requires (sizeof(decay<iterator_element_type<Iterator>>) == 1)
+void write(Iterator&& iterator, Type value) {
+	write<Type, Endianness, Iterator>(value, forward<Iterator>(iterator));
+}

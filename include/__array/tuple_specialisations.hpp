@@ -9,10 +9,14 @@ template<nuint Index, typename Type, nuint Size>
 constexpr       Type&  get(      array<Type, Size>&  a) { return a[Index]; }
 
 template<nuint Index, typename Type, nuint Size>
-constexpr const Type&& get(const array<Type, Size>&& a) { return a[Index]; }
+constexpr const Type&& get(const array<Type, Size>&& a) {
+	return move(a[Index]);
+}
 
 template<nuint Index, typename Type, nuint Size>
-constexpr       Type&& get(      array<Type, Size>&& a) { return a[Index]; }
+constexpr       Type&& get(      array<Type, Size>&& a) {
+	return move(a[Index]);
+}
 
 #include "../std/tuple_size.hpp"
 

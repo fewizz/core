@@ -65,21 +65,20 @@ struct storage : storage_of_size_and_alignment<sizeof(Type), alignof(Type)> {
 
 	template<typename... Args>
 	Type& construct(Args&&... args) {
-		Type* ptr = new (base_type::data) Type(forward<Args>(args)...);
-		return *ptr;
+		return base_type::template
+			construct<Type, Args...>(forward<Args>(args)...);
 	}
 
 	void destruct() {
-		((Type*) base_type::data)->~Type();
+		base_type::template destruct<Type>();
 	}
 
 	Type&& move() {
-		Type& e = *(Type*) base_type::data;
-		return ::move(e);
+		return base_type::template move<Type>();
 	}
 
-	const Type&  get() const &  { return *(Type*) base_type::data; }
-	      Type&  get()       &  { return *(Type*) base_type::data; }
+	const Type&  get() const &  { return base_type::template get<Type>(); }
+	      Type&  get()       &  { return base_type::template get<Type>(); }
 
 	const Type&& get() const && { return move(); }
 	      Type&& get()       && { return move(); }

@@ -12,7 +12,7 @@ using c_string_of_unknown_size = c_string<c_string_type::unknown_size, Type>;
 template<typename Type>
 using c_string_of_known_size   = c_string<c_string_type::known_size, Type>;
 
-template<typename Type = char>
+template<typename Type, typename CharType = char>
 concept any_c_string =
-	same_as<Type, c_string_of_known_size<Type>> ||
-	same_as<Type, c_string_of_unknown_size<Type>>;
+	same_as<Type, c_string_of_known_size<CharType>> ||
+	same_as<Type, c_string_of_unknown_size<CharType>>;
