@@ -110,11 +110,37 @@ public:
 		return s.construct(forward<Args>(args)...);
 	}
 
+	constexpr void ensure_size(nuint size) /* requires default_init */ {
+		while(size > this->size()) {
+			emplace_back();
+		}
+	}
+
+	template<basic_range OtherRange>
+	constexpr void emplace_back_elements_of(OtherRange&& other) {
+		for(decltype(auto) e : forward<OtherRange>(other)) {
+			emplace_back(forward<decltype(e)>(e));
+		}
+	}
+
 	template<typename... Args>
 	constexpr void emplace_at(auto index, Args&&... args) {
 		storage_type& s = *(range_iterator(storage_range_) + index);
 		s.destruct();
 		s.template construct<Args...>(forward<Args>(args)...);
+	}
+
+	struct output_stream_t {
+		list& list_;
+
+		template<typename Type>
+		void write(Type&& t) {
+			list_.emplace_back(forward<Type>(t));
+		}
+	};
+
+	constexpr output_stream_t output_stream() {
+		return output_stream_t{ *this };
 	}
 
 	value_type&& pop_back() requires move_constructible<value_type> {

@@ -6,17 +6,18 @@
 #include "./integer.hpp"
 #include "./__iterator/element_type.hpp"
 #include "./__iterator/basic.hpp"
+#include "./input_stream.hpp"
 
 template<
-	trivial Type, endianness Endianness = endianness::native,
-	basic_iterator Iterator
+	trivial Type,
+	endianness Endianness,
+	basic_input_stream<uint8> IS
 >
-requires (sizeof(decay<iterator_element_type<Iterator>>) == 1)
-constexpr Type read(Iterator&& iterator) {
+constexpr Type read(IS&& is) {
 	alignas(Type) uint1a storage[sizeof(Type)];
 
 	for(nuint byte_index = 0; byte_index < sizeof(Type); ++byte_index) {
-		uint1a b = *iterator++;
+		uint1a b = read<uint1a>(is);
 		nuint index =
 			endianness::native != Endianness ?
 			sizeof(Type) - 1 - byte_index :
