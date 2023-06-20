@@ -32,7 +32,7 @@ public:
 		storage_range_{ move(other.storage_range_) },
 		sentinel_ {
 			exchange(
-				other.storage_iterator_,
+				other.sentinel_,
 				range_iterator(other.storage_range_)
 			)
 		}
@@ -41,7 +41,7 @@ public:
 	constexpr list& operator = (list&& other) {
 		storage_range_ = move(other.storage_range_);
 		sentinel_ = exchange(
-			other.storage_iterator_, range_iterator(other.storage_range_)
+			other.sentinel_, range_iterator(other.storage_range_)
 		);
 		return *this;
 	}

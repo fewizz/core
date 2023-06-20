@@ -13,9 +13,9 @@ constexpr bool operator == (const auto* ptr, c_string_sentinel) {
 	return *ptr == 0;
 }
 
-template<typename Type>
-struct c_string<c_string_type::unknown_size, Type> :
-	range_extensions<c_string<c_string_type::unknown_size, Type>>
+template<typename Type, typename SizeType>
+struct c_string<c_string_type::unknown_size, Type, SizeType> :
+	range_extensions<c_string<c_string_type::unknown_size, Type, SizeType>>
 {
 private:
 	const Type* ptr_;
@@ -30,11 +30,12 @@ public:
 
 	constexpr const Type* elements_ptr() const { return ptr_; }
 
-	constexpr const Type& operator [] (nuint index) const {
+	constexpr const Type& operator [] (SizeType index) const {
 		return ptr_[index];
 	}
 
-	constexpr c_string<c_string_type::known_size, Type> sized() const {
+	constexpr c_string<c_string_type::known_size, Type, SizeType>
+	sized() const {
 		return {
 			ptr_,
 			__iterator_and_sentinel::get_or_compute_distance(
