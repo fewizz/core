@@ -32,7 +32,6 @@ public:
 		ptr_{ array }, size_{ Size }
 	{}
 
-	// TODO contiguous range, range_size_type
 	template<contiguous_range Range>
 	constexpr span(Range&& range) :
 		ptr_{ range_iterator(range) },
@@ -48,14 +47,14 @@ public:
 		return ptr_[index];
 	}
 
-	template<typename CastType>
+	template<typename CastType, typename CastSizeType = nuint>
 	requires(
 		trivial<Type> && trivial<CastType> &&
 		alignof(Type) == alignof(CastType) &&
 		sizeof(Type) == sizeof(CastType)
 	)
-	constexpr span<CastType> cast() const {
-		return { (CastType*) ptr_, size_ };
+	constexpr span<CastType, CastSizeType> cast() const {
+		return { (CastType*) ptr_, (CastSizeType) size_ };
 	}
 
 	constexpr span shrink(SizeType size) const {

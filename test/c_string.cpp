@@ -16,6 +16,12 @@ consteval bool f() {
 	if(str.size() != 3) throw;
 	if(!str.has_equal_size_and_elements(array{ 'N', 'o', '.' })) throw;
 
+	struct str_t : c_string_of_known_size<char> {
+		using c_string_of_known_size<char>::c_string;
+	};
+
+	if(str_t{ "asd" }.size() != 3) throw;
+
 	return true;
 }
 

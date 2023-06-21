@@ -46,9 +46,7 @@ public:
 	}
 
 	constexpr transform_view_iterator operator + (nuint n) {
-		transform_view_iterator cpy{ *this };
-		cpy += n;
-		return *this;
+		return { iterator_ + n, function_ };
 	}
 
 	constexpr nuint operator - (transform_view_iterator o) const {

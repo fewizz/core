@@ -28,21 +28,20 @@ public:
 		sentinel_{ range_iterator(storage_range_) }
 	{}
 
-	constexpr list(list&& other) :
+	constexpr list(list&& other) : list(other.size(), other) {}
+
+	constexpr list(nuint n, list& other) :
 		storage_range_{ move(other.storage_range_) },
-		sentinel_ {
-			exchange(
-				other.sentinel_,
-				range_iterator(other.storage_range_)
-			)
-		}
-	{}
+		sentinel_ { range_iterator(storage_range_) + n}
+	{
+		other.sentinel_ = range_iterator(other.storage_range_);
+	}
 
 	constexpr list& operator = (list&& other) {
+		nuint n = other.size();
 		storage_range_ = move(other.storage_range_);
-		sentinel_ = exchange(
-			other.sentinel_, range_iterator(other.storage_range_)
-		);
+		sentinel_ = range_iterator(storage_range_) + n;
+		other.sentinel_ = range_iterator(other.storage_range_);
 		return *this;
 	}
 

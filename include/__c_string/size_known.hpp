@@ -13,7 +13,8 @@ public:
 
 	c_string() = default;
 
-	using base_type::base_type;
+	template<contiguous_range Range>
+	c_string(Range&& range) : base_type{ forward<Range>(range) } {}
 
 	template<nuint Size>
 	constexpr c_string(const Type (&array)[Size]) :

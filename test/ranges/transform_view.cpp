@@ -21,6 +21,11 @@ static_assert(f(b)[3] == 8);
 static_assert((++(++(++(++f(b).iterator())))) == f(b).sentinel());
 static_assert(f(b).iterator() != f(b).sentinel());
 
+static_assert(*(f(a).iterator() + 0) == 0);
+static_assert(*(f(a).iterator() + 1) == 4);
+static_assert(*(f(a).iterator() + 2) == 8);
+static_assert(*(f(a).iterator() + 3) == 16);
+
 static_assert(
 	__ranges::transform_view { c, [](auto){ return 0; }}[0] == 0
 );
