@@ -92,45 +92,57 @@ public:
 
 	template<typename Arg>
 	requires assignable<base_type, Arg&&>
-	optional& operator = (Arg&& arg) {
+	constexpr optional& operator = (Arg&& arg) {
 		base_type::operator = (forward<Arg>(arg));
 		return *this;
 	}
 
-	optional() : base_type{ __optional::no } {}
+	constexpr optional() : base_type{ __optional::no } {}
 
 	using base_type::get_same_as;
 	using base_type::is_same_as;
 
 	template<typename Handler>
-	decltype(auto) view(Handler&& handler) const {
+	constexpr decltype(auto) view(Handler&& handler) const {
 		base_type::view([&]<typename Type>(Type& v) {
-			if constexpr (same_as<Type, __optional::no_t>) {}
+			if constexpr (same_as<remove_const<Type>, __optional::no_t>) {
+				//__builtin_unreachable();
+			}
 			else { return handler(v); }
 		});
 	}
 
-	bool has_value() const {
+	template<typename Handler>
+	constexpr decltype(auto) view(Handler&& handler) {
+		base_type::view([&]<typename Type>(Type& v) {
+			if constexpr (same_as<Type, __optional::no_t>) {
+				//__builtin_unreachable();
+			}
+			else { return handler(v); }
+		});
+	}
+
+	constexpr bool has_value() const {
 		return !base_type::template is_same_as<__optional::no_t>();
 	}
 
-	const first&  get() const &  requires single {
+	constexpr const first&  get() const &  requires single {
 		return base_type::template get_same_as<first>();
 	}
-	      first&  get()       &  requires single {
+	constexpr       first&  get()       &  requires single {
 		return base_type::template get_same_as<first>();
 	}
-	const first&& get() const && requires single {
+	constexpr const first&& get() const && requires single {
 		return ::move(*this).template get_same_as<first>();
 	}
-	      first&& get()       && requires single {
+	constexpr       first&& get()       && requires single {
 		return ::move(*this).template get_same_as<first>();
 	}
 
-	const remove_reference<first>&& move() const requires single {
+	constexpr const remove_reference<first>&& move() const requires single {
 		return ::move(*this).template get_same_as<first>();
 	}
-	      remove_reference<first>&& move()       requires single {
+	constexpr       remove_reference<first>&& move()       requires single {
 		return ::move(*this).template get_same_as<first>();
 	}
 };
@@ -140,24 +152,27 @@ class optional<Type&> : public optional_extensions<optional<Type&>, Type> {
 	Type* ptr_ = nullptr;
 public:
 
-	optional() {};
-	~optional() {
+	constexpr optional() {};
+	constexpr ~optional() {
 		ptr_ = nullptr;
 	}
 
-	optional(Type& element) : ptr_{ &element } {}
+	constexpr optional(Type& element) : ptr_{ &element } {}
 
-	optional& operator = (Type& element) { ptr_ = &element; return *this; }
+	constexpr optional& operator = (Type& element) {
+		ptr_ = &element;
+		return *this;
+	}
 
-	bool has_value() const { return ptr_ != nullptr; }
+	constexpr bool has_value() const { return ptr_ != nullptr; }
 
-	const Type&  get() const { return *ptr_; }
-	      Type&  get()       { return *ptr_; }
+	constexpr const Type&  get() const { return *ptr_; }
+	constexpr       Type&  get()       { return *ptr_; }
 
-	const Type&& forward() const { return ::forward<const Type>(*ptr_); }
-	      Type&& forward()       { return ::forward<      Type>(*ptr_); }
+	constexpr const Type&& forward() const { return ::forward<const Type>(*ptr_); }
+	constexpr      Type&& forward()       { return ::forward<      Type>(*ptr_); }
 
-	const Type* ptr() const & { return ptr_; }
-	      Type* ptr()       & { return ptr_; }
+	constexpr const Type* ptr() const & { return ptr_; }
+	constexpr       Type* ptr()       & { return ptr_; }
 
 };

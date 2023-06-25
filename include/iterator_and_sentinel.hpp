@@ -23,6 +23,11 @@ public:
 		);
 	}
 
+	constexpr nuint distance() const
+	requires requires (Iterator i, Sentinel s) { s - i; } {
+		return sentinel_ - iterator_;
+	}
+
 	constexpr auto as_range() const {
 		return __iterator_and_sentinel::as_range(iterator_, sentinel_);
 	}
