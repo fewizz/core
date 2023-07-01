@@ -18,7 +18,7 @@
 #include "./type.hpp"
 
 template<nuint Index>
-struct variant_index_t{
+struct variant_index_t {
 	constexpr operator nuint () const { return Index; }
 };
 
@@ -93,9 +93,7 @@ public:
 	template<typename Type>
 	requires has_one_constructible_from<Type>
 	constexpr variant(Type&& arg) :
-		current_ {
-			index_of_constructible_from<Type>
-		}
+		current_ { index_of_constructible_from<Type> }
 	{
 		storage_.template create<__variant::treat_type_as::value_type>(
 			current_, ::forward<Type>(arg)
@@ -108,9 +106,21 @@ public:
 		has_one_list_constructible_from<Type>
 	)
 	constexpr variant(Type&& arg) :
-		current_ {
-			index_of_list_constructible_from<Type>
-		}
+		current_ { index_of_list_constructible_from<Type> }
+	{
+		storage_.template create<__variant::treat_type_as::value_type>(
+			current_, ::forward<Type>(arg)
+		);
+	}
+
+	template<typename Type>
+	requires (
+		!has_one_constructible_from<Type> &&
+		!has_one_list_constructible_from<Type> &&
+		has_one_same_as<Type>
+	)
+	constexpr variant(Type&& arg) :
+		current_ { index_of_same_as<Type> }
 	{
 		storage_.template create<__variant::treat_type_as::value_type>(
 			current_, ::forward<Type>(arg)
@@ -205,8 +215,7 @@ public:
 	template<typename TypeToAssign>
 	requires has_one_constructible_from<TypeToAssign>
 	constexpr variant& operator = (TypeToAssign&& value) {
-		nuint index =
-			index_of_constructible_from<TypeToAssign>;
+		nuint index = index_of_constructible_from<TypeToAssign>;
 		if(index == current_) {
 			view_raw([&]<typename ElementType>(ElementType& element) {
 				if constexpr(
@@ -235,15 +244,43 @@ public:
 		return *this;
 	}
 
-	/*template<typename Type>
-	requires (
-		!has_one_assignable_and_constructible_from<Type> &&
-		constructible_from<variant, Type>
-	)
-	constexpr variant& operator = (Type&& value) {
-		(*this) = variant(::forward<Type>(value));
-		return *this;
-	}*/
+	template<typename Type, typename...Args>
+	requires constructible_from<Type, Args...>
+	static constexpr variant make(Args&&... args) {
+		return variant(
+			index_of_constructible_from<Args...>,
+			forward<Args>(args)...
+		);
+	}
+
+	// assignment operator
+	template<typename Type, typename Arg>
+	requires (constructible_from<Type, Arg>)
+	constexpr void assign(Arg&& arg) {
+		nuint index = index_of_same_as<Type>;
+		if(index == current_) {
+			view_raw([&]<typename ElementType>(ElementType& element) {
+				if constexpr(
+					assignable<ElementType, Arg>
+				) {
+					element = ::forward<Arg>(arg);
+				}
+				else if constexpr(
+					constructible_from<ElementType, Arg>
+				){
+					element.~ElementType();
+					new (&element) ElementType(::forward<Arg>(arg));
+				}
+			});
+		}
+		else {
+			storage_.destroy(current_);
+			current_ = index;
+			storage_.template create<
+				__variant::treat_type_as::value_type
+			>(index, ::forward<Arg>(arg));
+		}
+	}
 
 	constexpr ~variant() {
 		storage_.destroy(current_);

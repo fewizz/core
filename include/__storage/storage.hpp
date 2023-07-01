@@ -24,7 +24,9 @@ struct storage_of_size_and_alignment : range_extensions<uint1a> {
 		constructible_from<Type, Args...> &&
 		storable<Type>
 	Type& construct(Args&&... args) {
-		Type* ptr = new (data) Type(forward<Args>(args)...);
+		Type* ptr = new (data) Type(
+			forward<Args>(args)...
+		);
 		return *ptr;
 	}
 
@@ -34,6 +36,12 @@ struct storage_of_size_and_alignment : range_extensions<uint1a> {
 		((Type*)data)->~Type();
 	}
 
+	template<typename Type>
+	requires storable<Type>
+	const Type&& move() const {
+		const Type& e = *(const Type*) data;
+		return ::move(e);
+	}
 	template<typename Type>
 	requires storable<Type>
 	Type&& move() {
@@ -73,7 +81,10 @@ struct storage : storage_of_size_and_alignment<sizeof(Type), alignof(Type)> {
 		base_type::template destruct<Type>();
 	}
 
-	Type&& move() {
+	const Type&& move() const {
+		return base_type::template move<Type>();
+	}
+	      Type&& move()       {
 		return base_type::template move<Type>();
 	}
 
