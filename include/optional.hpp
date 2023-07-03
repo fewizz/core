@@ -106,7 +106,7 @@ public:
 	constexpr decltype(auto) view(Handler&& handler) const {
 		base_type::view([&]<typename Type>(Type& v) {
 			if constexpr (same_as<remove_const<Type>, __optional::no_t>) {
-				//__builtin_unreachable();
+				__builtin_unreachable();
 			}
 			else { return handler(v); }
 		});
@@ -116,7 +116,7 @@ public:
 	constexpr decltype(auto) view(Handler&& handler) {
 		base_type::view([&]<typename Type>(Type& v) {
 			if constexpr (same_as<Type, __optional::no_t>) {
-				//__builtin_unreachable();
+				__builtin_unreachable();
 			}
 			else { return handler(v); }
 		});
@@ -169,8 +169,12 @@ public:
 	constexpr const Type&  get() const { return *ptr_; }
 	constexpr       Type&  get()       { return *ptr_; }
 
-	constexpr const Type&& forward() const { return ::forward<const Type>(*ptr_); }
-	constexpr      Type&& forward()       { return ::forward<      Type>(*ptr_); }
+	constexpr const Type&& forward() const {
+		return ::forward<const Type>(*ptr_);
+	}
+	constexpr       Type&& forward()       {
+		return ::forward<      Type>(*ptr_);
+	}
 
 	constexpr const Type* ptr() const & { return ptr_; }
 	constexpr       Type* ptr()       & { return ptr_; }
