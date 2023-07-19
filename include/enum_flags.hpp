@@ -56,6 +56,10 @@ public:
 		return { (Enum) (value_ & other.value_) };
 	}
 
+	constexpr bool operator & (Enum e) const {
+		return (value_ & (value_type) e) != 0;
+	}
+
 	constexpr operator value_type () const { return value_; }
 
 }; // flag_enum

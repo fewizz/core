@@ -13,7 +13,7 @@ class list<StorageRange> : public range_extensions<list<StorageRange>> {
 	using storage_type = remove_reference<remove_const<
 		range_element_type<StorageRange>
 	>>;
-	using value_type = typename storage_type::type;
+	using element_type = typename storage_type::type;
 
 	StorageRange storage_range_;
 	storage_iterator_type sentinel_;
@@ -57,7 +57,7 @@ public:
 
 	auto iterator() const {
 		if constexpr(contiguous_range<StorageRange>) { // TODO
-			return (const value_type*) storage_range_.iterator();
+			return (const element_type*) storage_range_.iterator();
 		}
 		else {
 			return range{ storage_range_ }
@@ -69,7 +69,7 @@ public:
 	}
 	auto iterator()       {
 		if constexpr(contiguous_range<StorageRange>) {
-			return (value_type*) storage_range_.iterator();
+			return (element_type*) storage_range_.iterator();
 		}
 		else {
 			return range{ storage_range_ }
@@ -82,7 +82,7 @@ public:
 
 	auto sentinel() const {
 		if constexpr(contiguous_range<StorageRange>) {
-			return (const value_type*) sentinel_;
+			return (const element_type*) sentinel_;
 		}
 		else {
 			return sentinel_;
@@ -90,7 +90,7 @@ public:
 	}
 	auto sentinel()       {
 		if constexpr(contiguous_range<StorageRange>) {
-			return (value_type*) sentinel_;
+			return (element_type*) sentinel_;
 		}
 		else {
 			return sentinel_;
@@ -98,7 +98,7 @@ public:
 	}
 
 	template<typename... Args>
-	constexpr value_type& emplace_back(Args&&... args) {
+	constexpr element_type& emplace_back(Args&&... args) {
 		if constexpr(growable_range<StorageRange>) {
 			if(size() == capacity()) {
 				storage_range_.grow();
@@ -142,15 +142,15 @@ public:
 		return output_stream_t{ *this };
 	}
 
-	value_type&& pop_back() requires move_constructible<value_type> {
+	element_type&& pop_back() requires move_constructible<element_type> {
 		--sentinel_;
 		storage_type s = (*sentinel_);
-		value_type&& e = s.move();
+		element_type&& e = s.move();
 		s.destruct();
 		return move(e);
 	}
 	constexpr void
-	pop_back() requires (!move_constructible<value_type>) {
+	pop_back() requires (!move_constructible<element_type>) {
 		--sentinel_;
 		(*sentinel_).destruct();
 	}

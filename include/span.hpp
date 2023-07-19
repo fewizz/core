@@ -10,6 +10,7 @@
 #include "./__range/extensions.hpp"
 
 template<typename Type, unsigned_integer SizeType = nuint>
+requires(!type_is_reference<Type>)
 struct span : range_extensions<span<Type, SizeType>> {
 protected:
 	Type* ptr_ = nullptr;
@@ -57,6 +58,16 @@ public:
 		return { (CastType*) ptr_, (CastSizeType) size_ };
 	}
 
+	template<typename CastType, typename CastSizeType = nuint>
+	requires(
+		type_is_reference<CastType> &&
+		alignof(Type) == alignof(void*) &&
+		sizeof(Type) == sizeof(void*)
+	)
+	constexpr span<CastType, CastSizeType> cast() const {
+		return { (remove_reference<CastType>**) ptr_, (CastSizeType) size_ };
+	}
+
 	constexpr span shrink(SizeType size) const {
 		return { ptr_, size };
 	}
@@ -69,58 +80,3 @@ public:
 
 template<typename Type>
 span(Type*) -> span<Type>;
-
-template<contiguous_range Range>
-span(Range&&) -> span<remove_reference<range_element_type<Range>>>;
-
-template<typename Type, unsigned_integer IndexType>
-struct span<Type&, IndexType> : range_extensions<span<Type&, IndexType>> {
-	using index_type = IndexType;
-private:
-	Type**    ptr_ = nullptr;
-	index_type size_ = 0;
-public:
-	
-	class it {
-		Type** ptr_;
-	public:
-
-		constexpr it(Type** ptr) : ptr_{ ptr } {}
-
-		constexpr Type& operator * () const { return **ptr_; }
-
-		constexpr it& operator ++ () { ++ptr_; return *this; }
-
-		constexpr it& operator += (index_type n) {
-			ptr_ += n; return *this;
-		}
-	
-		constexpr it operator + (index_type n) const {
-			return it{ *this } += n;
-		}
-		constexpr it operator + (index_type n)       {
-			return it{ *this } += n;
-		}
-	
-		constexpr bool operator == (const it other) const {
-			return ptr_ == other.ptr_;
-		}
-	};
-
-	constexpr span() : ptr_{ nullptr }, size_{ 0 } {}
-	constexpr span(Type** ptr, index_type size) : ptr_{ ptr }, size_{ size } {}
-	constexpr ~span() {
-		ptr_ = nullptr;
-		size_ = 0;
-	}
-
-	constexpr index_type size() const { return size_; }
-
-	constexpr it iterator() const { return { ptr_ }; }
-	constexpr it sentinel() const { return { ptr_ + size_ }; }
-
-	constexpr Type& operator [] (index_type index) const {
-		return **(ptr_ + index);
-	}
-
-};
