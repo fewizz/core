@@ -349,7 +349,7 @@ class concat_view_iterator {
 			}
 			it(pair) += len;
 			n -= len;
-			skip_empty<Index>([=]<nuint Index0>() {
+			skip_empty<Index>([&]<nuint Index0>() {
 				if constexpr (Index0 > Index) {
 					if(n > 0) {
 						inc<Index0>(n);

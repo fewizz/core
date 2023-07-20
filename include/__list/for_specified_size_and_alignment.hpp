@@ -82,10 +82,10 @@ public:
 	}
 
 	template<typename Type>
-	Type&& pop_back() requires move_constructible<Type> {
+	Type pop_back() requires move_constructible<Type> {
 		--sentinel_;
-		storage_type s = (*sentinel_);
-		Type&& e = s.template move<Type>();
+		storage_type& s = (*sentinel_);
+		Type e = s.template move<Type>();
 		s.template destruct<Type>();
 		return e;
 	}
