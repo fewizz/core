@@ -3,11 +3,11 @@
 #include "./declaration.hpp"
 #include "../__storage/range.hpp"
 #include "../__range/growable.hpp"
+#include "../__range/borrowed.hpp"
 
-template<
-	storage_range StorageRange
->
-class list<StorageRange> : public range_extensions<list<StorageRange>> {
+template<storage_range StorageRange>
+requires (!borrowed_range<StorageRange>)
+class list : public range_extensions<list<StorageRange>> {
 	using storage_iterator_type = range_iterator_type<StorageRange>;
 	using storage_const_iterator_type = range_iterator_type<const StorageRange>;
 	using storage_type = remove_reference<remove_const<
@@ -19,6 +19,10 @@ class list<StorageRange> : public range_extensions<list<StorageRange>> {
 	storage_iterator_type sentinel_;
 public:
 
+	constexpr ~list() {
+		clear();
+	}
+
 	constexpr list() :
 		storage_range_{}, sentinel_{ range_iterator(storage_range_) }
 	{}
@@ -28,16 +32,19 @@ public:
 		sentinel_{ range_iterator(storage_range_) }
 	{}
 
-	constexpr list(list&& other) : list(other.size(), other) {}
+	constexpr list(list&& other) : list(other.size(), move(other)) {}
 
-	constexpr list(nuint n, list& other) :
+private:
+	constexpr list(nuint n, list&& other) :
 		storage_range_{ move(other.storage_range_) },
-		sentinel_ { range_iterator(storage_range_) + n}
+		sentinel_ { range_iterator(storage_range_) + n }
 	{
 		other.sentinel_ = range_iterator(other.storage_range_);
 	}
+public:
 
 	constexpr list& operator = (list&& other) {
+		clear();
 		nuint n = other.size();
 		storage_range_ = move(other.storage_range_);
 		sentinel_ = range_iterator(storage_range_) + n;
@@ -45,14 +52,10 @@ public:
 		return *this;
 	}
 
-	constexpr list& operator = (StorageRange&& storage_range) {
-		storage_range_ = move(storage_range);
+	constexpr StorageRange move_storage_range() {
+		StorageRange storage = move(storage_range_);
 		sentinel_ = range_iterator(storage_range_);
-		return *this;
-	}
-
-	constexpr remove_reference<StorageRange>& storage_range() & {
-		return this->storage_range_;
+		return storage;
 	}
 
 	auto iterator() const {
@@ -145,19 +148,19 @@ public:
 	element_type pop_back() requires move_constructible<element_type> {
 		--sentinel_;
 		storage_type& s = (*sentinel_);
-		element_type e = s.move();
+		element_type e(s.move());
 		s.destruct();
 		return e;
 	}
-	constexpr void
-	pop_back() requires (!move_constructible<element_type>) {
+
+	constexpr void erase_back() {
 		--sentinel_;
 		(*sentinel_).destruct();
 	}
 
-	constexpr void pop_back(nuint n) {
+	constexpr void erase_back(nuint n) {
 		while(n > 0) {
-			pop_back();
+			erase_back();
 			--n;
 		}
 	}
@@ -192,7 +195,7 @@ public:
 
 	void clear() {
 		while(this->size() > 0) {
-			pop_back();
+			erase_back();
 		}
 	}
 
