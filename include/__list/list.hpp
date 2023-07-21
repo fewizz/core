@@ -142,12 +142,12 @@ public:
 		return output_stream_t{ *this };
 	}
 
-	element_type&& pop_back() requires move_constructible<element_type> {
+	element_type pop_back() requires move_constructible<element_type> {
 		--sentinel_;
-		storage_type s = (*sentinel_);
-		element_type&& e = s.move();
+		storage_type& s = (*sentinel_);
+		element_type e = s.move();
 		s.destruct();
-		return move(e);
+		return e;
 	}
 	constexpr void
 	pop_back() requires (!move_constructible<element_type>) {

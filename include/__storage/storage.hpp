@@ -65,6 +65,10 @@ struct storage_of_size_and_alignment : range_extensions<uint1a> {
 };
 
 template<typename Type>
+using storage_of_size_and_alignment_same_as
+	= storage_of_size_and_alignment<sizeof(Type), alignof(Type)>;
+
+template<typename Type>
 requires(!type_is_reference<Type>)
 struct storage : storage_of_size_and_alignment<sizeof(Type), alignof(Type)> {
 	using base_type
