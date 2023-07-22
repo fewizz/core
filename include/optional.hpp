@@ -2,6 +2,10 @@
 
 #include "./variant.hpp"
 
+namespace __optional {
+	constexpr inline struct no_t{} no{};
+}
+
 template<typename Derived, typename... Types>
 class optional_extensions {
 	static constexpr bool single = sizeof...(Types) == 1;
@@ -60,7 +64,14 @@ public:
 	template<typename Handler>
 	requires single
 	decltype(auto) if_has_value(Handler&& handler)       {
-		if(has_value()) { return handler(get()); }
+		if(has_value()) {
+			if constexpr(invokable_with<Handler, decltype(get())>) {
+				return handler(get());
+			}
+			else {
+				return handler();
+			}
+		}
 	}
 
 	template<typename Handler>
@@ -71,11 +82,11 @@ public:
 		}
 		return derived();
 	}
-};
 
-namespace __optional {
-	constexpr inline struct no_t{} no{};
-}
+	void reset() {
+		derived() = __optional::no;
+	}
+};
 
 template<typename... Types>
 requires (sizeof...(Types) > 0)

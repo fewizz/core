@@ -73,7 +73,7 @@ struct types : common_if_have<Types...> {
 
 	template<typename... Args>
 	static constexpr nuint count_of_invokable_with
-		= count_of_satisfying_predicate<is_invokablew_with<Args...>>;
+		= count_of_satisfying_predicate<is_invokable_with<Args...>>;
 
 	template<nuint Index>
 	using erase_at_index = typename

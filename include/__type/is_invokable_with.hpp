@@ -15,8 +15,8 @@ namespace __type {
 #include "./predicate.hpp"
 
 template<typename... Args>
-struct is_invokablew_with_t :
-	type_predicate_extension<is_invokablew_with_t<Args...>>
+struct is_invokable_with_t :
+	type_predicate_extension<is_invokable_with_t<Args...>>
 {
 
 	template<typename Type>
@@ -27,4 +27,4 @@ struct is_invokablew_with_t :
 };
 
 template<typename... Args>
-static constexpr is_invokablew_with_t<Args...> is_invokablew_with{};
+static constexpr is_invokable_with_t<Args...> is_invokable_with{};

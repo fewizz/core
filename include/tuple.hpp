@@ -243,26 +243,26 @@ public:
 	}
 
 	template<typename... Args>
-	constexpr const type_satisfying_predicate<is_invokablew_with<Args...>>&
+	constexpr const type_satisfying_predicate<is_invokable_with<Args...>>&
 	get_invokable_with() const &  {
-		return get_satisfying_predicate<is_invokablew_with<Args...>>();
+		return get_satisfying_predicate<is_invokable_with<Args...>>();
 	}
 	template<typename... Args>
-	constexpr       type_satisfying_predicate<is_invokablew_with<Args...>>&
+	constexpr       type_satisfying_predicate<is_invokable_with<Args...>>&
 	get_invokable_with()       &  {
-		return get_satisfying_predicate<is_invokablew_with<Args...>>();
+		return get_satisfying_predicate<is_invokable_with<Args...>>();
 	}
 	template<typename... Args>
-	constexpr const type_satisfying_predicate<is_invokablew_with<Args...>>&&
+	constexpr const type_satisfying_predicate<is_invokable_with<Args...>>&&
 	get_invokable_with() const && {
 		return move(*this).template
-			get_satisfying_predicate<is_invokablew_with<Args...>>();
+			get_satisfying_predicate<is_invokable_with<Args...>>();
 	}
 	template<typename... Args>
-	constexpr       type_satisfying_predicate<is_invokablew_with<Args...>>&&
+	constexpr       type_satisfying_predicate<is_invokable_with<Args...>>&&
 	get_invokable_with()       && {
 		return move(*this).template
-			get_satisfying_predicate<is_invokablew_with<Args...>>();
+			get_satisfying_predicate<is_invokable_with<Args...>>();
 	}
 
 	template<typename F>
