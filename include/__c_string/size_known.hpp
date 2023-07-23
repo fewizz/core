@@ -18,7 +18,7 @@ public:
 
 	template<nuint Size>
 	constexpr c_string(const Type (&array)[Size]) :
-		base_type{ array, Size - 1}
+		base_type{ array, Size - 1 }
 	{}
 
 	constexpr c_string(const Type* ptr, SizeType size) :

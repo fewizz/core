@@ -14,6 +14,7 @@ class list : public range_extensions<list<StorageRange>> {
 		range_element_type<StorageRange>
 	>>;
 	using element_type = typename storage_type::type;
+	using size_type = range_size_type<StorageRange>;
 
 	StorageRange storage_range_;
 	storage_iterator_type sentinel_;
@@ -35,7 +36,7 @@ public:
 	constexpr list(list&& other) : list(other.size(), move(other)) {}
 
 private:
-	constexpr list(nuint n, list&& other) :
+	constexpr list(size_type n, list&& other) :
 		storage_range_{ move(other.storage_range_) },
 		sentinel_ { range_iterator(storage_range_) + n }
 	{
@@ -45,7 +46,7 @@ public:
 
 	constexpr list& operator = (list&& other) {
 		clear();
-		nuint n = other.size();
+		size_type n = other.size();
 		storage_range_ = move(other.storage_range_);
 		sentinel_ = range_iterator(storage_range_) + n;
 		other.sentinel_ = range_iterator(other.storage_range_);
@@ -112,7 +113,14 @@ public:
 		return s.construct(forward<Args>(args)...);
 	}
 
-	constexpr void ensure_size(nuint size) /* requires default_init */ {
+	template<typename... Args>
+	constexpr size_type emplace_back_and_get_index(Args&&... args) {
+		size_type index = size();
+		emplace_back(forward<Args>(args)...);
+		return index;
+	}
+
+	constexpr void ensure_size(size_type size) /* requires default_init */ {
 		while(size > this->size()) {
 			emplace_back();
 		}
@@ -158,7 +166,7 @@ public:
 		(*sentinel_).destruct();
 	}
 
-	constexpr void erase_back(nuint n) {
+	constexpr void erase_back(size_type n) {
 		while(n > 0) {
 			erase_back();
 			--n;
@@ -168,15 +176,15 @@ public:
 	auto& back() const & { return (*(sentinel_ - 1)).get(); }
 	auto& back()       & { return (*(sentinel_ - 1)).get(); }
 
-	constexpr nuint size() const {
+	constexpr size_type size() const {
 		return sentinel_ - range_iterator(storage_range_);
 	}
 
-	constexpr nuint capacity() const {
+	constexpr size_type capacity() const {
 		return range_size(storage_range_);
 	}
 
-	constexpr nuint available() const {
+	constexpr size_type available() const {
 		return capacity() - this->size();
 	}
 

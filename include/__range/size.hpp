@@ -20,7 +20,11 @@ namespace __range {
 
 		template<sized_range Range>
 		requires (!requires(Range r) { r.size(); })
-		constexpr nuint operator () (Range&& range) const {
+		constexpr decltype(
+			expression_of_type<Range>().sentinel() -
+			expression_of_type<Range>().iterator()
+		)
+		operator () (Range&& range) const {
 			return range.sentinel() - range.iterator();
 		}
 
