@@ -4,7 +4,7 @@
 #include "../forward.hpp"
 
 template<storage_range StorageRange>
-struct initialised {
+struct initialised : range_extensions<initialised<StorageRange>> {
 private:
 	using storage_iterator_type = range_iterator_type<StorageRange>;
 	using storage_const_iterator_type = range_iterator_type<const StorageRange>;
@@ -16,9 +16,14 @@ private:
 	StorageRange storage_range_;
 public:
 
+	initialised() = default;
+
 	initialised(StorageRange&& storage_range) :
 		storage_range_{ forward<StorageRange>(storage_range) }
 	{}
+
+	initialised(initialised&& other) = default;
+	initialised& operator = (initialised&& other) = default;
 
 	auto iterator() const {
 		if constexpr(contiguous_range<StorageRange>) {
@@ -47,7 +52,7 @@ public:
 
 	auto sentinel() const {
 		if constexpr(contiguous_range<StorageRange>) {
-			return (element_type*) storage_range_.sentinel()();
+			return (element_type*) storage_range_.sentinel();
 		}
 		else {
 			return range{ storage_range_ }
@@ -59,7 +64,7 @@ public:
 	}
 	auto sentinel() {
 		if constexpr(contiguous_range<StorageRange>) {
-			return (element_type*) storage_range_.sentinel()();
+			return (element_type*) storage_range_.sentinel();
 		}
 		else {
 			return range{ storage_range_ }
