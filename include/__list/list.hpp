@@ -4,6 +4,8 @@
 #include "../__storage/range.hpp"
 #include "../__range/growable.hpp"
 #include "../__range/borrowed.hpp"
+#include "../__storage/initialised_range.hpp"
+#include "../on_scope_exit.hpp"
 
 template<storage_range StorageRange>
 requires (!borrowed_range<StorageRange>)
@@ -205,6 +207,13 @@ public:
 		while(this->size() > 0) {
 			erase_back();
 		}
+	}
+
+	initialised<StorageRange> as_initialised() && {
+		on_scope_exit reset_sentinel {
+			[&]{ sentinel_ = range_iterator(storage_range_); }
+		};
+		return { forward<StorageRange>(storage_range_) };
 	}
 
 };
