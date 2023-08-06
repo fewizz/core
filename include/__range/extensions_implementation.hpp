@@ -148,19 +148,19 @@ template<typename Derived, range_extensions_options Options>
 template<typename F>
 constexpr auto range_extensions<Derived, Options>::
 transform_view(F&& f) const &  {
-	return __ranges::transform_view{ range_(), forward<F>(f) };
+	return __ranges::transform_view_t { range_(), forward<F>(f) };
 }
 template<typename Derived, range_extensions_options Options>
 template<typename F>
 constexpr auto range_extensions<Derived, Options>::
 transform_view(F&& f)       &  {
-	return __ranges::transform_view{ range_(), forward<F>(f) };
+	return __ranges::transform_view_t { range_(), forward<F>(f) };
 }
 template<typename Derived, range_extensions_options Options>
 template<typename F>
 constexpr auto range_extensions<Derived, Options>::
 transform_view(F&& f) const && {
-	return __ranges::transform_view {
+	return __ranges::transform_view_t {
 		forward<const Derived>(range_()), forward<F>(f)
 	};
 }
@@ -168,7 +168,7 @@ template<typename Derived, range_extensions_options Options>
 template<typename F>
 constexpr auto range_extensions<Derived, Options>::
 transform_view(F&& f)       && {
-	return __ranges::transform_view {
+	return __ranges::transform_view_t {
 		forward<      Derived>(range_()), forward<F>(f)
 	};
 }

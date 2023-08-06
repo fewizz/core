@@ -7,15 +7,15 @@
 #include "../__storage/initialised_range.hpp"
 #include "../on_scope_exit.hpp"
 
-template<storage_range StorageRange>
-requires (!borrowed_range<StorageRange>)
+template<basic_range StorageRange>
+requires (
+	!borrowed_range<StorageRange> &&
+	type_is_lvalue_reference<range_element_type<StorageRange>>
+)
 class list : public range_extensions<list<StorageRange>> {
 	using storage_iterator_type = range_iterator_type<StorageRange>;
 	using storage_const_iterator_type = range_iterator_type<const StorageRange>;
-	using storage_type = remove_reference<remove_const<
-		range_element_type<StorageRange>
-	>>;
-	using element_type = typename storage_type::type;
+	using value_type = remove_reference<range_element_type<StorageRange>>;
 	using size_type = range_size_type<StorageRange>;
 
 	StorageRange storage_range_;
@@ -61,58 +61,22 @@ public:
 		return storage;
 	}
 
-	auto iterator() const {
-		if constexpr(contiguous_range<StorageRange>) { // TODO
-			return (const element_type*) storage_range_.iterator();
-		}
-		else {
-			return range{ storage_range_ }
-				.transform_view([](auto& storage) -> auto& {
-					return storage.get();
-				})
-				.iterator();
-		}
-	}
-	auto iterator()       {
-		if constexpr(contiguous_range<StorageRange>) {
-			return (element_type*) storage_range_.iterator();
-		}
-		else {
-			return range{ storage_range_ }
-				.transform_view([](auto& storage) -> auto& {
-					return storage.get();
-				})
-				.iterator();
-		}
-	}
+	auto iterator() const { return range_iterator(storage_range_); }
+	auto iterator()       { return range_iterator(storage_range_); }
 
-	auto sentinel() const {
-		if constexpr(contiguous_range<StorageRange>) {
-			return (const element_type*) sentinel_;
-		}
-		else {
-			return sentinel_;
-		}
-	}
-	auto sentinel()       {
-		if constexpr(contiguous_range<StorageRange>) {
-			return (element_type*) sentinel_;
-		}
-		else {
-			return sentinel_;
-		}
-	}
+	auto sentinel() const { return sentinel_; }
+	auto sentinel()       { return sentinel_; }
 
 	template<typename... Args>
-	constexpr element_type& emplace_back(Args&&... args) {
+	constexpr value_type& emplace_back(Args&&... args) {
 		if constexpr(growable_range<StorageRange>) {
 			if(size() == capacity()) {
 				storage_range_.grow();
 				sentinel_ = storage_range_.iterator() + size();
 			}
 		}
-		storage_type& s = (*(sentinel_++));
-		return s.construct(forward<Args>(args)...);
+		value_type& e = *(sentinel_++);
+		return *new (&e) value_type(forward<Args>(args)...);
 	}
 
 	template<typename... Args>
@@ -137,9 +101,9 @@ public:
 
 	template<typename... Args>
 	constexpr void emplace_at(auto index, Args&&... args) {
-		storage_type& s = *(range_iterator(storage_range_) + index);
-		s.destruct();
-		s.template construct<Args...>(forward<Args>(args)...);
+		value_type& e = *(range_iterator(storage_range_) + index);
+		e.~value_type();
+		new (&e) value_type(forward<Args>(args)...);
 	}
 
 	struct output_stream_t {
@@ -155,17 +119,17 @@ public:
 		return output_stream_t{ *this };
 	}
 
-	element_type pop_back() requires move_constructible<element_type> {
+	value_type pop_back() requires move_constructible<value_type> {
 		--sentinel_;
-		storage_type& s = (*sentinel_);
-		element_type e(s.move());
-		s.destruct();
-		return e;
+		value_type& e = move(*sentinel_);
+		value_type moved = move(e);
+		e.~value_type();
+		return moved;
 	}
 
 	constexpr void erase_back() {
 		--sentinel_;
-		(*sentinel_).destruct();
+		(*sentinel_).~value_type();
 	}
 
 	constexpr void erase_back(size_type n) {
@@ -175,8 +139,8 @@ public:
 		}
 	}
 
-	auto& back() const & { return (*(sentinel_ - 1)).get(); }
-	auto& back()       & { return (*(sentinel_ - 1)).get(); }
+	auto& back() const & { return *(sentinel_ - 1); }
+	auto& back()       & { return *(sentinel_ - 1); }
 
 	constexpr size_type size() const {
 		return sentinel_ - range_iterator(storage_range_);

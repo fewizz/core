@@ -47,7 +47,7 @@ public:
 	template<typename Function>
 	constexpr auto transform_view(Function&& function) const & {
 		return ranges_.pass([&](const Ranges&... ranges) {
-			return __ranges::transform_view {
+			return __ranges::transform_view_t {
 				forward<Function>(function), ranges...
 			};
 		});
@@ -55,7 +55,7 @@ public:
 	template<typename Function>
 	constexpr auto transform_view(Function&& function)       & {
 		return ranges_.pass([&](Ranges&... ranges) {
-			return __ranges::transform_view {
+			return __ranges::transform_view_t {
 				forward<Function>(function), ranges...
 			};
 		});
@@ -64,7 +64,7 @@ public:
 	template<typename Function>
 	constexpr auto transform_view(Function&& function) const && {
 		return ranges_.forward([&](const Ranges&&... ranges) {
-			return __ranges::transform_view {
+			return __ranges::transform_view_t {
 				forward<Function>(function), forward<Ranges>(ranges)...
 			};
 		});
@@ -72,7 +72,7 @@ public:
 	template<typename Function>
 	constexpr auto transform_view(Function&& function)       && {
 		return ranges_.forward([&](Ranges&&... ranges) {
-			return __ranges::transform_view {
+			return __ranges::transform_view_t {
 				forward<Function>(function), forward<Ranges>(ranges)...
 			};
 		});

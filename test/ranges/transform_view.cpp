@@ -7,7 +7,7 @@ constexpr array b{ 3, 6, 3, 2 };
 constexpr c_string c{ "Hello" };
 
 auto constexpr f(auto&& c) {
-	return __ranges::transform_view {
+	return __ranges::transform_view_t {
 		c, [](auto e) { return e * 4; }
 	};
 }
@@ -27,7 +27,17 @@ static_assert(*(f(a).iterator() + 2) == 8);
 static_assert(*(f(a).iterator() + 3) == 16);
 
 static_assert(
-	__ranges::transform_view { c, [](auto){ return 0; }}[0] == 0
+	__ranges::transform_view_t {
+		c,
+		[](auto){ return 0; }
+	}[0] == 0
+);
+
+static_assert(
+	__ranges::transform_view_t {
+		c,
+		[](auto){ return 0; }
+	}.transform_view([](auto){ return 1; })[0] == 1
 );
 
 /*auto constexpr f0() {

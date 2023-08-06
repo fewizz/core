@@ -14,7 +14,7 @@ template<typename Function, typename... Iterators>
 class transform_view_iterator;
 
 template<typename Function, basic_range... Ranges>
-class transform_view;
+class transform_view_t;
 
 // specialisation for single range
 template<typename Function, typename Iterator>
@@ -75,8 +75,8 @@ transform_view_iterator(Iterator, Function&)
 	-> transform_view_iterator<Function, Iterator>;
 
 template<typename Function, basic_range Range>
-class transform_view<Function, Range> :
-	public range_extensions<transform_view<Function, Range>>
+class transform_view_t<Function, Range> :
+	public range_extensions<transform_view_t<Function, Range>>
 {
 	Range range_;
 	Function function_;
@@ -86,7 +86,7 @@ public:
 		Range
 	>;
 
-	constexpr transform_view(Range&& range, Function&& function) :
+	constexpr transform_view_t(Range&& range, Function&& function) :
 		range_{ forward<Range>(range) },
 		function_{ forward<Function>(function) }
 	{}
@@ -115,6 +115,6 @@ public:
 };
 
 template<typename Function, basic_range Range>
-transform_view(Range&&, Function&&) -> transform_view<Function, Range>;
+transform_view_t(Range&&, Function&&) -> transform_view_t<Function, Range>;
 
 } // __ranges
