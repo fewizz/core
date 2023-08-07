@@ -120,10 +120,8 @@ public:
 	}
 
 	value_type pop_back() requires move_constructible<value_type> {
-		--sentinel_;
-		value_type& e = move(*sentinel_);
-		value_type moved = move(e);
-		e.~value_type();
+		value_type moved = move(back());
+		erase_back();
 		return moved;
 	}
 
