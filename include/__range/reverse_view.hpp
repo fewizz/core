@@ -57,7 +57,7 @@ public:
 
 	constexpr reverse_view(Range&& range): range_{ forward<Range>(range) } {}
 
-	constexpr auto iterator() {
+	constexpr auto iterator() const {
 		auto it   = range_iterator(range_);
 		auto size = range_size(range_);
 		// avoid applying non-zero offset  to null pointer
@@ -66,7 +66,7 @@ public:
 		};
 	}
 
-	constexpr auto sentinel() {
+	constexpr auto sentinel() const {
 		return reverse_view_iterator {
 			range_iterator(range_)
 		};
