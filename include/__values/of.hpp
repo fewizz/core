@@ -113,4 +113,6 @@ namespace __values {
 
 	};
 
+	static_assert(indices::from<0>::to<10>::size == 10);
+
 } // values

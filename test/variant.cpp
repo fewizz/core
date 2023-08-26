@@ -3,9 +3,16 @@
 
 consteval bool f() {
 	{
-		__variant::storage<int, float> storage;
-		float f = 0;
-		storage.create<__variant::treat_type_as::value_type>(f);
+		variant<int, int&> v{1};
+		v.view([](int&) {});
+		static_assert(same_as<
+			decltype(v.get_at<0>()),
+			int&
+		>);
+		static_assert(same_as<
+			decltype(v.get_at<1>()),
+			int&
+		>);
 	}
 	{
 		variant<int, float> f{ 0.0F };

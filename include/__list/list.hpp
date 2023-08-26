@@ -35,10 +35,10 @@ public:
 		sentinel_{ range_iterator(storage_range_) }
 	{}
 
-	constexpr list(list&& other) : list(other.size(), move(other)) {}
+	constexpr list(list&& other) : list(other.size(), other) {}
 
 private:
-	constexpr list(size_type n, list&& other) :
+	constexpr list(size_type n, list& other) :
 		storage_range_{ move(other.storage_range_) },
 		sentinel_ { range_iterator(storage_range_) + n }
 	{
