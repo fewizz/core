@@ -104,7 +104,7 @@ public:
 	template<typename Arg>
 	requires assignable<base_type, Arg&&>
 	constexpr optional& operator = (Arg&& arg) {
-		base_type::operator = (forward<Arg>(arg));
+		base_type::template operator = <Arg> (::forward<Arg>(arg));
 		return *this;
 	}
 
