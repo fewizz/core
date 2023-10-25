@@ -4,6 +4,7 @@
 #include "./iterator.hpp"
 #include "./sentinel.hpp"
 #include "../forward.hpp"
+#include "../write.hpp"
 
 namespace __range {
 
@@ -30,14 +31,13 @@ public:
 	}
 
 	template<typename To>
-	constexpr auto to_iterator(To&& to) {
+	constexpr auto to_output_stream(To&& to) {
 		auto from_begin = range_iterator(from_);
 		auto from_end   = range_sentinel(from_);
 
 		while(from_begin != from_end) {
-			*to = *from_begin;
+			::write(*from_begin, to);
 			++from_begin;
-			++to;
 		}
 	}
 

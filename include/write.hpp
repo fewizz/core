@@ -1,14 +1,13 @@
 #pragma once
 
-#include "./endianness.hpp"
-#include "./type.hpp"
-#include "./integer.hpp"
-#include "./move.hpp"
-#include "./output_stream.hpp"
-#include "./bit_cast.hpp"
-#include "./storage.hpp"
-#include "__iterator/basic.hpp"
-#include "__iterator/element_type.hpp"
+#include <./endianness.hpp>
+#include <./move.hpp>
+#include <./output_stream.hpp>
+#include <./bit_cast.hpp>
+#include <__iterator/element_type.hpp>
+#include <__type/is_trivial.hpp>
+#include <__type/decay.hpp>
+#include <integer.hpp>
 
 template<
 	trivial Type,
@@ -40,6 +39,24 @@ template<
 >
 constexpr void write(OS&& iterator, Type value) {
 	write<Type, Endianness, OS>(value, forward<OS>(iterator));
+}
+
+template<
+	trivial Type,
+	basic_output_stream<uint1a> OS
+>
+requires (atoms_in<Type> == 1)
+constexpr void write(OS&& iterator, Type value) {
+	write<Type, endianness::native, OS>(value, forward<OS>(iterator));
+}
+
+template<
+	basic_output_stream<uint1a> OS,
+	trivial Type
+>
+requires (atoms_in<Type> == 1)
+constexpr void write(OS&& iterator, Type value) {
+	write<Type, endianness::native, OS>(value, forward<OS>(iterator));
 }
 
 template<

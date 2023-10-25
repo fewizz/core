@@ -21,6 +21,14 @@ constexpr void range_extensions<Derived, Options>::copy_to(
 	__range::copy{ range_() }.to( forward<OtherRange>(other_range) );
 }
 
+template<typename Derived, range_extensions_options Options>
+template<typename OS>
+constexpr void range_extensions<Derived, Options>::copy_to(
+	OS&& output_stream
+) const & {
+	__range::copy{ range_() }.to_output_stream(forward<OS>(output_stream));
+}
+
 #include "../__ranges/have_equal_size_and_elements.hpp"
 
 template<typename Derived, range_extensions_options Options>

@@ -4,9 +4,6 @@
 #include "./type.hpp"
 #include "./types.hpp"
 
-struct enum_flags_iterator {
-	
-};
 
 template<typename Enum>
 requires type<Enum>::is_enum

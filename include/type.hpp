@@ -27,7 +27,6 @@
 
 template<typename Type>
 struct type {
-
 	using add_pointer = __type::add_pointer<Type>;
 	using decay = decay<Type>;
 

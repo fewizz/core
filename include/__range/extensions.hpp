@@ -84,6 +84,9 @@ public:
 	template<basic_range OtherRange>
 	constexpr void copy_to(OtherRange&& other_range) const &;
 
+	template</*basic_output_stream*/typename OS>
+	constexpr void copy_to(OS&& output_stream) const &;
+
 	template<basic_range OtherRange>
 	constexpr bool has_equal_size_and_elements(
 		OtherRange&& other_range

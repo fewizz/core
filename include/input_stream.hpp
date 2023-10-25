@@ -2,21 +2,22 @@
 
 #include "./__iterator/basic.hpp"
 #include "./forward.hpp"
+#include "./__type/is_same_as.hpp"
 
-template<typename ValueType, typename Type>
+template<typename Type>
 requires requires(Type&& is) {
-	is.template read<ValueType>();
+	is.read();
 }
-constexpr ValueType read(Type&& is) {
-	return is.template read<ValueType>();
+constexpr decltype(auto) read(Type&& is) {
+	return is.read();
 }
 
-template<typename ValueType, basic_iterator Type>
-constexpr ValueType read(Type&& it) {
+template<basic_iterator Type>
+constexpr decltype(auto) read(Type&& it) {
 	return *it++;
 }
 
-template<typename Type, typename ValueType>
-concept basic_input_stream = requires(Type&& t, ValueType&& v) {
-	::read<ValueType, Type>(forward<Type>(t));
+template<typename ISType, typename ValueType>
+concept basic_input_stream = requires(ISType&& is) {
+	::read<ISType>(forward<ISType>(is));
 };

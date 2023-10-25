@@ -39,3 +39,19 @@ c_string(const Type*, nuint size) -> c_string<
 	c_string_type::known_size,
 	remove_const<Type>
 >;
+
+
+#include "../__range/view_copied_elements_on_stack.hpp"
+#include "../__range/copy.hpp"
+
+template<basic_range Range, typename Handler>
+decltype(auto) view_on_stack_as_c_string(Range&& range, Handler&& handler) {
+	auto size = range_size(range);
+	return view_on_stack<char>{size + 1}(
+		[&](span<char> span) -> decltype(auto) {
+			__range::copy{ range }.to(span);
+			span[size] = 0;
+			return handler(c_string_of_known_size<char>{span.iterator(), size});
+		}
+	);
+}

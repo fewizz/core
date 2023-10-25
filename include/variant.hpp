@@ -209,18 +209,18 @@ public:
 	template<typename Type>
 	requires has_one_constructible_from<Type>
 	constexpr variant& operator = (Type&& arg) {
-		constexpr nuint index = index_of_constructible_from<Type>;
+		assign<index_of_constructible_from<Type>>(::forward<Type>(arg));
+		return *this;
+	}
 
-		view_index([&]<nuint CurrentI> {
-			if constexpr(CurrentI == index && assignable<type_at<index>, Type>){
-				get_at<CurrentI>() = ::forward<Type>(arg);
-			}
-			else {
-				destruct<CurrentI>();
-				construct<index>(::forward<Type>(arg));
-				current_ = index;
-			}
-		});
+	// assignment operator
+	template<typename Type>
+	requires (
+		!has_one_constructible_from<Type> &&
+		has_one_same_as<Type>
+	)
+	constexpr variant& operator = (Type&& arg) {
+		assign<index_of_same_as<Type>>(forward<Type>(arg));
 		return *this;
 	}
 
@@ -234,22 +234,23 @@ public:
 	}
 
 	// assignment operator
-	/*template<typename Type, typename Arg>
-	requires (constructible_from<Type, Arg>)
+	template<nuint TypeIndex, typename Arg>
+	//requires (constructible_from<type_at<TypeIndex>, Arg>)
 	constexpr void assign(Arg&& arg) {
-		constexpr nuint index = index_of_constructible_from<Type>;
-
 		view_index([&]<nuint CurrentI> {
-			if constexpr(CurrentI == index) {
-				get_at<CurrentI>() = forward<Arg>(arg);
+			if constexpr(
+				CurrentI == TypeIndex &&
+				assignable<type_at<TypeIndex>, Arg>
+			) {
+				get_at<CurrentI>() = ::forward<Arg>(arg);
 			}
 			else {
 				destruct<CurrentI>();
-				construct<index>(forward<Arg>(arg));
-				current_ = index;
+				construct<TypeIndex>(::forward<Arg>(arg));
+				current_ = TypeIndex;
 			}
 		});
-	}*/
+	}
 
 	constexpr ~variant() {
 		view_index([&]<nuint CurrentI> { destruct<CurrentI>(); });
@@ -286,7 +287,7 @@ public:
 			return handler.template operator () <Index> ();
 		}
 		if constexpr(Index + 1 < sizeof...(Types)) {
-			return view_type_recursively<Handler, Index + 1>(
+			return view_index_recursively<Handler, Index + 1>(
 				forward<Handler>(handler)
 			);
 		}
@@ -436,22 +437,22 @@ public:
 
 	template<typename Type>
 	requires has_one_same_as<Type>
-	constexpr const auto&  get_same_as() const & {
+	constexpr const Type&  get_same_as() const & {
 		return get_satisfying_predicate<::is_same_as<Type>>();
 	}
 	template<typename Type>
 	requires has_one_same_as<Type>
-	constexpr       auto&  get_same_as()       & {
+	constexpr       Type&  get_same_as()       & {
 		return get_satisfying_predicate<::is_same_as<Type>>();
 	}
 	template<typename Type>
 	requires has_one_same_as<Type>
-	constexpr const auto&& get_same_as() const && {
+	constexpr const Type&& get_same_as() const && {
 		return move(get_satisfying_predicate<::is_same_as<Type>>());
 	}
 	template<typename Type>
 	requires has_one_same_as<Type>
-	constexpr       auto&& get_same_as()       && {
+	constexpr       Type&& get_same_as()       && {
 		return move(get_satisfying_predicate<::is_same_as<Type>>());
 	}
 

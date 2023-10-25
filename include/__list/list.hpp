@@ -113,6 +113,7 @@ public:
 		void write(Type&& t) {
 			list_.emplace_back(forward<Type>(t));
 		}
+
 	};
 
 	constexpr output_stream_t output_stream() {
