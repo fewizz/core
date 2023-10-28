@@ -76,7 +76,7 @@ public:
 			}
 		}
 		value_type& e = *(sentinel_++);
-		return *new (&e) value_type(forward<Args>(args)...);
+		return *new ((void*)&e) value_type(forward<Args>(args)...);
 	}
 
 	template<typename... Args>
