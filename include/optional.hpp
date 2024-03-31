@@ -1,6 +1,7 @@
 #pragma once
 
 #include "./variant.hpp"
+#include "./__type/copy_const_ref.hpp"
 
 namespace __optional {
 	constexpr inline struct no_t{} no{};
@@ -11,8 +12,10 @@ class optional_extensions {
 	static constexpr bool single = sizeof...(Types) == 1;
 	using first = first_type<Types...>;
 
-	const Derived& derived() const { return (const Derived&) *this; }
-	      Derived& derived()       { return (      Derived&) *this; }
+	template<typename Self>
+	decltype(auto) derived(this Self&& self) {
+		return (copy_const_ref<Self, Derived>) self;
+	}
 
 public:
 
@@ -21,52 +24,35 @@ public:
 
 	explicit operator bool () const { return has_value(); }
 
-	template<typename Handler>
-	const Derived&  if_has_no_value(Handler&& handler) const &  {
-		if(has_no_value()) { handler(); }
-		return derived();
-	}
-	template<typename Handler>
-	      Derived&  if_has_no_value(Handler&& handler)       &  {
-		if(has_no_value()) { handler(); }
-		return derived();
-	}
-	template<typename Handler>
-	const Derived&& if_has_no_value(Handler&& handler) const && {
-		if(has_no_value()) { handler(); }
-		return ::move(derived());
-	}
-	template<typename Handler>
-	      Derived&& if_has_no_value(Handler&& handler)       && {
-		if(has_no_value()) { handler(); }
-		return ::move(derived());
+	template<typename Handler, typename Self>
+	copy_const_ref<Self, Derived> if_has_no_value(
+		this Self&& self, Handler&& handler
+	) {
+		if (self.has_no_value()) {
+			handler();
+		}
+		return forward<Self>(self).derived();
 	}
 
-	const first&  get() const &  requires single { return derived().get(); }
-	      first&  get()       &  requires single { return derived().get(); }
-	const first&& get() const && requires single {
-		return ::move(derived()).get();
+	template<typename Self>
+	copy_const_ref<Self, first> get(this Self&& self) requires single {
+		return forward<Self>(self).derived().get();
 	}
-	      first&& get()       && requires single {
-		return ::move(derived()).get();
-	}
+
 
 	const remove_reference<first>*
 	operator -> () const & requires single { return &get(); }
 	      remove_reference<first>*
 	operator -> ()       & requires single { return &get(); }
 
-	template<typename Handler>
+	template<typename Handler, typename Self>
 	requires single
-	decltype(auto) if_has_value(Handler&& handler) const {
-		if(has_value()) { return handler(get()); }
-	}
-	template<typename Handler>
-	requires single
-	decltype(auto) if_has_value(Handler&& handler)       {
-		if(has_value()) {
-			if constexpr(invokable_with<Handler, decltype(get())>) {
-				return handler(get());
+	decltype(auto) if_has_value(this Self&& self, Handler&& handler) {
+		if(self.has_value()) {
+			if constexpr(
+				invokable_with<Handler, decltype(forward<Self>(self).get())>
+			) {
+				return handler(forward<Self>(self).get());
 			}
 			else {
 				return handler();
@@ -113,20 +99,11 @@ public:
 	using base_type::get_same_as;
 	using base_type::is_same_as;
 
-	template<typename Handler>
-	constexpr decltype(auto) view(Handler&& handler) const {
-		base_type::view([&]<typename Type>(Type& v) {
+	template<typename Handler, typename Self>
+	constexpr decltype(auto) view(this Self&& self, Handler&& handler) {
+		((copy_const_ref<Self, base_type>) self)
+		.view([&]<typename Type>(Type& v) {
 			if constexpr (same_as<remove_const<Type>, __optional::no_t>) {
-				__builtin_unreachable();
-			}
-			else { return handler(v); }
-		});
-	}
-
-	template<typename Handler>
-	constexpr decltype(auto) view(Handler&& handler) {
-		base_type::view([&]<typename Type>(Type& v) {
-			if constexpr (same_as<Type, __optional::no_t>) {
 				__builtin_unreachable();
 			}
 			else { return handler(v); }
@@ -137,25 +114,16 @@ public:
 		return !base_type::template is_same_as<__optional::no_t>();
 	}
 
-	constexpr const first&  get() const &  requires single {
-		return base_type::template get_same_as<first>();
-	}
-	constexpr       first&  get()       &  requires single {
-		return base_type::template get_same_as<first>();
-	}
-	constexpr const first&& get() const && requires single {
-		return ::move(*this).template get_same_as<first>();
-	}
-	constexpr       first&& get()       && requires single {
-		return ::move(*this).template get_same_as<first>();
+	template<typename Self>
+	constexpr decltype(auto) get(this Self&& self) requires single {
+		return ((copy_const_ref<Self, base_type>) self)
+			.template get_same_as<first>();
 	}
 
-	constexpr const remove_reference<first>&& move() const requires single {
-		return ::move(*this).template get_same_as<first>();
+	constexpr auto&& move(this auto&& self) requires single {
+		return ::move(self).template get_same_as<first>();
 	}
-	constexpr       remove_reference<first>&& move()       requires single {
-		return ::move(*this).template get_same_as<first>();
-	}
+
 };
 
 template<typename Type>
@@ -177,17 +145,13 @@ public:
 
 	constexpr bool has_value() const { return ptr_ != nullptr; }
 
-	constexpr const Type&  get() const { return *ptr_; }
-	constexpr       Type&  get()       { return *ptr_; }
+	constexpr auto& get(this auto&& self) { return *self.ptr_; }
 
-	constexpr const Type&& forward() const {
-		return ::forward<const Type>(*ptr_);
-	}
-	constexpr       Type&& forward()       {
-		return ::forward<      Type>(*ptr_);
+	template<typename Self>
+	constexpr decltype(auto) forward() {
+		return ::forward<copy_const_ref<Self, Type>>(*ptr_);
 	}
 
-	constexpr const Type* ptr() const & { return ptr_; }
-	constexpr       Type* ptr()       & { return ptr_; }
+	constexpr auto* ptr(this auto& self) { return self.ptr_; }
 
 };

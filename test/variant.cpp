@@ -1,7 +1,18 @@
 #include <variant.hpp>
 #include <exchange.hpp>
+#include <expression_of_type.hpp>
 
 consteval bool f() {
+	{
+		static_assert(same_as<
+			decltype(expression_of_type<variant<int>>().get_at<0>()),
+			int&&
+		>);
+		static_assert(same_as<
+			decltype(expression_of_type<variant<const int>>().get_at<0>()),
+			const int&&
+		>); // TODO why ?
+	}
 	{
 		variant<int, int&> v{1};
 		v.view([](int&) {});

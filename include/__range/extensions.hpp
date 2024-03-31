@@ -92,60 +92,29 @@ public:
 		OtherRange&& other_range
 	) const;
 
-	constexpr auto flat_view() const &  ;
-	constexpr auto flat_view()       &  ;
-	constexpr auto flat_view() const && ;
-	constexpr auto flat_view()       && ;
+	constexpr auto flat_view(this auto&& self);
 
-	constexpr auto dereference_view() const &  ;
-	constexpr auto dereference_view()       &  ;
-	constexpr auto dereference_view() const && ;
-	constexpr auto dereference_view()       && ;
+	constexpr auto dereference_view(this auto&& self);
 
-	constexpr auto reverse_view() const &  ;
-	constexpr auto reverse_view()       &  ;
-	constexpr auto reverse_view() const && ;
-	constexpr auto reverse_view()       && ;
+	constexpr auto reverse_view(this auto&& self);
 
-	constexpr auto sized_view() const &  ;
-	constexpr auto sized_view()       &  ;
-	constexpr auto sized_view() const && ;
-	constexpr auto sized_view()       && ;
+	constexpr auto sized_view(this auto&& self);
 
 	template<typename Predicate>
-	constexpr auto filter_view(Predicate&&) const &  ;
-	template<typename Predicate>
-	constexpr auto filter_view(Predicate&&)       &  ;
-	template<typename Predicate>
-	constexpr auto filter_view(Predicate&&) const && ;
-	template<typename Predicate>
-	constexpr auto filter_view(Predicate&&)       && ;
+	constexpr auto filter_view(this auto&& self, Predicate&&);
 
 	template<typename F>
-	constexpr auto transform_view(F&&) const &  ;
-	template<typename F>
-	constexpr auto transform_view(F&&)       &  ;
-	template<typename F>
-	constexpr auto transform_view(F&&) const && ;
-	template<typename F>
-	constexpr auto transform_view(F&&)       && ;
+	constexpr auto transform_view(this auto&& self, F&&);
 
-	constexpr decltype(auto) operator [] (nuint index) const {
-		return *(_iterator() + index);
-	}
-
-	constexpr decltype(auto) operator [] (nuint index) {
-		return *(_iterator() + index);
+	template<typename Self>
+	constexpr decltype(auto) operator [] (this Self&& self, nuint index) {
+		return *(((range_extensions&&)self)._iterator() + index);
 	}
 
 	template<typename Handler>
-	decltype(auto) view_copied_elements_on_stack(Handler&& handler) const & ;
-	template<typename Handler>
-	decltype(auto) view_copied_elements_on_stack(Handler&& handler)       & ;
-	template<typename Handler>
-	decltype(auto) view_copied_elements_on_stack(Handler&& handler) const &&;
-	template<typename Handler>
-	decltype(auto) view_copied_elements_on_stack(Handler&& handler)       &&;
+	decltype(auto) view_copied_elements_on_stack(
+		this auto&& self, Handler&& handler
+	);
 
 	template<typename Predicate>
 	auto try_find_first_satisfying(Predicate&& predicate) const;

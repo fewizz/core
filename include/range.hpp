@@ -15,11 +15,13 @@ public:
 
 	range(Range&& range) : range_{ forward<Range>(range) } {}
 
-	constexpr auto iterator() const { return range_iterator(range_); }
-	constexpr auto iterator()       { return range_iterator(range_); }
+	constexpr auto iterator(this auto self) {
+		return range_iterator(self.range_);
+	}
 
-	constexpr auto sentinel() const { return range_sentinel(range_); }
-	constexpr auto sentinel()       { return range_sentinel(range_); }
+	constexpr auto sentinel(this auto self) {
+		return range_sentinel(self.range_);
+	}
 
 	constexpr auto size() const requires sized_range<Range> {
 		return range_size(range_);

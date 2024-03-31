@@ -1,4 +1,4 @@
--std=c++2b
+-std=c++23
 -nostdinc++
 -nostdinc
 -Iinclude

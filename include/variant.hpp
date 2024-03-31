@@ -3,6 +3,7 @@
 #include "./__values/max.hpp"
 #include "./types.hpp"
 #include "./type.hpp"
+#include "./__type/copy_const_ref.hpp"
 #include "./move.hpp"
 #include "./placement_new.hpp"
 
@@ -257,20 +258,9 @@ public:
 	}
 
 	template<typename Handler>
-	decltype(auto) view(Handler&& handler) const {
-		return view_raw([&]<typename RawType>(RawType& e) -> decltype(auto) {
-			if constexpr(type_is_pointer<RawType>) {
-				return handler(*e);
-			}
-			else {
-				return handler(e);
-			}
-		});
-	}
-
-	template<typename Handler>
-	decltype(auto) view(Handler&& handler) {
-		return view_raw([&]<typename RawType>(RawType& e) -> decltype(auto) {
+	constexpr decltype(auto) view(this auto&& self, Handler&& handler) {
+		return self.view_raw([&]<typename RawType>(RawType& e)
+		-> decltype(auto) {
 			if constexpr(type_is_pointer<RawType>) {
 				return handler(*e);
 			}
@@ -345,17 +335,9 @@ public:
 	}
 
 	template<typename Handler>
-	decltype(auto) view_raw(Handler&& handler) const {
-		return view_raw_type([&]<typename RawType> -> decltype(auto) {
-			return handler(*(RawType*)storage_);
-		});
-	}
-
-	template<typename Handler>
-	decltype(auto) view_raw(Handler&& handler) {
-		return view_type([&]<typename Type> -> decltype(auto) {
-			using raw_type = ptr_if_ref<Type>;
-			return handler(*(raw_type*)storage_);
+	decltype(auto) view_raw(this auto&& self, Handler&& handler) {
+		return self.view_raw_type([&]<typename RawType> -> decltype(auto) {
+			return handler(*(RawType*) self.storage_);
 		});
 	}
 
@@ -369,91 +351,37 @@ public:
 		return current_ == index_of_same_as<Type>;
 	}
 
-	template<nuint Index>
-	constexpr const type_at<Index>&  get_at() const & {
+	template<nuint Index, typename Self>
+	constexpr copy_const_ref<Self, type_at<Index>>&& get_at(this Self&& self) {
 		using type = type_at<Index>;
+		using resulting_type = copy_const_ref<Self, type>&&;
+
 		if constexpr(type_is_reference<type>) {
-			return **(remove_reference<type>**) storage_;
+			return (resulting_type) **(remove_reference<type>**)
+			((copy_const_ref<Self, variant>&&) self).storage_;
 		}
 		else {
-			return *(type*)storage_;
-		}
-	}
-	template<nuint Index>
-	constexpr       type_at<Index>&  get_at()       & {
-		using type = type_at<Index>;
-		if constexpr(type_is_reference<type>) {
-			return **(remove_reference<type>**) storage_;
-		}
-		else {
-			return *(type*)storage_;
-		}
-	}
-	template<nuint Index>
-	constexpr const type_at<Index>&& get_at() const && {
-		using type = type_at<Index>;
-		if constexpr(type_is_reference<type>) {
-			return move(**(remove_reference<type>**) storage_);
-		}
-		else {
-			return move(*(type*)storage_);
-		}
-	}
-	template<nuint Index>
-	constexpr       type_at<Index>&& get_at()       && {
-		using type = type_at<Index>;
-		if constexpr(type_is_reference<type>) {
-			return move(**(remove_reference<type>**) storage_);
-		}
-		else {
-			return move(*(type*)storage_);
+			return (resulting_type) *(type*)
+			((copy_const_ref<Self, variant>&&) self).storage_;
 		}
 	}
 
-	template<auto TypePredicate>
-	constexpr const type_satisfying_predicate<TypePredicate>&
-	get_satisfying_predicate() const & {
-		return get_at<index_of_satisfying_predicate<TypePredicate>>();
-	}
-	template<auto TypePredicate>
-	constexpr       type_satisfying_predicate<TypePredicate>&
-	get_satisfying_predicate()       & {
-		return get_at<index_of_satisfying_predicate<TypePredicate>>();
-	}
-	template<auto TypePredicate>
-	constexpr const type_satisfying_predicate<TypePredicate>&&
-	get_satisfying_predicate() const && {
-		return move(*this).template get_at<
-			index_of_satisfying_predicate<TypePredicate>
-		>();
-	}
-	template<auto TypePredicate>
-	constexpr       type_satisfying_predicate<TypePredicate>&&
-	get_satisfying_predicate()       && {
-		return move(*this).template get_at<
+	template<auto TypePredicate, typename Self>
+	constexpr decltype(auto)
+	get_satisfying_predicate(this Self&& self) {
+		return ((copy_const_ref<Self, variant>&&) self)
+		.template get_at<
 			index_of_satisfying_predicate<TypePredicate>
 		>();
 	}
 
-	template<typename Type>
+	template<typename Type, typename Self>
 	requires has_one_same_as<Type>
-	constexpr const Type&  get_same_as() const & {
-		return get_satisfying_predicate<::is_same_as<Type>>();
-	}
-	template<typename Type>
-	requires has_one_same_as<Type>
-	constexpr       Type&  get_same_as()       & {
-		return get_satisfying_predicate<::is_same_as<Type>>();
-	}
-	template<typename Type>
-	requires has_one_same_as<Type>
-	constexpr const Type&& get_same_as() const && {
-		return move(get_satisfying_predicate<::is_same_as<Type>>());
-	}
-	template<typename Type>
-	requires has_one_same_as<Type>
-	constexpr       Type&& get_same_as()       && {
-		return move(get_satisfying_predicate<::is_same_as<Type>>());
+	constexpr decltype(auto) get_same_as(this Self&& self) {
+		return ((copy_const_ref<Self, variant>&&) self)
+		.template get_satisfying_predicate<
+			::is_same_as<Type>
+		>();
 	}
 
 };

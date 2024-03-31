@@ -44,183 +44,86 @@ constexpr bool range_extensions<Derived, Options>::has_equal_size_and_elements(
 #include "./flat_view.hpp"
 
 template<typename Derived, range_extensions_options Options>
-constexpr auto range_extensions<Derived, Options>::flat_view() const &  {
-	return __range::flat_view{ range_() };
-}
-template<typename Derived, range_extensions_options Options>
-constexpr auto range_extensions<Derived, Options>::flat_view()       &  {
-	return __range::flat_view{ range_() };
-}
-template<typename Derived, range_extensions_options Options>
-constexpr auto range_extensions<Derived, Options>::flat_view() const && {
-	return __range::flat_view{ forward<const Derived>(range_()) };
-}
-template<typename Derived, range_extensions_options Options>
-constexpr auto range_extensions<Derived, Options>::flat_view()       && {
-	return __range::flat_view{ forward<      Derived>(range_()) };
+template<typename Self>
+constexpr auto range_extensions<Derived, Options>::flat_view(this Self&& self) {
+	return __range::flat_view {
+		((copy_const_ref<Self, range_extensions>&&) self).range_()
+	};
 }
 
 #include "./dereference_view.hpp"
 
 template<typename Derived, range_extensions_options Options>
-constexpr auto range_extensions<Derived, Options>::dereference_view() const &  {
-	return __range::dereference_view{ range_() };
-}
-template<typename Derived, range_extensions_options Options>
-constexpr auto range_extensions<Derived, Options>::dereference_view()       &  {
-	return __range::dereference_view{ range_() };
-}
-template<typename Derived, range_extensions_options Options>
-constexpr auto range_extensions<Derived, Options>::dereference_view() const && {
-	return __range::dereference_view{ forward<const Derived>(range_()) };
-}
-template<typename Derived, range_extensions_options Options>
-constexpr auto range_extensions<Derived, Options>::dereference_view()       && {
-	return __range::dereference_view{ forward<      Derived>(range_()) };
+template<typename Self>
+constexpr auto range_extensions<Derived, Options>::dereference_view(
+	this Self&& self
+) {
+	return __range::dereference_view {
+		((copy_const_ref<Self, range_extensions>&&) self).range_()
+	};
 }
 
 #include "./reverse_view.hpp"
 
 template<typename Derived, range_extensions_options Options>
-constexpr auto range_extensions<Derived, Options>::reverse_view() const &  {
-	return __range::reverse_view{ range_() };
-}
-template<typename Derived, range_extensions_options Options>
-constexpr auto range_extensions<Derived, Options>::reverse_view()       &  {
-	return __range::reverse_view{ range_() };
-}
-template<typename Derived, range_extensions_options Options>
-constexpr auto range_extensions<Derived, Options>::reverse_view() const && {
-	return __range::reverse_view{ forward<const Derived>(range_()) };
-}
-template<typename Derived, range_extensions_options Options>
-constexpr auto range_extensions<Derived, Options>::reverse_view()       && {
-	return __range::reverse_view{ forward<      Derived>(range_()) };
+template<typename Self>
+constexpr auto range_extensions<Derived, Options>::reverse_view(
+	this Self&& self
+) {
+	return __range::reverse_view {
+		((copy_const_ref<Self, range_extensions>&&) self).range_()
+	};
 }
 
 #include "./sized_view.hpp"
 
 template<typename Derived, range_extensions_options Options>
-constexpr auto range_extensions<Derived, Options>::sized_view() const &  {
-	return __range::sized_view{ range_(), get_or_compute_size() };
-}
-template<typename Derived, range_extensions_options Options>
-constexpr auto range_extensions<Derived, Options>::sized_view()       &  {
-	return __range::sized_view{ range_(), get_or_compute_size() };
-}
-template<typename Derived, range_extensions_options Options>
-constexpr auto range_extensions<Derived, Options>::sized_view() const && {
-	auto size = get_or_compute_size();
-	return __range::sized_view{ forward<const Derived>(range_()), size };
-}
-template<typename Derived, range_extensions_options Options>
-constexpr auto range_extensions<Derived, Options>::sized_view()       && {
-	auto size = get_or_compute_size();
-	return __range::sized_view{ forward<      Derived>(range_()), size };
+template<typename Self>
+constexpr auto range_extensions<Derived, Options>::sized_view(
+	this Self&& self
+) {
+	auto size = self.get_or_compute_size();
+	return __range::sized_view {
+		((copy_const_ref<Self, range_extensions>&&) self).range_(),
+		size
+	};
 }
 
 #include "./filter_view.hpp"
 
 template<typename Derived, range_extensions_options Options>
-template<typename Predicate>
+template<typename Predicate, typename Self>
 constexpr auto range_extensions<Derived, Options>::
-filter_view(Predicate&& p) const &  {
-	return __range::filter_view{ range_(), forward<Predicate>(p) };
-}
-template<typename Derived, range_extensions_options Options>
-template<typename Predicate>
-constexpr auto range_extensions<Derived, Options>::
-filter_view(Predicate&& p)       &  {
-	return __range::filter_view{ range_(), forward<Predicate>(p) };
-}
-template<typename Derived, range_extensions_options Options>
-template<typename Predicate>
-constexpr auto range_extensions<Derived, Options>::
-filter_view(Predicate&& p) const && {
+filter_view(this Self&& self, Predicate&& p) {
 	return __range::filter_view {
-		forward<const Derived>(range_()), forward<Predicate>(p)
-	};
-}
-template<typename Derived, range_extensions_options Options>
-template<typename Predicate>
-constexpr auto range_extensions<Derived, Options>::
-filter_view(Predicate&& p)       && {
-	return __range::filter_view {
-		forward<      Derived>(range_()), forward<Predicate>(p)
+		forward<Self>(self).range_(),
+		forward<Predicate>(p)
 	};
 }
 
 #include "../__ranges/transform_view.hpp"
 
 template<typename Derived, range_extensions_options Options>
-template<typename F>
+template<typename F, typename Self>
 constexpr auto range_extensions<Derived, Options>::
-transform_view(F&& f) const &  {
-	return __ranges::transform_view_t { range_(), forward<F>(f) };
-}
-template<typename Derived, range_extensions_options Options>
-template<typename F>
-constexpr auto range_extensions<Derived, Options>::
-transform_view(F&& f)       &  {
-	return __ranges::transform_view_t { range_(), forward<F>(f) };
-}
-template<typename Derived, range_extensions_options Options>
-template<typename F>
-constexpr auto range_extensions<Derived, Options>::
-transform_view(F&& f) const && {
+transform_view(this Self&& self, F&& f) {
 	return __ranges::transform_view_t {
-		forward<const Derived>(range_()), forward<F>(f)
-	};
-}
-template<typename Derived, range_extensions_options Options>
-template<typename F>
-constexpr auto range_extensions<Derived, Options>::
-transform_view(F&& f)       && {
-	return __ranges::transform_view_t {
-		forward<      Derived>(range_()), forward<F>(f)
+		((copy_const_ref<Self, range_extensions>&&) self).range_(),
+		forward<F>(f)
 	};
 }
 
 #include "./view_copied_elements_on_stack.hpp"
 
 template<typename Derived, range_extensions_options Options>
-template<typename Handler>
+template<typename Handler, typename Self>
 decltype(auto)
 range_extensions<Derived, Options>::view_copied_elements_on_stack(
-	Handler&& handler
-) const  &  {
+	this Self&& self, Handler&& handler
+) {
 	return __range::view_copied_elements_on_stack(
-		range_(), forward<Handler>(handler)
-	);
-}
-template<typename Derived, range_extensions_options Options>
-template<typename Handler>
-decltype(auto)
-range_extensions<Derived, Options>::view_copied_elements_on_stack(
-	Handler&& handler
-)        &  {
-	return __range::view_copied_elements_on_stack(
-		range_(), forward<Handler>(handler)
-	);
-}
-template<typename Derived, range_extensions_options Options>
-template<typename Handler>
-decltype(auto)
-range_extensions<Derived, Options>::view_copied_elements_on_stack(
-	Handler&& handler
-) const  && {
-	return __range::view_copied_elements_on_stack(
-		forward<const Derived>(range_()), forward<Handler>(handler)
-	);
-}
-template<typename Derived, range_extensions_options Options>
-template<typename Handler>
-decltype(auto)
-range_extensions<Derived, Options>::view_copied_elements_on_stack(
-	Handler&& handler
-)        && {
-	return __range::view_copied_elements_on_stack(
-		forward<      Derived>(range_()), forward<Handler>(handler)
+		((copy_const_ref<Self, range_extensions>&&) self).range_(),
+		forward<Handler>(handler)
 	);
 }
 
