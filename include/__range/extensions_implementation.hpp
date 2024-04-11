@@ -1,14 +1,18 @@
 #pragma once
 
 #include "./extensions.hpp"
+#include "../__type/copy_const_ref.hpp"
 
 #include "./contains.hpp"
 
 template<typename Derived, range_extensions_options Options>
-template<typename Element>
+template<typename Self, typename Element>
 constexpr bool range_extensions<Derived, Options>::
-contains(Element&& element) const {
-	return __range::contains(range_(), forward<Element>(element));
+contains(this Self&& self, Element&& element) {
+	return __range::contains(
+		((copy_const_ref<Self, range_extensions>&&) self).range_(),
+		forward<Element>(element)
+	);
 }
 
 #include "./copy.hpp"

@@ -78,8 +78,8 @@ public:
 		}
 	}
 
-	template<typename Element>
-	constexpr bool contains(Element&& element) const;
+	template<typename Self, typename Element>
+	constexpr bool contains(this Self&&, Element&& element);
 
 	template<basic_range OtherRange>
 	constexpr void copy_to(OtherRange&& other_range) const &;
