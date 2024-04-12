@@ -31,6 +31,6 @@ public:
 };
 
 template<basic_range Range>
-sized_view(Range&&) -> sized_view<Range>;
+sized_view(Range&&, nuint size) -> sized_view<Range>;
 
 } // __range

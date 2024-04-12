@@ -1,12 +1,10 @@
 #pragma once
 
-#include "./integer.hpp"
 #include "./__type/is_reference.hpp"
 #include "./__type/remove_reference.hpp"
 #include "./__type/is_trivial.hpp"
 #include "./__range/size.hpp"
 #include "./__range/contiguous.hpp"
-#include "./__range/element_type.hpp"
 #include "./__range/extensions.hpp"
 
 template<typename Type, unsigned_integer SizeType = nuint>

@@ -1,9 +1,7 @@
 #pragma once
 
 #include "./size.hpp"
-#include "./element_type.hpp"
 #include "./element_index_type.hpp"
-#include "./reverse_view.hpp"
 #include "../optional.hpp"
 
 namespace __range {
