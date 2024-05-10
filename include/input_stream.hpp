@@ -5,9 +5,7 @@
 #include "./__type/is_same_as.hpp"
 
 template<typename Type>
-requires requires(Type&& is) {
-	is.read();
-}
+requires requires(Type&& is) { is.read(); }
 constexpr decltype(auto) read(Type&& is) {
 	return is.read();
 }

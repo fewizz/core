@@ -5,7 +5,6 @@
 struct simple_is {
 	nuint reads = 0;
 
-	template<same_as<uint8> Type>
 	constexpr uint1a read() {
 		++reads;
 		return 0;
@@ -13,10 +12,12 @@ struct simple_is {
 
 };
 
+static_assert(basic_input_stream<simple_is, uint1a>);
+
 consteval bool f() {
 	simple_is is{};
 
-	read<uint1a>(is);
+	::read<uint1a>(is);
 
 	if(is.reads != 1) throw;
 

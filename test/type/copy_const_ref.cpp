@@ -8,3 +8,5 @@ static_assert(same_as<copy_const_ref<int&&, float>, float&&>);
 static_assert(same_as<copy_const_ref<const int, float>, const float>);
 static_assert(same_as<copy_const_ref<const int&, float>, const float&>);
 static_assert(same_as<copy_const_ref<const int&&, float>, const float&&>);
+
+int main() {}

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <type.hpp>
-#include <integer.hpp>
+#include "../type.hpp"
+#include "../integer.hpp"
 
 struct output_stream_mark {};
 

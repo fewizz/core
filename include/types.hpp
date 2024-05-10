@@ -1,21 +1,21 @@
 #pragma once
 
-#include "./__types/predicate.hpp"
-#include "./__types/exclusively_satisfy_predicates.hpp"
-#include "./__types/are_same.hpp"
-#include "./__types/satisfy_predicates.hpp"
-#include "./__types/at_index.hpp"
-#include "./__types/at_indices.hpp"
-#include "./__types/common.hpp"
-#include "./__types/contain_satisfying_predicate.hpp"
-#include "./__types/count_of_satisfying_predicate.hpp"
-#include "./__types/count_of_decayed_same_as.hpp"
-#include "./__types/count_of_range_of.hpp"
-#include "./__types/count_of_invokable_with.hpp"
-#include "./__types/erase_at_index.hpp"
-#include "./__types/first.hpp"
-#include "./__types/index_of_satisfying_predicate.hpp"
-#include "./__types/indices_of_satisfying_predicate.hpp"
+#include "./__types/predicate.hpp"  // IWYU pragma: export
+#include "./__types/exclusively_satisfy_predicates.hpp"  // IWYU pragma: export
+#include "./__types/are_same.hpp"  // IWYU pragma: export
+#include "./__types/satisfy_predicates.hpp"  // IWYU pragma: export
+#include "./__types/at_index.hpp"  // IWYU pragma: export
+#include "./__types/at_indices.hpp"  // IWYU pragma: export
+#include "./__types/common.hpp"  // IWYU pragma: export
+#include "./__types/contain_satisfying_predicate.hpp"  // IWYU pragma: export
+#include "./__types/count_of_satisfying_predicate.hpp"  // IWYU pragma: export
+#include "./__types/count_of_decayed_same_as.hpp"  // IWYU pragma: export
+#include "./__types/count_of_range_of.hpp"  // IWYU pragma: export
+#include "./__types/count_of_invokable_with.hpp"  // IWYU pragma: export
+#include "./__types/erase_at_index.hpp"  // IWYU pragma: export
+#include "./__types/first.hpp"  // IWYU pragma: export
+#include "./__types/index_of_satisfying_predicate.hpp"  // IWYU pragma: export
+#include "./__types/indices_of_satisfying_predicate.hpp"  // IWYU pragma: export
 
 template<typename... Types>
 struct common_if_have {

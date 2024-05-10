@@ -1,6 +1,6 @@
 #pragma once
 
-#include <array.hpp>
+#include "./array.hpp"
 
 template<typename Type, nuint Size>
 struct numbers : array<Type, Size> {

@@ -1,29 +1,29 @@
 #pragma once
 
-#include "./__type/add_pointer.hpp"
-#include "./__type/decay.hpp"
-#include "./__type/is_addition_assignable.hpp"
-#include "./__type/is_array.hpp"
-#include "./__type/is_assignable.hpp"
-#include "./__type/is_base.hpp"
-#include "./__type/is_basic_range.hpp"
-#include "./__type/is_const.hpp"
-#include "./__type/is_constructible_from.hpp"
-#include "./__type/is_enum.hpp"
-#include "./__type/is_function.hpp"
-#include "./__type/is_invokable_with.hpp"
-#include "./__type/is_list_constructible_from.hpp"
-#include "./__type/is_move_constructible.hpp"
-#include "./__type/is_pointer.hpp"
-#include "./__type/is_reference.hpp"
-#include "./__type/is_same_as.hpp"
-#include "./__type/is_same_as_predicate.hpp"
-#include "./__type/is_trivial.hpp"
-#include "./__type/remove_const.hpp"
-#include "./__type/remove_extent.hpp"
-#include "./__type/remove_pointer.hpp"
-#include "./__type/remove_reference.hpp"
-#include "./__type/remove_volatile.hpp"
+#include "./__type/add_pointer.hpp"  // IWYU pragma: export
+#include "./__type/decay.hpp"  // IWYU pragma: export
+#include "./__type/is_addition_assignable.hpp"  // IWYU pragma: export
+#include "./__type/is_array.hpp"  // IWYU pragma: export
+#include "./__type/is_assignable.hpp"  // IWYU pragma: export
+#include "./__type/is_base.hpp"  // IWYU pragma: export
+#include "./__type/is_basic_range.hpp"  // IWYU pragma: export
+#include "./__type/is_const.hpp"  // IWYU pragma: export
+#include "./__type/is_constructible_from.hpp"  // IWYU pragma: export
+#include "./__type/is_enum.hpp"  // IWYU pragma: export
+#include "./__type/is_function.hpp"  // IWYU pragma: export
+#include "./__type/is_invokable_with.hpp"  // IWYU pragma: export
+#include "./__type/is_list_constructible_from.hpp"  // IWYU pragma: export
+#include "./__type/is_move_constructible.hpp"  // IWYU pragma: export
+#include "./__type/is_pointer.hpp"  // IWYU pragma: export
+#include "./__type/is_reference.hpp"  // IWYU pragma: export
+#include "./__type/is_same_as.hpp"  // IWYU pragma: export
+#include "./__type/is_same_as_predicate.hpp"  // IWYU pragma: export
+#include "./__type/is_trivial.hpp"  // IWYU pragma: export
+#include "./__type/remove_const.hpp"  // IWYU pragma: export
+#include "./__type/remove_extent.hpp"  // IWYU pragma: export
+#include "./__type/remove_pointer.hpp"  // IWYU pragma: export
+#include "./__type/remove_reference.hpp"  // IWYU pragma: export
+#include "./__type/remove_volatile.hpp"  // IWYU pragma: export
 
 template<typename Type>
 struct type {

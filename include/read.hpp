@@ -11,7 +11,7 @@
 template<
 	trivial Type,
 	endianness Endianness,
-	basic_input_stream<uint8> IS
+	basic_input_stream<uint1a> IS
 >
 constexpr Type read(IS&& is) {
 	alignas(Type) uint1a storage[sizeof(Type)];
@@ -32,7 +32,7 @@ constexpr Type read(IS&& is) {
 
 template<
 	trivial Type,
-	basic_input_stream<uint8> IS
+	basic_input_stream<uint1a> IS
 >
 requires (sizeof(Type) == 1)
 constexpr Type read(IS&& is) {

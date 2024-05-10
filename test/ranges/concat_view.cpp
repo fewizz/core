@@ -56,7 +56,7 @@ consteval bool f_0() {
 	if(it != v.sentinel()) throw;
 
 	__ranges::concat_view v2 {
-		array{ 'a' }, c_string{ "ka" }, c_string{ "s" }, array{ 'i' }
+		array{ 'a' }, c_string{ "ka" }.sized(), c_string{ "s" }.sized(), array{ 'i' }
 	};
 	if(v2.size() != 5) throw;
 	if(*v2.iterator() != 'a') throw;
@@ -72,7 +72,7 @@ static_assert(f_0());
 
 int main() {
 	__ranges::concat_view v2 {
-		array{ 'a' }, c_string{ "ka" }, c_string{ "s" }, array{ 'i' }
+		array{ 'a' }, c_string{ "ka" }.sized(), c_string{ "s" }.sized(), array{ 'i' }
 	};
 	if(v2.size() != 5) throw;
 }

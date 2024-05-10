@@ -2,7 +2,7 @@
 
 #include "./basic.hpp"
 #include "./size.hpp"
-#include "./__array/without_extensions.hpp"
+#include "../__array/without_extensions.hpp"
 #include "../__ranges/have_equal_size_and_elements.hpp"
 #include "../__iterator_and_sentinel/as_range.hpp"
 

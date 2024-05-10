@@ -12,8 +12,12 @@ test() {
 	fi
 
 	if ! clang++ \
-		--config ./compile_flags.txt \
-		${additional_args[@]} \
+		-std=c++23 \
+		-nostdinc++ \
+		-nostdinc \
+		-Iinclude \
+		-Wall \
+		-Wextra \
 		-g \
 		-o build/$1 \
 		test/$1.cpp

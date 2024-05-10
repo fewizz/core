@@ -4,9 +4,9 @@
 #include "./__type/is_pointer.hpp"
 #include "./__type/remove_pointer.hpp"
 #include "./__range/extensions.hpp"
-#include "./__range/contiguous.hpp"
-#include <span.hpp>
-#include <move.hpp>
+#include "./__iterator_and_sentinel/get_or_compute_distance.hpp"
+#include "./span.hpp"
+#include "./move.hpp"
 
 template<typename Type>
 struct c_string;
@@ -34,7 +34,9 @@ struct c_string<Type> : range_extensions<c_string<Type>> {
 	constexpr auto sized() && {
 		return as_c_string_convertible(span{
 			ptr_,
-			this->get_or_compute_size()
+			__iterator_and_sentinel::get_or_compute_distance(
+				iterator(), sentinel()
+			)
 		});
 	}
 };
@@ -76,7 +78,7 @@ struct c_string_convertible : Range {
 
 
 template<typename Range>
-auto as_c_string_convertible(Range&& range) {
+constexpr auto as_c_string_convertible(Range&& range) {
 	return c_string_convertible{ move(range) };
 }
 

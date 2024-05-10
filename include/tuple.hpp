@@ -365,14 +365,14 @@ constexpr inline bool operator == (
 	});
 }
 
-#include "std/tuple_size.hpp"
+#include "std/tuple_size.hpp"  // IWYU pragma: keep
 
 template<typename... Types>
 struct std::tuple_size<tuple<Types...>> {
 	static constexpr nuint value = sizeof...(Types);
 };
 
-#include "std/tuple_element.hpp"
+#include "std/tuple_element.hpp"  // IWYU pragma: keep
 
 template<nuint Index, typename... Types>
 struct std::tuple_element<Index, tuple<Types...>> {

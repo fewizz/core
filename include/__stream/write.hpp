@@ -1,9 +1,9 @@
 #pragma once
 
 #include "./output.hpp"
-#include "./__type/is_trivial.hpp"
-#include "./endianness.hpp"
-#include "./integer.hpp"
+#include "../__type/is_trivial.hpp"
+#include "../endianness.hpp"
+#include "../integer.hpp"
 
 namespace __stream {
 

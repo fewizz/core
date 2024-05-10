@@ -1,0 +1,6 @@
+CompileFlags:
+    Add: [-std=c++23, -nostdinc++, -nostdinc, -Wall, -Wextra]
+
+Diagnostics:
+  ClangTidy:
+    Add: bugprone*

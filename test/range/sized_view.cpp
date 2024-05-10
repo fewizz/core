@@ -4,7 +4,7 @@
 #include <c_string.hpp>
 
 static_assert(
-	c_string{ "A" }.sized_view().size() == 1
+	c_string{ "A" }.sized().size() == 1
 );
 static_assert(
 	c_string{ "BCDEF" }.sized_view().size() == 5
@@ -12,8 +12,8 @@ static_assert(
 
 static_assert(
 	ranges {
-		c_string{ "A" },
-		c_string{ "BCDEF" }
+		c_string{ "A" }.sized(),
+		c_string{ "BCDEF" }.sized()
 	}.concat_view().sized_view().size() == 6
 );
 

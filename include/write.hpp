@@ -1,13 +1,13 @@
 #pragma once
 
-#include <./endianness.hpp>
-#include <./move.hpp>
-#include <./output_stream.hpp>
-#include <./bit_cast.hpp>
-#include <__iterator/element_type.hpp>
-#include <__type/is_trivial.hpp>
-#include <__type/decay.hpp>
-#include <integer.hpp>
+#include "./endianness.hpp"
+#include "./move.hpp"
+#include "./output_stream.hpp"
+#include "./bit_cast.hpp"
+#include "./__iterator/element_type.hpp"
+#include "./__type/is_trivial.hpp"
+#include "./__type/decay.hpp"
+#include "./integer.hpp"
 
 template<
 	trivial Type,

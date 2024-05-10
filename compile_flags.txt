@@ -1,6 +1,0 @@
--std=c++23
--nostdinc++
--nostdinc
--Iinclude
--Wall
--Wextra

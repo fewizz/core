@@ -1,7 +1,7 @@
 #pragma once
 
 #include "./of_element_type_satisfying_predicate.hpp"
-#include "./__type/is_same_as_predicate.hpp"
+#include "../__type/is_same_as_predicate.hpp"
 
 template<typename Range, typename Element>
 concept range_of_element_type_same_as =
