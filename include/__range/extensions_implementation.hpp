@@ -85,20 +85,6 @@ constexpr auto range_extensions<Derived, Options>::reverse_view(
 	};
 }
 
-#include "./sized_view.hpp"
-
-template<typename Derived, range_extensions_options Options>
-template<typename Self>
-constexpr auto range_extensions<Derived, Options>::sized_view(
-	this Self&& self
-) {
-	auto size = self.get_or_compute_size();
-	return __range::sized_view {
-		(copy_const_ref<Self, Derived>&&) self,
-		size
-	};
-}
-
 #include "./filter_view.hpp"
 
 template<typename Derived, range_extensions_options Options>
