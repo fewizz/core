@@ -7,7 +7,6 @@
 #include "../__range/size.hpp"
 #include "../__range/extensions.hpp"
 #include "../__iterator/element_type.hpp"
-#include "../__iterator_and_sentinel/get_or_compute_distance.hpp"
 #include "../__iterator/random_access.hpp"
 #include "../forward.hpp"
 #include "../tuple.hpp"
@@ -422,15 +421,15 @@ public:
 		return cpy += n;
 	}
 
-	constexpr auto operator - (concat_view_iterator other) const {
+	constexpr auto operator - (concat_view_iterator other) const
+	requires (random_access_iterator<pair_iterator_type<Pairs>> && ...) {
 		static_assert((random_access_iterator<pair_iterator_type<Pairs>> && ...));
 		return dist(other);
 	}
 
 	friend constexpr auto operator - (
 		default_sentinel, concat_view_iterator it
-	) {
-		static_assert((random_access_iterator<pair_iterator_type<Pairs>> && ...));
+	) requires (random_access_iterator<pair_iterator_type<Pairs>> && ...) {
 		return it.dist();
 	}
 

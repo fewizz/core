@@ -4,59 +4,30 @@
 #include "./sized.hpp"
 #include "./reversable.hpp"
 #include "./element_index_type.hpp"
+#include "../__type/copy_const_ref.hpp"
 #include "../loop_action.hpp"
 
 template<typename Derived, range_extensions_options Options>
 struct range_extensions {
 
-private:
-	constexpr const Derived&
-	range_() const &  { return (const Derived&)  *this; }
-	constexpr       Derived&
-	range_()       &  { return (      Derived&)  *this; }
-	constexpr const Derived&&
-	range_() const && { return (const Derived&&) *this; }
-	constexpr       Derived&&
-	range_()       && { return (      Derived&&) *this; }
-
-	constexpr basic_iterator auto _iterator() const {
-		return range_iterator(range_());
-	}
-	constexpr basic_iterator auto _iterator()       {
-		return range_iterator(range_());
-	}
-	constexpr auto _sentinel() const { return range_sentinel(range_()); }
-	constexpr auto _sentinel()       { return range_sentinel(range_()); }
-
-public:
-
 	// for compatibility
-	constexpr basic_iterator auto begin() const { return _iterator(); }
-	constexpr basic_iterator auto begin()       { return _iterator(); }
-	constexpr auto end() const { return _sentinel(); }
-	constexpr auto end()       { return _sentinel(); }
+	constexpr basic_iterator auto begin(this auto& self) {
+		return ::range_iterator(
+			(copy_const_ref<decltype(self), Derived>&&) self
+		);
+	}
+
+	constexpr auto end(this auto& self) {
+		return ::range_sentinel(
+			(copy_const_ref<decltype(self), Derived>&&) self
+		);
+	}
 
 	template<typename Handler>
-	void for_each_indexed(Handler handler)       & {
+	void for_each_indexed(this auto&& self, Handler handler) {
 		using index_type = range_element_index_type<Derived>;
 		index_type i{};
-		for(auto& e : range_()) {
-			if constexpr(same_as<decltype(handler(e, i)), loop_action>) {
-				if(handler(e, i) == loop_action::stop) {
-					break;
-				}
-			}
-			else {
-				handler(e, i);
-			}
-			++i;
-		}
-	}
-	template<typename Handler>
-	void for_each_indexed(Handler handler) const & {
-		using index_type = range_element_index_type<Derived>;
-		index_type i{};
-		for(auto& e : range_()) {
+		for(auto& e : self) {
 			if constexpr(same_as<decltype(handler(e, i)), loop_action>) {
 				if(handler(e, i) == loop_action::stop) {
 					break;
@@ -70,27 +41,29 @@ public:
 	}
 
 	template<typename Handler>
-	void for_each_index(Handler handler) const {
+	void for_each_index(this auto&& self, Handler handler) {
 		using index_type = range_element_index_type<Derived>;
-		auto size = range_size(range_());
+		auto size = range_size(
+			(copy_const_ref<decltype(self), Derived>&) self
+		);
 		for(index_type i{}; i < size; ++i) {
 			handler(i);
 		}
 	}
 
-	template<typename Self, typename Element>
-	constexpr bool contains(this Self&&, Element&& element);
+	template<typename Element>
+	constexpr bool contains(this auto&&, Element&& element);
 
 	template<basic_range OtherRange>
-	constexpr void copy_to(OtherRange&& other_range) const &;
+	constexpr void copy_to(this auto&&, OtherRange&& other_range);
 
 	template</*basic_output_stream*/typename OS>
-	constexpr void copy_to(OS&& output_stream) const &;
+	constexpr void copy_to(this auto&&, OS&& output_stream);
 
 	template<basic_range OtherRange>
 	constexpr bool has_equal_size_and_elements(
-		OtherRange&& other_range
-	) const;
+		this auto&&, OtherRange&& other_range
+	);
 
 	constexpr auto flat_view(this auto&& self);
 
@@ -106,9 +79,11 @@ public:
 	template<typename F>
 	constexpr auto transform_view(this auto&& self, F&&);
 
-	template<typename Self>
-	constexpr decltype(auto) operator [] (this Self&& self, nuint index) {
-		return *(((range_extensions&&)self)._iterator() + index);
+	constexpr decltype(auto) operator [] (this auto&& self, nuint index) {
+		auto i = ::range_iterator(
+			(copy_const_ref<decltype(self), Derived>&&) self
+		);
+		return *(i + index);
 	}
 
 	template<typename Handler>
@@ -117,29 +92,26 @@ public:
 	);
 
 	template<typename Predicate>
-	auto try_find_first_satisfying(Predicate&& predicate) const;
-
-	template<typename Predicate>
-	auto try_find_first_satisfying(Predicate&& predicate);
+	auto try_find_first_satisfying(this auto&&, Predicate&& predicate);
 
 	template<typename Predicate>
 	requires reversable_range<Derived>
 	auto try_find_last_satisfying(Predicate&& predicate) const;
 
 	template<typename Predicate>
-	auto try_find_index_of_first_satisfying(Predicate&& predicate) const;
+	auto try_find_index_of_first_satisfying(this auto&&, Predicate&& predicate);
 
 	template<typename Predicate>
-	auto try_find_index_of_last_satisfying(Predicate&& predicate) const;
+	auto try_find_index_of_last_satisfying(this auto&&, Predicate&& predicate);
 
-	auto shrink_view(auto size) const;
-
-	template<typename... With>
-	bool starts_with(With&&... with) const &;
+	auto shrink_view(this auto&& self, auto size);
 
 	template<typename... With>
-	constexpr bool ends_with(With&&... with) const &;
+	bool starts_with(this auto&&, With&&... with);
 
-	constexpr nuint get_or_compute_size() const;
+	template<typename... With>
+	constexpr bool ends_with(this auto&&, With&&... with);
+
+	constexpr nuint get_or_compute_size(this auto&&);
 
 };

@@ -7,12 +7,16 @@
 #include "./sentinel.hpp"
 #include "./copy.hpp"
 #include "../view_on_stack.hpp"
+#include "../__iterator_and_sentinel/get_or_compute_distance.hpp"
 
 namespace __range {
 
-template<sized_range Range, typename Handler>
+template<basic_range Range, typename Handler>
 decltype(auto) view_copied_elements_on_stack(Range&& range, Handler&& handler) {
-	nuint size = (nuint) range_size(range);
+	nuint size = __iterator_and_sentinel::get_or_compute_distance(
+		range_iterator(range),
+		range_sentinel(range)
+	);
 
 	using type = decay<range_element_type<Range>>;
 
