@@ -52,7 +52,7 @@ public:
 		alignof(Type) == alignof(CastType) &&
 		sizeof(Type) == sizeof(CastType)
 	)
-	constexpr span<CastType, CastSizeType> cast() const {
+	constexpr span<CastType, CastSizeType> casted() const {
 		return { (CastType*) ptr_, (CastSizeType) size_ };
 	}
 
@@ -62,7 +62,7 @@ public:
 		alignof(Type) == alignof(void*) &&
 		sizeof(Type) == sizeof(void*)
 	)
-	constexpr span<CastType, CastSizeType> cast() const {
+	constexpr span<CastType, CastSizeType> casted() const {
 		return { (remove_reference<CastType>**) ptr_, (CastSizeType) size_ };
 	}
 

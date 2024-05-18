@@ -6,10 +6,35 @@
 #include "./__range/extensions.hpp"
 #include "./__iterator_and_sentinel/get_or_compute_distance.hpp"
 #include "./span.hpp"
-#include "./move.hpp"
 
 template<typename Type>
 struct c_string;
+
+template<typename Range>
+struct c_string_convertible : Range {
+	operator c_string<
+		remove_const<decay<range_element_type<Range>>>
+	> () const {
+		return { this->elements_ptr() };
+	}
+};
+
+template<typename Type>
+struct c_string_view :
+	span<const Type>
+{
+	constexpr c_string_view(const Type* ptr, nuint len)
+		: span<const Type>{ptr, len} {}
+
+	template<typename NewType>
+	c_string_view<NewType> casted() {
+		return { (NewType*) this->ptr_, this->size_ };
+	}
+
+	operator c_string<Type> () const {
+		return { this->ptr_ };
+	}
+};
 
 template<typename Type>
 concept some_char = same_as_any<
@@ -31,13 +56,27 @@ struct c_string<Type> : range_extensions<c_string<Type>> {
 	constexpr const Type*          iterator() const { return ptr_; }
 	constexpr c_string_sentinel_t  sentinel() const { return {}; }
 
+	template<typename NewType>
+	c_string<NewType> casted() {
+		return { (NewType*) ptr_ };
+	}
+
 	constexpr auto sized() && {
-		return as_c_string_convertible(span{
+		return c_string_convertible{ span{
 			ptr_,
 			__iterator_and_sentinel::get_or_compute_distance(
 				iterator(), sentinel()
 			)
-		});
+		}};
+	}
+
+	constexpr auto sized_view() && {
+		return c_string_view {
+			ptr_,
+			__iterator_and_sentinel::get_or_compute_distance(
+				iterator(), sentinel()
+			)
+		};
 	}
 };
 
@@ -60,49 +99,27 @@ constexpr bool operator == (const Type* ptr, c_string_sentinel_t) {
 	return *ptr == 0;
 }
 
-inline constexpr c_string<char> operator""_c_string (const char* str, nuint) {
-	return {str};
-}
-
-inline constexpr c_string<char8_t> operator""_c_string (const char8_t* str, nuint) {
-	return {str};
-}
-
-template<typename Range>
-struct c_string_convertible : Range {
-	operator c_string<remove_const<decay<range_element_type<Range>>>> () const {
-		return { this->elements_ptr() };
-	}
-
-};
-
-
-template<typename Range>
-constexpr auto as_c_string_convertible(Range&& range) {
-	return c_string_convertible{ move(range) };
-}
-
-inline constexpr auto
-operator""_span (const char* str, nuint len) {
-	return as_c_string_convertible(span{str, len});
-}
-
-inline constexpr auto
-operator""_span (const char8_t* str, nuint len) {
-	return as_c_string_convertible(span{str, len});
-}
-
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wuser-defined-literals"
 
 inline constexpr auto
-operator""s (const char* str, nuint len) {
-	return as_c_string_convertible(span{str, len});
+operator""s (const char* str, nuint) {
+	return c_string<char>{str};
 }
 
 inline constexpr auto
-operator""s (const char8_t* str, nuint len) {
-	return as_c_string_convertible(span{str, len});
+operator""s (const char8_t* str, nuint) {
+	return c_string<char8_t>{str};
+}
+
+inline constexpr auto
+operator""sv (const char* str, nuint len) {
+	return c_string_view{str, len};
+}
+
+inline constexpr auto
+operator""sv (const char8_t* str, nuint len) {
+	return c_string_view{str, len};
 }
 
 #pragma clang diagnostic pop

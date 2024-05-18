@@ -7,12 +7,12 @@ class view_on_stack {
 	nuint count_;
 public:
 
-	view_on_stack(nuint count) :
+	constexpr view_on_stack(nuint count) :
 		count_{ count }
 	{}
 
 	template<typename Handler>
-	decltype(auto) operator () (Handler&& handler) const {
+	constexpr decltype(auto) operator () (Handler&& handler) const {
 		if(count_ > 0) {
 			Type storage[count_];
 			return handler(span<Type>{ storage, count_ });
