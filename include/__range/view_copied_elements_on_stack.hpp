@@ -1,7 +1,5 @@
 #pragma once
 
-#include "./sized.hpp"
-#include "./size.hpp"
 #include "./element_type.hpp"
 #include "./iterator.hpp"
 #include "./sentinel.hpp"

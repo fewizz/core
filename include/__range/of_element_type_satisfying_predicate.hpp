@@ -15,5 +15,5 @@ concept range_of_element_type_satisfying_predicate =
 	basic_range<Range> && type_predicate<decltype(Predicate)> &&
 	Predicate.template for_type<range_element_type<Range>>();
 
-#include "../__types/count_of_satisfying_predicate.hpp"
-#include "../__types/contain_satisfying_predicate.hpp"
+#include "../__types/count_of_satisfying_predicate.hpp"  // IWYU pragma: export
+#include "../__types/contain_satisfying_predicate.hpp"  // IWYU pragma: export

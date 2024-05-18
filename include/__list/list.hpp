@@ -61,11 +61,14 @@ public:
 		return storage;
 	}
 
-	auto iterator() const { return range_iterator(storage_range_); }
-	auto iterator()       { return range_iterator(storage_range_); }
-
-	auto sentinel() const { return sentinel_; }
-	auto sentinel()       { return sentinel_; }
+	auto iterator(this auto& self) {
+		return ::range_iterator(
+			((copy_const_ref<decltype(self), list>&) self).storage_range_
+		);
+	}
+	auto sentinel(this auto& self) {
+		return ((copy_const_ref<decltype(self), list>&) self).sentinel_;
+	}
 
 	template<typename... Args>
 	constexpr value_type& emplace_back(Args&&... args) {

@@ -30,7 +30,7 @@ constexpr void range_extensions<Derived, Options>::copy_to(
 }
 
 template<typename Derived, range_extensions_options Options>
-template<typename OS>
+template<basic_output_stream<range_element_type<Derived>> OS>
 constexpr void range_extensions<Derived, Options>::copy_to(
 	this auto&& self, OS&& output_stream
 ) {

@@ -1,12 +1,12 @@
 #pragma once
 
-#include "./__range/extensions_implementation.hpp"
-#include "./__range/contiguous.hpp"
-#include "./__range/of_element_type_same_as.hpp"
-#include "./__range/of_element_type_satisfying_predicate.hpp"
-#include "./__range/element_type.hpp"
-#include "./__range/size_type.hpp"
-#include "./__range/growable.hpp"
+#include "./__range/extensions_implementation.hpp"  // IWYU pragma: export
+#include "./__range/contiguous.hpp"  // IWYU pragma: export
+#include "./__range/of_element_type_same_as.hpp"  // IWYU pragma: export
+#include "./__range/of_element_type_satisfying_predicate.hpp"  // IWYU pragma: export
+#include "./__range/element_type.hpp"  // IWYU pragma: export
+#include "./__range/size_type.hpp"  // IWYU pragma: export
+#include "./__range/growable.hpp"  // IWYU pragma: export
 
 template<basic_range Range>
 class range : public range_extensions<range<Range>> {

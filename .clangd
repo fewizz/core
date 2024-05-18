@@ -4,3 +4,4 @@ CompileFlags:
 Diagnostics:
   ClangTidy:
     Add: bugprone*
+    Remove: [ bugprone-reserved-identifier ]

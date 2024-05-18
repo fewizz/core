@@ -1,10 +1,8 @@
 #pragma once
 
-#include "./__iterator/basic.hpp"
-#include "./__iterator_and_sentinel/get_or_compute_distance.hpp"
-#include "./__iterator_and_sentinel/as_range.hpp"
-#include "./__range/iterator.hpp"
-#include "./__range/sentinel.hpp"
+#include "./__iterator/basic.hpp"  // IWYU pragma: export
+#include "./__iterator_and_sentinel/get_or_compute_distance.hpp"  // IWYU pragma: export
+#include "./__iterator_and_sentinel/as_range.hpp"  // IWYU pragma: export
 
 template<basic_iterator Iterator, typename Sentinel>
 struct iterator_and_sentinel {

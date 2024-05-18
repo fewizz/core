@@ -5,7 +5,7 @@
 #include "./type.hpp"
 #include "./__type/copy_const_ref.hpp"
 #include "./move.hpp"
-#include "./placement_new.hpp"
+#include "./placement_new.hpp"  // IWYU pragma: keep
 
 template<nuint Index>
 struct variant_index_t {
@@ -191,6 +191,10 @@ public:
 
 	// copy assignment operator
 	constexpr variant& operator = (const variant& other) {
+		if (this == &other) {
+			return *this;
+		}
+
 		variant& ths = *this;
 
 		view_index([&]<nuint CurrentI> { other.view_index([&]<nuint OtherI> {
@@ -203,7 +207,7 @@ public:
 				ths.current_ = OtherI;
 			}
 		}); });
-		return *this;
+		return ths;
 	}
 
 	// assignment operator
@@ -288,7 +292,7 @@ public:
 	decltype(auto) view_index(Handler&& handler) const {
 		switch (current_) {
 			#define VIEW_INDEX_AT(index) \
-			case index: if constexpr(index < sizeof...(Types)) \
+			case index: if constexpr((index) < sizeof...(Types)) \
 				return handler.template operator () <index> ();
 			VIEW_INDEX_AT(0)
 			VIEW_INDEX_AT(1)

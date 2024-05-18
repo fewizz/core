@@ -5,6 +5,8 @@
 #include "./sentinel.hpp"
 #include "../forward.hpp"
 #include "../write.hpp"
+#include "../output_stream.hpp"
+#include "../__range/element_type.hpp"
 
 namespace __range {
 
@@ -30,7 +32,7 @@ public:
 		}
 	}
 
-	template<typename To>
+	template<basic_output_stream<range_element_type<Range>> To>
 	constexpr auto to_output_stream(To&& to) {
 		auto from_begin = range_iterator(from_);
 		auto from_end   = range_sentinel(from_);

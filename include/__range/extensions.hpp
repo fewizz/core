@@ -1,11 +1,12 @@
 #pragma once
 
 #include "./extensions_declaration.hpp"
-#include "./sized.hpp"
 #include "./reversable.hpp"
 #include "./element_index_type.hpp"
+#include "./element_type.hpp"
 #include "../__type/copy_const_ref.hpp"
 #include "../loop_action.hpp"
+#include "../output_stream.hpp"
 
 template<typename Derived, range_extensions_options Options>
 struct range_extensions {
@@ -57,7 +58,7 @@ struct range_extensions {
 	template<basic_range OtherRange>
 	constexpr void copy_to(this auto&&, OtherRange&& other_range);
 
-	template</*basic_output_stream*/typename OS>
+	template<basic_output_stream<range_element_type<Derived>> OS>
 	constexpr void copy_to(this auto&&, OS&& output_stream);
 
 	template<basic_range OtherRange>
