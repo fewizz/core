@@ -23,7 +23,7 @@ template<typename Type>
 struct c_string_view :
 	span<const Type>
 {
-	constexpr c_string_view(const Type* ptr, nuint len)
+	explicit constexpr c_string_view(const Type* ptr, nuint len)
 		: span<const Type>{ptr, len} {}
 
 	template<typename NewType>
@@ -49,7 +49,7 @@ template<some_char Type>
 struct c_string<Type> : range_extensions<c_string<Type>> {
 	const Type* ptr_;
 
-	constexpr c_string(const Type* ptr): ptr_{ptr} {}
+	explicit constexpr c_string(const Type* ptr): ptr_{ptr} {}
 
 	static constexpr bool is_borrowed_range = true;
 
