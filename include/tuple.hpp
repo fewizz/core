@@ -5,7 +5,7 @@
 #include "./__types/index_of_satisfying_predicate.hpp"
 #include "./__types/indices_of_satisfying_predicate.hpp"
 #include "./__type/is_range_of.hpp"
-#include "./__type/is_same_as_predicate.hpp"
+#include "./__type/is_same_as.hpp"
 #include "./__type/is_invokable_with.hpp"
 #include "./__values/of.hpp"
 #include "./forward.hpp"

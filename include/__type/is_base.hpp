@@ -2,31 +2,18 @@
 
 #include "./predicate.hpp"
 
-template<typename Type, typename BaseType>
-concept base_of = __is_base_of(BaseType, Type);
+template<typename Type, typename DerivedType>
+concept base_of = __is_base_of(Type, DerivedType);
 
-template<typename BaseType>
+template<typename Type>
 struct is_base_of_t :
-	type_predicate_extension<is_base_of_t<BaseType>>
+	type_predicate_extension<is_base_of_t<Type>>
 {
-	template<typename Type>
+	template<typename DerivedType>
 	constexpr bool for_type() const {
-		return __is_base_of(BaseType, Type);
+		return __is_base_of(Type, DerivedType);
 	}
 };
 
-template<typename SubType>
-struct is_sub_of_t :
-	type_predicate_extension<is_base_of_t<SubType>>
-{
-	template<typename Type>
-	constexpr bool for_type() const {
-		return __is_base_of(Type, SubType);
-	}
-};
-
-template<typename BaseType>
-constexpr inline is_base_of_t<BaseType> is_base_of{};
-
-template<typename SubType>
-constexpr inline is_sub_of_t<SubType> is_sub_of{};
+template<typename DerivedType>
+constexpr inline is_base_of_t<DerivedType> is_base_of{};

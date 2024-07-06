@@ -85,6 +85,17 @@ constexpr auto range_extensions<Derived, Options>::reverse_view(
 	};
 }
 
+#include "./indexed_view.hpp"
+
+template<typename Derived, range_extensions_options Options>
+constexpr auto range_extensions<Derived, Options>::indexed_view(
+	this auto&& self
+) {
+	return __range::indexed_view {
+		(copy_const_ref<decltype(self), Derived>&&) self
+	};
+}
+
 #include "./filter_view.hpp"
 
 template<typename Derived, range_extensions_options Options>

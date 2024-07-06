@@ -16,6 +16,7 @@
 #include "./__types/first.hpp"  // IWYU pragma: export
 #include "./__types/index_of_satisfying_predicate.hpp"  // IWYU pragma: export
 #include "./__types/indices_of_satisfying_predicate.hpp"  // IWYU pragma: export
+#include "./__values/at_index.hpp"
 
 template<typename... Types>
 struct common_if_have {
@@ -106,6 +107,16 @@ public:
 	using indices_of_satisfying_predicate = typename
 		__types::indices_of_satisfying_predicate<Predicate>::template
 		for_types<Types...>;
+
+	template<auto Predicate>
+	struct _get {
+		using _indices = types::indices_of_satisfying_predicate<Predicate>;
+		static_assert(_indices::size == 1);
+		using result = types::at_index<_indices::template at_index<0>>;
+	};
+
+	template<auto Predicate>
+	using get = _get<Predicate>::result;
 
 	template<typename Predicate, typename Handler, typename DefaultHandler>
 	decltype(auto) static inline

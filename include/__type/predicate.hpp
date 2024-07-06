@@ -1,6 +1,5 @@
 #pragma once
 
-#include "./decay.hpp"
 
 struct type_predicate_marker {};
 
@@ -58,8 +57,9 @@ template<type_predicate auto Predicate>
 constexpr inline type_predicate_negation_t<Predicate>
 	type_predicate_negation{};
 
+
 template<typename Derived>
-struct type_predicate_extension : type_predicate_marker {
+struct type_predicate_extension_base : type_predicate_marker {
 
 	template<type_predicate OtherPredicate>
 	constexpr auto operator && (OtherPredicate) const {
@@ -74,5 +74,28 @@ struct type_predicate_extension : type_predicate_marker {
 	constexpr auto operator ! () const {
 		return type_predicate_negation<Derived{}>;
 	}
+
+};
+
+
+#include "./decay.hpp"
+
+
+template<typename Predicate>
+struct type_predicate_while_decayed_t :
+	type_predicate_extension_base<type_predicate_while_decayed_t<Predicate>>
+{
+
+	template<typename Type>
+	constexpr bool for_type() const {
+		return Predicate{}.template for_type<decay<Type>>();
+	}
+
+};
+
+template<typename Derived>
+struct type_predicate_extension : type_predicate_extension_base<Derived> {
+
+	static constexpr type_predicate_while_decayed_t<Derived> while_decayed{};
 
 };

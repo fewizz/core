@@ -28,8 +28,11 @@ struct range_extensions {
 	template<typename Handler>
 	void for_each_indexed(this auto&& self, Handler handler) {
 		using index_type = range_element_index_type<Derived>;
+		using element_type = range_element_type<Derived>;
+
 		index_type i{};
-		for (auto& e : self) {
+
+		for (element_type&& e : self) {
 			if constexpr (same_as<decltype(handler(e, i)), loop_action>) {
 				if (handler(e, i) == loop_action::stop) {
 					break;
@@ -72,6 +75,8 @@ struct range_extensions {
 	constexpr auto dereference_view(this auto&& self);
 
 	constexpr auto reverse_view(this auto&& self);
+
+	constexpr auto indexed_view(this auto&& self);
 
 	template<typename Predicate>
 	constexpr auto filter_view(this auto&& self, Predicate&&);

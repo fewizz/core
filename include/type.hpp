@@ -9,6 +9,7 @@
 #include "./__type/is_basic_range.hpp"  // IWYU pragma: export
 #include "./__type/is_const.hpp"  // IWYU pragma: export
 #include "./__type/is_constructible_from.hpp"  // IWYU pragma: export
+#include "./__type/is_derived_from.hpp"  // IWYU pragma: export
 #include "./__type/is_enum.hpp"  // IWYU pragma: export
 #include "./__type/is_function.hpp"  // IWYU pragma: export
 #include "./__type/is_invokable_with.hpp"  // IWYU pragma: export
@@ -17,7 +18,6 @@
 #include "./__type/is_pointer.hpp"  // IWYU pragma: export
 #include "./__type/is_reference.hpp"  // IWYU pragma: export
 #include "./__type/is_same_as.hpp"  // IWYU pragma: export
-#include "./__type/is_same_as_predicate.hpp"  // IWYU pragma: export
 #include "./__type/is_trivial.hpp"  // IWYU pragma: export
 #include "./__type/remove_const.hpp"  // IWYU pragma: export
 #include "./__type/remove_extent.hpp"  // IWYU pragma: export
@@ -39,8 +39,8 @@ struct type {
 	template<typename WhatToAssign>
 	static constexpr bool is_assignable = assignable<Type, WhatToAssign>;
 
-	template<typename BaseType>
-	static constexpr bool is_base_of = base_of<Type, BaseType>;
+	template<typename DerivedType>
+	static constexpr bool is_base_of = base_of<Type, DerivedType>;
 
 	static constexpr bool is_basic_range = basic_range<Type>;
 
@@ -49,6 +49,9 @@ struct type {
 	template<typename... Args>
 	static constexpr bool is_constructible_from
 		= constructible_from<Type, Args...>;
+
+	template<typename BaseType>
+	static constexpr bool is_derived_from = derived_from<Type, BaseType>;
 
 	static constexpr bool is_enum = __type::is_enum<Type>;
 

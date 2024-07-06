@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../integer.hpp"
+#include "./at_index.hpp"
 
 namespace __values {
 
@@ -110,6 +111,10 @@ namespace __values {
 		using transform = __values::of<
 			Transformer::template for_value<Values>...
 		>;
+
+		template<nuint Index>
+		static constexpr auto at_index
+			= __values::at_index<Index>::template for_values<Values...>;
 
 	};
 
