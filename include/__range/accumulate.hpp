@@ -9,7 +9,7 @@ template<typename Function, basic_range Range>
 constexpr auto accumulate(
 	Range&& range, auto initial_value, Function&& function
 ) {
-	for(auto v : range) {
+	for (auto v : range) {
 		initial_value = function(initial_value, v);
 	}
 	return initial_value;

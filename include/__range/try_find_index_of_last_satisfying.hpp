@@ -16,10 +16,10 @@ namespace __range {
 		auto beginning = range_iterator(range);
 		auto it = beginning + remaining;
 
-		while(it != beginning) {
+		while (it != beginning) {
 			--it;
 
-			if(handler(*it)) {
+			if (handler(*it)) {
 				return { (range_element_index_type<Range>) (it - beginning) };
 			}
 		}

@@ -13,9 +13,9 @@ struct numbers : array<Type, Size> {
 	constexpr auto max() const requires (Size >= 2) {
 		auto it = this->iterator();
 		Type result = *it++;
-		while(it != this->end()) {
+		while (it != this->end()) {
 			Type v = *it++;
-			if(v > result) {
+			if (v > result) {
 				result = v;
 			}
 		}
@@ -25,9 +25,9 @@ struct numbers : array<Type, Size> {
 	constexpr auto min() const requires (Size >= 2) {
 		auto it = this->iterator();
 		Type result = *it++;
-		while(it != this->end()) {
+		while (it != this->end()) {
 			Type v = *it++;
-			if(v < result) {
+			if (v < result) {
 				result = v;
 			}
 		}

@@ -30,7 +30,7 @@ public:
 	body& operator = (const body& other) = delete;
 
 	~body() {
-		if(soul_handle_.is_valid()) {
+		if (soul_handle_.is_valid()) {
 			destroy();
 		}
 	}

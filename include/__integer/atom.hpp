@@ -85,7 +85,7 @@ constexpr inline uint1a bits_per_atom = [] {
 	uint1a v = uint1a{ 0 } - uint1a{ 1 };
 	// counting
 	uint1a bits = 0;
-	while(v > 0) {
+	while (v > 0) {
 		v >>= 1;
 		++bits;
 	}

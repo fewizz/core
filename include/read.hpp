@@ -16,7 +16,7 @@ template<
 constexpr Type read(IS&& is) {
 	alignas(Type) uint1a storage[sizeof(Type)];
 
-	for(nuint byte_index = 0; byte_index < sizeof(Type); ++byte_index) {
+	for (nuint byte_index = 0; byte_index < sizeof(Type); ++byte_index) {
 		uint1a b = (uint1a) ::read(is);
 		nuint index =
 			endianness::native != Endianness ?

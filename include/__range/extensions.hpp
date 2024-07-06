@@ -5,6 +5,7 @@
 #include "./element_index_type.hpp"
 #include "./element_type.hpp"
 #include "../__type/copy_const_ref.hpp"
+#include "../__type/is_invokable_with.hpp"
 #include "../loop_action.hpp"
 #include "../output_stream.hpp"
 
@@ -28,9 +29,9 @@ struct range_extensions {
 	void for_each_indexed(this auto&& self, Handler handler) {
 		using index_type = range_element_index_type<Derived>;
 		index_type i{};
-		for(auto& e : self) {
-			if constexpr(same_as<decltype(handler(e, i)), loop_action>) {
-				if(handler(e, i) == loop_action::stop) {
+		for (auto& e : self) {
+			if constexpr (same_as<decltype(handler(e, i)), loop_action>) {
+				if (handler(e, i) == loop_action::stop) {
 					break;
 				}
 			}
@@ -47,7 +48,7 @@ struct range_extensions {
 		auto size = range_size(
 			(copy_const_ref<decltype(self), Derived>&) self
 		);
-		for(index_type i{}; i < size; ++i) {
+		for (index_type i{}; i < size; ++i) {
 			handler(i);
 		}
 	}

@@ -12,7 +12,7 @@ template<
 >
 constexpr nuint get_or_compute_distance(Iterator iterator, Sentinel sentinel) {
 	nuint distance = 0;
-	while(iterator != sentinel) {
+	while (iterator != sentinel) {
 		++distance;
 		++iterator;
 	}

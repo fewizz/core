@@ -14,13 +14,13 @@ constexpr bool have_equal_size_and_elements(Ranges&&... ranges) {
 	auto iterators = tuple { ranges.iterator()... };
 	auto sizes = tuple { ranges.size()... };
 
-	if(!sizes.pass([](integer auto first, integer auto... others) {
+	if (!sizes.pass([](integer auto first, integer auto... others) {
 		return ((first == others) && ...);
 	})) { return false; }
 
 	nuint size = sizes.template at<0>();
 
-	while(size > 0) {
+	while (size > 0) {
 		--size;
 
 		bool elements_equal_to_first = iterators.pass(
@@ -29,7 +29,7 @@ constexpr bool have_equal_size_and_elements(Ranges&&... ranges) {
 				return ((first_element == *its) && ...);
 			}
 		);
-		if(!elements_equal_to_first) { return false; }
+		if (!elements_equal_to_first) { return false; }
 
 		iterators.pass([](basic_iterator auto&... its) { (++its, ...);});
 	}
@@ -44,13 +44,13 @@ constexpr bool have_equal_size_and_elements(
 	integer auto size_0 = range_size(range_0);
 	integer auto size_1 = range_size(range_1);
 
-	if(size_0 != size_1) { return false; }
+	if (size_0 != size_1) { return false; }
 
 	basic_iterator auto iterator_0 = range_iterator(range_0);
 	basic_iterator auto iterator_1 = range_iterator(range_1);
 
-	while(size_0 > 0) {
-		if(*iterator_0 != *iterator_1) {
+	while (size_0 > 0) {
+		if (*iterator_0 != *iterator_1) {
 			return false;
 		}
 		++iterator_0;
@@ -74,19 +74,19 @@ constexpr bool have_equal_size_and_elements(Ranges&&... ranges) {
 	return [&]<nuint... Indices>(
 		indices::of<Indices...> = indices::from<0>::to<sizeof...(Ranges)>{}
 	) {
-		while(true) {
+		while (true) {
 			bool ends[sizeof...(Ranges)] {
 				iterators.template at<Indices>.template at<0>() ==
 				iterators.template at<Indices>.template at<1>() ...
 			};
 
 			// all ended
-			if(ends.pass([](auto... ends){ return (ends && ...); })) {
+			if (ends.pass([](auto... ends){ return (ends && ...); })) {
 				return true;
 			}
 
 			// some of them ended, not all
-			if(ends.pass([](auto... ends){ return (ends || ...); })) {
+			if (ends.pass([](auto... ends){ return (ends || ...); })) {
 				return false;
 			}
 
@@ -96,7 +96,7 @@ constexpr bool have_equal_size_and_elements(Ranges&&... ranges) {
 					return ((first_element == *its.template at<0>()) && ...);
 				}
 			);
-			if(!elements_equal_to_first) {
+			if (!elements_equal_to_first) {
 				return false;
 			}
 
@@ -114,16 +114,16 @@ constexpr bool have_equal_size_and_elements(
 	basic_iterator auto iterator_1 = range_iterator(range_1);
 	               auto sentinel_1 = range_sentinel(range_1);
 
-	while(true) {
+	while (true) {
 		bool end_0 = iterator_0 == sentinel_0;
 		bool end_1 = iterator_1 == sentinel_1;
-		if(end_0 && end_1) {
+		if (end_0 && end_1) {
 			return true;
 		}
-		if(end_0 || end_1) {
+		if (end_0 || end_1) {
 			return false;
 		}
-		if(*iterator_0 != *iterator_1) {
+		if (*iterator_0 != *iterator_1) {
 			return false;
 		}
 		++iterator_0;

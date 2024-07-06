@@ -25,7 +25,7 @@ public:
 		auto from_end   = range_sentinel(from_);
 		auto to_begin   = range_iterator(to);
 
-		while(from_begin != from_end) {
+		while (from_begin != from_end) {
 			*to_begin = *from_begin;
 			++from_begin;
 			++to_begin;
@@ -37,7 +37,7 @@ public:
 		auto from_begin = range_iterator(from_);
 		auto from_end   = range_sentinel(from_);
 
-		while(from_begin != from_end) {
+		while (from_begin != from_end) {
 			::write(*from_begin, to);
 			++from_begin;
 		}

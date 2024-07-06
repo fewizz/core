@@ -20,7 +20,7 @@ consteval int f() {
 		elems.pass_satisfying_predicate<is_same_as<float>>([&](float) {
 			passed = true;
 		});
-		if(!passed) throw;
+		if (!passed) throw;
 	}
 
 	[[maybe_unused]] auto elems1 = move(elems);

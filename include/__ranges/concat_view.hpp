@@ -32,7 +32,7 @@ class concat_view_iterator {
 	template<nuint FromIndex = 0, typename Handler>
 	constexpr decltype(auto) current_pair_with_index(Handler&& handler) {
 		__builtin_assume(index_ < sizeof...(Pairs));
-		if(FromIndex == index_) {
+		if (FromIndex == index_) {
 			return handler.template operator () <FromIndex>(
 				pairs_.template get_at<FromIndex>()
 			);
@@ -49,7 +49,7 @@ class concat_view_iterator {
 	template<nuint FromIndex = 0, typename Handler>
 	constexpr decltype(auto) current_pair_with_index(Handler&& handler) const {
 		__builtin_assume(index_ < sizeof...(Pairs));
-		if(FromIndex == index_) {
+		if (FromIndex == index_) {
 			return handler.template operator () <FromIndex>(
 				pairs_.template get_at<FromIndex>()
 			);
@@ -178,7 +178,7 @@ class concat_view_iterator {
 	constexpr void skip_empty(Handler&& handler) {
 		current_pair_with_index<FromIndex>([&]<nuint Index>(auto& pair) {
 			if constexpr(has_next<Index>) {
-				if(it(pair) == end(pair)) {
+				if (it(pair) == end(pair)) {
 					++index_;
 					skip_empty<Index + 1>(forward<Handler>(handler));
 					return;
@@ -198,7 +198,7 @@ class concat_view_iterator {
 	requires(FromIndex + 2 == sizeof...(Pairs))
 	constexpr void skip_empty(Handler&& handler) {
 		auto& pair = pairs_.template get_at<FromIndex>();
-		if(it(pair) == end(pair)) {
+		if (it(pair) == end(pair)) {
 			++index_;
 			handler.template operator () <FromIndex + 1>();
 			return;
@@ -210,10 +210,10 @@ class concat_view_iterator {
 	requires(FromIndex + 3 == sizeof...(Pairs))
 	constexpr void skip_empty(Handler&& handler) {
 		auto& pair = pairs_.template get_at<FromIndex>();
-		if(it(pair) == end(pair)) {
+		if (it(pair) == end(pair)) {
 			++index_;
 			auto& pair = pairs_.template get_at<FromIndex + 1>();
-			if(it(pair) == end(pair)) {
+			if (it(pair) == end(pair)) {
 				++index_;
 				handler.template operator () <FromIndex + 2>();
 				return;
@@ -228,13 +228,13 @@ class concat_view_iterator {
 	requires(FromIndex + 4 == sizeof...(Pairs))
 	constexpr void skip_empty(Handler&& handler) {
 		auto& pair = pairs_.template get_at<FromIndex>();
-		if(it(pair) == end(pair)) {
+		if (it(pair) == end(pair)) {
 			++index_;
 			auto& pair = pairs_.template get_at<FromIndex + 1>();
-			if(it(pair) == end(pair)) {
+			if (it(pair) == end(pair)) {
 				++index_;
 				auto& pair = pairs_.template get_at<FromIndex + 2>();
-				if(it(pair) == end(pair)) {
+				if (it(pair) == end(pair)) {
 					++index_;
 					handler.template operator () <FromIndex + 3>();
 					return;
@@ -252,16 +252,16 @@ class concat_view_iterator {
 	requires(FromIndex + 5 == sizeof...(Pairs))
 	constexpr void skip_empty(Handler&& handler) {
 		auto& pair = pairs_.template get_at<FromIndex>();
-		if(it(pair) == end(pair)) {
+		if (it(pair) == end(pair)) {
 			++index_;
 			auto& pair = pairs_.template get_at<FromIndex + 1>();
-			if(it(pair) == end(pair)) {
+			if (it(pair) == end(pair)) {
 				++index_;
 				auto& pair = pairs_.template get_at<FromIndex + 2>();
-				if(it(pair) == end(pair)) {
+				if (it(pair) == end(pair)) {
 					++index_;
 					auto& pair = pairs_.template get_at<FromIndex + 3>();
-					if(it(pair) == end(pair)) {
+					if (it(pair) == end(pair)) {
 						++index_;
 						handler.template operator () <FromIndex + 4>();
 						return;
@@ -282,19 +282,19 @@ class concat_view_iterator {
 	requires(FromIndex + 6 == sizeof...(Pairs))
 	constexpr void skip_empty(Handler&& handler) {
 		auto& pair = pairs_.template get_at<FromIndex>();
-		if(it(pair) == end(pair)) {
+		if (it(pair) == end(pair)) {
 			++index_;
 			auto& pair = pairs_.template get_at<FromIndex + 1>();
-			if(it(pair) == end(pair)) {
+			if (it(pair) == end(pair)) {
 				++index_;
 				auto& pair = pairs_.template get_at<FromIndex + 2>();
-				if(it(pair) == end(pair)) {
+				if (it(pair) == end(pair)) {
 					++index_;
 					auto& pair = pairs_.template get_at<FromIndex + 3>();
-					if(it(pair) == end(pair)) {
+					if (it(pair) == end(pair)) {
 						++index_;
 						auto& pair = pairs_.template get_at<FromIndex + 4>();
-						if(it(pair) == end(pair)) {
+						if (it(pair) == end(pair)) {
 							++index_;
 							handler.template operator () <FromIndex + 5>();
 							return;
@@ -342,7 +342,7 @@ class concat_view_iterator {
 	constexpr void inc(nuint n) {
 		current_pair_with_index<FromIndex>([&]<nuint Index>(auto& pair) {
 			nuint len = end(pair) - it(pair);
-			if(n < len) {
+			if (n < len) {
 				it(pair) += n;
 				return;
 			}
@@ -350,7 +350,7 @@ class concat_view_iterator {
 			n -= len;
 			skip_empty<Index>([&]<nuint Index0>() {
 				if constexpr (Index0 > Index) {
-					if(n > 0) {
+					if (n > 0) {
 						inc<Index0>(n);
 					}
 				}

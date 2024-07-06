@@ -30,7 +30,7 @@ public:
 	auto sentinel()       { return range_sentinel(storage_range_); }
 
 	constexpr ~initialised() {
-		for(value_type& e : *this) {
+		for (value_type& e : *this) {
 			e.~value_type();
 		}
 	}

@@ -25,9 +25,9 @@ class flat_view_iterator {
 
 	// only when iterator_ != sentinel_
 	constexpr void skip_empty() {
-		while(internal_iterator_ == internal_sentinel_) {
+		while (internal_iterator_ == internal_sentinel_) {
 			++iterator_;
-			if(iterator_ == sentinel_) return;
+			if (iterator_ == sentinel_) return;
 
 			internal_iterator_ = range_iterator(*iterator_);
 			internal_sentinel_ = range_sentinel(*iterator_);
@@ -41,7 +41,7 @@ public:
 		iterator_{ iterator },
 		sentinel_{ sentinel }
 	{
-		if(iterator_ != sentinel) {
+		if (iterator_ != sentinel) {
 			internal_iterator_ = range_iterator(*iterator_);
 			internal_sentinel_ = range_sentinel(*iterator_);
 			skip_empty();

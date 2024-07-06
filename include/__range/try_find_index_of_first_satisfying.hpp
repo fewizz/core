@@ -13,8 +13,8 @@ namespace __range {
 		Range&& range, Handler&& handler
 	) {
 		nuint index = 0;
-		for(decltype(auto) e : forward<Range>(range)) {
-			if(handler(e)) {
+		for (decltype(auto) e : forward<Range>(range)) {
+			if (handler(e)) {
 				return { index };
 			}
 			++index;
@@ -28,8 +28,8 @@ namespace __range {
 		Range&& range, Handler&& handler
 	) {
 		range_element_index_type<Range> index = 0;
-		for(decltype(auto) e : forward<Range>(range)) {
-			if(handler(e)) {
+		for (decltype(auto) e : forward<Range>(range)) {
+			if (handler(e)) {
 				return { index };
 			}
 			++index;

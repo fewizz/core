@@ -6,13 +6,14 @@
 #include "../__ranges/have_equal_size_and_elements.hpp"
 #include "../__iterator_and_sentinel/as_range.hpp"
 
+
 namespace __range {
 
 	template<basic_range Range, basic_range OtherRange>
 	constexpr bool ends_with(Range&& range, OtherRange&& other) {
 		auto size       = range_size(range);
 		auto other_size = range_size(other);
-		if(size < other_size) return false;
+		if (size < other_size) return false;
 		return __ranges::have_equal_size_and_elements(
 			__iterator_and_sentinel::as_range(
 				range.begin() + (size - other_size), range.end()

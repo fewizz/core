@@ -9,25 +9,25 @@ int main() {
 		array<int, 5> storage_range{};
 		list l{ move(storage_range) };
 
-		if(l.size() != 0) throw;
+		if (l.size() != 0) throw;
 
 		l.emplace_back<int>(42);
 
-		if(l.size() != 1) throw;
-		if(*l.iterator() != 42) throw;
-		if(l[0] != 42) throw;
-		if(!l.contains(42)) throw;
+		if (l.size() != 1) throw;
+		if (*l.iterator() != 42) throw;
+		if (l[0] != 42) throw;
+		if (!l.contains(42)) throw;
 	}
 	{
 		int a = 0, b = 1;
 
 		list l{ array<int*, 2>{} };
-		if(l.size() != 0) throw;
+		if (l.size() != 0) throw;
 		l.emplace_back(&a);
 		l.emplace_back(&b);
 
 		*l[0] = 42;
 
-		if(a != 42) throw;
+		if (a != 42) throw;
 	}
 }

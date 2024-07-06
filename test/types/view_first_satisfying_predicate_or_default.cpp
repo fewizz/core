@@ -15,8 +15,8 @@ consteval bool f() {
 		[](){ return 0; }
 	);
 
-	if(val != 1) throw;
-	if(checks != 3) throw;
+	if (val != 1) throw;
+	if (checks != 3) throw;
 
 	return true;
 }

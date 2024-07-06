@@ -11,8 +11,8 @@ namespace __range {
 	try_find_first_satisfying(
 		Range&& range, Predicate&& predicate
 	) {
-		for(decltype(auto) e : forward<Range>(range)) {
-			if(predicate(e)) {
+		for (decltype(auto) e : forward<Range>(range)) {
+			if (predicate(e)) {
 				return { e };
 			}
 		}

@@ -12,7 +12,7 @@ namespace __range {
 	constexpr bool starts_with(Range&& range, OtherRange&& other) {
 		auto size       = range_size(range);
 		auto other_size = range_size(other);
-		if(size < other_size) return false;
+		if (size < other_size) return false;
 		return __ranges::have_equal_size_and_elements(
 			__iterator_and_sentinel::as_range(
 				range.iterator(), range.iterator() + other_size

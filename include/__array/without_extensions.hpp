@@ -33,8 +33,8 @@ struct array_without_extensions {
 		const Type* it_0 = iterator();
 		const Type* it_1 = other.iterator();
 
-		for(nuint i = 0; i < Size; ++i) {
-			if(*it_0 != *it_1) return false;
+		for (nuint i = 0; i < Size; ++i) {
+			if (*it_0 != *it_1) return false;
 		}
 
 		return true;

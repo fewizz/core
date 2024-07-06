@@ -73,7 +73,7 @@ public:
 	template<typename... Args>
 	constexpr value_type& emplace_back(Args&&... args) {
 		if constexpr(growable_range<StorageRange>) {
-			if(size() == capacity()) {
+			if (size() == capacity()) {
 				storage_range_.grow();
 				sentinel_ = storage_range_.iterator() + size();
 			}
@@ -90,14 +90,14 @@ public:
 	}
 
 	constexpr void ensure_size(size_type size) /* requires default_init */ {
-		while(size > this->size()) {
+		while (size > this->size()) {
 			emplace_back();
 		}
 	}
 
 	template<basic_range OtherRange>
 	constexpr void emplace_back_elements_of(OtherRange&& other) {
-		for(decltype(auto) e : forward<OtherRange>(other)) {
+		for (decltype(auto) e : forward<OtherRange>(other)) {
 			emplace_back(forward<decltype(e)>(e));
 		}
 	}
@@ -135,7 +135,7 @@ public:
 	}
 
 	constexpr void erase_back(size_type n) {
-		while(n > 0) {
+		while (n > 0) {
 			erase_back();
 			--n;
 		}
@@ -157,20 +157,20 @@ public:
 	}
 
 	constexpr void fill_with(auto&& something) {
-		while(this->size() < capacity()) {
+		while (this->size() < capacity()) {
 			emplace_back(something);
 		}
 	}
 
 	template<basic_range Range>
 	constexpr void put_back_copied_elements_of(Range&& other) {
-		for(decltype(auto) e : other) {
+		for (decltype(auto) e : other) {
 			emplace_back(e);
 		}
 	}
 
 	void clear() {
-		while(this->size() > 0) {
+		while (this->size() > 0) {
 			erase_back();
 		}
 	}

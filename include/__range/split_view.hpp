@@ -35,13 +35,13 @@ private:
 	constexpr void skip() {
 		iterator_ = iterator_end_;
 		// skip splitters, searching for beginning
-		while(splitter(iterator_)) {
+		while (splitter(iterator_)) {
 			++iterator_;
 		}
 		iterator_end_ = iterator_;
 		++iterator_end_;
 		// searching for ending
-		while(not_splitter_and_not_end(iterator_end_)) {
+		while (not_splitter_and_not_end(iterator_end_)) {
 			++iterator_end_;
 		}
 	}
@@ -71,7 +71,7 @@ public:
 	}
 
 	constexpr auto& operator += (nuint n) {
-		while(n > 0) {
+		while (n > 0) {
 			--n;
 			++(*this);
 		}

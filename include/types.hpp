@@ -115,7 +115,7 @@ public:
 		DefaultHandler&& default_handler
 	) {
 		using frst = first<>;
-		if(predicate.template operator () <frst> ()) {
+		if (predicate.template operator () <frst> ()) {
 			return handler.template operator () <frst>();
 		}
 		if constexpr(sizeof...(Types) > 1) {

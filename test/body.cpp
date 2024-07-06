@@ -26,7 +26,7 @@ int main() {
 		body<something>{ &s };
 	}
 
-	if(s.i != -1) {
+	if (s.i != -1) {
 		return 1;
 	}
 

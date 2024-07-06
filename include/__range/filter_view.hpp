@@ -18,7 +18,7 @@ class filter_view_iterator {
 	using element_type = iterator_element_type<Iterator>;
 
 	constexpr void skip() {
-		while(iterator_ != sentinel_ && !predicate(*iterator_)) {
+		while (iterator_ != sentinel_ && !predicate(*iterator_)) {
 			++iterator_;
 		}
 	}

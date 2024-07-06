@@ -15,7 +15,7 @@ template<
 	basic_output_stream<uint1a> OS
 >
 constexpr void write(Type value, OS&& os) {
-	for(nuint i = 0; i < sizeof(Type); ++i) {
+	for (nuint i = 0; i < sizeof(Type); ++i) {
 		nuint i0 = Endianness != endianness::native ? sizeof(Type) - i - 1 : i;
 
 		struct storage_t {

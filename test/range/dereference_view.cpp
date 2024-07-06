@@ -12,11 +12,11 @@ consteval bool f() {
 	static_assert(basic_range<decltype(d)>);
 	static_assert(sized_range<decltype(d)>);
 
-	if(d.size() != 3) throw;
+	if (d.size() != 3) throw;
 
-	if(d[0] != 0) throw;
-	if(d[1] != 5) throw;
-	if(d[2] != 7) throw;
+	if (d[0] != 0) throw;
+	if (d[1] != 5) throw;
+	if (d[2] != 7) throw;
 
 	return true;
 }

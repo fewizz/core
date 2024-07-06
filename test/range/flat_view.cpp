@@ -12,8 +12,8 @@ constexpr bool f() {
 
 		auto it = fv.iterator();
 
-		for(int x = 0; x < 9; ++x) {
-			if(*it != x) throw;
+		for (int x = 0; x < 9; ++x) {
+			if (*it != x) throw;
 			++it;
 		}
 	}
@@ -40,7 +40,7 @@ constexpr bool f() {
 		}.flat_view();
 
 		fv.has_equal_size_and_elements(c_string{ "Hello, world!" });
-		if(*fv.iterator() != 'H') throw;
+		if (*fv.iterator() != 'H') throw;
 	}
 
 	return true;

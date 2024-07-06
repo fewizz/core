@@ -27,13 +27,13 @@ consteval bool f() {
 	}
 	{
 		variant<int, float> f{ 0.0F };
-		if(!f.is_same_as<float>()) throw;
+		if (!f.is_same_as<float>()) throw;
 	}
 	{
 		variant<int, float> i{ 0 };
-		if(!i.is_same_as<int>()) throw;
+		if (!i.is_same_as<int>()) throw;
 		i = 0.0F;
-		if(!i.is_same_as<float>()) throw;
+		if (!i.is_same_as<float>()) throw;
 	}
 	return true;
 }
@@ -45,22 +45,22 @@ int main() {
 	{
 		variant<int, nuint> e{ nuint{ 666666666666 } };
 		auto copy = e;
-		if(!copy.is_same_as<nuint>()) throw;
-		if(copy.get_same_as<nuint>() != nuint{ 666666666666 }) throw;
+		if (!copy.is_same_as<nuint>()) throw;
+		if (copy.get_same_as<nuint>() != nuint{ 666666666666 }) throw;
 
 		auto moved = move(copy);
-		if(!moved.is_same_as<nuint>()) throw;
-		if(moved.get_same_as<nuint>() != nuint{ 666666666666 }) throw;
+		if (!moved.is_same_as<nuint>()) throw;
+		if (moved.get_same_as<nuint>() != nuint{ 666666666666 }) throw;
 	}
 	{
 		variant<int, float> f{ 42.0F };
-		if(!f.is_same_as<float>()) throw;
-		if(f.get_same_as<float>() != 42.0F) throw;
+		if (!f.is_same_as<float>()) throw;
+		if (f.get_same_as<float>() != 42.0F) throw;
 
 		f = 42;
 
-		if(!f.is_same_as<int>()) throw;
-		if(f.get_same_as<int>() != 42) throw;
+		if (!f.is_same_as<int>()) throw;
+		if (f.get_same_as<int>() != 42) throw;
 
 		variant<int, float> f0 = f;
 	}
@@ -89,33 +89,33 @@ int main() {
 
 		{
 			variant<a, b> es{ a{ 4, a_destructions } };
-			if(!es.is_same_as<a>()) throw;
-			if(es.get_same_as<a>().i != 4) throw;
+			if (!es.is_same_as<a>()) throw;
+			if (es.get_same_as<a>().i != 4) throw;
 
 			es = b{ 4.0F, b_destructions };
 
-			if(!es.is_same_as<b>()) throw;
-			if(es.get_same_as<b>().f != 4.0) throw;
+			if (!es.is_same_as<b>()) throw;
+			if (es.get_same_as<b>().f != 4.0) throw;
 		}
-		if(a_destructions != 2) throw;
-		if(b_destructions != 2) throw;
+		if (a_destructions != 2) throw;
+		if (b_destructions != 2) throw;
 	}
 
 	{
 		int i = 0;
 		variant<int&> int_ref{ i };
 		int_ref.template get_same_as<int&>() = 1;
-		if(int_ref.template get_same_as<int&>() != 1) throw;
+		if (int_ref.template get_same_as<int&>() != 1) throw;
 	}
 
 	{
 		int i = 1;
 		float f = 2.0;
 		variant<int&, float&> x = i;
-		if(&x.get_same_as<int&>() != &i) throw;
+		if (&x.get_same_as<int&>() != &i) throw;
 
 		x = f;
-		if(&x.get_same_as<float&>() != &f) throw;
+		if (&x.get_same_as<float&>() != &f) throw;
 	}
 
 	{
@@ -128,8 +128,8 @@ int main() {
 
 		variant<int, float, a, bool> x = a{};
 		x = 0.0F;
-		if(!x.is_same_as<float>()) throw;
-		if(!destructor_called) throw;
+		if (!x.is_same_as<float>()) throw;
+		if (!destructor_called) throw;
 	}
 
 	{
@@ -146,7 +146,7 @@ int main() {
 		};
 		c c0{};
 		variant<c> x = move(c0);
-		if(!c0.moved_out) throw;
+		if (!c0.moved_out) throw;
 	}
 
 	{
@@ -166,6 +166,6 @@ int main() {
 			variant<int, check_destroy>{ check_destroy{} };
 		}
 
-		if(!destroyed) throw;
+		if (!destroyed) throw;
 	}
 }

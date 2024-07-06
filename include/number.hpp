@@ -21,7 +21,7 @@ struct number {
 		{
 			Type number_copy = value_;
 
-			while((number_copy /= base) > 0) {
+			while ((number_copy /= base) > 0) {
 				divisor *= base;
 			}
 		}
@@ -29,7 +29,7 @@ struct number {
 		{
 			Type number_copy = value_;
 
-			while(divisor > 0) {
+			while (divisor > 0) {
 				auto d = (number_copy / divisor) % base;
 				handler(d);
 				divisor /= base;
@@ -47,7 +47,7 @@ struct number {
 
 	Type align(Type alignment) {
 		Type rem = value_ % alignment;
-		if(rem == 0) {
+		if (rem == 0) {
 			return value_;
 		}
 		return value_ + (alignment - rem);

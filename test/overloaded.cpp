@@ -8,8 +8,8 @@ consteval bool f() {
 		return i;
 	});
 
-	if(f(0) != 1.0) throw;
-	if(f(0.0f) != 0.0) throw;
+	if (f(0) != 1.0) throw;
+	if (f(0.0f) != 0.0) throw;
 
 	return true;
 }

@@ -48,7 +48,7 @@ public:
 	template<typename Handler, typename Self>
 	requires single
 	decltype(auto) if_has_value(this Self&& self, Handler&& handler) {
-		if(self.has_value()) {
+		if (self.has_value()) {
 			if constexpr(
 				invokable_with<Handler, decltype(forward<Self>(self).get())>
 			) {
@@ -63,7 +63,7 @@ public:
 	template<typename Handler>
 	requires single
 	Derived& set_if_has_no_value(Handler&& handler) & {
-		if(has_no_value()) {
+		if (has_no_value()) {
 			derived() = handler();
 		}
 		return derived();

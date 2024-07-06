@@ -14,11 +14,11 @@ struct simple_os {
 consteval bool f() {
 	simple_os os{};
 	write(0, os);
-	if(os.bytes_written != 1) throw;
+	if (os.bytes_written != 1) throw;
 
 	write<endianness::big, int>(0, os);
 
-	if(os.bytes_written != 1 + sizeof(int)) throw;
+	if (os.bytes_written != 1 + sizeof(int)) throw;
 
 	return true;
 }
