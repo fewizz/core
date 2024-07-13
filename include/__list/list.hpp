@@ -145,7 +145,7 @@ public:
 	auto& back()       & { return *(sentinel_ - 1); }
 
 	constexpr size_type size() const {
-		return sentinel_ - range_iterator(storage_range_);
+		return size_type(sentinel_ - range_iterator(storage_range_));
 	}
 
 	constexpr size_type capacity() const {
@@ -170,7 +170,7 @@ public:
 	}
 
 	void clear() {
-		while (this->size() > 0) {
+		while ((uint_of_size_of<size_type>) this->size() > 0) {
 			erase_back();
 		}
 	}

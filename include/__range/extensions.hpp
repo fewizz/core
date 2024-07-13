@@ -6,7 +6,6 @@
 #include "./element_type.hpp"
 #include "../__type/copy_const_ref.hpp"
 #include "../__type/is_invokable_with.hpp"
-#include "../loop_action.hpp"
 #include "../output_stream.hpp"
 
 template<typename Derived, range_extensions_options Options>
@@ -23,37 +22,6 @@ struct range_extensions {
 		return ::range_sentinel(
 			(copy_const_ref<decltype(self), Derived>&&) self
 		);
-	}
-
-	template<typename Handler>
-	void for_each_indexed(this auto&& self, Handler handler) {
-		using index_type = range_element_index_type<Derived>;
-		using element_type = range_element_type<Derived>;
-
-		index_type i{};
-
-		for (element_type&& e : self) {
-			if constexpr (same_as<decltype(handler(e, i)), loop_action>) {
-				if (handler(e, i) == loop_action::stop) {
-					break;
-				}
-			}
-			else {
-				handler(e, i);
-			}
-			++i;
-		}
-	}
-
-	template<typename Handler>
-	void for_each_index(this auto&& self, Handler handler) {
-		using index_type = range_element_index_type<Derived>;
-		auto size = range_size(
-			(copy_const_ref<decltype(self), Derived>&) self
-		);
-		for (index_type i{}; i < size; ++i) {
-			handler(i);
-		}
 	}
 
 	template<typename Element>

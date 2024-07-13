@@ -40,10 +40,12 @@ public:
 	constexpr SizeType size() const { return size_; }
 
 	constexpr Type* iterator() const { return ptr_; }
-	constexpr Type* sentinel() const { return ptr_ + size_; }
+	constexpr Type* sentinel() const {
+		return ptr_ + (uint_of_size_of<SizeType>) size_;
+	}
 
 	constexpr Type& operator [] (SizeType index) const {
-		return ptr_[index];
+		return ptr_[(uint_of_size_of<SizeType>) index];
 	}
 
 	template<typename CastType, typename CastSizeType = nuint>

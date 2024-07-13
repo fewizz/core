@@ -28,7 +28,7 @@ struct is_range_of_element_type_satisfying_predicate_t:
 };
 
 template<auto Predicate>
-static constexpr is_range_of_element_type_satisfying_predicate_t<Predicate> is_range_of_element_type_satisfying_predicate{};
+inline constexpr is_range_of_element_type_satisfying_predicate_t<Predicate> is_range_of_element_type_satisfying_predicate{};
 
 
 #include "../__types/count_of_satisfying_predicate.hpp"  // IWYU pragma: export
