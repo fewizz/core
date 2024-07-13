@@ -7,12 +7,12 @@
 #include "./__range/contiguous.hpp"
 #include "./__range/extensions.hpp"
 
-template<typename Type, unsigned_integer SizeType = nuint>
+template<typename Type, typename SizeType = nuint>
 requires(!type_is_reference<Type>)
 struct span : range_extensions<span<Type, SizeType>> {
 protected:
 	Type* ptr_ = nullptr;
-	SizeType size_ = 0;
+	SizeType size_{};
 public:
 
 	static constexpr bool is_borrowed_range = true;
@@ -20,7 +20,7 @@ public:
 	constexpr span() {};
 	constexpr ~span() {
 		ptr_ = nullptr;
-		size_ = 0;
+		size_ = SizeType{};
 	}
 
 	constexpr span(Type* ptr) : ptr_{ ptr }, size_{ 1 } {}

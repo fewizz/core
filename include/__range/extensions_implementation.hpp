@@ -96,6 +96,17 @@ constexpr auto range_extensions<Derived, Options>::indexed_view(
 	};
 }
 
+#include "./index_view.hpp"
+
+template<typename Derived, range_extensions_options Options>
+constexpr auto range_extensions<Derived, Options>::index_view(
+	this auto&& self
+) {
+	return __range::index_view {
+		.end_=::range_size((copy_const_ref<decltype(self), Derived>&&) self)
+	};
+}
+
 #include "./filter_view.hpp"
 
 template<typename Derived, range_extensions_options Options>

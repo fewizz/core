@@ -77,6 +77,7 @@ struct range_extensions {
 	constexpr auto reverse_view(this auto&& self);
 
 	constexpr auto indexed_view(this auto&& self);
+	constexpr auto index_view(this auto&& self);
 
 	template<typename Predicate>
 	constexpr auto filter_view(this auto&& self, Predicate&&);
