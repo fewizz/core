@@ -10,8 +10,6 @@ template<typename Type, nuint Size>
 struct array_without_extensions {
 	Type storage_[Size];
 
-	static constexpr bool is_borrowed_range = false;
-
 	constexpr nuint size() const {
 		return Size;
 	}

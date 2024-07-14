@@ -4,6 +4,7 @@
 #include "./__type/is_pointer.hpp"
 #include "./__type/remove_pointer.hpp"
 #include "./__range/extensions.hpp"
+#include "./__range/borrowed.hpp"
 #include "./__iterator_and_sentinel/get_or_compute_distance.hpp"
 #include "./span.hpp"
 
@@ -46,12 +47,13 @@ concept some_char = same_as_any<
 struct c_string_sentinel_t{};
 
 template<some_char Type>
-struct c_string<Type> : range_extensions<c_string<Type>> {
+struct c_string<Type> :
+	range_extensions<c_string<Type>>,
+	borrowed_range_mark<true>
+ {
 	const Type* ptr_;
 
 	explicit constexpr c_string(const Type* ptr): ptr_{ptr} {}
-
-	static constexpr bool is_borrowed_range = true;
 
 	constexpr const Type*          iterator() const { return ptr_; }
 	constexpr c_string_sentinel_t  sentinel() const { return {}; }

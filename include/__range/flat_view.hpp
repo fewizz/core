@@ -66,14 +66,15 @@ public:
 
 };
 
+struct _none{};
+
 template<basic_range Range>
 class flat_view :
-	public range_extensions<flat_view<Range>>
+	public range_extensions<flat_view<Range>>,
+	public borrowed_range_mark<borrowed_range<Range>>
 {
 	Range range_;
 public:
-
-	static constexpr bool is_borrowed_range = borrowed_range<Range>;
 
 	constexpr flat_view(Range&& range)
 	requires borrowed_range<range_element_type<Range>> :

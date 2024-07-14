@@ -8,7 +8,7 @@
 #include "../__type/is_invokable_with.hpp"
 #include "../output_stream.hpp"
 
-template<typename Derived, range_extensions_options Options>
+template<typename Derived>
 struct range_extensions {
 
 	// for compatibility
@@ -79,6 +79,9 @@ struct range_extensions {
 	auto try_find_index_of_last_satisfying(this auto&&, Predicate&& predicate);
 
 	auto shrink_view(this auto&& self, auto size);
+
+	template<typename... Splitters>
+	constexpr auto split_view(this auto&&, Splitters&&...);
 
 	template<typename... With>
 	bool starts_with(this auto&&, With&&... with);

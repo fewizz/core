@@ -7,6 +7,7 @@
 #include "./__range/element_type.hpp"  // IWYU pragma: export
 #include "./__range/size_type.hpp"  // IWYU pragma: export
 #include "./__range/growable.hpp"  // IWYU pragma: export
+#include "./__range/borrowed.hpp"  // IWYU pragma: export
 
 template<basic_range Range>
 class range : public range_extensions<range<Range>> {

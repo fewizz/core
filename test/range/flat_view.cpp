@@ -8,7 +8,7 @@ constexpr bool f() {
 			array{ 0, 1, 2 }, array{ 3, 4, 5 }, array{ 6, 7, 8 }
 		}.flat_view();
 
-		static_assert(!decltype(fv)::is_borrowed_range);
+		static_assert(!borrowed_range<decltype(fv)>);
 
 		auto it = fv.iterator();
 
@@ -23,7 +23,7 @@ constexpr bool f() {
 			array{ 0, 1, 2 }, array{ 3, 4, 5 }, array{ 6, 7, 8 }
 		};
 
-		static_assert(decltype(a.flat_view())::is_borrowed_range);
+		static_assert(borrowed_range<decltype(a.flat_view())>);
 
 		auto tv = a.transform_view([](auto& arr) { return array{ arr[0] }; });
 		static_assert(same_as<

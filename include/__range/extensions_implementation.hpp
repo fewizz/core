@@ -5,9 +5,9 @@
 
 #include "./contains.hpp"
 
-template<typename Derived, range_extensions_options Options>
+template<typename Derived>
 template<typename Element>
-constexpr bool range_extensions<Derived, Options>::
+constexpr bool range_extensions<Derived>::
 contains(this auto&& self, Element&& element) {
 	return __range::contains(
 		(copy_const_ref<decltype(self), Derived>&&) self,
@@ -17,9 +17,9 @@ contains(this auto&& self, Element&& element) {
 
 #include "./copy.hpp"
 
-template<typename Derived, range_extensions_options Options>
+template<typename Derived>
 template<basic_range OtherRange>
-constexpr void range_extensions<Derived, Options>::copy_to(
+constexpr void range_extensions<Derived>::copy_to(
 	this auto&& self, OtherRange&& other_range
 ) {
 	__range::copy {
@@ -29,9 +29,9 @@ constexpr void range_extensions<Derived, Options>::copy_to(
 	);
 }
 
-template<typename Derived, range_extensions_options Options>
+template<typename Derived>
 template<basic_output_stream<range_element_type<Derived>> OS>
-constexpr void range_extensions<Derived, Options>::copy_to(
+constexpr void range_extensions<Derived>::copy_to(
 	this auto&& self, OS&& output_stream
 ) {
 	__range::copy {
@@ -43,9 +43,9 @@ constexpr void range_extensions<Derived, Options>::copy_to(
 
 #include "../__ranges/have_equal_size_and_elements.hpp"
 
-template<typename Derived, range_extensions_options Options>
+template<typename Derived>
 template<basic_range OtherRange>
-constexpr bool range_extensions<Derived, Options>::has_equal_size_and_elements(
+constexpr bool range_extensions<Derived>::has_equal_size_and_elements(
 	this auto&& self, OtherRange&& other_range
 ) {
 	return __ranges::have_equal_size_and_elements(
@@ -56,8 +56,8 @@ constexpr bool range_extensions<Derived, Options>::has_equal_size_and_elements(
 
 #include "./flat_view.hpp"
 
-template<typename Derived, range_extensions_options Options>
-constexpr auto range_extensions<Derived, Options>::flat_view(this auto&& self) {
+template<typename Derived>
+constexpr auto range_extensions<Derived>::flat_view(this auto&& self) {
 	return __range::flat_view {
 		(copy_const_ref<decltype(self), Derived>&&) self
 	};
@@ -65,8 +65,8 @@ constexpr auto range_extensions<Derived, Options>::flat_view(this auto&& self) {
 
 #include "./dereference_view.hpp"
 
-template<typename Derived, range_extensions_options Options>
-constexpr auto range_extensions<Derived, Options>::dereference_view(
+template<typename Derived>
+constexpr auto range_extensions<Derived>::dereference_view(
 	this auto&& self
 ) {
 	return __range::dereference_view {
@@ -76,8 +76,8 @@ constexpr auto range_extensions<Derived, Options>::dereference_view(
 
 #include "./reverse_view.hpp"
 
-template<typename Derived, range_extensions_options Options>
-constexpr auto range_extensions<Derived, Options>::reverse_view(
+template<typename Derived>
+constexpr auto range_extensions<Derived>::reverse_view(
 	this auto&& self
 ) {
 	return __range::reverse_view {
@@ -87,8 +87,8 @@ constexpr auto range_extensions<Derived, Options>::reverse_view(
 
 #include "./indexed_view.hpp"
 
-template<typename Derived, range_extensions_options Options>
-constexpr auto range_extensions<Derived, Options>::indexed_view(
+template<typename Derived>
+constexpr auto range_extensions<Derived>::indexed_view(
 	this auto&& self
 ) {
 	return __range::indexed_view {
@@ -98,20 +98,24 @@ constexpr auto range_extensions<Derived, Options>::indexed_view(
 
 #include "./index_view.hpp"
 
-template<typename Derived, range_extensions_options Options>
-constexpr auto range_extensions<Derived, Options>::index_view(
+template<typename Derived>
+constexpr auto range_extensions<Derived>::index_view(
 	this auto&& self
 ) {
+	using index_type = range_element_index_type<Derived>;
+
 	return __range::index_view {
-		.end_=::range_size((copy_const_ref<decltype(self), Derived>&&) self)
+		.end_ = index_type(
+			::range_size((copy_const_ref<decltype(self), Derived>&&) self)
+		)
 	};
 }
 
 #include "./filter_view.hpp"
 
-template<typename Derived, range_extensions_options Options>
+template<typename Derived>
 template<typename Predicate>
-constexpr auto range_extensions<Derived, Options>::
+constexpr auto range_extensions<Derived>::
 filter_view(this auto&& self, Predicate&& p) {
 	return __range::filter_view {
 		(copy_const_ref<decltype(self), Derived>&&) self,
@@ -121,9 +125,9 @@ filter_view(this auto&& self, Predicate&& p) {
 
 #include "../__ranges/transform_view.hpp"
 
-template<typename Derived, range_extensions_options Options>
+template<typename Derived>
 template<typename F>
-constexpr auto range_extensions<Derived, Options>::
+constexpr auto range_extensions<Derived>::
 transform_view(this auto&& self, F&& f) {
 	return __ranges::transform_view_t {
 		(copy_const_ref<decltype(self), Derived>&&) self,
@@ -133,10 +137,10 @@ transform_view(this auto&& self, F&& f) {
 
 #include "./view_copied_elements_on_stack.hpp"
 
-template<typename Derived, range_extensions_options Options>
+template<typename Derived>
 template<typename Handler>
 decltype(auto)
-range_extensions<Derived, Options>::view_copied_elements_on_stack(
+range_extensions<Derived>::view_copied_elements_on_stack(
 	this auto&& self, Handler&& handler
 ) {
 	return __range::view_copied_elements_on_stack(
@@ -147,9 +151,9 @@ range_extensions<Derived, Options>::view_copied_elements_on_stack(
 
 #include "./try_find_first_satisfying.hpp"
 
-template<typename Derived, range_extensions_options Options>
+template<typename Derived>
 template<typename Predicate>
-auto range_extensions<Derived, Options>::try_find_first_satisfying(
+auto range_extensions<Derived>::try_find_first_satisfying(
 	this auto&& self, Predicate&& predicate
 ) {
 	return __range::try_find_first_satisfying(
@@ -158,10 +162,10 @@ auto range_extensions<Derived, Options>::try_find_first_satisfying(
 	);
 }
 
-template<typename Derived, range_extensions_options Options>
+template<typename Derived>
 template<typename Predicate>
 requires reversable_range<Derived>
-auto range_extensions<Derived, Options>::try_find_last_satisfying(
+auto range_extensions<Derived>::try_find_last_satisfying(
 	Predicate&& predicate
 ) const {
 	return __range::try_find_first_satisfying(
@@ -172,9 +176,9 @@ auto range_extensions<Derived, Options>::try_find_last_satisfying(
 
 #include "./try_find_index_of_first_satisfying.hpp"
 
-template<typename Derived, range_extensions_options Options>
+template<typename Derived>
 template<typename Predicate>
-auto range_extensions<Derived, Options>::try_find_index_of_first_satisfying(
+auto range_extensions<Derived>::try_find_index_of_first_satisfying(
 	this auto&& self, Predicate&& predicate
 ) {
 	return __range::try_find_index_of_first_satisfying(
@@ -185,9 +189,9 @@ auto range_extensions<Derived, Options>::try_find_index_of_first_satisfying(
 
 #include "./try_find_index_of_last_satisfying.hpp"
 
-template<typename Derived, range_extensions_options Options>
+template<typename Derived>
 template<typename Predicate>
-auto range_extensions<Derived, Options>::try_find_index_of_last_satisfying(
+auto range_extensions<Derived>::try_find_index_of_last_satisfying(
 	this auto&& self, Predicate&& predicate
 ) {
 	return __range::try_find_index_of_last_satisfying(
@@ -198,8 +202,8 @@ auto range_extensions<Derived, Options>::try_find_index_of_last_satisfying(
 
 #include "../iterator_and_sentinel.hpp"
 
-template<typename Derived, range_extensions_options Options>
-auto range_extensions<Derived, Options>::shrink_view(
+template<typename Derived>
+auto range_extensions<Derived>::shrink_view(
 	this auto&& self,
 	auto size
 ) {
@@ -207,11 +211,25 @@ auto range_extensions<Derived, Options>::shrink_view(
 	return iterator_and_sentinel {i, i + size}.as_range();
 }
 
+#include "./split_view.hpp"
+
+template<typename Derived>
+template<typename... Splitters>
+constexpr auto range_extensions<Derived>::split_view(
+	this auto&& self,
+	Splitters&&... splitters
+) {
+	return __range::split_view {
+		(copy_const_ref<decltype(self), Derived>&&) self,
+		::forward<Splitters>(splitters)...
+	};
+}
+
 #include "./starts_with.hpp"
 
-template<typename Derived, range_extensions_options Options>
+template<typename Derived>
 template<typename... With>
-bool range_extensions<Derived, Options>::starts_with(
+bool range_extensions<Derived>::starts_with(
 	this auto&& self, With&&... with
 ) {
 	return __range::starts_with(
@@ -222,10 +240,10 @@ bool range_extensions<Derived, Options>::starts_with(
 
 #include "./ends_with.hpp"
 
-template<typename Derived, range_extensions_options Options>
+template<typename Derived>
 template<typename... With>
 constexpr bool
-range_extensions<Derived, Options>::ends_with(
+range_extensions<Derived>::ends_with(
 	this auto&& self, With&&... with
 ) {
 	return __range::ends_with(
@@ -234,10 +252,10 @@ range_extensions<Derived, Options>::ends_with(
 	);
 }
 
-template<typename Derived, range_extensions_options Options>
+template<typename Derived>
 template<typename Self>
 constexpr nuint
-range_extensions<Derived, Options>::get_or_compute_size(this Self&& self) {
+range_extensions<Derived>::get_or_compute_size(this Self&& self) {
 	auto i = ::range_iterator((copy_const_ref<Self, Derived>&) self);
 	auto s = ::range_sentinel((copy_const_ref<Self, Derived>&) self);
 	return iterator_and_sentinel{ i, s }.get_or_compute_distance();

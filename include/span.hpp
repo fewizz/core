@@ -6,16 +6,23 @@
 #include "./__range/size.hpp"
 #include "./__range/contiguous.hpp"
 #include "./__range/extensions.hpp"
+#include "./__range/borrowed.hpp"
 
-template<typename Type, typename SizeType = nuint>
+template<
+	typename Type,
+	typename SizeType = nuint,
+	typename IndexType = SizeType
+>
 requires(!type_is_reference<Type>)
-struct span : range_extensions<span<Type, SizeType>> {
+struct span :
+	borrowed_range_mark<true>,
+	range_element_index_type_mark<IndexType>,
+	range_extensions<span<Type, SizeType, IndexType>>
+{
 protected:
 	Type* ptr_ = nullptr;
 	SizeType size_{};
 public:
-
-	static constexpr bool is_borrowed_range = true;
 
 	constexpr span() {};
 	constexpr ~span() {
@@ -41,11 +48,11 @@ public:
 
 	constexpr Type* iterator() const { return ptr_; }
 	constexpr Type* sentinel() const {
-		return ptr_ + (uint_of_size_of<SizeType>) size_;
+		return ptr_ + (uint_of_size_of<IndexType>) size_;
 	}
 
-	constexpr Type& operator [] (SizeType index) const {
-		return ptr_[(uint_of_size_of<SizeType>) index];
+	constexpr Type& operator [] (IndexType index) const {
+		return ptr_[(uint_of_size_of<IndexType>) index];
 	}
 
 	template<typename CastType, typename CastSizeType = nuint>

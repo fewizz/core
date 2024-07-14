@@ -74,17 +74,16 @@ template<typename Function, typename Iterator>
 transform_view_iterator(Iterator, Function&)
 	-> transform_view_iterator<Function, Iterator>;
 
+struct _none{};
+
 template<typename Function, basic_range Range>
 class transform_view_t<Function, Range> :
-	public range_extensions<transform_view_t<Function, Range>>
+	public range_extensions<transform_view_t<Function, Range>>,
+	public borrowed_range_mark<borrowed_range<Range>>
 {
 	Range range_;
 	Function function_;
 public:
-
-	static constexpr bool is_borrowed_range = borrowed_range<
-		Range
-	>;
 
 	constexpr transform_view_t(Range&& range, Function&& function) :
 		range_{ forward<Range>(range) },

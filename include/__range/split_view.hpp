@@ -22,26 +22,23 @@ private:
 	Sentinel sentinel_;
 	SplittersRange& splitters_range_;
 
-	constexpr bool splitter(basic_iterator auto it) const {
+	constexpr bool is_splitter(basic_iterator auto it) const {
 		return __range::contains(splitters_range_, *it);
 	}
 
-	constexpr bool not_splitter_and_not_end(basic_iterator auto it) const {
-		return
-			iterator_end_ != sentinel_ &&
-			!__range::contains(splitters_range_, *it);
+	constexpr bool is_not_splitter_or_end(basic_iterator auto it) const {
+		return iterator_end_ != sentinel_ && !is_splitter(it);
 	}
 
 	constexpr void skip() {
-		iterator_ = iterator_end_;
-		// skip splitters, searching for beginning
-		while (splitter(iterator_)) {
-			++iterator_;
+		// skip splitters, search for beginning
+		while (is_splitter(iterator_end_)) {
+			++iterator_end_;
 		}
-		iterator_end_ = iterator_;
+		iterator_ = iterator_end_;
 		++iterator_end_;
-		// searching for ending
-		while (not_splitter_and_not_end(iterator_end_)) {
+		// search for ending
+		while (is_not_splitter_or_end(iterator_end_)) {
 			++iterator_end_;
 		}
 	}
@@ -65,7 +62,7 @@ public:
 	}
 
 	constexpr auto& operator ++ () {
-		++iterator_end_; // we know that end points to splitter
+		++iterator_end_;
 		skip();
 		return *this;
 	}
@@ -81,29 +78,28 @@ public:
 	constexpr auto operator + (nuint n) const {
 		return split_view_iterator{ *this } += n;
 	}
+
+	friend constexpr inline bool operator == (
+		split_view_iterator<Iterator, Sentinel, SplittersRange> it,
+		default_sentinel
+	) {
+		return it.iterator_ == it.sentinel_;
+	}
+
+	friend constexpr inline bool operator == (
+		default_sentinel,
+		split_view_iterator<Iterator, Sentinel, SplittersRange> it
+	) {
+		return it.iterator_ == it.sentinel_;
+	}
+
 };
-
-template<typename It, typename Sentinel, typename SplitRange>
-constexpr inline bool operator == (
-	split_view_iterator<It, Sentinel, SplitRange> it,
-	default_sentinel
-) {
-	return it.iterator_ == it.sentinel_;
-}
-
-template<typename It, typename Sentinel, typename SplitRange>
-constexpr inline bool operator == (
-	default_sentinel,
-	split_view_iterator<It, Sentinel, SplitRange> it
-) {
-	return it.iterator_ == it.sentinel_;
-}
 
 template<
 	basic_range Range,
 	range_of_decayed<decay<range_element_type<Range>>> SplittersRange
 >
-struct split_view {
+struct split_view : range_extensions<split_view<Range, SplittersRange>>{
 private:
 	Range range_;
 	SplittersRange splitters_range_;
