@@ -26,19 +26,20 @@ private:
 		return __range::contains(splitters_range_, *it);
 	}
 
-	constexpr bool is_not_splitter_or_end(basic_iterator auto it) const {
-		return iterator_end_ != sentinel_ && !is_splitter(it);
-	}
-
-	constexpr void skip() {
-		// skip splitters, search for beginning
-		while (is_splitter(iterator_end_)) {
-			++iterator_end_;
-		}
+	constexpr void next() {
 		iterator_ = iterator_end_;
+		// skip splitters, search for beginning
+		while (iterator_ != sentinel_ && is_splitter(iterator_)) {
+			++iterator_;
+		}
+		iterator_end_ = iterator_;
+		if (iterator_ == sentinel_) {
+			return;
+		}
+
 		++iterator_end_;
 		// search for ending
-		while (is_not_splitter_or_end(iterator_end_)) {
+		while (iterator_end_ != sentinel_ && !is_splitter(iterator_end_)) {
 			++iterator_end_;
 		}
 	}
@@ -54,7 +55,7 @@ public:
 		sentinel_       { sentinel       },
 		splitters_range_{ splitters_range }
 	{
-		skip();
+		next();
 	}
 
 	constexpr auto operator * () const {
@@ -62,9 +63,14 @@ public:
 	}
 
 	constexpr auto& operator ++ () {
-		++iterator_end_;
-		skip();
+		next();
 		return *this;
+	}
+
+	auto operator ++ (int) {
+		auto cpy = *this;
+		++(*this);
+		return cpy;
 	}
 
 	constexpr auto& operator += (nuint n) {
@@ -99,7 +105,10 @@ template<
 	basic_range Range,
 	range_of_decayed<decay<range_element_type<Range>>> SplittersRange
 >
-struct split_view : range_extensions<split_view<Range, SplittersRange>>{
+struct split_view :
+	range_element_index_type_mark<nuint>,
+	range_extensions<split_view<Range, SplittersRange>>
+{
 private:
 	Range range_;
 	SplittersRange splitters_range_;
@@ -120,21 +129,13 @@ public:
 
 	constexpr auto iterator() {
 		return split_view_iterator {
-			range_.iterator(),
-			range_.sentinel(),
+			::range_iterator(range_),
+			::range_sentinel(range_),
 			splitters_range_
 		};
 	}
 
 	constexpr auto sentinel() { return default_sentinel{}; }
-
-	constexpr decltype(auto) operator [] (nuint index) const {
-		return *(iterator() + index);
-	}
-
-	constexpr decltype(auto) operator [] (nuint index) {
-		return *(iterator() + index);
-	}
 
 };
 

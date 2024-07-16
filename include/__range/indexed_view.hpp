@@ -24,11 +24,11 @@ class indexed_view : public range_extensions<indexed_view<Range>> {
 		iterator_t iterator_;
 	public:
 
-		indexed_iterator(index_t index, iterator_t iterator):
+		constexpr indexed_iterator(index_t index, iterator_t iterator):
 			index_{index}, iterator_{iterator}
 		{}
 
-		tuple<index_t, element_t> operator * () {
+		constexpr tuple<index_t, element_t> operator * () {
 			return {index_, *iterator_};
 		}
 
@@ -37,17 +37,17 @@ class indexed_view : public range_extensions<indexed_view<Range>> {
 			return *this;
 		}
 
-		friend constexpr bool operator == (indexed_iterator self, sentinel_t sentienl) {
-			return self.iterator_ == sentienl;
+		friend constexpr bool operator == (indexed_iterator self, sentinel_t sentinel) {
+			return self.iterator_ == sentinel;
 		}
-		friend constexpr bool operator == (sentinel_t sentienl, indexed_iterator self) {
-			return self.iterator_ == sentienl;
+		friend constexpr bool operator == (sentinel_t sentinel, indexed_iterator self) {
+			return self.iterator_ == sentinel;
 		}
 	};
 
 public:
 
-	indexed_view(Range&& range): range_{forward<Range>(range)} {}
+	constexpr indexed_view(Range&& range): range_{forward<Range>(range)} {}
 
 	constexpr indexed_iterator iterator() {
 		return {

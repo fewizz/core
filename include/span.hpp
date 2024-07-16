@@ -55,24 +55,24 @@ public:
 		return ptr_[(uint_of_size_of<IndexType>) index];
 	}
 
-	template<typename CastType, typename CastSizeType = nuint>
+	template<typename CastType>
 	requires(
 		trivial<Type> && trivial<CastType> &&
 		alignof(Type) == alignof(CastType) &&
 		sizeof(Type) == sizeof(CastType)
 	)
-	constexpr span<CastType, CastSizeType> casted() const {
-		return { (CastType*) ptr_, (CastSizeType) size_ };
+	constexpr span<CastType, SizeType, IndexType> casted() const {
+		return { (CastType*) ptr_, size_ };
 	}
 
-	template<typename CastType, typename CastSizeType = nuint>
+	template<typename CastType>
 	requires(
 		type_is_reference<CastType> &&
 		alignof(Type) == alignof(void*) &&
 		sizeof(Type) == sizeof(void*)
 	)
-	constexpr span<CastType, CastSizeType> casted() const {
-		return { (remove_reference<CastType>**) ptr_, (CastSizeType) size_ };
+	constexpr span<CastType, SizeType, IndexType> casted() const {
+		return { (remove_reference<CastType>**) ptr_, size_ };
 	}
 
 	constexpr span shrink(SizeType size) const {

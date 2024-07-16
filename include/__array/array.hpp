@@ -2,6 +2,7 @@
 
 #include "./without_extensions.hpp"
 #include "../range.hpp"
+#include "./__type/is_constructible_from.hpp"
 
 template<typename Type, nuint Size>
 struct array :
@@ -13,6 +14,7 @@ private:
 public:
 
 	template<typename... Args>
+	requires constructible_from<Type[Size], Args&&...>
 	constexpr array(Args&&... args) :
 		base_type{ forward<Args>(args)... }
 	{}
