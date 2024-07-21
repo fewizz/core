@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../integer.hpp" // IWYU pragma: keep
+#include "../__integer/integer.hpp" // IWYU pragma: keep
 
 namespace std {
 

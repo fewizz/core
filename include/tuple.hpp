@@ -1,16 +1,12 @@
 #pragma once
 
 #include "./__types/at_index.hpp"
-#include "./__types/count_of_satisfying_predicate.hpp"
 #include "./__types/index_of_satisfying_predicate.hpp"
 #include "./__types/indices_of_satisfying_predicate.hpp"
-#include "./__type/is_range_of.hpp"
-#include "./__type/is_same_as.hpp"
-#include "./__type/is_invokable_with.hpp"
+#include "./__type/copy_const_ref.hpp"
 #include "./__values/of.hpp"
 #include "./forward.hpp"
-#include "./move.hpp"
-#include "./__tuple/element_storage.hpp"
+
 
 // Inspired by https://youtu.be/TyiiNVA1syk
 template<typename... Types>
@@ -19,7 +15,6 @@ struct tuple;
 template<typename... Types>
 struct tuple : tuple<indices::from<0>::to<sizeof...(Types)>, Types...> {
 	using base_type = tuple<indices::from<0>::to<sizeof...(Types)>, Types...>;
-	//using base_type::base_type; // TODO crashes clangd
 
 	constexpr tuple() : base_type{} {}
 
@@ -29,20 +24,32 @@ struct tuple : tuple<indices::from<0>::to<sizeof...(Types)>, Types...> {
 
 };
 
+template<typename... Types>
+tuple(Types&&... ts) -> tuple<Types...>;
+
+
+namespace __tuple {
+	template<nuint Index, typename Type>
+	struct element_storage {
+		Type element_;
+
+		constexpr element_storage() {}
+		constexpr element_storage(Type&& element) :
+			element_{ ::forward<Type>(element) }
+		{}
+	};
+}
+
+
 template<nuint... Indices, typename... Types>
 struct tuple<indices::of<Indices...>, Types...> :
-	__tuple::element_storage<Indices, Types>...
+	private __tuple::element_storage<Indices, Types>...
 {
 	static constexpr nuint size = sizeof...(Types);
 	using indices = indices::from<0>::to<size>;
 	using types = __types::of<Types...>;
 
-	template<typename Type>
-	static constexpr bool only_one_such_type =
-		(count_of_satisfying_predicate<is_same_as<Type>> == 1)
-		.template for_types<Types...>();
-
-	template<auto TypePredicate>
+	template<type_predicate auto TypePredicate>
 	static constexpr nuint type_index_satisfying_predicate =
 		__types::index_of_satisfying_predicate<
 			TypePredicate
@@ -51,319 +58,88 @@ struct tuple<indices::of<Indices...>, Types...> :
 	template<nuint Index>
 	using type_at = type_at_index<Index, Types...>;
 
-	template<auto TypePredicate>
-	using type_satisfying_predicate = type_at<
-		type_index_satisfying_predicate<TypePredicate>
-	>;
-
-private:
-
-	template<nuint Index, typename Type>
-	constexpr const Type&  get_from_storage(
-		const __tuple::element_storage<Index, Type>* ptr
-	) const & {
-		return ptr->get0();
-	}
-	template<nuint Index, typename Type>
-	constexpr       Type&  get_from_storage(
-		      __tuple::element_storage<Index, Type>* ptr
-	)      & {
-		return ptr->get0();
-	}
-	template<nuint Index, typename Type>
-	constexpr const Type&& get_from_storage(
-		const __tuple::element_storage<Index, Type>* ptr
-	) const && {
-		return ptr->forward();
-	}
-	template<nuint Index, typename Type>
-	constexpr       Type&& get_from_storage(
-		      __tuple::element_storage<Index, Type>* ptr
-	)      && {
-		return ptr->forward();
-	}
-
-	template<nuint Index, typename Type>
-	constexpr const Type&& forward_from_storage(
-		const __tuple::element_storage<Index, Type>* ptr
-	) const {
-		return ptr->forward();
-	}
-	template<nuint Index, typename Type>
-	constexpr       Type&& forward_from_storage(
-		      __tuple::element_storage<Index, Type>* ptr
-	) {
-		return ptr->forward();
-	}
-public:
-
-	constexpr tuple() :
-		__tuple::element_storage<Indices, Types>()...
-	{}
-
+	constexpr tuple() : __tuple::element_storage<Indices, Types>()...{}
 	constexpr tuple(Types... values) requires(sizeof...(Types) > 0) :
 		__tuple::element_storage<Indices, Types>(::forward<Types>(values))...
 	{}
 
-	template<nuint Index>
-	constexpr const type_at<Index>&  get_at() const &  {
-		return get_from_storage<Index>(this);
-	}
-	template<nuint Index>
-	constexpr       type_at<Index>&  get_at()       &  {
-		return get_from_storage<Index>(this);
-	}
-	template<nuint Index>
-	constexpr const type_at<Index>&& get_at() const && {
-		return move(*this).template get_from_storage<Index>(this);
-	}
-	template<nuint Index>
-	constexpr       type_at<Index>&& get_at()       && {
-		return move(*this).template get_from_storage<Index>(this);
+	template<nuint Index, typename Self>
+	constexpr decltype(auto) get(this Self&& self) {
+		return (::forward<
+			copy_const_ref<
+				Self,
+				__tuple::element_storage<Index, type_at<Index>>
+			>
+		>(self).element_);
 	}
 
-	template<auto TypePredicate>
-	constexpr const type_satisfying_predicate<TypePredicate>&
-	get_satisfying_predicate() const &  {
-		return get_at<type_index_satisfying_predicate<TypePredicate>>();
-	}
-	template<auto TypePredicate>
-	constexpr       type_satisfying_predicate<TypePredicate>&
-	get_satisfying_predicate()       &  {
-		return get_at<type_index_satisfying_predicate<TypePredicate>>();
+	template<type_predicate auto TypePredicate, typename Self>
+	constexpr decltype(auto) get(this Self&& self) {
+		return (::forward<Self>(self)).template
+			get<type_index_satisfying_predicate<TypePredicate>>();
 	}
 
-	template<auto TypePredicate>
-	constexpr const type_satisfying_predicate<TypePredicate>&&
-	get_satisfying_predicate() const && {
-		return move(*this).template
-			get_at<type_index_satisfying_predicate<TypePredicate>>();
-	}
-	template<auto TypePredicate>
-	constexpr       type_satisfying_predicate<TypePredicate>&&
-	get_satisfying_predicate()       && {
-		return move(*this).template
-			get_at<type_index_satisfying_predicate<TypePredicate>>();
+	template<typename Self, typename Handler>
+	constexpr void for_each(
+		this Self&& self,
+		Handler&& handler
+	) {
+		(handler(::forward<Self>(self).template get<Indices>()) , ...);
 	}
 
-	template<typename Type>
-	requires only_one_such_type<Type>
-	constexpr const type_satisfying_predicate<is_same_as<Type>>&
-	get_same_as() const &  {
-		return get_satisfying_predicate<is_same_as<Type>>();
-	}
-	template<typename Type>
-	requires only_one_such_type<Type>
-	constexpr       type_satisfying_predicate<is_same_as<Type>>&
-	get_same_as()       &  {
-		return get_satisfying_predicate<is_same_as<Type>>();
-	}
-	template<typename Type>
-	requires only_one_such_type<Type>
-	constexpr const type_satisfying_predicate<is_same_as<Type>>&&
-	get_same_as() const {
-		return move(*this).template
-			get_satisfying_predicate<is_same_as<Type>>();
-	}
-	template<typename Type>
-	requires only_one_such_type<Type>
-	constexpr       type_satisfying_predicate<is_same_as<Type>>&&
-	forward_same_as()       {
-		return move(*this).template
-			forward_satisfying_predicate<is_same_as<Type>>();
+	template<typename Self, typename Handler, nuint... OtherIndices>
+	constexpr void for_each(
+		this Self&& self,
+		Handler&& handler,
+		::indices::of<OtherIndices...>
+	){
+		(handler(::forward<Self>(self).template get<OtherIndices>()) , ...);
 	}
 
-	template<typename Type>
-	constexpr const type_satisfying_predicate<is_same_as<Type>.while_decayed>&
-	get_decayed_same_as() const &  {
-		return get_satisfying_predicate<is_same_as<Type>.while_decayed>();
-	}
-	template<typename Type>
-	constexpr       type_satisfying_predicate<is_same_as<Type>.while_decayed>&
-	get_decayed_same_as()       &  {
-		return get_satisfying_predicate<is_same_as<Type>.while_decayed>();
-	}
-	template<typename Type>
-	constexpr const type_satisfying_predicate<is_same_as<Type>.while_decayed>&&
-	get_decayed_same_as() const && {
-		return move(*this).template
-			get_satisfying_predicate<is_same_as<Type>.while_decayed>();
-	}
-	template<typename Type>
-	constexpr       type_satisfying_predicate<is_same_as<Type>.while_decayed>&&
-	forward_decayed_same_as()       {
-		return move(*this).template
-			get_satisfying_predicate<is_same_as<Type>.while_decayed>();
+	template<typename Self, typename Handler>
+	constexpr decltype(auto) pass(
+		this Self&& self,
+		Handler&& handler
+	) {
+		return handler(::forward<Self>(self).template get<Indices>()...);
 	}
 
-	template<typename Type>
-	constexpr const type_satisfying_predicate<is_range_of<Type>>&
-	get_range_of() const &  {
-		return get_satisfying_predicate<is_range_of<Type>>();
-	}
-	template<typename Type>
-	constexpr       type_satisfying_predicate<is_range_of<Type>>&
-	get_range_of()       &  {
-		return get_satisfying_predicate<is_range_of<Type>>();
-	}
-	template<typename Type>
-	constexpr const type_satisfying_predicate<is_range_of<Type>>&&
-	get_range_of() const && {
-		return move(*this).template
-			get_satisfying_predicate<is_range_of<Type>>();
-	}
-	template<typename Type>
-	constexpr       type_satisfying_predicate<is_range_of<Type>>&&
-	get_range_of()       && {
-		return move(*this).template
-			get_satisfying_predicate<is_range_of<Type>>();
-	}
-
-	template<typename Type>
-	constexpr const type_satisfying_predicate<is_range_of_decayed<Type>>&
-	get_range_of_decayed() const &  {
-		return get_satisfying_predicate<is_range_of_decayed<Type>>();
-	}
-	template<typename Type>
-	constexpr       type_satisfying_predicate<is_range_of_decayed<Type>>&
-	get_range_of_decayed()       &  {
-		return get_satisfying_predicate<is_range_of_decayed<Type>>();
-	}
-	template<typename Type>
-	constexpr const type_satisfying_predicate<is_range_of_decayed<Type>>&&
-	get_range_of_decayed() const && {
-		return move(*this).template
-			get_satisfying_predicate<is_range_of_decayed<Type>>();
-	}
-	template<typename Type>
-	constexpr       type_satisfying_predicate<is_range_of_decayed<Type>>&&
-	get_range_of_decayed()       && {
-		return move(*this).template
-			get_satisfying_predicate<is_range_of_decayed<Type>>();
-	}
-
-	template<typename... Args>
-	constexpr const type_satisfying_predicate<is_invokable_with<Args...>>&
-	get_invokable_with() const &  {
-		return get_satisfying_predicate<is_invokable_with<Args...>>();
-	}
-	template<typename... Args>
-	constexpr       type_satisfying_predicate<is_invokable_with<Args...>>&
-	get_invokable_with()       &  {
-		return get_satisfying_predicate<is_invokable_with<Args...>>();
-	}
-	template<typename... Args>
-	constexpr const type_satisfying_predicate<is_invokable_with<Args...>>&&
-	get_invokable_with() const && {
-		return move(*this).template
-			get_satisfying_predicate<is_invokable_with<Args...>>();
-	}
-	template<typename... Args>
-	constexpr       type_satisfying_predicate<is_invokable_with<Args...>>&&
-	get_invokable_with()       && {
-		return move(*this).template
-			get_satisfying_predicate<is_invokable_with<Args...>>();
-	}
-
-	template<typename F>
-	constexpr void for_each(F&& f) const {
-		(f(get_at<Indices>()) , ...);
-	}
-	template<typename F>
-	constexpr void for_each(F&& f) {
-		(f(get_at<Indices>()) , ...);
-	}
-
-	template<typename F, nuint... OtherIndices>
-	constexpr void for_each(F&& f, ::indices::of<OtherIndices...>) const {
-		(f(get_at<OtherIndices>()) , ...);
-	}
-	
-	template<typename F, nuint... OtherIndices>
-	constexpr void for_each(F&& f, ::indices::of<OtherIndices...>) {
-		(f(get_at<OtherIndices>()) , ...);
-	}
-
-	constexpr decltype(auto) pass(auto&& f) const & {
-		return f(get_at<Indices>()...);
-	}
-	constexpr decltype(auto) pass(auto&& f)       & {
-		return f(get_at<Indices>()...);
-	}
-
-	constexpr decltype(auto) forward(auto&& f) const {
-		return f(move(*this).template get_at<Indices>()...);
-	}
-
-	constexpr decltype(auto) forward(auto&& f) {
-		return f(move(*this).template get_at<Indices>()...);
-	}
-
-	template<typename F, nuint... OtherIndices>
-	constexpr decltype(auto) pass(F&& f, ::indices::of<OtherIndices...>) const {
-		return f(get_at<OtherIndices>()...);
-	}
-	template<typename F, nuint... OtherIndices>
-	constexpr decltype(auto) pass(F&& f, ::indices::of<OtherIndices...>)       {
-		return f(get_at<OtherIndices>()...);
-	}
-
-	template<auto TypePredicate, typename Handler>
+	template<typename Self, typename Handler, nuint... OtherIndices>
 	constexpr decltype(auto)
-	pass_satisfying_predicate(Handler&& handler) const {
-		return pass(
+	pass(
+		this Self&& self,
+		Handler&& handler,
+		::indices::of<OtherIndices...>
+	) {
+		return handler(::forward<Self>(self).template get<OtherIndices>()...);
+	}
+
+	template<type_predicate auto TypePredicate, typename Self, typename Handler>
+	constexpr decltype(auto)
+	pass(
+		this Self&& self,
+		Handler&& handler
+	) {
+		return ::forward<Self>(self).pass(
 			::forward<Handler>(handler),
 			typename __types::indices_of_satisfying_predicate<
 				TypePredicate
 			>::template for_types<Types...>{}
 		);
 	}
-	template<auto TypePredicate, typename Handler>
-	constexpr decltype(auto)
-	pass_satisfying_predicate(Handler&& handler)       {
-		return pass(
-			::forward<Handler>(handler),
-			typename __types::indices_of_satisfying_predicate<
-				TypePredicate
-			>::template for_types<Types...>{}
-		);
-	}
-};
 
-template<typename... Types>
-tuple(Types&&... ts) -> tuple<Types...>;
-
-template<nuint Index, typename... Types>
-constexpr auto&& get(tuple<Types...>&& elems) {
-	return elems.template get_at<Index>();
-}
-
-template<nuint Index, typename... Types>
-constexpr auto&& get(const tuple<Types...>&& elems) {
-	return elems.template get_at<Index>();
-}
-
-template<nuint Index, typename... Types>
-constexpr auto& get(tuple<Types...>& elems) {
-	return elems.template get_at<Index>();
-}
-
-template<nuint Index, typename... Types>
-constexpr auto&& get(const tuple<Types...>& elems) {
-	return elems.template get_at<Index>();
-}
-
-template<typename... Types>
-constexpr inline bool operator == (
-	const tuple<Types...>& e0,
-	const tuple<Types...>& e1
-) {
-	return e0.pass([&](auto&... e0) {
-		return e1.pass([&](auto&... e1) {
-			return ((e1 == e0) && ...);
+	friend constexpr inline bool operator == (
+		const tuple<Types...>& a,
+		const tuple<Types...>& b
+	) {
+		return a.pass([&](auto&... a_elements) {
+			return b.pass([&](auto&... b_elements) {
+				return ((b_elements == a_elements) && ...);
+			});
 		});
-	});
-}
+	}
+
+};
 
 #include "std/tuple_size.hpp"  // IWYU pragma: keep
 

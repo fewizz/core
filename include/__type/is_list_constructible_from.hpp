@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../forward.hpp"
-#include "./predicate.hpp"
+#include "./predicate_extensions.hpp"
 
 template<typename Type, typename... Args>
 concept list_constructible_from = requires (Args&&... args) {

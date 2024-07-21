@@ -5,7 +5,7 @@
 #include "./erase_at_index.hpp"
 #include "./push_front.hpp"
 #include "../__types/combine_with.hpp"
-#include "../integer.hpp"
+#include "../__integer/integer.hpp"
 
 namespace __values {
 

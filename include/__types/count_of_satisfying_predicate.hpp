@@ -129,3 +129,7 @@ struct count_of_satisfying_predicate_t {
 template<type_predicate auto Predicate>
 constexpr inline count_of_satisfying_predicate_t<Predicate>
 	count_of_satisfying_predicate{};
+
+template<type_predicate auto Predicate>
+constexpr inline count_of_satisfying_predicate_t<Predicate>
+	count_of{};

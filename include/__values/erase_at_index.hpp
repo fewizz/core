@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../__values/of.hpp"
-#include "../integer.hpp"
+#include "../__integer/integer.hpp"
 
 namespace __values {
 

@@ -32,7 +32,7 @@ class variant {
 
 	template<auto TypePredicate>
 	static constexpr nuint count_of_satisfying_predicate =
-		types<Types...>::template count_of_satisfying_predicate<
+		types<Types...>::template count_of<
 			TypePredicate
 		>;
 

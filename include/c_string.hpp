@@ -13,10 +13,10 @@ struct c_string;
 
 template<typename Range>
 struct c_string_convertible : Range {
-	operator c_string<
-		remove_const<decay<range_element_type<Range>>>
-	> () const {
-		return { this->elements_ptr() };
+	using char_type = decay<range_element_type<Range>>;
+
+	operator c_string<char_type> () const {
+		return c_string<char_type>{ this->iterator() };
 	}
 };
 

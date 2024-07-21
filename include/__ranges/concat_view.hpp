@@ -133,22 +133,22 @@ class concat_view_iterator {
 	constexpr decltype(auto) current_pair(this auto&& self, Handler&& handler) {
 		return self.current_pair_index([&]<nuint Index>()
 		-> decltype(auto) {
-			return handler(self.pairs_.template get_at<Index>());
+			return handler(self.pairs_.template get<Index>());
 		});
 	}
 
 	static constexpr basic_iterator auto& it(auto& pair) {
-		return pair.template get_at<0>();
+		return pair.template get<0>();
 	}
 
 	static constexpr auto& end(auto& pair) {
-		return pair.template get_at<1>();
+		return pair.template get<1>();
 	}
 
 	template<nuint CurrentIndex>
 	constexpr void skip_empty() {
 		if constexpr(has_next<CurrentIndex>) {
-			auto& pair = pairs_.template get_at<CurrentIndex>();
+			auto& pair = pairs_.template get<CurrentIndex>();
 			if (it(pair) == end(pair)) {
 				++index_;
 				skip_empty<CurrentIndex + 1>();
@@ -164,7 +164,7 @@ public:
 	}
 
 	constexpr bool is_ended() {
-		auto& pair = pairs_.template get_at<sizeof...(Pairs) - 1>();
+		auto& pair = pairs_.template get<sizeof...(Pairs) - 1>();
 		return
 			index_ == sizeof...(Pairs) - 1 &&
 			it(pair) == end(pair);
@@ -178,7 +178,7 @@ public:
 
 	constexpr concat_view_iterator& operator ++ () {
 		current_pair_index([&]<nuint Index>() {
-			auto& pair = pairs_.template get_at<Index>();
+			auto& pair = pairs_.template get<Index>();
 			++it(pair);
 			skip_empty<Index>();
 		});
@@ -194,7 +194,7 @@ public:
 	constexpr concat_view_iterator& operator += (nuint n) {
 		if (n > 0) {
 			current_pair_index([&]<nuint Index>() {
-				auto& pair = pairs_.template get_at<Index>();
+				auto& pair = pairs_.template get<Index>();
 				nuint len = end(pair) - it(pair);
 				if (n < len) {
 					it(pair) += n;
@@ -224,8 +224,8 @@ public:
 				},
 				typename indices::from<OtherIndex>::template to<Index>{}
 			);
-			auto& pair = pairs_.template get_at<Index>();
-			dist += it(pair) - it(other.pairs_.template get_at<Index>());
+			auto& pair = pairs_.template get<Index>();
+			dist += it(pair) - it(other.pairs_.template get<Index>());
 			return dist;
 		});});
 	}

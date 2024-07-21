@@ -1,7 +1,5 @@
 #pragma once
 
-#include "../integer.hpp"
-#include "./at_index.hpp"
 
 namespace __values {
 
@@ -9,6 +7,9 @@ namespace __values {
 	struct of;
 
 }
+
+#include "../__integer/integer.hpp"
+#include "./at_index.hpp"
 
 namespace indices {
 

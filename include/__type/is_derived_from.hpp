@@ -1,6 +1,6 @@
 #pragma once
 
-#include "./predicate.hpp"
+#include "./predicate_extensions.hpp"
 
 template<typename Type, typename BaseType>
 concept derived_from = __is_base_of(BaseType, Type);

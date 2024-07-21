@@ -12,7 +12,7 @@ namespace __type {
 
 }
 
-#include "./predicate.hpp"
+#include "./predicate_extensions.hpp"
 
 template<typename... Args>
 struct is_invokable_with_t :

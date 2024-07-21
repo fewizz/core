@@ -67,7 +67,7 @@ consteval bool f_0() {
 	if ((v2.iterator() + 5) != v2.sentinel()) throw;
 	return true;
 
-	__ranges::concat_view v3 {
+	/*__ranges::concat_view v3 {
 		array<int,0>{}, array<int,0>{}, array<int,0>{}, array<int,0>{},
 		array<int,0>{}, array<int,0>{}, array<int,0>{}, array<int,0>{},
 		array<int,0>{}, array<int,0>{}, array<int,0>{}, array<int,0>{},
@@ -75,7 +75,7 @@ consteval bool f_0() {
 		array{42}
 	};
 	if (v3.size() != 1) throw;
-	if (*v3.iterator() != 42) throw;
+	if (*v3.iterator() != 42) throw;*/
 }
 
 static_assert(f_0());

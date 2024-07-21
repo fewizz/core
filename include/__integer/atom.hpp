@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../if_satisfies.hpp"
-#include "../__type/is_same_as.hpp"
 
 // 'atom' integer always has size == 1
 
@@ -97,29 +96,3 @@ using  int_of_size_of =  int_of_atoms<atoms_in<Type>>;
 
 template<typename Type>
 using uint_of_size_of = uint_of_atoms<atoms_in<Type>>;
-
-template<typename Type>
-concept signed_integer = __type::is_same_as<
-	int_of_size_of<Type>, Type
->;
-
-template<typename Type>
-concept unsigned_integer = __type::is_same_as<
-	uint_of_size_of<Type>, Type
->;
-
-template<typename Type>
-concept integer = signed_integer<Type> || unsigned_integer<Type>;
-
-namespace __type {
-
-	template<typename Type>
-	constexpr inline bool is_signed_integer = signed_integer<Type>;
-	
-	template<typename Type>
-	constexpr inline bool is_unsigned_integer = unsigned_integer<Type>;
-
-	template<typename Type>
-	constexpr inline bool is_integer = integer<Type>;
-
-}

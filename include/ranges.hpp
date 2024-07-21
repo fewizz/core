@@ -5,6 +5,7 @@
 #include "./__ranges/concat_view.hpp"
 #include "./__ranges/transform_view.hpp"
 #include "./tuple.hpp"
+#include "./forward.hpp"
 
 template<basic_range... Ranges>
 struct ranges {
@@ -13,7 +14,7 @@ private:
 public:
 
 	constexpr ranges(Ranges&&... ranges) :
-		ranges_{ forward<Ranges>(ranges)... }
+		ranges_{ ::forward<Ranges>(ranges)... }
 	{}
 
 	constexpr bool have_equal_size_and_elements() const {
@@ -22,26 +23,12 @@ public:
 		});
 	}
 
-	constexpr auto concat_view() const & {
-		return ranges_.pass([](const Ranges&... ranges) {
-			return __ranges::concat_view{ ranges... };
-		});
-	}
-	constexpr auto concat_view() & {
-		return ranges_.pass([](      Ranges&... ranges) {
-			return __ranges::concat_view{ ranges... };
-		});
-	}
-
-	constexpr auto concat_view() const && {
-		return ranges_.forward([](const Ranges&&... ranges) {
-			return __ranges::concat_view{ forward<Ranges>(ranges)... };
-		});
-	}
-	constexpr auto concat_view() && {
-		return ranges_.forward([](      Ranges&&... ranges) {
-			return __ranges::concat_view{ forward<Ranges>(ranges)... };
-		});
+	template<typename Self>
+	constexpr auto concat_view(this Self&& self) {
+		return (::forward<Self>(self).ranges_)
+			.pass([]<typename... _Ranges>(_Ranges&&... ranges) {
+				return __ranges::concat_view{ forward<_Ranges>(ranges)... };
+			});
 	}
 	
 	template<typename Function>

@@ -7,11 +7,7 @@
 #include "./__types/at_index.hpp"  // IWYU pragma: export
 #include "./__types/at_indices.hpp"  // IWYU pragma: export
 #include "./__types/common.hpp"  // IWYU pragma: export
-#include "./__types/contain_satisfying_predicate.hpp"  // IWYU pragma: export
 #include "./__types/count_of_satisfying_predicate.hpp"  // IWYU pragma: export
-#include "./__types/count_of_decayed_same_as.hpp"  // IWYU pragma: export
-#include "./__types/count_of_range_of.hpp"  // IWYU pragma: export
-#include "./__types/count_of_invokable_with.hpp"  // IWYU pragma: export
 #include "./__types/erase_at_index.hpp"  // IWYU pragma: export
 #include "./__types/first.hpp"  // IWYU pragma: export
 #include "./__types/index_of_satisfying_predicate.hpp"  // IWYU pragma: export
@@ -52,29 +48,9 @@ struct types : common_if_have<Types...> {
 	using at_indices = types<__type_pack_element<Indices, Types...>...>;
 
 	template</*type_predicate*/ auto Predicate>
-	static constexpr nuint count_of_satisfying_predicate
+	static constexpr nuint count_of
 		= ::count_of_satisfying_predicate<Predicate>.template
 		for_types<Types...>;
-
-	template<typename Type>
-	static constexpr nuint count_of_same_as
-		= count_of_satisfying_predicate<is_same_as<Type>>;
-
-	template<typename Type>
-	static constexpr nuint count_of_decayed_same_as
-		= count_of_satisfying_predicate<is_same_as<Type>.while_decayed>;
-
-	template<typename Type>
-	static constexpr nuint count_of_range_of
-		= count_of_satisfying_predicate<is_range_of<Type>>;
-
-	template<typename Type>
-	static constexpr nuint count_of_range_of_decayed
-		= count_of_satisfying_predicate<is_range_of_decayed<Type>>;
-
-	template<typename... Args>
-	static constexpr nuint count_of_invokable_with
-		= count_of_satisfying_predicate<is_invokable_with<Args...>>;
 
 	template<nuint Index>
 	using erase_at_index = typename

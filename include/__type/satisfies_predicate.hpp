@@ -1,6 +1,6 @@
 #pragma once
 
-#include "./predicate.hpp"
+#include "./predicate_extensions.hpp"
 #include "./decay.hpp"
 
 template<type_predicate auto Predicate>

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "./of.hpp"
-#include "../integer.hpp"
+#include "../__integer/integer.hpp"
 #include "../__values/contain_equal_to.hpp"
 
 namespace __types {

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "./of.hpp"
-#include "../integer.hpp"
+#include "../__integer/integer.hpp"
 #include "../__value/predicate.hpp"
 
 namespace __values {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../integer.hpp"
+#include "../__integer/integer.hpp"
 
 namespace __values {
 

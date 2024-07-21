@@ -1,6 +1,6 @@
 #pragma once
 
-#include "./predicate.hpp"
+#include "./predicate_extensions.hpp"
 #include "./is_array.hpp"
 
 struct is_array : type_predicate_extension<is_array> {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "predicate.hpp"
+#include "predicate_extensions.hpp"
 
 template<typename Type, typename WhatToAssign>
 concept assignable = __is_assignable(Type, WhatToAssign);

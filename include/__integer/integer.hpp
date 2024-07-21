@@ -1,8 +1,6 @@
 #pragma once
 
 #include "atom.hpp"
-#include "../if_satisfies.hpp"
-#include "../__type/is_same_as.hpp"
 
 namespace __integer {
 
