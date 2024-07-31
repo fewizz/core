@@ -16,7 +16,7 @@ concept range_of_element_type_satisfying_predicate =
 	Predicate.template for_type<range_element_type<Range>>();
 
 
-template<auto Predicate>
+template<type_predicate auto Predicate>
 struct is_range_of_element_type_satisfying_predicate_t:
 	type_predicate_extension<is_range_of_element_type_satisfying_predicate_t<Predicate>>
 {
@@ -31,11 +31,11 @@ struct is_range_of_element_type_satisfying_predicate_t:
 	constexpr bool for_type() const { return true; }
 };
 
-template<auto Predicate>
+template<type_predicate auto Predicate>
 inline constexpr is_range_of_element_type_satisfying_predicate_t<Predicate> is_range_of_element_type_satisfying_predicate{};
 
 
-template<auto Predicate>
+template<type_predicate auto Predicate>
 inline constexpr is_range_of_element_type_satisfying_predicate_t<Predicate> is_range_of{};
 
 

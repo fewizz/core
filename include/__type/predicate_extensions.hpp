@@ -10,7 +10,9 @@ namespace __type {
 
 	template<type_predicate auto A, type_predicate auto B>
 	struct predicates_conjunction : type_predicate_extension<predicates_conjunction<A, B>> {
-
+		constexpr type_predicate auto affecting_predicate() const {
+			return A || B;
+		}
 		template<typename Type>
 		constexpr bool for_type() const {
 			return A.template for_type<Type>() && B.template for_type<Type>();
@@ -19,22 +21,21 @@ namespace __type {
 
 	template<type_predicate auto A, type_predicate auto B>
 	struct predicates_disjunction : type_predicate_extension<predicates_disjunction<A, B>> {
-
+		constexpr type_predicate auto affecting_predicate() const {
+			return A || B;
+		}
 		template<typename Type>
 		constexpr bool for_type() const {
-			return B.template for_type<Type>() || B.template for_type<Type>();
+			return A.template for_type<Type>() || B.template for_type<Type>();
 		}
-
 	};
 
 	template<type_predicate auto Predicate>
 	struct predicate_negation : type_predicate_extension<predicate_negation<Predicate>> {
-
 		template<typename Type>
 		constexpr bool for_type() const {
 			return ! Predicate.template for_type<Type>();
 		}
-
 	};
 
 }
@@ -44,7 +45,7 @@ namespace __type {
 
 
 template<typename Derived>
-struct type_predicate_extension_base : type_predicate_marker {
+struct type_predicate_extension_base : type_predicate_mark {
 
 	constexpr auto operator && (this auto self, type_predicate auto other) {
 		return __type::predicates_conjunction<self, other>{};

@@ -2,7 +2,7 @@
 
 #include "./predicate.hpp"
 
-struct are_same : types_predicate_marker {
+struct are_same : types_predicate_mark {
 
 	template<typename HeadType, typename... RemainingTypes>
 	constexpr bool for_types() const {

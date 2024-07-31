@@ -1,9 +1,9 @@
 #pragma once
 
 #include "./predicate.hpp"
+#include "./predicate_extensions.hpp"
 #include "./indices_of_satisfying_predicate.hpp"
 #include "../__type/predicate.hpp"
-#include "../__type/modifier.hpp"
 #include "../__type/decay.hpp"
 
 
@@ -14,10 +14,12 @@ struct count_of_satisfying_predicate_t {
 	static constexpr nuint for_types
 		= (nuint(Predicate.template for_type<Types>()) + ... + 0);
 
-	struct less_than : types_predicate_marker {
+	struct less_than : types_predicate_extension<less_than> {
 		nuint n;
 
-		static constexpr auto affecting_predicate = Predicate;
+		constexpr type_predicate auto affecting_predicate() const {
+			return Predicate;
+		}
 
 		template<typename... Types>
 		using indices_of_affected_types = typename
@@ -36,10 +38,12 @@ struct count_of_satisfying_predicate_t {
 		return less_than{ .n = n };
 	}
 
-	struct greater_than : types_predicate_marker {
+	struct greater_than : types_predicate_extension<greater_than> {
 		nuint n;
 
-		static constexpr auto affecting_predicate = Predicate;
+		constexpr type_predicate auto affecting_predicate() const {
+			return Predicate;
+		}
 
 		template<typename... Types>
 		using indices_of_affected_types = typename
@@ -58,10 +62,12 @@ struct count_of_satisfying_predicate_t {
 		return greater_than{ .n = n };
 	}
 
-	struct less_than_or_equals_to : types_predicate_marker {
+	struct less_than_or_equals_to : types_predicate_extension<less_than_or_equals_to> {
 		nuint n;
 
-		static constexpr auto affecting_predicate = Predicate;
+		constexpr type_predicate auto affecting_predicate() const {
+			return Predicate;
+		}
 
 		template<typename... Types>
 		using indices_of_affected_types = typename
@@ -80,10 +86,12 @@ struct count_of_satisfying_predicate_t {
 		return less_than_or_equals_to{ .n = n };
 	}
 
-	struct greater_than_or_equals_to : types_predicate_marker {
+	struct greater_than_or_equals_to : types_predicate_extension<greater_than_or_equals_to> {
 		nuint n;
 
-		static constexpr auto affecting_predicate = Predicate;
+		constexpr type_predicate auto affecting_predicate() const {
+			return Predicate;
+		}
 
 		template<typename... Types>
 		using indices_of_affected_types = typename
@@ -102,10 +110,12 @@ struct count_of_satisfying_predicate_t {
 		return greater_than_or_equals_to{ .n = n };
 	}
 
-	struct equals_to : types_predicate_marker {
+	struct equals_to : types_predicate_extension<equals_to> {
 		nuint n;
 
-		static constexpr auto affecting_predicate = Predicate;
+		constexpr type_predicate auto affecting_predicate() const {
+			return Predicate;
+		}
 
 		template<typename... Types>
 		using indices_of_affected_types = typename

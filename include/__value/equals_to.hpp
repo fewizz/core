@@ -3,7 +3,7 @@
 #include "./predicate.hpp"
 
 template<auto Value>
-struct equals_to_t : value_predicate_marker {
+struct equals_to_t : value_predicate_mark {
 
 	template<auto EqualValue>
 	constexpr bool for_value() const {

@@ -2,7 +2,7 @@
 
 #include "./without_extensions.hpp"
 #include "../range.hpp"
-#include "./__type/is_constructible_from.hpp"
+#include "../__type/is_constructible_from.hpp"
 
 template<typename Type, nuint Size>
 struct array :

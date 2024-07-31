@@ -29,14 +29,14 @@ struct common_if_have<Types...> {
 template<typename... Types>
 struct types : common_if_have<Types...> {
 
-	template</*types_predicate*/ auto... Predicates>
+	template<types_predicate auto... Predicates>
 	static constexpr bool exclusively_satisfy_predicates =
 		__types::exclusively_satisfy_predicates<Predicates...>::template
 		for_types<Types...>;
 
 	static constexpr bool are_same = types_are_same<Types...>;
 
-	template</*types_predicate*/ auto... Predicates>
+	template<types_predicate auto... Predicates>
 	static constexpr bool satisfy_predicates =
 		__types::satisfy_predicates<Predicates...>::template
 		for_types<Types...>;
@@ -47,7 +47,7 @@ struct types : common_if_have<Types...> {
 	template<nuint... Indices>
 	using at_indices = types<__type_pack_element<Indices, Types...>...>;
 
-	template</*type_predicate*/ auto Predicate>
+	template<type_predicate auto Predicate>
 	static constexpr nuint count_of
 		= ::count_of_satisfying_predicate<Predicate>.template
 		for_types<Types...>;
