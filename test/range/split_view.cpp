@@ -2,6 +2,7 @@
 #include <__range/split_view.hpp>
 #include <c_string.hpp>
 
+
 consteval bool f() {
 	array a{ 0, 3, 3, 1, 2, 1, 1, 0, 1, 1, 1 };
 

@@ -2,7 +2,8 @@
 
 #include "./basic.hpp"
 #include "./contains.hpp"
-#include "./of_element_type_same_as.hpp"
+#include "./element_type.hpp"
+#include "./of_element_type_satisfying_predicate.hpp"
 #include "./default_sentinel.hpp"
 #include "../__iterator_and_sentinel/as_range.hpp"
 #include "../__iterator/sentinel.hpp"
@@ -103,7 +104,9 @@ public:
 
 template<
 	basic_range Range,
-	range_of_decayed<decay<range_element_type<Range>>> SplittersRange
+	range_of<
+		is_same_as<decay<range_element_type<Range>>>.decayed
+	> SplittersRange
 >
 struct split_view :
 	range_element_index_type_mark<nuint>,
@@ -141,7 +144,9 @@ public:
 
 template<
 	basic_range Range,
-	range_of<decay<range_element_type<Range>>> SplittersRange
+	range_of<
+		is_same_as<decay<range_element_type<Range>>>.decayed
+	> SplittersRange
 >
 split_view(Range&&, SplittersRange&&) -> split_view<Range, SplittersRange>;
 

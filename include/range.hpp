@@ -2,7 +2,6 @@
 
 #include "./__range/extensions_implementation.hpp"  // IWYU pragma: export
 #include "./__range/contiguous.hpp"  // IWYU pragma: export
-#include "./__range/of_element_type_same_as.hpp"  // IWYU pragma: export
 #include "./__range/of_element_type_satisfying_predicate.hpp"  // IWYU pragma: export
 #include "./__range/element_type.hpp"  // IWYU pragma: export
 #include "./__range/size_type.hpp"  // IWYU pragma: export

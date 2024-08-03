@@ -94,6 +94,20 @@ public:
 	template<auto Predicate>
 	using get = _get<Predicate>::result;
 
+	template<auto Predicate, typename Fallback>
+	struct _get_or {
+		using result = Fallback;
+	};
+
+	template<auto Predicate, typename Fallback>
+	requires ((Predicate == 1).template for_types<Types...>())
+	struct _get_or<Predicate, Fallback> {
+		using result = types::get<Predicate>;
+	};
+
+	template<auto Predicate, typename Fallback>
+	using get_or = _get_or<Predicate, Fallback>::result;
+
 	template<typename Predicate, typename Handler, typename DefaultHandler>
 	decltype(auto) static inline
 	constexpr view_first_satisfying_predicate_or_default(
