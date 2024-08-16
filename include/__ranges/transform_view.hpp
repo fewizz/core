@@ -79,6 +79,7 @@ struct _none{};
 template<typename Function, basic_range Range>
 class transform_view_t<Function, Range> :
 	public range_extensions<transform_view_t<Function, Range>>,
+	public range_element_index_type_mark<range_element_index_type<Range>>,
 	public borrowed_range_mark<borrowed_range<Range>>
 {
 	Range range_;

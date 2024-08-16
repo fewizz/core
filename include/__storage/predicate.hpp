@@ -3,7 +3,7 @@
 #include "../__type/predicate.hpp"
 #include "./storage.hpp"
 
-constexpr inline struct is_storage_t : type_predicate_extension<is_storage_t> {
+constexpr inline struct is_storage_t : type_predicate_extensions<is_storage_t> {
 
 	template<typename Type>
 	struct for_non_ref_non_qualified_type_t {
@@ -25,7 +25,7 @@ constexpr inline struct is_storage_t : type_predicate_extension<is_storage_t> {
 } is_storage{};
 
 constexpr inline struct is_storage_of_specified_size_and_alignment_t
-	: type_predicate_extension<is_storage_of_specified_size_and_alignment_t>
+	: type_predicate_extensions<is_storage_of_specified_size_and_alignment_t>
 {
 
 	template<typename Type>

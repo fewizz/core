@@ -5,7 +5,7 @@
 
 
 struct is_basic_range_t :
-	type_predicate_extension<is_basic_range_t>
+	type_predicate_extensions<is_basic_range_t>
 {
 
 	template<typename Type>

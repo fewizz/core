@@ -22,7 +22,7 @@ concept borrowed_range = basic_range<Type> && (
 );
 
 static constexpr struct is_borrowed_range_t :
-	type_predicate_extension<is_borrowed_range_t>
+	type_predicate_extensions<is_borrowed_range_t>
 {
 	template<typename Type>
 	constexpr bool for_type() const {

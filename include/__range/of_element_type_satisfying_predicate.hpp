@@ -12,7 +12,7 @@ concept range_of =
 
 template<type_predicate auto Predicate>
 struct is_range_of_t:
-	type_predicate_extension<is_range_of_t<Predicate>>
+	type_predicate_extensions<is_range_of_t<Predicate>>
 {
 	template<typename Type>
 	constexpr bool for_type() const { return false; }

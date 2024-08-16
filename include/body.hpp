@@ -35,7 +35,8 @@ public:
 		}
 	}
 
-	handle<Type> handle() const { return soul_handle_; }
+	::handle<Type> handle() const { return soul_handle_; }
+	explicit operator ::handle<Type> () const { return soul_handle_; }
 
 	const ::handle<Type>* operator -> () const { return &soul_handle_; }
 	      ::handle<Type>* operator -> ()       { return &soul_handle_; }

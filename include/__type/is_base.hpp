@@ -7,7 +7,7 @@ concept base_of = __is_base_of(Type, DerivedType);
 
 template<typename Type>
 struct is_base_of_t :
-	type_predicate_extension<is_base_of_t<Type>>
+	type_predicate_extensions<is_base_of_t<Type>>
 {
 	template<typename DerivedType>
 	constexpr bool for_type() const {

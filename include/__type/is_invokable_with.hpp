@@ -16,7 +16,7 @@ namespace __type {
 
 template<typename... Args>
 struct is_invokable_with_t :
-	type_predicate_extension<is_invokable_with_t<Args...>>
+	type_predicate_extensions<is_invokable_with_t<Args...>>
 {
 
 	template<typename Type>

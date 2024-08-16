@@ -6,7 +6,7 @@ static_assert(same_as<
 	int
 >);
 
-struct any : type_predicate_extension<any> {
+struct any : type_predicate_extensions<any> {
 
 	template<typename Type>
 	constexpr bool for_type() const {

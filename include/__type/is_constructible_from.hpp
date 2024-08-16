@@ -7,7 +7,7 @@ concept constructible_from = __is_constructible(Type, Args...);
 
 template<typename... Args>
 struct is_constructible_from_t :
-	type_predicate_extension<is_constructible_from_t<Args...>>
+	type_predicate_extensions<is_constructible_from_t<Args...>>
 {
 
 	template<typename Type>

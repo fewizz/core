@@ -21,7 +21,7 @@ concept not_same_as = !same_as<Type, OtherType>;
 
 
 template<typename Type>
-struct is_same_as_t : type_predicate_extension<is_same_as_t<Type>> {
+struct is_same_as_t : type_predicate_extensions<is_same_as_t<Type>> {
 
 	template<typename ThisType>
 	constexpr bool for_type() const {

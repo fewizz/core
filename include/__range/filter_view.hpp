@@ -33,8 +33,9 @@ public:
 		skip();
 	}
 
-	constexpr decltype(auto) operator * () const { return *iterator_; }
-	constexpr decltype(auto) operator * ()       { return *iterator_; }
+	constexpr decltype(auto) operator * (this auto&& self) {
+		return *(self.iterator_);
+	}
 
 	constexpr filter_view_iterator& operator ++ () {
 		++iterator_;
@@ -52,7 +53,10 @@ public:
 };
 
 template<basic_range Range, typename Predicate>
-class filter_view : public range_extensions<filter_view<Range, Predicate>> {
+class filter_view :
+	public range_extensions<filter_view<Range, Predicate>>,
+	public range_element_index_type_mark<range_element_index_type<Range>>
+{
 	Range range_;
 	Predicate predicate_;
 public:
@@ -62,19 +66,15 @@ public:
 		predicate_{ forward<Predicate>(predicate) }
 	{}
 
-	constexpr auto iterator() const {
+	constexpr auto iterator(this auto&& self) {
 		return filter_view_iterator {
-			range_iterator(range_), range_sentinel(range_), predicate_
-		};
-	}
-	constexpr auto iterator()       {
-		return filter_view_iterator {
-			range_iterator(range_), range_sentinel(range_), predicate_
+			range_iterator(self.range_),
+			range_sentinel(self.range_),
+			self.predicate_
 		};
 	}
 
 	constexpr default_sentinel sentinel() const { return {}; }
-	constexpr default_sentinel sentinel()       { return {}; }
 
 };
 

@@ -9,6 +9,7 @@
 #include "./__type/is_basic_range.hpp"  // IWYU pragma: export
 #include "./__type/is_const.hpp"  // IWYU pragma: export
 #include "./__type/is_constructible_from.hpp"  // IWYU pragma: export
+#include "./__type/is_convertible_to.hpp"  // IWYU pragma: export
 #include "./__type/is_derived_from.hpp"  // IWYU pragma: export
 #include "./__type/is_enum.hpp"  // IWYU pragma: export
 #include "./__type/is_function.hpp"  // IWYU pragma: export

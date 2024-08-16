@@ -10,7 +10,7 @@ concept list_constructible_from = requires (Args&&... args) {
 
 template<typename... Args>
 struct is_list_constructible_from_t :
-	type_predicate_extension<is_list_constructible_from_t<Args...>>
+	type_predicate_extensions<is_list_constructible_from_t<Args...>>
 {
 
 	template<typename Type>
