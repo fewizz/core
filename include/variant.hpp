@@ -155,7 +155,8 @@ public:
 	}
 
 	// copy constructor
-	constexpr variant(const variant& other) :
+	constexpr variant(const variant& other)
+	requires (constructible_from<Types, const Types&> && ...) :
 		current_ { other.current_ }
 	{
 		other.view_index([&]<nuint Index> {
@@ -164,7 +165,8 @@ public:
 	}
 
 	// move constructor
-	constexpr variant(variant&& other) :
+	constexpr variant(variant&& other)
+	requires (constructible_from<Types, Types&&> && ...) :
 		current_ { other.current_ }
 	{
 		other.view_index([&]<nuint Index> {

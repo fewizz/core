@@ -35,6 +35,10 @@ struct c_string_view :
 	operator c_string<Type> () const {
 		return { this->ptr_ };
 	}
+
+	auto sized() const {
+		return *this; // TODO should i keep this?
+	}
 };
 
 template<typename Type>

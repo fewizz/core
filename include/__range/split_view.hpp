@@ -16,7 +16,9 @@ template<
 	sentinel_for<Iterator> Sentinel,
 	basic_range SplittersRange
 >
-struct split_view_iterator {
+struct split_view_iterator :
+	range_extensions<split_view_iterator<Iterator, Sentinel, SplittersRange>>
+{
 private:
 	Iterator iterator_;
 	Iterator iterator_end_;
@@ -45,6 +47,9 @@ private:
 		}
 	}
 public:
+
+	constexpr auto iterator() { return *this; }
+	constexpr auto sentinel() { return default_sentinel{}; }
 
 	constexpr split_view_iterator(
 		Iterator iterator,

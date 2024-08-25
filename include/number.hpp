@@ -3,6 +3,8 @@
 #include "./type.hpp"
 #include "./types.hpp"
 
+inline constexpr double pi = 3.141592653589793238462643383279502;
+
 class number_base {
 	const nuint value_;
 public:

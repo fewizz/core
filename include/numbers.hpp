@@ -33,6 +33,13 @@ struct numbers : array<Type, Size> {
 		}
 		return result;
 	}
+
+	constexpr auto mix(float a) const requires (Size == 2) {
+		auto x = (*this)[0];
+		auto y = (*this)[1];
+		return x + (y - x) * a;
+	}
+
 };
 
 template<typename... Types>
