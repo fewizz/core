@@ -58,4 +58,11 @@ static_assert(
 	>
 );
 
-int main() {}
+int main() {
+
+	class a{};
+	class b{};
+
+	auto r = tuple{a{}, b{}}.get_or<is_same_as<a>>([]{ return b{}; });
+	static_assert(same_as<decltype(r), a>);
+}

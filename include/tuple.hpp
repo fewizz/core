@@ -82,8 +82,7 @@ struct tuple<indices::of<Indices...>, Types...> :
 	template<type_predicate auto TypePredicate, typename Self, typename Handler>
 	constexpr decltype(auto) get_or(this Self&& self, Handler&& handler) {
 		if constexpr ((TypePredicate == 1).template for_types<Types...>()) {
-			return ::forward<Self>(self) .template
-				get<TypePredicate>();
+			return ::forward<Self>(self).template get<TypePredicate>();
 		}
 		else {
 			return handler();
