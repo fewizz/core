@@ -24,6 +24,15 @@ public:
 
 	explicit operator bool () const { return has_value(); }
 
+	template<typename Self, typename Handler>
+	requires (sizeof...(Types) == 1)
+	decltype(auto) get_or(this Self&& self, Handler&& handler) {
+		if (self.has_value()) {
+			return forward<Self>(self).get();
+		}
+		return handler();
+	}
+
 	template<typename Handler, typename Self>
 	copy_const_ref<Self, Derived> if_has_no_value(
 		this Self&& self, Handler&& handler
@@ -38,7 +47,6 @@ public:
 	copy_const_ref<Self, first> get(this Self&& self) requires single {
 		return forward<Self>(self).derived().get();
 	}
-
 
 	const remove_reference<first>*
 	operator -> () const & requires single { return &get(); }

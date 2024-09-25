@@ -49,6 +49,10 @@ public:
 		return one_of.index() == expected_index;
 	}
 
+	constexpr explicit operator bool () const {
+		return is_expected();
+	}
+
 	template<typename Self>
 	constexpr decltype(auto) get_unexpected(this Self&& self) {
 		return (forward<Self>(self).one_of).template get_at<unexpected_index>();
