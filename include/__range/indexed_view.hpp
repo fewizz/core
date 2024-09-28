@@ -6,6 +6,7 @@
 #include "./element_index_type.hpp"
 #include "../forward.hpp"
 #include "../tuple.hpp"
+#include "../__iterator/random_access.hpp"
 
 namespace __range {
 
@@ -36,12 +37,45 @@ class indexed_view : public range_extensions<indexed_view<Range>> {
 			++iterator_; ++index_;
 			return *this;
 		}
+		constexpr auto& operator -- () {
+			--iterator_; --index_;
+			return *this;
+		}
+
+		constexpr auto& operator += (auto n) {
+			iterator_ += n; index_ += n;
+			return *this;
+		}
+		constexpr auto operator + (auto n) {
+			auto copy = *this;
+			copy += n;
+			return copy;
+		}
+
+		constexpr auto& operator -= (integer auto n) {
+			iterator_ -= n; index_ -= n;
+			return *this;
+		}
+		constexpr auto operator - (integer auto n) {
+			auto copy = *this;
+			copy -= n;
+			return copy;
+		}
 
 		friend constexpr bool operator == (indexed_iterator self, sentinel_t sentinel) {
 			return self.iterator_ == sentinel;
 		}
 		friend constexpr bool operator == (sentinel_t sentinel, indexed_iterator self) {
 			return self.iterator_ == sentinel;
+		}
+		friend constexpr bool operator == (indexed_iterator a, indexed_iterator b) {
+			return a.iterator_ == b.iterator_;
+		}
+		friend constexpr auto operator - (indexed_iterator a, indexed_iterator b) {
+			return a.index_ - b.index_;
+		}
+		friend constexpr auto operator - (sentinel_t s, indexed_iterator i) {
+			return s - i.iterator_;
 		}
 	};
 

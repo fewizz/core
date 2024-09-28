@@ -80,8 +80,9 @@ template<typename Derived>
 constexpr auto range_extensions<Derived>::reverse_view(
 	this auto&& self
 ) {
-	return __range::reverse_view {
-		(copy_const_ref<decltype(self), Derived>&&) self
+	using T = copy_const_ref<decltype(self), Derived>&&;
+	return __range::reverse_view<T> {
+		(T) self
 	};
 }
 
